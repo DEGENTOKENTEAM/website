@@ -6,7 +6,8 @@
   min-height: 100%;
 }
 
-.MuiScopedCssBaseline-root, .MuiInputBase-root {
+.MuiScopedCssBaseline-root,
+.MuiInputBase-root {
   background-color: transparent !important;
 }
 
@@ -16,4 +17,12 @@
 
 .MuiBadge-root .MuiBox-root {
   background-color: #333 !important;
+}
+
+td .wallet-adapter-button,
+td .wallet-adapter-button-trigger {
+  @apply flex h-auto items-center justify-center gap-2 rounded-lg border border-solid p-2 font-display font-normal leading-6 dark:border-activeblue dark:bg-darkblue dark:text-light-200 dark:hover:bg-activeblue !important;
+}
+td .wallet-adapter-button-start-icon {
+  @apply m-0 h-4 w-4 !important;
 }

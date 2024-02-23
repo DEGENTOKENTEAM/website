@@ -1,59 +1,211 @@
+import bs58 from 'bs58'
 import { ConnectKitButton } from 'connectkit'
-import { useEffect, useState } from 'react'
+import { FC, useCallback, useEffect, useMemo, useState } from 'react'
 import { IoShieldCheckmarkOutline } from 'react-icons/io5'
 import { PiPlugsConnected } from 'react-icons/pi'
 import { VscDebugDisconnect } from 'react-icons/vsc'
 import { useParams } from 'react-router-dom'
 import { ToastContainer, toast } from 'react-toastify'
 import { useSignMessage } from 'wagmi'
+
+// SOLANA
+import { Adapter, WalletError } from '@solana/wallet-adapter-base'
+import {
+    ConnectionProvider,
+    WalletProvider,
+    useWallet,
+} from '@solana/wallet-adapter-react'
+import {
+    WalletModalProvider,
+    WalletMultiButton,
+} from '@solana/wallet-adapter-react-ui'
+import '@solana/wallet-adapter-react-ui/styles.css'
+import {
+    PhantomWalletAdapter,
+    SolflareWalletAdapter,
+} from '@solana/wallet-adapter-wallets'
+
+// CUSTOM
 import { visualAddress } from '../../helpers/address'
 import { useFinishVerification } from '../../hooks/bouncer/useFinishVerification'
 import { useGetVerificationData } from '../../hooks/bouncer/useGetVerificationData'
+import { useVerifyWallet } from '../../hooks/bouncer/useVerifyWallet'
 import { Button } from '../Button'
 import { Spinner } from './elements/Spinner'
 
-const VerifyButton = (props: {
+type VerifyButtonSolanaProps = {
+    keyToVerify: string
+    addressToVerify: string
+    messageToVerify: string
+    onVerificationStatusUpdate: () => void
+}
+
+const VerifyButtonSolana: FC<VerifyButtonSolanaProps> = (props) => {
+    const {
+        keyToVerify,
+        addressToVerify,
+        messageToVerify,
+        onVerificationStatusUpdate,
+    } = props
+    const [isLoading, setIsLoading] = useState(false)
+    const [signMessageData, setSignMessageData] = useState(null)
+    const { wallet, connected, publicKey, signMessage } = useWallet()
+
+    const {
+        error: errorVerifyWallet,
+        isLoading: isLoadingVerifyWallet,
+        request: requestVerifyWallet,
+        response: responseVerifyWallet,
+    } = useVerifyWallet()
+
+    const verify = () => {
+        setIsLoading(true)
+        signMessage(new TextEncoder().encode(messageToVerify))
+            .then((res: Uint8Array) => {
+                setSignMessageData(bs58.encode(res))
+            })
+            .catch((e) => {
+                console.log({ e })
+                toast.error(`Signing request canceled`)
+                setIsLoading(false)
+            })
+    }
+
+    useEffect(() => {
+        if (
+            !signMessageData ||
+            !keyToVerify ||
+            !addressToVerify ||
+            !requestVerifyWallet
+        )
+            return
+        requestVerifyWallet &&
+            requestVerifyWallet({
+                keyToVerify,
+                addressToVerify,
+                signMessageData: signMessageData,
+            })
+    }, [addressToVerify, keyToVerify, signMessageData, requestVerifyWallet])
+
+    useEffect(() => {
+        setSignMessageData(null)
+        if (errorVerifyWallet) {
+            toast.error(errorVerifyWallet)
+            setIsLoading(false)
+        }
+        if (responseVerifyWallet) {
+            onVerificationStatusUpdate()
+            setIsLoading(false)
+        }
+    }, [
+        onVerificationStatusUpdate,
+        setSignMessageData,
+        responseVerifyWallet,
+        errorVerifyWallet,
+    ])
+
+    if (!connected)
+        return (
+            <WalletMultiButton>
+                {wallet ? '' : <VscDebugDisconnect className="inline-block" />}{' '}
+                Connect wallet to verify
+            </WalletMultiButton>
+        )
+
+    if (connected && addressToVerify === publicKey.toBase58()) {
+        return (
+            <button
+                onClick={verify}
+                disabled={isLoading}
+                className="flex items-center justify-center gap-2 rounded-lg border p-2 dark:border-activeblue dark:bg-darkblue dark:text-light-200 dark:hover:bg-activeblue"
+            >
+                {isLoading || isLoadingVerifyWallet ? (
+                    <Spinner theme="dark" />
+                ) : (
+                    <>
+                        <PiPlugsConnected className="inline-block" /> Verify now
+                    </>
+                )}
+            </button>
+        )
+    } else {
+        return (
+            <div className="flex items-center justify-center gap-2">
+                <VscDebugDisconnect className="inline-block" /> Change wallet to
+                verify
+            </div>
+        )
+    }
+}
+
+const VerifyButtonSolanaContext: FC<VerifyButtonSolanaProps> = (props) => {
+    const onError = useCallback((error: WalletError, adapter?: Adapter) => {
+        toast.error(
+            error.message ? `${error.name}: ${error.message}` : error.name
+        )
+        console.error(error, adapter)
+    }, [])
+    const wallets = useMemo(
+        () => [new PhantomWalletAdapter(), new SolflareWalletAdapter()],
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+        []
+    )
+    return (
+        <ConnectionProvider endpoint={process.env.NEXT_PUBLIC_RPC_SOLANA}>
+            <WalletProvider wallets={wallets} onError={onError}>
+                <WalletModalProvider>
+                    <VerifyButtonSolana {...props} />
+                </WalletModalProvider>
+            </WalletProvider>
+        </ConnectionProvider>
+    )
+}
+
+const VerifyButtonEVM = (props: {
     keyToVerify: string
     addressToVerify: string
     messageToVerify: string
     onVerificationStatusUpdate: () => void
 }) => {
-    const [verificationLoading, setVerificationLoading] = useState(false)
+    const { keyToVerify, addressToVerify, onVerificationStatusUpdate } = props
+    const [isLoading, setIsLoading] = useState(false)
     const {
         data: signMessageData,
-        error,
-        isLoading,
+        isLoading: isLoadingSigneMessage,
         reset,
         signMessage,
-        variables,
     } = useSignMessage()
 
+    const {
+        error,
+        isLoading: isLoadingVerifyWallet,
+        request,
+        response,
+    } = useVerifyWallet()
+
     const verify = () => {
+        setIsLoading(true)
         signMessage({ message: props.messageToVerify })
     }
 
     useEffect(() => {
-        if (!signMessageData) return
-        setVerificationLoading(true)
-        fetch(process.env.NEXT_PUBLIC_BOUNCER_VERIFY_WALLET, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                key: props.keyToVerify,
-                wallet: props.addressToVerify,
-                signature: signMessageData,
-            }),
-        })
-            .then((res) => res.json())
-            .then((res) => {
-                reset()
-                setVerificationLoading(false)
-                if (res.status === 'error') return false
-                props.onVerificationStatusUpdate()
-            })
-    }, [signMessageData])
+        if (!signMessageData || !keyToVerify || !addressToVerify || !request)
+            return
+
+        request({ keyToVerify, addressToVerify, signMessageData })
+    }, [keyToVerify, addressToVerify, signMessageData, request])
+
+    useEffect(() => {
+        reset()
+        if (error) {
+            toast.error(error)
+            setIsLoading(false)
+        }
+        if (response) {
+            onVerificationStatusUpdate()
+            setIsLoading(false)
+        }
+    }, [error, response, setIsLoading, reset, onVerificationStatusUpdate])
 
     return (
         <ConnectKitButton.Custom>
@@ -81,10 +233,12 @@ const VerifyButton = (props: {
                     return (
                         <button
                             onClick={verify}
-                            disabled={isLoading}
+                            disabled={isLoadingSigneMessage}
                             className="flex items-center justify-center gap-2 rounded-lg border p-2 dark:border-activeblue dark:bg-darkblue dark:text-light-200 dark:hover:bg-activeblue"
                         >
-                            {isLoading || verificationLoading ? (
+                            {isLoading ||
+                            isLoadingSigneMessage ||
+                            isLoadingVerifyWallet ? (
                                 <Spinner theme="dark" />
                             ) : (
                                 <>
@@ -109,8 +263,10 @@ const VerifyButton = (props: {
 
 export const Bouncer = () => {
     const { hash } = useParams()
+
     const [verificationData, reloadVerificationData] =
         useGetVerificationData(hash)
+
     const {
         request: finishVerification,
         response,
@@ -121,14 +277,16 @@ export const Bouncer = () => {
     const canFinishVerification = !verificationData?.data?.items?.find(
         (item) => !item.verified
     )
+
     const onVerificationStatusUpdate = () => {
         reloadVerificationData()
     }
+
     useEffect(() => {
+        if (error || response) reloadVerificationData()
         if (error) toast.error(error.message, { autoClose: 5000 })
         if (response) toast.success(response.message, { autoClose: 5000 })
-        reloadVerificationData()
-    }, [response, error])
+    }, [response, error, reloadVerificationData])
 
     return (
         <div>
@@ -182,10 +340,10 @@ export const Bouncer = () => {
                             <tbody>
                                 {verificationData.data.items?.map((item, k) => (
                                     <tr key={item.wallet}>
-                                        <td className="whitespace-nowrap border-2 border-l-0 border-r-0 border-t-0 border-activeblue p-4 px-6 text-left align-middle">
+                                        <td className="h-[76px] whitespace-nowrap border-2 border-l-0 border-r-0 border-t-0 border-activeblue p-4 px-6 text-left align-middle">
                                             {visualAddress(item.wallet)}
                                         </td>
-                                        <td className="whitespace-nowrap border-2 border-l-0 border-r-0 border-t-0 border-activeblue p-4 px-6 text-right align-middle">
+                                        <td className="h-[76px] whitespace-nowrap border-2 border-l-0 border-r-0 border-t-0 border-activeblue p-4 px-6 text-right align-middle">
                                             {item.amount.toLocaleString(
                                                 navigator.language,
                                                 {
@@ -194,15 +352,31 @@ export const Bouncer = () => {
                                                 }
                                             )}
                                         </td>
-                                        <td className="whitespace-nowrap border-2 border-l-0 border-r-0 border-t-0 border-activeblue p-4 px-6 text-center align-middle">
+                                        <td className="h-[76px] whitespace-nowrap border-2 border-l-0 border-r-0 border-t-0 border-activeblue p-4 px-6 text-center align-middle">
                                             <div className="flex justify-center">
                                                 {item.verified ? (
                                                     <div className="flex items-center justify-center gap-1 text-green-500">
                                                         <IoShieldCheckmarkOutline className="inline-block" />
                                                         Verified
                                                     </div>
+                                                ) : item.network === 'evm' ? (
+                                                    <VerifyButtonEVM
+                                                        onVerificationStatusUpdate={
+                                                            onVerificationStatusUpdate
+                                                        }
+                                                        keyToVerify={
+                                                            verificationData
+                                                                .data.key
+                                                        }
+                                                        addressToVerify={
+                                                            item.wallet
+                                                        }
+                                                        messageToVerify={
+                                                            item.verifyMessage
+                                                        }
+                                                    />
                                                 ) : (
-                                                    <VerifyButton
+                                                    <VerifyButtonSolanaContext
                                                         onVerificationStatusUpdate={
                                                             onVerificationStatusUpdate
                                                         }
@@ -291,7 +465,7 @@ export const Bouncer = () => {
                                                 Verified
                                             </div>
                                         ) : (
-                                            <VerifyButton
+                                            <VerifyButtonEVM
                                                 onVerificationStatusUpdate={
                                                     onVerificationStatusUpdate
                                                 }
