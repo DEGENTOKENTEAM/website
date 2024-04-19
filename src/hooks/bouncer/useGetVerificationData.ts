@@ -1,10 +1,11 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 
 export type GetVerificationDataResponseItem = {
     wallet: string
     verified: boolean
     verifyMessage: string
     amount: number
+    network: 'evm' | 'sol'
 }
 export type GetVerificationDataResponse = {
     status: string
@@ -22,18 +23,21 @@ export const useGetVerificationData = (
 ): [GetVerificationDataResponse, Function] => {
     const [data, setData] = useState<GetVerificationDataResponse>(null)
     useEffect(() => {
-        if (!hash) return
         loadData()
     }, [hash])
-    const loadData = () => {
+    const _loadData = async (_hash: string) => {
+        if (!_hash) return
         fetch(
             process.env.NEXT_PUBLIC_BOUNCER_VERIFICATION_DATA.replace(
                 '{hash}',
-                hash
+                _hash
             )
         )
             .then((res) => res.json())
             .then((res) => setData(res))
     }
+    const loadData = useCallback(() => {
+        _loadData(hash)
+    }, [])
     return [data, loadData]
 }

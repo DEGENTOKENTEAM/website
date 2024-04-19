@@ -11,7 +11,7 @@ const nextConfig = {
     ]
   },
   trailingSlash: true,
-  reactStrictMode: true,
+  reactStrictMode: process.env.USE_STRICT === 'true',
   experimental: {
     scrollRestoration: true,
   },
