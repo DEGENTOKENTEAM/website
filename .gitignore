@@ -27,10 +27,16 @@ yarn-error.log*
 
 # local env files
 .env*.local
+ipfs/.env
+
 
 # vercel
 .vercel
 
+# api
 api/.serverless
 api/.env
 api/.webpack
+
+# ipfs
+ipfs/local-data

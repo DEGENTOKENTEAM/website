@@ -21,6 +21,7 @@ custom:
     tableNames:
       dexscreenerPairCache: ${self:custom.serviceName}-dexscreenerPairCache
       dexscreenerTokenCache: ${self:custom.serviceName}-dexscreenerTokenCache
+      stakexCustomization: ${self:custom.serviceName}-stakexCustomization
     deletionPolicy:
       default: Retain
       dev: Retain
@@ -61,10 +62,12 @@ provider:
           Resource:
             - 'arn:aws:dynamodb:${self:provider.region}:*:table/${self:custom.ddb.tableNames.dexscreenerPairCache}*'
             - 'arn:aws:dynamodb:${self:provider.region}:*:table/${self:custom.ddb.tableNames.dexscreenerTokenCache}*'
+            - 'arn:aws:dynamodb:${self:provider.region}:*:table/${self:custom.ddb.tableNames.stakexCustomization}*'
 
   environment:
     DB_TABLE_NAME_DEXSCREENER_PAIR_CACHE: ${self:custom.ddb.tableNames.dexscreenerPairCache}
     DB_TABLE_NAME_DEXSCREENER_TOKEN_CACHE: ${self:custom.ddb.tableNames.dexscreenerTokenCache}
+    DB_TABLE_NAME_STAKEX_CUSTOMIZATION: ${self:custom.ddb.tableNames.stakexCustomization}
     CORS_ALLOWED_ORIGIN: ${self:custom.corsAllowedOrigin.${opt:stage, self:provider.stage}}
     SNOWTRACE_API_KEY: ${param:SNOWTRACE_API_KEY}
 
@@ -106,6 +109,28 @@ functions:
                 pairAddress: true
           method: get
 
+  ipfsStakexCustomizationUpdate:
+    handler: ipfs/stakex/customization/update.handler
+    memorySize: 512
+    timeout: 29
+    events:
+      - http:
+          path: /ipfs/stakex/customization/update
+          method: post
+
+  ipfsStakexCustomizationFetch:
+    handler: ipfs/stakex/customization/fetch.handler
+    memorySize: 512
+    timeout: 29
+    events:
+      - http:
+          path: /ipfs/stakex/customization/fetch/{protocol}
+          request:
+            parameters:
+              paths:
+                protocol: true
+          method: get
+
 resources:
   Resources:
     dexscreenerPairCacheTable:
@@ -134,10 +159,29 @@ resources:
       Properties:
         TableName: ${self:custom.ddb.tableNames.dexscreenerTokenCache}
         AttributeDefinitions:
-          - AttributeName: TokenKey 
+          - AttributeName: TokenKey
             AttributeType: S
         KeySchema:
           - AttributeName: TokenKey
+            KeyType: HASH
+        BillingMode: PAY_PER_REQUEST
+        PointInTimeRecoverySpecification:
+          PointInTimeRecoveryEnabled: true
+        TimeToLiveSpecification:
+          AttributeName: ttl
+          Enabled: true
+
+    stakexCustomizationTable:
+      Type: AWS::DynamoDB::Table
+      DeletionPolicy: ${self:custom.ddb.deletionPolicy.${opt:stage, 'default'}}
+      UpdateReplacePolicy: ${self:custom.ddb.updateReplacePolicy.${opt:stage, 'default'}}
+      Properties:
+        TableName: ${self:custom.ddb.tableNames.stakexCustomization}
+        AttributeDefinitions:
+          - AttributeName: CustomizationKey # which is the protocol address
+            AttributeType: S
+        KeySchema:
+          - AttributeName: CustomizationKey
             KeyType: HASH
         BillingMode: PAY_PER_REQUEST
         PointInTimeRecoverySpecification:
