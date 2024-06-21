@@ -66,6 +66,8 @@ export const LiquidityBacking = () => {
         address: Address
         info: { name: string }
     }>()
+    const [activeWantTokenAddress, setActiveWantTokenAddress] =
+        useState<Address>()
 
     //
     // Hooks
@@ -103,11 +105,7 @@ export const LiquidityBacking = () => {
 
     const onWantTokenChange = (tokenAddress: Address) => {
         setIsLoading(true)
-        setActiveWantToken(
-            dataGetStats?.wantTokenData?.find(
-                (wantToken) => wantToken.address === tokenAddress
-            )
-        )
+        setActiveWantTokenAddress(tokenAddress)
     }
 
     //
@@ -127,19 +125,28 @@ export const LiquidityBacking = () => {
                         .includes(token.address.toLowerCase())
             )
             setActiveWantToken(
-                dataGetStats.wantTokenData[
-                    wantTokenIndex === -1 ? 0 : wantTokenIndex
-                ]
+                activeWantTokenAddress
+                    ? dataGetStats.wantTokenData.find(
+                          (wantToken) =>
+                              wantToken.address === activeWantTokenAddress
+                      )
+                    : dataGetStats.wantTokenData[
+                          wantTokenIndex === -1 ? 0 : wantTokenIndex
+                      ]
             )
         }
-    }, [dataGetStats])
+    }, [dataGetStats, activeWantTokenAddress])
 
     useEffect(() => {
         setIsLoading(isLoadingGetTotalValue || isLoadingGetBackingPerDGNX)
     }, [isLoadingGetTotalValue, isLoadingGetBackingPerDGNX])
 
     useEffect(() => {
-        if (activeWantToken) {
+        if (
+            refetchGetTotalValue &&
+            refetchGetBackingPerDGNX &&
+            activeWantToken
+        ) {
             refetchGetTotalValue()
             refetchGetBackingPerDGNX()
         }
@@ -158,7 +165,7 @@ export const LiquidityBacking = () => {
                 </div>
             </div>
 
-            <div className="mb-8 flex flex-col items-center lg:flex-row">
+            <div className="mb-8 flex flex-col items-center lg:flex-row gap-3">
                 <h2 className="text-2xl font-bold">Show backing values in</h2>
                 <div className="mb-2 mt-8 flex flex-row lg:mb-0 lg:mt-0">
                     {dataGetStats?.wantTokenData &&
