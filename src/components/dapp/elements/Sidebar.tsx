@@ -1,6 +1,6 @@
 import { Popover, Transition } from '@headlessui/react'
 import clsx from 'clsx'
-import { Fragment } from 'react'
+import { Fragment, useCallback, useMemo } from 'react'
 import { FaPiggyBank } from 'react-icons/fa'
 import { GiPayMoney } from 'react-icons/gi'
 import { HiCurrencyDollar, HiHome } from 'react-icons/hi'
@@ -9,36 +9,77 @@ import { RiGovernmentFill } from 'react-icons/ri'
 import { Link, useLocation } from 'react-router-dom'
 
 const navigation = [
-    { name: 'Dashboard', icon: HiHome, href: '', count: undefined },
+    {
+        name: 'Dashboard',
+        icon: HiHome,
+        href: '',
+        count: undefined,
+        children: null,
+    },
     {
         name: 'Buy $DGNX',
         icon: HiCurrencyDollar,
         href: 'https://broccoliswap.com/?inputToken=AVAX&inputChain=AVAX&outputToken=DGNX&outputChain=AVAX&amount=10',
         count: undefined,
+        children: null,
     },
     {
         name: 'Liquidity Backing',
         icon: FaPiggyBank,
         href: 'liquidity-backing',
         count: undefined,
+        children: null,
     },
     {
         name: 'Governance',
         icon: RiGovernmentFill,
         href: 'https://docs.dgnx.finance/degenx-ecosystem/Governance/intro_governance',
         count: undefined,
+        children: null,
     },
     {
         name: 'Disburser',
         icon: GiPayMoney,
         href: 'disburser',
         count: undefined,
+        children: null,
     },
     {
         name: 'Staking',
         icon: MdLockClock,
         href: 'staking',
         count: undefined,
+        children: null,
+    },
+    {
+        name: 'DeFi Tools',
+        icon: MdLockClock,
+        href: 'defitools',
+        count: undefined,
+        children: [
+            {
+                name: 'STAKEX',
+                icon: MdLockClock,
+                href: 'defitools/stakex',
+                count: undefined,
+                children: [
+                    {
+                        name: 'Create',
+                        icon: MdLockClock,
+                        href: 'defitools/stakex/create',
+                        count: undefined,
+                        children: null,
+                    },
+                    {
+                        name: 'Manage',
+                        icon: MdLockClock,
+                        href: 'defitools/stakex/manage',
+                        count: undefined,
+                        children: null,
+                    },
+                ],
+            },
+        ],
     },
 ]
 
@@ -116,23 +157,25 @@ function MobileSidebar() {
                         as="div"
                         className="absolute inset-x-0 top-full mt-4 flex origin-top flex-col rounded-2xl bg-white p-4 text-lg tracking-tight text-slate-900 shadow-xl ring-1 ring-slate-900/5"
                     >
-                        {navigation.map((item) => (
-                            <MobileNavLink
-                                key={item.name}
-                                target={
-                                    item.href.startsWith('http')
-                                        ? '_blank'
-                                        : '_self'
-                                }
-                                href={
-                                    item.href.startsWith('http')
-                                        ? item.href
-                                        : `/dapp/${item.href}`
-                                }
-                            >
-                                {item.name}
-                            </MobileNavLink>
-                        ))}
+                        {navigation
+                            .filter(({ name, href }) => Boolean(name && href))
+                            .map((item) => (
+                                <MobileNavLink
+                                    key={item.name}
+                                    target={
+                                        item.href?.startsWith('http')
+                                            ? '_blank'
+                                            : '_self'
+                                    }
+                                    href={
+                                        item.href?.startsWith('http')
+                                            ? item.href
+                                            : `/dapp/${item.href}`
+                                    }
+                                >
+                                    {item.name}
+                                </MobileNavLink>
+                            ))}
                     </Popover.Panel>
                 </Transition.Child>
             </Transition.Root>
@@ -140,12 +183,51 @@ function MobileSidebar() {
     )
 }
 
+const SidebarItem = ({ item, current }: { item: any; current: boolean }) => (
+    <Link
+        key={item.name}
+        to={item.href.startsWith('http') ? item.href : `/dapp/${item.href}`}
+        target={item.href.startsWith('http') ? '_blank' : '_self'}
+        className={clsx(
+            current
+                ? 'bg-light-100 text-dark'
+                : 'text-light-800 hover:border-degenOrange hover:bg-light-100 hover:text-dark',
+            current
+                ? 'dark:bg-dapp-blue-600 dark:text-dapp-cyan-50'
+                : 'dark:text-dapp-cyan-50 dark:hover:border-activeblue dark:hover:bg-dapp-blue-600',
+            'text-md group flex items-center rounded-lg p-2 font-bold transition-colors'
+        )}
+    >
+        <item.icon
+            className={clsx(
+                current
+                    ? 'text-dark dark:text-dapp-cyan-50'
+                    : 'text-light-800 transition-colors group-hover:text-dark dark:text-dapp-cyan-50 dark:group-hover:text-dapp-cyan-50',
+                'mr-3 h-6 w-6 flex-shrink-0 stroke-dapp-cyan-50 '
+            )}
+            aria-hidden="true"
+        />
+        <span className="flex-1">{item.name}</span>
+    </Link>
+)
+
 export default function Sidebar(props: { mobile?: boolean }) {
     const location = useLocation()
 
     if (props.mobile) {
         return <MobileSidebar />
     }
+
+    const isCurrent = useCallback(
+        (item: any) => {
+            return (
+                (item.href && location.pathname.includes(item.href)) ||
+                (`/dapp` === location.pathname && item.href === '') ||
+                (`/dapp/` === location.pathname && item.href === '')
+            )
+        },
+        [location]
+    )
 
     return (
         <div className="flex flex-grow flex-col overflow-y-auto ">
@@ -155,47 +237,45 @@ export default function Sidebar(props: { mobile?: boolean }) {
                     aria-label="Sidebar"
                 >
                     {navigation.map((item) => {
-                        const current =
-                            (item.href &&
-                                location.pathname.includes(item.href)) ||
-                            (`/dapp` === location.pathname &&
-                                item.href === '') ||
-                            (`/dapp/` === location.pathname && item.href === '')
-
                         return (
-                            <Link
-                                key={item.name}
-                                to={
-                                    item.href.startsWith('http')
-                                        ? item.href
-                                        : `/dapp/${item.href}`
-                                }
-                                target={
-                                    item.href.startsWith('http')
-                                        ? '_blank'
-                                        : '_self'
-                                }
-                                className={clsx(
-                                    current
-                                        ? 'bg-light-100 text-dark'
-                                        : 'text-light-800 hover:border-degenOrange hover:bg-light-100 hover:text-dark',
-                                    current
-                                        ? 'dark:bg-dapp-blue-600 dark:text-dapp-cyan-50'
-                                        : 'dark:text-dapp-cyan-50 dark:hover:border-activeblue dark:hover:bg-dapp-blue-600',
-                                    'text-md group flex items-center rounded-lg p-2 font-bold transition-colors'
-                                )}
-                            >
-                                <item.icon
-                                    className={clsx(
-                                        current
-                                            ? 'text-dark dark:text-dapp-cyan-50'
-                                            : 'text-light-800 transition-colors group-hover:text-dark dark:text-dapp-cyan-50 dark:group-hover:text-dapp-cyan-50',
-                                        'mr-3 h-6 w-6 flex-shrink-0 stroke-dapp-cyan-50 '
-                                    )}
-                                    aria-hidden="true"
+                            <>
+                                <SidebarItem
+                                    item={item}
+                                    current={isCurrent(item)}
                                 />
-                                <span className="flex-1">{item.name}</span>
-                            </Link>
+
+                                {isCurrent(item) && item.children && (
+                                    <div className="flex flex-col gap-2  space-y-1 border-l-2 border-l-dapp-blue-400 pl-4">
+                                        {item.children.map((child) => (
+                                            <>
+                                                <SidebarItem
+                                                    item={child}
+                                                    current={isCurrent(child)}
+                                                />
+                                                {isCurrent(child) &&
+                                                    child.children && (
+                                                        <div className="flex flex-col gap-2  space-y-1 border-l-2 border-l-dapp-blue-400 pl-4">
+                                                            {child.children.map(
+                                                                (
+                                                                    grandchild
+                                                                ) => (
+                                                                    <SidebarItem
+                                                                        item={
+                                                                            grandchild
+                                                                        }
+                                                                        current={isCurrent(
+                                                                            grandchild
+                                                                        )}
+                                                                    />
+                                                                )
+                                                            )}
+                                                        </div>
+                                                    )}
+                                            </>
+                                        ))}
+                                    </div>
+                                )}
+                            </>
                         )
                     })}
                 </nav>

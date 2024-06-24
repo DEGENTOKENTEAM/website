@@ -23,6 +23,7 @@ import { LiquidityBacking } from '../components/dapp/LiquidityBacking'
 import { StakeX } from '../components/dapp/StakeX'
 import { DappHeader } from '../components/dapp/elements/DappHeader'
 import Sidebar from '../components/dapp/elements/Sidebar'
+import { DeFiTools } from 'src/components/dapp/DeFiTools'
 
 TimeAgo.addDefaultLocale(en)
 
@@ -104,6 +105,10 @@ export default function Dapp() {
                                     <Route
                                         element={<StakeX />}
                                         path="/dapp/staking/:hash"
+                                    />{' '}
+                                    <Route
+                                        element={<DeFiTools />}
+                                        path="/dapp/defitools/*"
                                     />
                                     {/* <Route
                                     element={<Products />}
