@@ -20,7 +20,7 @@ export const handler = async (
     if (!result?.pair) {
         const _dbResult = await db.query({
             TableName: process.env.DB_TABLE_NAME_DEXSCREENER_PAIR_CACHE,
-            KeyConditionExpression: `#TokenKey = :TokenKey`,
+            KeyConditionExpression: `#PairKey = :PairKey`,
             ExpressionAttributeNames: {
                 [`#PairKey`]: `PairKey`,
             },
