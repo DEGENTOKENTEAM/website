@@ -30,7 +30,7 @@ export const handler = async (
             ConsistentRead: true,
         })
         if (_dbResult.Items && _dbResult.Items.length >= 1) {
-            result = _dbResult.Items[0]
+            result = _dbResult.Items[0].result
         }
     }
 
