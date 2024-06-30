@@ -40,7 +40,7 @@ export function Button({
     onClick = () => {},
     ...props
 }) {
-    if (variant != 'primary' && variant != 'secondary') {
+    if (variant != 'primary' && variant != 'secondary' && variant != 'error') {
         className = clsx(
             baseStyles[variant],
             variantStyles[variant][color],
@@ -50,19 +50,26 @@ export function Button({
 
     // TODO new buttons
     const baseStyle = clsx(
-        'group inline-flex items-center justify-center font-semibold rounded-lg py-2 px-4 focus:outline-none leading-5 active:border disabled:active:border-none  hover:opacity-70 disabled:opacity-40 disabled:hover:opacity-40'
+        'group inline-flex items-center justify-center font-semibold rounded-lg py-2 px-4 focus:outline-none leading-5 border hover:opacity-70 disabled:opacity-40 disabled:hover:opacity-40'
     )
     if (variant == 'primary') {
         className = clsx(
             baseStyle,
-            'bg-dapp-cyan-500 text-dapp-blue-800 active:border-dapp-cyan-50',
+            'bg-dapp-cyan-500 text-dapp-blue-800 border-dapp-cyan-500 active:border-dapp-cyan-50',
             className
         )
     }
     if (variant == 'secondary') {
         className = clsx(
             baseStyle,
-            'bg-dapp-blue-100 disabled:bg-dapp-blue-50 text-dapp-cyan-50 active:border-dapp-cyan-500',
+            'bg-dapp-blue-100 border-dapp-blue-100 disabled:bg-dapp-blue-50 text-dapp-cyan-50 active:border-dapp-cyan-500',
+            className
+        )
+    }
+    if (variant == 'error') {
+        className = clsx(
+            baseStyle,
+            'bg-error/80 border-error/80 disabled:bg-error/30 text-white active:border-error',
             className
         )
     }

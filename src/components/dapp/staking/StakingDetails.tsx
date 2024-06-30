@@ -1,7 +1,13 @@
 import { toReadableNumber } from '@dapphelpers/number'
 import { StakeXContext, durationFromSeconds } from '@dapphelpers/staking'
 import { useGetRewardEstimationForTokens } from '@dapphooks/staking/useGetRewardEstimationForTokens'
+import { useGetStakeBuckets } from '@dapphooks/staking/useGetStakeBuckets'
+import {
+    BucketStakedShare,
+    useGetStakedSharesByStaker,
+} from '@dapphooks/staking/useGetStakedSharesByStaker'
 import { useGetTargetTokens } from '@dapphooks/staking/useGetTargetTokens'
+import { CaretDivider } from '@dappshared/CaretDivider'
 import { StatsBoxTwoColumn } from '@dappshared/StatsBoxTwoColumn'
 import {
     StakeBucket,
@@ -10,6 +16,7 @@ import {
     TokenInfoResponse,
 } from '@dapptypes'
 import { useContext, useEffect, useMemo, useState } from 'react'
+import { useAccount } from 'wagmi'
 import { Button } from '../../Button'
 import { Spinner } from '../elements/Spinner'
 import { StakingNFTTile } from './StakingNFTTile'
@@ -17,14 +24,6 @@ import { SortOption, StakingSortOptions } from './StakingSortOptions'
 import { StakingClaimOverlay } from './overlays/StakingClaimOverlay'
 import { StakingRestakeOverlay } from './overlays/StakingRestakeOverlay'
 import { StakingWithdrawOverlay } from './overlays/StakingWithdrawOverlay'
-import { useGetStakingData } from '@dapphooks/staking/useGetStakingData'
-import { CaretDivider } from '@dappshared/CaretDivider'
-import {
-    BucketStakedShare,
-    useGetStakedSharesByStaker,
-} from '@dapphooks/staking/useGetStakedSharesByStaker'
-import { useAccount } from 'wagmi'
-import { useGetStakeBuckets } from '@dapphooks/staking/useGetStakeBuckets'
 
 type StakingDetailsProps = {
     stakes: readonly StakeResponse[]
@@ -179,16 +178,16 @@ export const StakingDetails = ({
     ])
 
     useEffect(() => {
-        if (dataGetStakedSharesByStaker && dataGetStakeBuckets) {
-            setStakeShareInfo(
-                dataGetStakedSharesByStaker.map((share) => ({
-                    ...share,
-                    ...dataGetStakeBuckets.find(
-                        (bucket) => share.bucketId == bucket.id
-                    ),
-                }))
-            )
-        }
+        if (!dataGetStakedSharesByStaker || !dataGetStakeBuckets) return
+
+        setStakeShareInfo(
+            dataGetStakedSharesByStaker.map((share) => ({
+                ...share,
+                ...dataGetStakeBuckets.find(
+                    (bucket) => share.bucketId == bucket.id
+                ),
+            }))
+        )
     }, [dataGetStakedSharesByStaker, dataGetStakeBuckets])
 
     useEffect(() => {

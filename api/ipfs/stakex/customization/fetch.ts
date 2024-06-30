@@ -1,6 +1,7 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
 import { DynamoDBHelper } from '../../../helpers/ddb/dynamodb'
 import { createReturn } from '../../../helpers/return'
+import { StakeXCustomizationResponseType } from './../../../../types/stakex'
 
 export const handler = async (
     event: APIGatewayProxyEvent
@@ -34,6 +35,6 @@ export const handler = async (
                     data.Items.at(0)!.stylesIpfs.IpfsHash
                 }`,
             },
-        })
+        } as StakeXCustomizationResponseType)
     )
 }

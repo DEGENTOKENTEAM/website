@@ -23,7 +23,8 @@
       "@dappshared/*": ["src/components/dapp/shared/*"],
       "@dapptypes": ["src/types"],
       "@dappconstants": ["src/constants"],
-      "@dappabis/*": ["src/abi/*"]
+      "@dappabis/*": ["src/abi/*"],
+      "react": ["./node_modules/@types/react"]
     }
   },
   "include": ["additional.d.ts", "next-env.d.ts", "**/*.ts", "**/*.tsx"],

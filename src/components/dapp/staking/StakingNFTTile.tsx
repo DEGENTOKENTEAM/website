@@ -46,7 +46,6 @@ export const StakingNFTTile = ({
     const timeAgo = new TimeAgo(navigator.language)
     useMemo(() => {
         if (data) {
-            console.log({ data })
             const w = window.open('about:blank')
             if (w) {
                 setTimeout(() => {

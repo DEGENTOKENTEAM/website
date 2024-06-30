@@ -30,6 +30,7 @@ export const toReadableNumber = (
     options?: {
         maximumFractionDigits?: number
         minimumFractionDigits?: number
+        asNumber?: boolean
     }
 ) => {
     if (BigNumber(amount.toString()).eq(0)) return '0'

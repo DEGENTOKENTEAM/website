@@ -66,6 +66,8 @@ export type StakeBucket = {
     burn: boolean
     active: boolean
     multiplier: number
+    share: number
+    staked: bigint
 }
 
 export type RewardEstimation = {

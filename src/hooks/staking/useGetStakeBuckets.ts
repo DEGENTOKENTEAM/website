@@ -27,10 +27,12 @@ export const useGetStakeBuckets = (address: Address) => {
                                     res.lock.toString()
                                 ).toNumber(),
                                 burn: res.burn,
-                                active: false,
+                                active: res.active,
                                 multiplier: parseInt(
                                     (res.share / smallestShare).toString()
                                 ),
+                                share: Number(res.share),
+                                staked: res.staked,
                             },
                         ],
                         []

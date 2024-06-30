@@ -4,7 +4,7 @@ import { fileTypeFromBuffer } from 'file-type'
 import sizeOf from 'image-size'
 import { Readable } from 'stream'
 import { Address, createPublicClient, http } from 'viem'
-import { chainsByChainId } from '../../../../shared/supportedChains'
+import { chainByChainId } from '../../../../shared/supportedChains'
 import { DynamoDBHelper } from '../../../helpers/ddb/dynamodb'
 import { createReturn } from '../../../helpers/return'
 
@@ -14,21 +14,16 @@ export const handler = async (
     if (!event.body)
         return createReturn(500, JSON.stringify({ message: 'NO_BODY' }))
 
-    const {
-        protocol,
-        chainId,
-        image,
-        styles,
-        challenge,
-        sig,
-    }: {
+    const { protocol, chainId, image, styles, challenge, sig } = JSON.parse(
+        event.body
+    ) as {
         protocol: Address
         chainId: number
         image: string
         styles: string
         challenge: string
         sig: Address
-    } = JSON.parse(event.body)
+    }
 
     if (
         !protocol ||
@@ -39,8 +34,16 @@ export const handler = async (
     )
         return createReturn(400, JSON.stringify({ message: 'DATA_MISSING' }))
 
+    const chain = chainByChainId(chainId)
+
+    if (!chain)
+        return createReturn(
+            400,
+            JSON.stringify({ message: 'UNSUPPORTED_CHAIN' })
+        )
+
     const client = createPublicClient({
-        chain: chainsByChainId[chainId],
+        chain,
         transport: http(),
     })
 
@@ -114,7 +117,7 @@ export const handler = async (
     if (imageDimensions.width! !== imageDimensions.height!)
         return createReturn(
             400,
-            JSON.stringify({ message: 'INVALID_ASPECT_RATION' })
+            JSON.stringify({ message: 'INVALID_ASPECT_RATIO' })
         )
 
     const imageIpfs = await pinata.pinFileToIPFS(readable, {
