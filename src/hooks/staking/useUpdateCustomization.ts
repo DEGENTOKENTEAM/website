@@ -3,6 +3,7 @@ import { StakeXCustomizationDTO } from 'types/stakex'
 
 export const useUpdateCustomization = () => {
     const [response, setResponse] = useState<any>(null)
+    const [error, setError] = useState<any>(null)
     const [loading, setLoading] = useState(false)
 
     const update = (body: StakeXCustomizationDTO) => {
@@ -27,16 +28,20 @@ export const useUpdateCustomization = () => {
         )
             .then((res) => res.json())
             .then((data) => {
-                console.log('[useUpdateCustomization]', { data })
                 if (!signal.aborted) {
                     setResponse(data)
                     setLoading(false)
+                } else {
+                    setError('Request canceled')
                 }
             })
-            .catch((error) => console.warn('[useFetch Error]', error))
+            .catch((error) => {
+                setError(error)
+                console.warn('[useFetch Error]', error)
+            })
 
-        return () => abortController.abort()
+        if (signal.aborted) return () => abortController.abort()
     }
 
-    return { update, response, loading }
+    return { update, response, loading, error }
 }

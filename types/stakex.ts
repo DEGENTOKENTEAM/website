@@ -2,8 +2,11 @@ import { Address } from 'viem'
 
 export type StakeXCustomizationResponseType = {
     data: {
+        projectName: string
         logoUrl: string
+        logoUrlUpdatePending: boolean
         stylesUrl: string
+        stylesUrlUpdatePending: boolean
     }
 }
 

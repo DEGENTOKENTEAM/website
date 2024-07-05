@@ -80,3 +80,28 @@ export type TokenURI = {
     description: string
     image: string
 }
+
+export type AnnualPercentageType = {
+    bucketId: string
+    apr: number
+    apy: number
+    fromBlock: number
+    toBlock: number
+}
+
+export type AnnualPercentageDataType = {
+    [bucketId: string]: AnnualPercentageType
+}
+
+export type StakingMetrics = {
+    annualPercentageData: AnnualPercentageDataType
+    protocolInformation: {
+        blockNumberAPUpdate: number
+        blockNumberStakesUpdate: number
+        blockNumberAPUpdateIntervall: number
+    }
+    stakeLogs: {
+        timestamp: number
+        staked: number
+    }[]
+}

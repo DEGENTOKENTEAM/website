@@ -67,6 +67,11 @@
     "type": "error"
   },
   {
+    "inputs": [],
+    "name": "InvalidSwaps",
+    "type": "error"
+  },
+  {
     "inputs": [
       {
         "internalType": "uint256",
@@ -86,16 +91,6 @@
       }
     ],
     "name": "Locked",
-    "type": "error"
-  },
-  {
-    "inputs": [],
-    "name": "MissingCandidatesGroup",
-    "type": "error"
-  },
-  {
-    "inputs": [],
-    "name": "NoBucketsActive",
     "type": "error"
   },
   {
@@ -137,6 +132,32 @@
     "inputs": [
       {
         "internalType": "address",
+        "name": "rewardToken",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "targetToken",
+        "type": "address"
+      }
+    ],
+    "name": "RewardTokenMissingTargetToken",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "RewardsMissing",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "StableTokenNotZero",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
         "name": "from",
         "type": "address"
       },
@@ -163,6 +184,11 @@
       }
     ],
     "name": "SwapRouteInvalid",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "SwapsMissing",
     "type": "error"
   },
   {
@@ -1589,11 +1615,6 @@
   },
   {
     "inputs": [],
-    "name": "ERC165Base__InvalidInterfaceId",
-    "type": "error"
-  },
-  {
-    "inputs": [],
     "name": "ERC721Base__BalanceQueryZeroAddress",
     "type": "error"
   },
@@ -1978,6 +1999,47 @@
   },
   {
     "inputs": [],
+    "name": "getMultipliersPerOneStakingToken",
+    "outputs": [
+      {
+        "components": [
+          {
+            "internalType": "bytes32",
+            "name": "bucketId",
+            "type": "bytes32"
+          },
+          {
+            "internalType": "uint256",
+            "name": "multiplier",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint16",
+            "name": "divider",
+            "type": "uint16"
+          }
+        ],
+        "internalType": "struct IStakeXPublicFacet.BucketMultiplier[]",
+        "name": "_multipliers",
+        "type": "tuple[]"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "_bucketId",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_amount",
+        "type": "uint256"
+      }
+    ],
     "name": "getMultipliersPerOneStakingToken",
     "outputs": [
       {
@@ -2685,6 +2747,16 @@
             "internalType": "uint256",
             "name": "totalSupply",
             "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "blockNumber",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "blockTimestamp",
+            "type": "uint256"
           }
         ],
         "internalType": "struct IStakeXPublicFacet.StakingData",
@@ -2943,6 +3015,19 @@
         "internalType": "struct IStakeXPublicFacet.TokenInfoResponse",
         "name": "_response",
         "type": "tuple"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "hasDepositRestriction",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "_has",
+        "type": "bool"
       }
     ],
     "stateMutability": "view",

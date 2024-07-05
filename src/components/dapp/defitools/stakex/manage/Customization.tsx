@@ -9,18 +9,23 @@ import { toast } from 'react-toastify'
 import { Button } from 'src/components/Button'
 import { Spinner } from 'src/components/dapp/elements/Spinner'
 import { StakingProjectLogo } from 'src/components/dapp/staking/StakingProjectLogo'
+import { useInterval } from 'usehooks-ts'
 import { createSiweMessage, generateSiweNonce } from 'viem/siwe'
 import { useAccount, useSignMessage } from 'wagmi'
 
 export const Customization = () => {
     const {
-        data: { protocol, owner, isOwner, chain },
+        data: { protocol, isOwner, chain, stakingToken },
     } = useContext(ManageStakeXContext)
+
+    const CHECK_INTERVAL = 30000
 
     const { address, chainId } = useAccount()
 
     const inputFile = useRef<HTMLInputElement | null>(null)
     const cropperRef = useRef<CropperRef>(null)
+
+    const [projectName, setProjectName] = useState<string | null>(null)
 
     const [cropImage, setCropImage] = useState<string | null>(null)
     const [baseImage, setBaseImage] = useState('')
@@ -29,12 +34,18 @@ export const Customization = () => {
         null
     )
 
+    const [checkForNewImageInterval, setCheckForNewImageInterval] = useState<
+        number | null
+    >(null)
+
     const [isLoadingLogoUpload, setIsLoadingLogoUpload] = useState(false)
+    const [isPendingNewLogo, setIsPendingNewLogo] = useState(false)
 
     const { response, load } = useGetCustomization(protocol)
     const {
         loading: loadingUpdate,
         response: responseUpdate,
+        error: errorUpdate,
         update,
     } = useUpdateCustomization()
     const {
@@ -44,6 +55,12 @@ export const Customization = () => {
         isSuccess: isSuccessSignMessage,
         reset: resetSignMessage,
     } = useSignMessage()
+
+    useInterval(() => {
+        if (!load) {
+            setCheckForNewImageInterval(null)
+        } else load()
+    }, checkForNewImageInterval)
 
     const onClickUploadLogo = () => {
         inputFile && inputFile.current && inputFile.current?.click()
@@ -84,9 +101,13 @@ export const Customization = () => {
     }
 
     useEffect(() => {
-        if (!response) return
+        if (response && response.data) {
+            if (response.data.logoUrl) setBaseImage(response.data.logoUrl)
 
-        if (response.data.logoUrl) setBaseImage(response.data.logoUrl)
+            const pendingLogo = response.data.logoUrlUpdatePending
+            setCheckForNewImageInterval(pendingLogo ? CHECK_INTERVAL : null)
+            setIsPendingNewLogo(pendingLogo)
+        }
     }, [response])
 
     useEffect(() => {
@@ -110,104 +131,139 @@ export const Customization = () => {
     }, [isLoadingLogoUpload, signature, chain, challengeMessage])
 
     useEffect(() => {
-        if (!loadingUpdate && responseUpdate) {
-            load()
-            setCropImage(null)
-            setPreviewImage(null)
-            toast.success('Updated project logo', { autoClose: 2000 })
+        if (!loadingUpdate) {
+            if (responseUpdate) {
+                load()
+                setCropImage(null)
+                setPreviewImage(null)
+                setIsLoadingLogoUpload(false)
+                toast.success('Updated project logo', { autoClose: 2000 })
+            }
+            if (errorUpdate) {
+                setIsLoadingLogoUpload(false)
+                toast.error(errorUpdate, { autoClose: 5000 })
+            }
         }
-    }, [responseUpdate, loadingUpdate])
+    }, [responseUpdate, loadingUpdate, errorUpdate])
 
+    useEffect(() => {
+        stakingToken &&
+            stakingToken.symbol &&
+            setProjectName(`${stakingToken.symbol} staking`)
+    }, [stakingToken])
     return (
         <>
-            <Tile className="w-full">
+            <Tile className="flex w-full flex-col gap-8">
                 <StakingProjectLogo
                     source={previewImage || baseImage}
-                    projectName="DEGENX Ecosystem"
+                    isPending={isPendingNewLogo}
+                    projectName={projectName ?? ''}
                 />
             </Tile>
 
             {isOwner && (
-                <Tile className="w-full">
-                    <span className="flex-1 font-title text-xl font-bold">
-                        Project Logo
-                    </span>
-                    <div className="mt-8 flex flex-col gap-4">
-                        {!cropImage && (
-                            <Button
-                                onClick={onClickUploadLogo}
-                                variant="primary"
-                            >
-                                Choose new logo
-                            </Button>
-                        )}
-                        {cropImage && (
-                            <>
-                                <div className="max-h-[400px] h-full">
-                                    <Cropper
-                                        stencilComponent={CircleStencil}
-                                        src={cropImage}
-                                        ref={cropperRef}
-                                        disabled={isLoadingLogoUpload}
-                                        className={'cropper'}
-                                    />
-                                </div>
-                                <div className="flex flex-col justify-end gap-4 md:flex-row">
-                                    <Button
-                                        disabled={isLoadingLogoUpload}
-                                        onClick={onClickCancel}
-                                        variant="secondary"
-                                    >
-                                        Cancel
-                                    </Button>
-                                    <Button
-                                        disabled={isLoadingLogoUpload}
-                                        onClick={onClickPreview}
-                                        variant="secondary"
-                                    >
-                                        Preview
-                                    </Button>
-                                    <Button
-                                        disabled={isLoadingLogoUpload}
-                                        onClick={onClickUploadLogo}
-                                        variant="secondary"
-                                    >
-                                        Change
-                                    </Button>
-                                    <Button
-                                        disabled={isLoadingLogoUpload}
-                                        onClick={onClickUpload}
-                                        variant="primary"
-                                    >
-                                        {isLoadingLogoUpload && (
-                                            <span className="flex items-center justify-center gap-2 whitespace-nowrap">
-                                                <Spinner theme="dark" />
-                                                {isPendingSignMessage && (
-                                                    <span>
-                                                        wait for signing
-                                                    </span>
-                                                )}
-                                                {!isPendingSignMessage && (
-                                                    <span>upload logo</span>
-                                                )}
-                                            </span>
-                                        )}
+                <>
+                    <Tile className="w-full">
+                        <span className="flex-1 font-title text-xl font-bold">
+                            Project Logo
+                        </span>
+                        <div className="mt-8 flex flex-col gap-4">
+                            {!cropImage && (
+                                <Button
+                                    onClick={onClickUploadLogo}
+                                    variant="primary"
+                                >
+                                    Choose new logo
+                                </Button>
+                            )}
+                            {cropImage && (
+                                <>
+                                    <div className="h-full sm:h-[400px]">
+                                        <Cropper
+                                            stencilComponent={CircleStencil}
+                                            src={cropImage}
+                                            ref={cropperRef}
+                                            disabled={isLoadingLogoUpload}
+                                            className={'cropper'}
+                                            maxWidth={600}
+                                            maxHeight={600}
+                                        />
+                                    </div>
+                                    <div className="flex flex-col justify-end gap-4 md:flex-row">
+                                        <Button
+                                            disabled={isLoadingLogoUpload}
+                                            onClick={onClickCancel}
+                                            variant="secondary"
+                                        >
+                                            Cancel
+                                        </Button>
+                                        <Button
+                                            disabled={isLoadingLogoUpload}
+                                            onClick={onClickPreview}
+                                            variant="secondary"
+                                        >
+                                            Preview
+                                        </Button>
+                                        <Button
+                                            disabled={isLoadingLogoUpload}
+                                            onClick={onClickUploadLogo}
+                                            variant="secondary"
+                                        >
+                                            Change
+                                        </Button>
+                                        <Button
+                                            disabled={isLoadingLogoUpload}
+                                            onClick={onClickUpload}
+                                            variant="primary"
+                                        >
+                                            {isLoadingLogoUpload && (
+                                                <span className="flex items-center justify-center gap-2 whitespace-nowrap">
+                                                    <Spinner theme="dark" />
+                                                    {isPendingSignMessage && (
+                                                        <span>
+                                                            wait for signing
+                                                        </span>
+                                                    )}
+                                                    {!isPendingSignMessage && (
+                                                        <span>upload logo</span>
+                                                    )}
+                                                </span>
+                                            )}
 
-                                        {!isLoadingLogoUpload && 'Upload'}
-                                    </Button>
-                                </div>
-                            </>
-                        )}
-                    </div>
-                    <input
-                        accept=".gif,.jpg,.jpeg,.png,.webp,.svg"
-                        type="file"
-                        id="file"
-                        ref={inputFile}
-                        onChange={onChangeFileInput}
-                        style={{ display: 'none' }}
-                    />
-                </Tile>
+                                            {!isLoadingLogoUpload && 'Upload'}
+                                        </Button>
+                                    </div>
+                                </>
+                            )}
+                        </div>
+                        <input
+                            accept=".gif,.jpg,.jpeg,.png,.webp,.svg"
+                            type="file"
+                            id="file"
+                            ref={inputFile}
+                            onChange={onChangeFileInput}
+                            style={{ display: 'none' }}
+                        />
+                    </Tile>
+                    {/* <Tile className="flex w-full flex-col gap-8">
+                        <span className="flex-1 font-title text-xl font-bold">
+                            Project Name
+                        </span>
+                        <div>
+                            <input
+                                type="text"
+                                value={
+                                    projectName ??
+                                    (stakingToken?.name
+                                        ? `${stakingToken?.name}s staking`
+                                        : '')
+                                }
+                                placeholder="Enter project name"
+                                className="w-full rounded-lg border-0 bg-dapp-blue-800 text-2xl leading-10 [appearance:textfield] focus:ring-0 focus:ring-offset-0 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+                            />
+                        </div>
+                    </Tile> */}
+                </>
             )}
         </>
 

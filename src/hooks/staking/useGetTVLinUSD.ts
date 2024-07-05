@@ -1,99 +1,95 @@
+import erc20Abi from '@dappabis/erc20.json'
 import { useEffect, useState } from 'react'
 import { Address } from 'viem'
+import { usePublicClient } from 'wagmi'
 import { useGetRewardTokens } from './useGetRewardTokens'
 
-export const useGetTVLinUSD = (protocolAddress: Address) => {
+export const useGetTVLinUSD = (
+    chainId: number | undefined,
+    protocolAddress: Address
+) => {
     const [response, setResponse] = useState<number>(0)
     const [loading, setLoading] = useState(true)
+    const client = usePublicClient({ chainId })
 
-    const { data: dataRewardTokens } = useGetRewardTokens(protocolAddress)
+    const [dataFetchesResults, setDataFetchesResult] = useState<any>()
+    const [balanceFetchesResults, setBalanceFetchesResults] = useState<any>()
 
-    // useEffect(() => {
-    //     if (!dataRewardTokens || dataRewardTokens.length === 0) return
+    const { data: dataRewardTokens } = useGetRewardTokens(
+        protocolAddress,
+        chainId!
+    )
 
-    //     const abortController = new AbortController()
-    //     const signal = abortController.signal
+    useEffect(() => {
+        if (!client || !dataRewardTokens || dataRewardTokens.length === 0)
+            return
 
-    //     const dataFetches: Promise<Response>[] = []
+        const abortController = new AbortController()
+        const signal = abortController.signal
 
-    //     for (const rewardToken of dataRewardTokens) {
-    //         dataFetches.push(
-    //             fetch(
-    //                 `${process.env.NEXT_PUBLIC_STAKEX_API_ENDPOINT}/latest/dex/tokens/${rewardToken.source}`,
-    //                 {
-    //                     method: 'GET',
-    //                     signal,
-    //                     headers: {
-    //                         Accept: 'application/json',
-    //                         'Content-Type': 'application/json',
-    //                     },
-    //                 }
-    //             )
-    //         )
-    //     }
+        const dataFetches: Promise<Response>[] = []
+        const balanceFetches: Promise<bigint>[] = []
 
-    //     Promise.all(dataFetches)
-    //         .then((res) => Promise.all(res.map((_res) => _res.json())))
-    //         .then((res) => {
-    //             console.log(
-    //                 Array.from(
-    //                     Array(Number(dataRewardTokens.length)).keys()
-    //                 ).reduce((acc, i) => {
-    //                     const injected =
-    //                         Number(dataRewardTokens[i].) /
-    //                         10 ** Number(dataRewardTokens[i].decimals)
-    //                     const filteredPairs = res[i].pairs.filter(
-    //                         (pair: any) =>
-    //                             pair.baseToken.address ===
-    //                             dataRewardTokens[i].source
-    //                     )
-    //                     console.log(
-    //                         injected,
-    //                         filteredPairs.reduce(
-    //                             (acc: number, { priceUsd }: any) => {
-    //                                 return acc + Number(priceUsd)
-    //                             },
-    //                             0
-    //                         ) / filteredPairs.length
-    //                     )
-    //                     // const usd = dataRewardTokens[i]
-    //                     return acc
-    //                 }, 0)
-    //             )
-    //             // dataRewardTokens.
-    //             // res.
-    //             // console.log(
-    //             //     'dataRewardTokens',
-    //             //     dataRewardTokens.map((rewardToken) => rewardToken.source)
-    //             // )
-    //             console.log({ res })
-    //         })
-    // }, [dataRewardTokens])
+        for (const rewardToken of dataRewardTokens) {
+            dataFetches.push(
+                fetch(
+                    `${process.env.NEXT_PUBLIC_STAKEX_API_ENDPOINT}/latest/dex/tokens/${rewardToken.source}`,
+                    {
+                        method: 'GET',
+                        signal,
+                        headers: {
+                            Accept: 'application/json',
+                            'Content-Type': 'application/json',
+                        },
+                    }
+                )
+            )
 
-    // useEffect(() => {
-    //     const abortController = new AbortController()
-    //     const signal = abortController.signal
+            balanceFetches.push(
+                client.readContract({
+                    address: rewardToken.source,
+                    abi: erc20Abi,
+                    functionName: 'balanceOf',
+                    args: [protocolAddress],
+                }) as Promise<bigint>
+            )
+        }
 
-    //     if (!enabled) return () => abortController.abort()
+        Promise.all(dataFetches)
+            .then((res) => Promise.all(res.map((_res) => _res.json())))
+            .then(setDataFetchesResult)
 
-    //     fetch(url, {
-    //         method: method || 'GET',
-    //         signal,
-    //         headers: {
-    //             Accept: 'application/json',
-    //             'Content-Type': 'application/json',
-    //         },
-    //     })
-    //         .then((res) => res.json())
-    //         .then((data) => {
-    //             if (!signal.aborted) {
-    //                 setResponse(data)
-    //                 setLoading(false)
-    //             }
-    //         })
-    //         .catch((error) => console.warn('[useFetch Error]', error))
+        Promise.all(balanceFetches).then(setBalanceFetchesResults)
+    }, [client, dataRewardTokens])
 
-    //     return () => abortController.abort()
-    // }, [url, method, body])
+    useEffect(() => {
+        if (!dataRewardTokens || !balanceFetchesResults || !dataFetchesResults)
+            return
+
+        setResponse(
+            dataRewardTokens.reduce((acc: number, rewardToken, idx) => {
+                if (balanceFetchesResults[idx] > 0n) {
+                    const balance =
+                        Number(balanceFetchesResults[idx]) /
+                        10 ** Number(rewardToken.decimals)
+
+                    const { pairs } = dataFetchesResults[idx]
+                    const filteredPairs = pairs.filter(
+                        ({ baseToken: { address } }) =>
+                            rewardToken.source == address
+                    )
+                    const avgUSD =
+                        filteredPairs.reduce((acc: number, { priceUsd }) => {
+                            return acc + Number(priceUsd)
+                        }, 0) / filteredPairs.length
+
+                    return acc + balance * avgUSD
+                }
+                return acc
+            }, 0)
+        )
+        setLoading(false)
+    }, [dataRewardTokens, balanceFetchesResults, dataFetchesResults])
+
     return { response, loading }
 }

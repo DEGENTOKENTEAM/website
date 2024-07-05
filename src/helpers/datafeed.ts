@@ -1,5 +1,3 @@
-import { numberFormatter } from './price-formatter'
-
 type DatafeedOHLC = {
     o: number
     h: number

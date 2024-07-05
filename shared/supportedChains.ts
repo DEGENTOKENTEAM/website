@@ -1,7 +1,31 @@
-import { Chain, avalanche, avalancheFuji, mainnet } from 'viem/chains'
 import { get } from 'lodash'
-import { Address } from 'viem'
-export const chains: Chain[] = [avalanche, avalancheFuji, mainnet]
+import { Address, defineChain } from 'viem'
+import {
+    Chain,
+    avalancheFuji,
+    avalanche as avalancheOriginal,
+    hardhat,
+    mainnet,
+} from 'wagmi/chains'
+
+const avalanche = defineChain({
+    ...avalancheOriginal,
+    rpcUrls: {
+        ...avalancheOriginal.rpcUrls,
+        default: {
+            ...avalancheOriginal.rpcUrls.default,
+            http: [
+                // 'https://avalanche.public-rpc.com',
+                'https://api.tatum.io/v3/blockchain/node/avax-mainnet',
+                // 'http://127.0.0.1:8545',
+                ...avalancheOriginal.rpcUrls.default.http,
+            ],
+        },
+    },
+})
+
+export const chains: Chain[] = [avalanche, hardhat, avalancheFuji, mainnet]
+
 export const chainIdToChainsMap = chains.reduce(
     (acc, chain) => ({
         ...acc,

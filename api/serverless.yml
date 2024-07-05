@@ -22,8 +22,9 @@ custom:
       dexscreenerPairCache: ${self:custom.serviceName}-dexscreenerPairCache
       dexscreenerTokenCache: ${self:custom.serviceName}-dexscreenerTokenCache
       stakexCustomization: ${self:custom.serviceName}-stakexCustomization
-      # stakexProtocols: ${self:custom.serviceName}-stakexProtocols
-      # stakexAnnualPercentageLogs: ${self:custom.serviceName}-stakexAnnualPercentageLogs
+      stakexProtocols: ${self:custom.serviceName}-stakexProtocols
+      stakexAnnualPercentageLogs: ${self:custom.serviceName}-stakexAnnualPercentageLogs
+      stakexStakeLogs: ${self:custom.serviceName}-stakexStakeLogs
     deletionPolicy:
       default: Retain
       dev: Retain
@@ -65,18 +66,27 @@ provider:
             - 'arn:aws:dynamodb:${self:provider.region}:*:table/${self:custom.ddb.tableNames.dexscreenerPairCache}*'
             - 'arn:aws:dynamodb:${self:provider.region}:*:table/${self:custom.ddb.tableNames.dexscreenerTokenCache}*'
             - 'arn:aws:dynamodb:${self:provider.region}:*:table/${self:custom.ddb.tableNames.stakexCustomization}*'
-            # - 'arn:aws:dynamodb:${self:provider.region}:*:table/${self:custom.ddb.tableNames.stakexProtocols}*'
-            # - 'arn:aws:dynamodb:${self:provider.region}:*:table/${self:custom.ddb.tableNames.stakexAnnualPercentageLogs}*'
+            - 'arn:aws:dynamodb:${self:provider.region}:*:table/${self:custom.ddb.tableNames.stakexProtocols}*'
+            - 'arn:aws:dynamodb:${self:provider.region}:*:table/${self:custom.ddb.tableNames.stakexAnnualPercentageLogs}*'
+            - 'arn:aws:dynamodb:${self:provider.region}:*:table/${self:custom.ddb.tableNames.stakexStakeLogs}*'
+
+        - Effect: 'Allow'
+          Action:
+            - lambda:InvokeAsync
+            - lambda:InvokeFunction
+          Resource:
+            - '*'
 
   environment:
     DB_TABLE_NAME_DEXSCREENER_PAIR_CACHE: ${self:custom.ddb.tableNames.dexscreenerPairCache}
     DB_TABLE_NAME_DEXSCREENER_TOKEN_CACHE: ${self:custom.ddb.tableNames.dexscreenerTokenCache}
     DB_TABLE_NAME_STAKEX_CUSTOMIZATION: ${self:custom.ddb.tableNames.stakexCustomization}
-    # DB_TABLE_NAME_STAKEX_PROTOCOLS: ${self:custom.ddb.tableNames.stakexProtocols}
-    # DB_TABLE_NAME_STAKEX_ANNUAL_PERCENTAGE_LOGS: ${self:custom.ddb.tableNames.stakexAnnualPercentageLogs}
+    DB_TABLE_NAME_STAKEX_PROTOCOLS: ${self:custom.ddb.tableNames.stakexProtocols}
+    DB_TABLE_NAME_STAKEX_ANNUAL_PERCENTAGE_LOGS: ${self:custom.ddb.tableNames.stakexAnnualPercentageLogs}
+    DB_TABLE_NAME_STAKEX_LOGS: ${self:custom.ddb.tableNames.stakexStakeLogs}
     CORS_ALLOWED_ORIGIN: ${self:custom.corsAllowedOrigin.${opt:stage, self:provider.stage}}
     SNOWTRACE_API_KEY: ${param:SNOWTRACE_API_KEY}
-    PINATA_API_KEY:  ${param:PINATA_API_KEY}
+    PINATA_API_KEY: ${param:PINATA_API_KEY}
 
 functions:
   snowtraceProxy:
@@ -142,14 +152,66 @@ functions:
           method: get
           cors: true
 
-  # STAKEX API
-
-  # STAKEX Automations
-  stakexAutomationsCalculateApr:
-    handler: stakex/automations/calculate-apr.handler
+  ipfsStakexCustomizationCheckAvailability:
+    handler: ipfs/stakex/customization/check-availability.handler
+    memorySize: 512
+    timeout: 29
     events:
       - schedule:
-          rate: rate(30 minutes)
+          rate: rate(1 minute)
+          enabled: true
+
+  # STAKEX API
+  stakexMetrics:
+    name: ${self:custom.serviceName}-stakexMetrics
+    handler: stakex/metrics.handler
+    memorySize: 512
+    timeout: 29
+    events:
+      - http:
+          path: /stakex/metrics/{chainId}/{protocol}
+          request:
+            parameters:
+              paths:
+                chainId: true
+                protocol: true
+          method: get
+          cors: true
+
+  # STAKEX Tasks
+  stakexCalculateApr:
+    name: ${self:custom.serviceName}-stakexCalculateApr
+    handler: stakex/calculate-apr.handler
+    timeout: 120
+    destinations:
+      onSuccess: stakexTriggerCalculationsFinish
+
+  stakexCalculateStakes:
+    name: ${self:custom.serviceName}-stakexCalculateStakes
+    handler: stakex/calculate-stakes.handler
+    timeout: 120
+    destinations:
+      onSuccess: stakexTriggerCalculationsFinish
+
+  stakexTriggerCalculationsFinish:
+    handler: stakex/trigger-calculations-finish.handler
+
+  # STAKEX Automations
+  stakexAutomationsTriggerCalculations:
+    handler: stakex/automations/trigger-calculations.handler
+    events:
+      - schedule:
+          rate: rate(2 minutes)
+          enabled: true
+    environment:
+      LAMBDA_APR_NAME: ${self:custom.serviceName}-stakexCalculateApr
+      LAMBDA_STAKES_NAME: ${self:custom.serviceName}-stakexCalculateStakes
+
+  stakexAutomationsAddNewProtocols:
+    handler: stakex/automations/add-new-protocols.handler
+    events:
+      - schedule:
+          rate: rate(5 minutes)
           enabled: false
 
 resources:
@@ -201,9 +263,18 @@ resources:
         AttributeDefinitions:
           - AttributeName: CustomizationKey # which is the protocol address
             AttributeType: S
+          - AttributeName: logoIpfs
+            AttributeType: S
         KeySchema:
           - AttributeName: CustomizationKey
             KeyType: HASH
+        GlobalSecondaryIndexes:
+          - IndexName: logoIpfsIndex
+            KeySchema:
+              - AttributeName: logoIpfs
+                KeyType: HASH
+            Projection:
+              ProjectionType: 'ALL'
         BillingMode: PAY_PER_REQUEST
         PointInTimeRecoverySpecification:
           PointInTimeRecoveryEnabled: true
@@ -211,63 +282,97 @@ resources:
           AttributeName: ttl
           Enabled: true
 
-    # stakexProtocolsTable:
-    #   Type: AWS::DynamoDB::Table
-    #   DeletionPolicy: ${self:custom.ddb.deletionPolicy.${opt:stage, 'default'}}
-    #   UpdateReplacePolicy: ${self:custom.ddb.updateReplacePolicy.${opt:stage, 'default'}}
-    #   Properties:
-    #     TableName: ${self:custom.ddb.tableNames.stakexProtocols}
-    #     AttributeDefinitions:
-    #       - AttributeName: ProtocolKey # which is the protocol address
-    #         AttributeType: S
-    #       - AttributeName: EnabledBlock
-    #         AttributeType: N
-    #       - AttributeName: NextUpdateBlock
-    #         AttributeType: N
-    #     KeySchema:
-    #       - AttributeName: ProtocolKey
-    #         KeyType: HASH
-    #       - AttributeName: NextUpdateBlock
-    #         KeyType: RANGE
-    #     BillingMode: PAY_PER_REQUEST
-    #     PointInTimeRecoverySpecification:
-    #       PointInTimeRecoveryEnabled: true
-    #     TimeToLiveSpecification:
-    #       AttributeName: ttl
-    #       Enabled: true
+    stakexProtocolsTable:
+      Type: AWS::DynamoDB::Table
+      DeletionPolicy: ${self:custom.ddb.deletionPolicy.${opt:stage, 'default'}}
+      UpdateReplacePolicy: ${self:custom.ddb.updateReplacePolicy.${opt:stage, 'default'}}
+      Properties:
+        TableName: ${self:custom.ddb.tableNames.stakexProtocols}
+        AttributeDefinitions:
+          - AttributeName: pkey # version
+            AttributeType: S
+          - AttributeName: skey # chainId#protocol
+            AttributeType: S
+        KeySchema:
+          - AttributeName: pkey
+            KeyType: HASH
+          - AttributeName: skey
+            KeyType: RANGE
+        BillingMode: PAY_PER_REQUEST
+        PointInTimeRecoverySpecification:
+          PointInTimeRecoveryEnabled: true
+        TimeToLiveSpecification:
+          AttributeName: ttl
+          Enabled: true
 
-    # stakexAnnualPercentageLogsTable:
-    #   Type: AWS::DynamoDB::Table
-    #   DeletionPolicy: ${self:custom.ddb.deletionPolicy.${opt:stage, 'default'}}
-    #   UpdateReplacePolicy: ${self:custom.ddb.updateReplacePolicy.${opt:stage, 'default'}}
-    #   Properties:
-    #     TableName: ${self:custom.ddb.tableNames.stakexAnnualPercentageLogs}
-    #     AttributeDefinitions:
-    #       - AttributeName: LogKey # Protocol#BlockNumber
-    #         AttributeType: S
-    #       - AttributeName: Protocol
-    #         AttributeType: S
-    #       - AttributeName: BlockNumber
-    #         AttributeType: N
-    #       - AttributeName: BlockTime
-    #         AttributeType: N
-    #       - AttributeName: Created
-    #         AttributeType: N
-    #     KeySchema:
-    #       - AttributeName: ProtocolKey
-    #         KeyType: HASH
-    #       - AttributeName: BlockTime
-    #         KeyType: RANGE
-    #     GlobalSecondaryIndexes:
-    #       - IndexName: ProtocolIndex
-    #         KeySchema:
-    #           - AttributeName: Protocol
-    #             KeyType: HASH
-    #         Projection:
-    #           ProjectionType: 'ALL'
-    #     BillingMode: PAY_PER_REQUEST
-    #     PointInTimeRecoverySpecification:
-    #       PointInTimeRecoveryEnabled: true
-    #     TimeToLiveSpecification:
-    #       AttributeName: ttl
-    #       Enabled: true
+    stakexAnnualPercentageLogsTable:
+      Type: AWS::DynamoDB::Table
+      DeletionPolicy: ${self:custom.ddb.deletionPolicy.${opt:stage, 'default'}}
+      UpdateReplacePolicy: ${self:custom.ddb.updateReplacePolicy.${opt:stage, 'default'}}
+      Properties:
+        TableName: ${self:custom.ddb.tableNames.stakexAnnualPercentageLogs}
+        AttributeDefinitions:
+          - AttributeName: pkey
+            AttributeType: S
+          - AttributeName: skey
+            AttributeType: S
+          - AttributeName: protocol
+            AttributeType: S
+          - AttributeName: timestamp
+            AttributeType: N
+        KeySchema:
+          - AttributeName: pkey
+            KeyType: HASH
+          - AttributeName: skey
+            KeyType: RANGE
+        GlobalSecondaryIndexes:
+          - IndexName: ProtocolIndex
+            KeySchema:
+              - AttributeName: protocol
+                KeyType: HASH
+              - AttributeName: timestamp
+                KeyType: RANGE
+            Projection:
+              ProjectionType: 'ALL'
+        BillingMode: PAY_PER_REQUEST
+        PointInTimeRecoverySpecification:
+          PointInTimeRecoveryEnabled: true
+        TimeToLiveSpecification:
+          AttributeName: ttl
+          Enabled: true
+
+    stakexStakeLogsTable:
+      Type: AWS::DynamoDB::Table
+      DeletionPolicy: ${self:custom.ddb.deletionPolicy.${opt:stage, 'default'}}
+      UpdateReplacePolicy: ${self:custom.ddb.updateReplacePolicy.${opt:stage, 'default'}}
+      Properties:
+        TableName: ${self:custom.ddb.tableNames.stakexStakeLogs}
+        AttributeDefinitions:
+          - AttributeName: pkey
+            AttributeType: S
+          - AttributeName: skey
+            AttributeType: S
+          - AttributeName: protocol
+            AttributeType: S
+          - AttributeName: timestamp
+            AttributeType: N
+        KeySchema:
+          - AttributeName: pkey
+            KeyType: HASH
+          - AttributeName: skey
+            KeyType: RANGE
+        GlobalSecondaryIndexes:
+          - IndexName: ProtocolIndex
+            KeySchema:
+              - AttributeName: protocol
+                KeyType: HASH
+              - AttributeName: timestamp
+                KeyType: RANGE
+            Projection:
+              ProjectionType: 'ALL'
+        BillingMode: PAY_PER_REQUEST
+        PointInTimeRecoverySpecification:
+          PointInTimeRecoveryEnabled: true
+        TimeToLiveSpecification:
+          AttributeName: ttl
+          Enabled: true

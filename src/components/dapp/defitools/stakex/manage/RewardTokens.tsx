@@ -13,7 +13,7 @@ import { Spinner } from 'src/components/dapp/elements/Spinner'
 
 export const RewardTokens = () => {
     const {
-        data: { protocol, chain, stakingToken, isLoading },
+        data: { protocol, chain, stakingToken, isLoading, isOwner },
     } = useContext(ManageStakeXContext)
 
     const { data: dataRewardTokens, isLoading: isLoadingRewardTokens } =
@@ -27,9 +27,11 @@ export const RewardTokens = () => {
                 <span className="flex-1 font-title text-xl font-bold">
                     Reward Tokens
                 </span>
-                <Button variant="primary" className="gap-3">
-                    <FaPlus /> <span>Add</span>
-                </Button>
+                {isOwner && (
+                    <Button variant="primary" className="gap-3">
+                        <FaPlus /> <span>Add</span>
+                    </Button>
+                )}
             </div>
             {isLoadingRewardTokens ? (
                 <div className="flex w-full flex-row justify-center pt-8">
@@ -41,73 +43,77 @@ export const RewardTokens = () => {
                         dataRewardTokens.map((rewardToken) => (
                             <div
                                 key={rewardToken.source}
-                                className="flex flex-col gap-1 rounded-lg bg-dapp-blue-400 p-3"
+                                className="flex flex-col gap-4"
                             >
-                                <div className="flex items-center gap-2 text-xs ">
-                                    <StatsBoxTwoColumn.Wrapper className="w-full text-sm">
-                                        <StatsBoxTwoColumn.LeftColumn>
-                                            <span className="font-bold">
-                                                {rewardToken.symbol}
-                                            </span>
-                                        </StatsBoxTwoColumn.LeftColumn>
-                                        <StatsBoxTwoColumn.RightColumn>
-                                            {chainExplorer && (
-                                                <a
-                                                    href={chainExplorer.getTokenUrl(
-                                                        rewardToken.source
-                                                    )}
-                                                    target="_blank"
-                                                    className="flex w-full flex-row items-center justify-end gap-1"
-                                                >
-                                                    {chainExplorer.name}
-                                                    <IoMdOpen />
-                                                </a>
-                                            )}
-                                        </StatsBoxTwoColumn.RightColumn>
-
-                                        <div className="col-span-2">
-                                            <CaretDivider />
-                                        </div>
-
-                                        <StatsBoxTwoColumn.LeftColumn>
-                                            Injected
-                                        </StatsBoxTwoColumn.LeftColumn>
-                                        <StatsBoxTwoColumn.RightColumn>
-                                            {toReadableNumber(
-                                                rewardToken.injected,
-                                                rewardToken.decimals
-                                            )}
-                                        </StatsBoxTwoColumn.RightColumn>
-
-                                        <div className="col-span-2">
-                                            <CaretDivider />
-                                        </div>
-
-                                        <StatsBoxTwoColumn.LeftColumn>
-                                            Is active?
-                                        </StatsBoxTwoColumn.LeftColumn>
-                                        <StatsBoxTwoColumn.RightColumn>
-                                            <div className="flex items-center justify-end">
-                                                {rewardToken.isRewardActive ? (
-                                                    <FaRegCheckCircle className="h-5 w-5 text-success" />
-                                                ) : (
-                                                    <FaRegTimesCircle className="h-5 w-5 text-error" />
+                                <StatsBoxTwoColumn.Wrapper className="w-full rounded-lg bg-dapp-blue-800 px-5 py-2 text-sm">
+                                    <StatsBoxTwoColumn.LeftColumn>
+                                        <span className="font-bold">
+                                            {rewardToken.symbol}
+                                        </span>
+                                    </StatsBoxTwoColumn.LeftColumn>
+                                    <StatsBoxTwoColumn.RightColumn>
+                                        {chainExplorer && (
+                                            <a
+                                                href={chainExplorer.getTokenUrl(
+                                                    rewardToken.source
                                                 )}
-                                            </div>
-                                        </StatsBoxTwoColumn.RightColumn>
-                                    </StatsBoxTwoColumn.Wrapper>
-                                </div>
-                                <div className="mt-2">
-                                    <Button
-                                        variant="secondary"
-                                        className=" w-full"
-                                    >
-                                        Set{' '}
-                                        {rewardToken.isRewardActive
-                                            ? 'Inactive'
-                                            : 'Active'}
-                                    </Button>
-                                </div>
+                                                target="_blank"
+                                                className="flex w-full flex-row items-center justify-end gap-1"
+                                            >
+                                                {chainExplorer.name}
+                                                <IoMdOpen />
+                                            </a>
+                                        )}
+                                    </StatsBoxTwoColumn.RightColumn>
+
+                                    <div className="col-span-2">
+                                        <CaretDivider />
+                                    </div>
+
+                                    <StatsBoxTwoColumn.LeftColumn>
+                                        Injected
+                                    </StatsBoxTwoColumn.LeftColumn>
+                                    <StatsBoxTwoColumn.RightColumn>
+                                        {toReadableNumber(
+                                            rewardToken.injected,
+                                            rewardToken.decimals
+                                        )}
+                                    </StatsBoxTwoColumn.RightColumn>
+
+                                    <div className="col-span-2">
+                                        <CaretDivider />
+                                    </div>
+
+                                    <StatsBoxTwoColumn.LeftColumn>
+                                        Is active?
+                                    </StatsBoxTwoColumn.LeftColumn>
+                                    <StatsBoxTwoColumn.RightColumn>
+                                        <div className="flex items-center justify-end">
+                                            {rewardToken.isRewardActive ? (
+                                                <FaRegCheckCircle className="h-5 w-5 text-success" />
+                                            ) : (
+                                                <FaRegTimesCircle className="h-5 w-5 text-error" />
+                                            )}
+                                        </div>
+                                    </StatsBoxTwoColumn.RightColumn>
+                                </StatsBoxTwoColumn.Wrapper>
+                                {isOwner && (
+                                    <div>
+                                        <Button
+                                            variant={`${
+                                                rewardToken.isRewardActive
+                                                    ? 'error'
+                                                    : 'primary'
+                                            }`}
+                                            className="w-full"
+                                        >
+                                            Set{' '}
+                                            {rewardToken.isRewardActive
+                                                ? 'Inactive'
+                                                : 'Active'}
+                                        </Button>
+                                    </div>
+                                )}
                             </div>
                         ))}
                 </div>

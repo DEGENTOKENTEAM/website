@@ -69,7 +69,7 @@ export function Button({
     if (variant == 'error') {
         className = clsx(
             baseStyle,
-            'bg-error/80 border-error/80 disabled:bg-error/30 text-white active:border-error',
+            'bg-error/40 border-error/20 disabled:bg-error/30 disabled:text-white/50 text-white/60 active:border-error/100',
             className
         )
     }

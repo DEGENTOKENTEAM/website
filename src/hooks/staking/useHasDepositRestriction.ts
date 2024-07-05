@@ -1,15 +1,14 @@
 import abi from '@dappabis/stakex/abi-ui.json'
-import { TokenInfoResponse } from '@dapptypes'
 import { Address } from 'viem'
 import { useReadContract } from 'wagmi'
 
-export const useGetRewardTokens = (address: Address, chainId: number) =>
+export const useHasDepositRestriction = (chainId: number, address: Address) =>
     useReadContract({
         address,
         chainId,
         abi,
-        functionName: 'getRewardTokens',
+        functionName: 'hasDepositRestriction',
         query: {
-            select: (data: TokenInfoResponse[]) => data,
+            select: (data: boolean) => data,
         },
     })

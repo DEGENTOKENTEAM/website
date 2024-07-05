@@ -1,4 +1,4 @@
-import { TokenInfoResponse } from '@dapptypes'
+import { StakingMetrics, TokenInfoResponse } from '@dapptypes'
 import { Chain } from '@wagmi/chains'
 import { createContext } from 'react'
 import { Address, zeroAddress } from 'viem'
@@ -28,12 +28,14 @@ export type ManageStakeXContextDataType = {
     isOwner: boolean
     chain?: Chain
     stakingToken?: TokenInfoResponse
+    metrics?: StakingMetrics
 }
 
 export type ManageStakeXContextType = {
     setData: Function
     data: ManageStakeXContextDataType
 }
+
 export const ManageStakeXContext = createContext<ManageStakeXContextType>({
     setData: () => {},
     data: {

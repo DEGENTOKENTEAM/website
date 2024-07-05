@@ -1,4 +1,5 @@
 import { visualAddress } from '@dapphelpers/address'
+import { ManageStakeXContext } from '@dapphelpers/defitools'
 import { toReadableNumber } from '@dapphelpers/number'
 import { useFetch } from '@dapphooks/shared/useFetch'
 import { useGetERC20BalanceOf } from '@dapphooks/shared/useGetERC20BalanceOf'
@@ -13,40 +14,39 @@ import { useRunning } from '@dapphooks/staking/useRunning'
 import { CaretDivider } from '@dappshared/CaretDivider'
 import { StatsBoxTwoColumn } from '@dappshared/StatsBoxTwoColumn'
 import { Tile } from '@dappshared/Tile'
-import {} from '@uidotdev/usehooks'
-import { useEffect, useState } from 'react'
+import { useContext, useEffect, useState } from 'react'
 import { FaRegCheckCircle, FaRegTimesCircle } from 'react-icons/fa'
 import { Spinner } from 'src/components/dapp/elements/Spinner'
 import { Address } from 'viem'
 
-type ManageBaseType = {
-    protocolAddress: Address
-}
+export const GeneralInformation = () => {
+    const {
+        data: { chain, protocol, owner },
+    } = useContext(ManageStakeXContext)
 
-export const GeneralInformation = ({ protocolAddress }: ManageBaseType) => {
     const [ownerAddress, setOwnerAddress] = useState<Address>()
     const [tvlUsd, setTvlUsd] = useState(0)
     const [rewardTokenFetches, setRewardTokenFetches] = useState<any[]>([])
 
     const { data: dataStakingToken, isLoading: isLoadingStakingToken } =
-        useGetStakingToken(protocolAddress)
+        useGetStakingToken(protocol)
     const { data: dataStableToken, isLoading: isLoadingStableToken } =
-        useGetStableToken(protocolAddress)
+        useGetStableToken(protocol)
     const { data: dataContractOwner, isLoading: isLoadingContractOwner } =
-        useGetContractOwner(protocolAddress)
+        useGetContractOwner(protocol)
     const { data: dataIsActive, isLoading: isLoadingIsActive } =
-        useActive(protocolAddress)
+        useActive(protocol)
     const { data: dataIsInitialized, isLoading: isLoadingIsInitialized } =
-        useInitialized(protocolAddress)
+        useInitialized(protocol)
     const { data: dataIsRunning, isLoading: isLoadingIsRunning } =
-        useRunning(protocolAddress)
+        useRunning(protocol)
     const { data: dataStakingData, isLoading: isLoadingStakingData } =
-        useGetStakingData(protocolAddress)
+        useGetStakingData(protocol)
 
     const {
         data: dataStakingTokenBalance,
         isLoading: isLoadingStakingTokenBalance,
-    } = useGetERC20BalanceOf(dataStakingToken?.source!, protocolAddress, 43114)
+    } = useGetERC20BalanceOf(dataStakingToken?.source!, protocol, 43114)
 
     /// get dollar price per token
     const { response: responseStakingTokenInfo } = useFetch({
@@ -54,9 +54,8 @@ export const GeneralInformation = ({ protocolAddress }: ManageBaseType) => {
         url: `${process.env.NEXT_PUBLIC_STAKEX_API_ENDPOINT}/latest/dex/tokens/${dataStakingToken?.source}`,
     })
 
-    const { response: responseTVLinUSD } = useGetTVLinUSD(protocolAddress)
+    const { response: responseTVLinUSD } = useGetTVLinUSD(chain?.id, protocol)
 
-    // console.log({ responseTVLinUSD })
     useEffect(() => {
         if (
             Boolean(
@@ -99,160 +98,130 @@ export const GeneralInformation = ({ protocolAddress }: ManageBaseType) => {
             <span className="flex-1 font-title text-xl font-bold">
                 General Information
             </span>
-            <div className="flex flex-col gap-1 rounded-lg bg-dapp-blue-400 p-3">
-                <div className="flex items-center gap-2 text-xs">
-                    <StatsBoxTwoColumn.Wrapper className="w-full text-sm">
-                        <div className="col-span-2">
-                            <span className="font-bold">Protocol address</span>
-                            <br />
-                            <span className="font-mono text-sm">
-                                <span className=" xs:hidden">
-                                    {visualAddress(protocolAddress)}
-                                </span>
-                                <span className="hidden text-xs xs:inline sm:text-sm">
-                                    {protocolAddress}
-                                </span>
-                            </span>
-                        </div>
-                        <div className="col-span-2 mt-4">
-                            <span className="font-bold">Owner address</span>
-                            <br />
-                            <span className="font-mono text-sm">
-                                <span className=" xs:hidden">
-                                    {dataContractOwner &&
-                                        visualAddress(dataContractOwner)}
-                                </span>
-                                <span className="hidden text-xs xs:inline sm:text-sm">
-                                    {dataContractOwner}
-                                </span>
-                            </span>
-                        </div>
-
-                        <div className="col-span-2">
-                            <CaretDivider />
-                        </div>
-
-                        <StatsBoxTwoColumn.LeftColumn>
-                            Staked {dataStakingToken && dataStakingToken.symbol}
-                        </StatsBoxTwoColumn.LeftColumn>
-                        <StatsBoxTwoColumn.RightColumn>
-                            <div className="flex justify-end">
-                                {!isLoadingStakingTokenBalance &&
-                                dataStakingTokenBalance &&
-                                dataStakingToken ? (
-                                    `~${toReadableNumber(
-                                        dataStakingTokenBalance,
-                                        dataStakingToken.decimals,
-                                        {
-                                            maximumFractionDigits: 2,
-                                            minimumFractionDigits: 2,
-                                        }
-                                    )}`
-                                ) : (
-                                    <Spinner
-                                        className="mt-2 h-2 w-2"
-                                        theme="dark"
-                                    />
-                                )}
-                            </div>
-                        </StatsBoxTwoColumn.RightColumn>
-
-                        {!isLoadingStableToken && dataStableToken && tvlUsd && (
-                            <>
-                                <StatsBoxTwoColumn.LeftColumn>
-                                    TVL in USD
-                                </StatsBoxTwoColumn.LeftColumn>
-                                <StatsBoxTwoColumn.RightColumn>
-                                    <div className="flex justify-end">
-                                        ~
-                                        {toReadableNumber(tvlUsd, 0, {
-                                            maximumFractionDigits: 2,
-                                            minimumFractionDigits: 2,
-                                        })}
-                                    </div>
-                                </StatsBoxTwoColumn.RightColumn>
-                            </>
-                        )}
-
-                        <StatsBoxTwoColumn.LeftColumn>
-                            APR / APY in Token
-                        </StatsBoxTwoColumn.LeftColumn>
-                        <StatsBoxTwoColumn.RightColumn>
-                            Coming soon...
-                        </StatsBoxTwoColumn.RightColumn>
-                        <StatsBoxTwoColumn.LeftColumn>
-                            APR / APY in USD
-                        </StatsBoxTwoColumn.LeftColumn>
-                        <StatsBoxTwoColumn.RightColumn>
-                            Coming soon...
-                        </StatsBoxTwoColumn.RightColumn>
-
-                        <div className="col-span-2">
-                            <CaretDivider />
-                        </div>
-
-                        <StatsBoxTwoColumn.LeftColumn>
-                            Protocol initialized?
-                        </StatsBoxTwoColumn.LeftColumn>
-                        <StatsBoxTwoColumn.RightColumn>
-                            <div className="flex justify-end">
-                                {!isLoadingIsInitialized ? (
-                                    dataIsInitialized ? (
-                                        <FaRegCheckCircle className="h-5 w-5 text-success" />
-                                    ) : (
-                                        <FaRegTimesCircle className="h-5 w-5 text-error" />
-                                    )
-                                ) : (
-                                    <Spinner
-                                        className="mt-2 h-2 w-2"
-                                        theme="dark"
-                                    />
-                                )}
-                            </div>
-                        </StatsBoxTwoColumn.RightColumn>
-
-                        <StatsBoxTwoColumn.LeftColumn>
-                            Protocol active?
-                        </StatsBoxTwoColumn.LeftColumn>
-                        <StatsBoxTwoColumn.RightColumn>
-                            <div className="flex justify-end">
-                                {!isLoadingIsActive ? (
-                                    dataIsActive ? (
-                                        <FaRegCheckCircle className="h-5 w-5 text-success" />
-                                    ) : (
-                                        <FaRegTimesCircle className="h-5 w-5 text-error" />
-                                    )
-                                ) : (
-                                    <Spinner
-                                        className="mt-2 h-2 w-2"
-                                        theme="dark"
-                                    />
-                                )}
-                            </div>
-                        </StatsBoxTwoColumn.RightColumn>
-
-                        <StatsBoxTwoColumn.LeftColumn>
-                            Protocol running?
-                        </StatsBoxTwoColumn.LeftColumn>
-                        <StatsBoxTwoColumn.RightColumn>
-                            <div className="flex justify-end">
-                                {!isLoadingIsRunning ? (
-                                    dataIsRunning ? (
-                                        <FaRegCheckCircle className="h-5 w-5 text-success" />
-                                    ) : (
-                                        <FaRegTimesCircle className="h-5 w-5 text-error" />
-                                    )
-                                ) : (
-                                    <Spinner
-                                        className="mt-2 h-2 w-2"
-                                        theme="dark"
-                                    />
-                                )}
-                            </div>
-                        </StatsBoxTwoColumn.RightColumn>
-                    </StatsBoxTwoColumn.Wrapper>
+            <StatsBoxTwoColumn.Wrapper className="w-full rounded-lg bg-dapp-blue-800 px-5 py-2 text-sm">
+                <div className="col-span-2">
+                    <span className="font-bold">Protocol address</span>
+                    <br />
+                    <span className="font-mono text-sm">
+                        <span className=" xs:hidden">
+                            {visualAddress(protocol)}
+                        </span>
+                        <span className="hidden text-xs xs:inline sm:text-sm">
+                            {protocol}
+                        </span>
+                    </span>
                 </div>
-            </div>
+                <div className="col-span-2 mt-4">
+                    <span className="font-bold">Owner address</span>
+                    <br />
+                    <span className="font-mono text-sm">
+                        <span className=" xs:hidden">
+                            {owner && visualAddress(owner)}
+                        </span>
+                        <span className="hidden text-xs xs:inline sm:text-sm">
+                            {owner}
+                        </span>
+                    </span>
+                </div>
+
+                <div className="col-span-2">
+                    <CaretDivider />
+                </div>
+
+                <StatsBoxTwoColumn.LeftColumn>
+                    Staked {dataStakingToken && dataStakingToken.symbol}
+                </StatsBoxTwoColumn.LeftColumn>
+                <StatsBoxTwoColumn.RightColumn>
+                    <div className="flex justify-end">
+                        {!isLoadingStakingTokenBalance &&
+                        dataStakingTokenBalance &&
+                        dataStakingToken ? (
+                            `~${toReadableNumber(
+                                dataStakingTokenBalance,
+                                dataStakingToken.decimals,
+                                {
+                                    maximumFractionDigits: 2,
+                                    minimumFractionDigits: 2,
+                                }
+                            )}`
+                        ) : (
+                            <Spinner className="mt-2 h-2 w-2" theme="dark" />
+                        )}
+                    </div>
+                </StatsBoxTwoColumn.RightColumn>
+
+                {!isLoadingStableToken && dataStableToken && tvlUsd && (
+                    <>
+                        <StatsBoxTwoColumn.LeftColumn>
+                            Total Value Locked
+                        </StatsBoxTwoColumn.LeftColumn>
+                        <StatsBoxTwoColumn.RightColumn>
+                            <div className="flex justify-end">
+                                ~$
+                                {toReadableNumber(responseTVLinUSD, 0, {
+                                    maximumFractionDigits: 2,
+                                    minimumFractionDigits: 2,
+                                })}
+                            </div>
+                        </StatsBoxTwoColumn.RightColumn>
+                    </>
+                )}
+
+                <div className="col-span-2">
+                    <CaretDivider />
+                </div>
+
+                <StatsBoxTwoColumn.LeftColumn>
+                    Protocol initialized?
+                </StatsBoxTwoColumn.LeftColumn>
+                <StatsBoxTwoColumn.RightColumn>
+                    <div className="flex justify-end">
+                        {!isLoadingIsInitialized ? (
+                            dataIsInitialized ? (
+                                <FaRegCheckCircle className="h-5 w-5 text-success" />
+                            ) : (
+                                <FaRegTimesCircle className="h-5 w-5 text-error" />
+                            )
+                        ) : (
+                            <Spinner className="mt-2 h-2 w-2" theme="dark" />
+                        )}
+                    </div>
+                </StatsBoxTwoColumn.RightColumn>
+
+                <StatsBoxTwoColumn.LeftColumn>
+                    Protocol active?
+                </StatsBoxTwoColumn.LeftColumn>
+                <StatsBoxTwoColumn.RightColumn>
+                    <div className="flex justify-end">
+                        {!isLoadingIsActive ? (
+                            dataIsActive ? (
+                                <FaRegCheckCircle className="h-5 w-5 text-success" />
+                            ) : (
+                                <FaRegTimesCircle className="h-5 w-5 text-error" />
+                            )
+                        ) : (
+                            <Spinner className="mt-2 h-2 w-2" theme="dark" />
+                        )}
+                    </div>
+                </StatsBoxTwoColumn.RightColumn>
+
+                <StatsBoxTwoColumn.LeftColumn>
+                    Protocol running?
+                </StatsBoxTwoColumn.LeftColumn>
+                <StatsBoxTwoColumn.RightColumn>
+                    <div className="flex justify-end">
+                        {!isLoadingIsRunning ? (
+                            dataIsRunning ? (
+                                <FaRegCheckCircle className="h-5 w-5 text-success" />
+                            ) : (
+                                <FaRegTimesCircle className="h-5 w-5 text-error" />
+                            )
+                        ) : (
+                            <Spinner className="mt-2 h-2 w-2" theme="dark" />
+                        )}
+                    </div>
+                </StatsBoxTwoColumn.RightColumn>
+            </StatsBoxTwoColumn.Wrapper>
 
             {/* 
             <p>APY (Token and Reward assets)</p>

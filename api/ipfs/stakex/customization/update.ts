@@ -14,16 +14,16 @@ export const handler = async (
     if (!event.body)
         return createReturn(500, JSON.stringify({ message: 'NO_BODY' }))
 
-    const { protocol, chainId, image, styles, challenge, sig } = JSON.parse(
-        event.body
-    ) as {
-        protocol: Address
-        chainId: number
-        image: string
-        styles: string
-        challenge: string
-        sig: Address
-    }
+    const { protocol, chainId, image, styles, projectName, challenge, sig } =
+        JSON.parse(event.body) as {
+            protocol: Address
+            chainId: number
+            image: string
+            styles: string
+            projectName: string
+            challenge: string
+            sig: Address
+        }
 
     if (
         !protocol ||
@@ -120,24 +120,42 @@ export const handler = async (
             JSON.stringify({ message: 'INVALID_ASPECT_RATIO' })
         )
 
-    const imageIpfs = await pinata.pinFileToIPFS(readable, {
-        pinataMetadata: { name: `${protocol}/logo.${ftype.ext}` },
+    const db = new DynamoDBHelper({ region: 'eu-west-1' })
+
+    const existingItem = await db.query({
+        TableName: process.env.DB_TABLE_NAME_STAKEX_CUSTOMIZATION,
+        KeyConditionExpression: `#CustomizationKey = :CustomizationKey`,
+        ExpressionAttributeNames: {
+            [`#CustomizationKey`]: `CustomizationKey`,
+        },
+        ExpressionAttributeValues: {
+            [`:CustomizationKey`]: protocol,
+        },
+        ConsistentRead: true,
     })
 
-    const stylesIpfs = await pinata.pinJSONToIPFS(styles, {
+    let logoIpfsNew: string
+    ;({ IpfsHash: logoIpfsNew } = await pinata.pinFileToIPFS(readable, {
+        pinataMetadata: { name: `${protocol}/logo.${ftype.ext}` },
+    }))
+
+    let stylesIpfsNew: string
+    ;({ IpfsHash: stylesIpfsNew } = await pinata.pinJSONToIPFS(styles, {
         pinataMetadata: { name: `${protocol}/styles` },
-    })
+    }))
 
     // store protocol address and ipfs cid
-    await new DynamoDBHelper({ region: 'eu-west-1' }).batchWrite({
+    await db.batchWrite({
         RequestItems: {
             [process.env.DB_TABLE_NAME_STAKEX_CUSTOMIZATION!]: [
                 {
                     PutRequest: {
                         Item: {
+                            ...(existingItem.Items?.[0] || {}), // use data of existing item
                             CustomizationKey: protocol,
-                            imageIpfs,
-                            stylesIpfs,
+                            projectName,
+                            logoIpfsNew,
+                            stylesIpfsNew,
                         },
                     },
                 },
@@ -149,7 +167,7 @@ export const handler = async (
         200,
         JSON.stringify({
             message: 'SUCCESSFULLY_STORED',
-            data: { imageIpfs, stylesIpfs },
+            data: { projectName, logoIpfsNew, stylesIpfsNew },
         })
     )
 }

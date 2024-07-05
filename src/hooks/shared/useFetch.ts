@@ -6,14 +6,19 @@ type useFetchType = {
     body?: string
     enabled?: boolean
 }
-export const useFetch = ({ url, method, body, enabled }: useFetchType) => {
-    const [response, setResponse] = useState<any>(null)
+export const useFetch = <T = any>({
+    url,
+    method,
+    body,
+    enabled,
+}: useFetchType) => {
+    const [response, setResponse] = useState<T>()
     const [loading, setLoading] = useState(true)
     useEffect(() => {
+        if (!enabled) return
+
         const abortController = new AbortController()
         const signal = abortController.signal
-
-        if (!enabled) return () => abortController.abort()
 
         fetch(url, {
             method: method || 'GET',
@@ -34,5 +39,6 @@ export const useFetch = ({ url, method, body, enabled }: useFetchType) => {
 
         return () => abortController.abort()
     }, [url, method, body])
+
     return { response, loading }
 }

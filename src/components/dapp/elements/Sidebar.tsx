@@ -1,6 +1,6 @@
 import { Popover, Transition } from '@headlessui/react'
 import clsx from 'clsx'
-import { Fragment, useCallback, useMemo } from 'react'
+import { Fragment, useCallback } from 'react'
 import { FaPiggyBank } from 'react-icons/fa'
 import { GiPayMoney } from 'react-icons/gi'
 import { HiCurrencyDollar, HiHome } from 'react-icons/hi'
@@ -236,9 +236,9 @@ export default function Sidebar(props: { mobile?: boolean }) {
                     className="fixed flex w-64 flex-col gap-2 space-y-1 px-2"
                     aria-label="Sidebar"
                 >
-                    {navigation.map((item) => {
+                    {navigation.map((item, i) => {
                         return (
-                            <>
+                            <Fragment key={i}>
                                 <SidebarItem
                                     item={item}
                                     current={isCurrent(item)}
@@ -246,8 +246,8 @@ export default function Sidebar(props: { mobile?: boolean }) {
 
                                 {isCurrent(item) && item.children && (
                                     <div className="flex flex-col gap-2  space-y-1 border-l-2 border-l-dapp-blue-400 pl-4">
-                                        {item.children.map((child) => (
-                                            <>
+                                        {item.children.map((child, j) => (
+                                            <Fragment key={j}>
                                                 <SidebarItem
                                                     item={child}
                                                     current={isCurrent(child)}
@@ -257,9 +257,11 @@ export default function Sidebar(props: { mobile?: boolean }) {
                                                         <div className="flex flex-col gap-2  space-y-1 border-l-2 border-l-dapp-blue-400 pl-4">
                                                             {child.children.map(
                                                                 (
-                                                                    grandchild
+                                                                    grandchild,
+                                                                    k
                                                                 ) => (
                                                                     <SidebarItem
+                                                                        key={k}
                                                                         item={
                                                                             grandchild
                                                                         }
@@ -271,11 +273,11 @@ export default function Sidebar(props: { mobile?: boolean }) {
                                                             )}
                                                         </div>
                                                     )}
-                                            </>
+                                            </Fragment>
                                         ))}
                                     </div>
                                 )}
-                            </>
+                            </Fragment>
                         )
                     })}
                 </nav>

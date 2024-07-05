@@ -2,28 +2,31 @@ import {
     ManageStakeXContext,
     ManageStakeXContextDataType,
 } from '@dapphelpers/defitools'
+import { useGetContractOwner } from '@dapphooks/staking/useGetContractOwner'
+import { useGetMetrics } from '@dapphooks/staking/useGetMetrics'
 import { useGetStakingToken } from '@dapphooks/staking/useGetStakingToken'
-import { avalanche } from '@wagmi/chains'
+import { Chain, avalanche } from '@wagmi/chains'
+import _ from 'lodash'
 import { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { toast } from 'react-toastify'
 import { Address, zeroAddress } from 'viem'
+import { useAccount } from 'wagmi'
 import { Buckets } from './manage/Buckets'
 import { Control } from './manage/Control'
 import { Customization } from './manage/Customization'
 import { Fees } from './manage/Fees'
 import { GeneralInformation } from './manage/GeneralInformation'
+import { InjectRewards } from './manage/InjectRewards'
 import { PayoutTokens } from './manage/PayoutTokens'
 import { RewardTokens } from './manage/RewardTokens'
-import { useGetContractOwner } from '@dapphooks/staking/useGetContractOwner'
-import { useAccount } from 'wagmi'
-import _ from 'lodash'
+import { StakingProgressChart } from './manage/StakingProgressChart'
 
 export const Manage = () => {
     const { protocolAddress } = useParams<{ protocolAddress: Address }>()
 
     const navigate = useNavigate()
-    const { address } = useAccount()
+    const { address, chain: chainAccount } = useAccount()
 
     if (!protocolAddress) {
         toast.error('Invalid protocol address')
@@ -31,9 +34,10 @@ export const Manage = () => {
         return <></>
     }
 
+    const chain = (chainAccount ? chainAccount : avalanche) as Chain // TODO dynamic chain
     const [data, setData] = useState<ManageStakeXContextDataType>({
         protocol: protocolAddress,
-        chain: avalanche,
+        chain,
         owner: zeroAddress,
         isOwner: false,
         isLoading: false,
@@ -41,29 +45,30 @@ export const Manage = () => {
 
     const { data: dataStakingToken } = useGetStakingToken(protocolAddress)
     const { data: dataContractOwner } = useGetContractOwner(protocolAddress)
+    const { response: dataMetrics } = useGetMetrics({
+        chainId: chain.id,
+        protocol: protocolAddress,
+    })
 
     useEffect(() => {
-        if (!dataStakingToken) return
-
-        let newData: ManageStakeXContextDataType = {
+        const _data: ManageStakeXContextDataType = {
             ...data,
-            stakingToken: dataStakingToken,
+            isLoading: !Boolean(
+                dataStakingToken && dataMetrics && dataContractOwner
+            ),
         }
 
-        newData = { ...newData, isLoading: false }
+        if (dataStakingToken) _data.stakingToken = dataStakingToken
 
-        setData(newData)
-    }, [dataStakingToken])
+        if (dataContractOwner) {
+            _data.owner = dataContractOwner
+            _data.isOwner = _.toLower(address) === _.toLower(dataContractOwner)
+        }
 
-    useEffect(() => {
-        if (!dataContractOwner) return
+        if (dataMetrics) _data.metrics = dataMetrics
 
-        setData({
-            ...data,
-            owner: dataContractOwner,
-            isOwner: _.toLower(address) === _.toLower(dataContractOwner),
-        })
-    }, [address, dataContractOwner])
+        setData(_data)
+    }, [dataStakingToken, dataMetrics, dataContractOwner])
 
     return (
         protocolAddress && (
@@ -74,13 +79,15 @@ export const Manage = () => {
                         <span className="text-degenOrange">X</span>
                         <span className="text-xl">Management</span>
                     </h1>
-                    <GeneralInformation protocolAddress={protocolAddress} />
                     <Customization />
+                    <GeneralInformation />
+                    <StakingProgressChart />
                     <Buckets />
                     <RewardTokens />
                     <PayoutTokens />
                     <Fees />
                     {data.isOwner && <Control />}
+                    <InjectRewards />
                 </div>
             </ManageStakeXContext.Provider>
         )

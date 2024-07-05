@@ -7,28 +7,45 @@ export type StakingProjectLogoProps = PropsWithChildren & {
     projectName: string
     source: string
     className?: string
+    isPending?: boolean
 }
 
 export const StakingProjectLogo = ({
     source,
     projectName,
     className,
+    isPending,
 }: StakingProjectLogoProps) => {
     return (
-        <div className={clsx(['flex gap-4', className])}>
-            {source ? (
-                <Image
-                    src={source}
-                    alt="Project Logo"
-                    className="rounded-full bg-dapp-blue-400 shadow-md shadow-dapp-blue-800"
-                    width={100}
-                    height={100}
-                />
-            ) : (
-                <div className="flex h-[100px] w-[100px] items-center justify-center rounded-full bg-dapp-blue-400">
-                    <Spinner theme="dark" />
-                </div>
-            )}
+        <div className={clsx(['relative flex gap-4', className])}>
+            <div className="h-[100px] w-[100px]">
+                {(!source || isPending) && (
+                    <div
+                        className={`absolute left-0 top-0 flex h-[100px] w-[100px] flex-col items-center justify-center gap-2 rounded-full bg-dapp-blue-200`}
+                    >
+                        <Spinner theme="dark" />
+                        {isPending && (
+                            <span className="text-center text-xs font-bold">
+                                available
+                                <br />
+                                soon
+                            </span>
+                        )}
+                    </div>
+                )}
+                {source && (
+                    <Image
+                        src={source}
+                        alt="Project Logo"
+                        className={`rounded-full bg-dapp-blue-400 shadow-md shadow-dapp-blue-800 ${
+                            isPending && 'opacity-10'
+                        }`}
+                        width={100}
+                        height={100}
+                    />
+                )}
+            </div>
+
             <div className="flex items-center">
                 <div>
                     <div className="font-title text-xl font-bold">
