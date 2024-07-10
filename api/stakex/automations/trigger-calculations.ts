@@ -38,18 +38,19 @@ export const handler: Handler = async (event, context, callback) => {
                     chainId,
                     blockNumberAPUpdate,
                     blockNumberAPUpdateIntervall,
-                    blockNumberStakesUpdate,
                     protocol,
                     blockNumberEnabled,
                 } = item
 
                 const promises: Promise<any>[] = []
                 if (blockNumberEnabled > 0) {
-                    const fromBlockAP = !blockNumberAPUpdate
-                        ? blockNumberEnabled
-                        : blockNumberAPUpdate
-
-                    if (toBlock - fromBlockAP > blockNumberAPUpdateIntervall) {
+                    if (
+                        toBlock -
+                            (!blockNumberAPUpdate
+                                ? blockNumberEnabled
+                                : blockNumberAPUpdate) >
+                        blockNumberAPUpdateIntervall
+                    ) {
                         promises.push(
                             lambdaClient.send(
                                 new InvokeAsyncCommand({
@@ -57,7 +58,7 @@ export const handler: Handler = async (event, context, callback) => {
                                     InvokeArgs: JSON.stringify({
                                         chainId: Number(chainId),
                                         protocol,
-                                        fromBlock: fromBlockAP,
+                                        fromBlock: toBlock - 907_200, // TODO gather for nearly last 3 weeks, maybe put this in db for the protocol, based on chain id
                                         toBlock,
                                     }),
                                 })
