@@ -1,10 +1,3 @@
-import {
-    avalanche,
-    avalancheFuji,
-    goerli,
-    localhost,
-    mainnet,
-} from '@wagmi/chains'
 import { ConnectKitProvider, getDefaultConfig } from 'connectkit'
 import { useTheme } from 'next-themes'
 import Head from 'next/head'
@@ -14,6 +7,8 @@ import { BrowserRouter, Route, Routes } from 'react-router-dom'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import TimeAgo from 'javascript-time-ago'
 import en from 'javascript-time-ago/locale/en'
+import { chains } from 'shared/supportedChains'
+import { DeFiTools } from 'src/components/dapp/DeFiTools'
 import { WagmiProvider, createConfig } from 'wagmi'
 import { ATM } from '../components/dapp/ATM'
 import { Bouncer } from '../components/dapp/Bouncer'
@@ -23,18 +18,12 @@ import { LiquidityBacking } from '../components/dapp/LiquidityBacking'
 import { StakeX } from '../components/dapp/StakeX'
 import { DappHeader } from '../components/dapp/elements/DappHeader'
 import Sidebar from '../components/dapp/elements/Sidebar'
-import { DeFiTools } from 'src/components/dapp/DeFiTools'
 
 TimeAgo.addDefaultLocale(en)
 
 const config = createConfig(
     getDefaultConfig({
-        chains:
-            process.env.NODE_ENV != 'production'
-                ? [localhost, avalanche, avalancheFuji, mainnet, goerli]
-                : Boolean(process.env.NEXT_PUBLIC_ENABLE_TESTNETS)
-                ? [avalanche, avalancheFuji, mainnet, goerli]
-                : [avalanche, mainnet],
+        chains: chains as any,
         walletConnectProjectId:
             process.env.NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID!,
         // infuraId: process.env.NEXT_PUBLIC_INFURA_ID!,

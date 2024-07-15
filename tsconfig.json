@@ -20,6 +20,7 @@
     "paths": {
       "@dapphooks/*": ["src/hooks/*"],
       "@dapphelpers/*": ["src/helpers/*"],
+      "@dappelements/*": ["src/components/dapp/elements/*"],
       "@dappshared/*": ["src/components/dapp/shared/*"],
       "@dapptypes": ["src/types"],
       "@dappconstants": ["src/constants"],

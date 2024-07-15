@@ -4,7 +4,7 @@ import { fileTypeFromBuffer } from 'file-type'
 import sizeOf from 'image-size'
 import { Readable } from 'stream'
 import { Address, createPublicClient, http } from 'viem'
-import { chainByChainId } from '../../../../shared/supportedChains'
+import { getChainById } from '../../../../shared/supportedChains'
 import { DynamoDBHelper } from '../../../helpers/ddb/dynamodb'
 import { createReturn } from '../../../helpers/return'
 
@@ -34,7 +34,7 @@ export const handler = async (
     )
         return createReturn(400, JSON.stringify({ message: 'DATA_MISSING' }))
 
-    const chain = chainByChainId(chainId)
+    const chain = getChainById(Number(chainId))
 
     if (!chain)
         return createReturn(

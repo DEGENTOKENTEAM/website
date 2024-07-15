@@ -968,6 +968,777 @@
     "type": "function"
   },
   {
+    "inputs": [],
+    "name": "ActivateBlockInvalid",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "ActivateTimeInvalid",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "CalldataInvalid",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "ExceededMaxFee",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "ExceedsMinimumAvailableAssets",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "ExceedsMinimumAvailableBuckets",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "MissingNFTConfiguration",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "NoChanges",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "StakingTokenIsNoRewardToken",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "token",
+        "type": "address"
+      }
+    ],
+    "name": "TokenInvalid",
+    "type": "error"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "manager",
+        "type": "address"
+      },
+      {
+        "components": [
+          {
+            "internalType": "address",
+            "name": "token",
+            "type": "address"
+          }
+        ],
+        "indexed": false,
+        "internalType": "struct RewardAddParams",
+        "name": "params",
+        "type": "tuple"
+      }
+    ],
+    "name": "AddedReward",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "manager",
+        "type": "address"
+      },
+      {
+        "components": [
+          {
+            "internalType": "address",
+            "name": "token",
+            "type": "address"
+          }
+        ],
+        "indexed": false,
+        "internalType": "struct RewardAddParams[]",
+        "name": "params",
+        "type": "tuple[]"
+      }
+    ],
+    "name": "AddedRewards",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "manager",
+        "type": "address"
+      }
+    ],
+    "name": "AddedStakeBuckets",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "manager",
+        "type": "address"
+      }
+    ],
+    "name": "Disabled",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "manager",
+        "type": "address"
+      }
+    ],
+    "name": "DisabledAccessControlOnDeposit",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "manager",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "token",
+        "type": "address"
+      }
+    ],
+    "name": "DisabledRewardToken",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "manager",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "bytes32",
+        "name": "bucketId",
+        "type": "bytes32"
+      }
+    ],
+    "name": "DisabledStakeBucket",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "manager",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "token",
+        "type": "address"
+      }
+    ],
+    "name": "DisabledTargetToken",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "manager",
+        "type": "address"
+      }
+    ],
+    "name": "DisabledTransferOnlyBurned",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "manager",
+        "type": "address"
+      }
+    ],
+    "name": "Enabled",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "manager",
+        "type": "address"
+      }
+    ],
+    "name": "EnabledAccessControlOnDeposit",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "manager",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "token",
+        "type": "address"
+      }
+    ],
+    "name": "EnabledRewardToken",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "manager",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "bytes32",
+        "name": "bucketId",
+        "type": "bytes32"
+      }
+    ],
+    "name": "EnabledStakeBucket",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "manager",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "token",
+        "type": "address"
+      }
+    ],
+    "name": "EnabledTargetToken",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "manager",
+        "type": "address"
+      }
+    ],
+    "name": "EnabledTransferOnlyBurned",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "manager",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "token",
+        "type": "address"
+      }
+    ],
+    "name": "SetTargetToken",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "manager",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "chosenBlock",
+        "type": "uint256"
+      }
+    ],
+    "name": "UpdatedActiveBlock",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "manager",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "chosenTime",
+        "type": "uint256"
+      }
+    ],
+    "name": "UpdatedActiveTime",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "manager",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint16",
+        "name": "bpsStake",
+        "type": "uint16"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint16",
+        "name": "bpsUnstake",
+        "type": "uint16"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint16",
+        "name": "bpsRestake",
+        "type": "uint16"
+      }
+    ],
+    "name": "UpdatedFeeForStaking",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "manager",
+        "type": "address"
+      }
+    ],
+    "name": "UpdatedStakeBucketShares",
+    "type": "event"
+  },
+  {
+    "inputs": [
+      {
+        "components": [
+          {
+            "internalType": "address",
+            "name": "token",
+            "type": "address"
+          }
+        ],
+        "internalType": "struct RewardAddParams[]",
+        "name": "_params",
+        "type": "tuple[]"
+      }
+    ],
+    "name": "stakeXAddRewards",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "components": [
+          {
+            "internalType": "bool",
+            "name": "burn",
+            "type": "bool"
+          },
+          {
+            "internalType": "uint32",
+            "name": "lock",
+            "type": "uint32"
+          },
+          {
+            "internalType": "uint16",
+            "name": "share",
+            "type": "uint16"
+          }
+        ],
+        "internalType": "struct StakeBucketAddParams[]",
+        "name": "_params",
+        "type": "tuple[]"
+      },
+      {
+        "components": [
+          {
+            "internalType": "bytes32",
+            "name": "id",
+            "type": "bytes32"
+          },
+          {
+            "internalType": "uint16",
+            "name": "share",
+            "type": "uint16"
+          }
+        ],
+        "internalType": "struct StakeBucketUpdateShareParams[]",
+        "name": "_paramsShare",
+        "type": "tuple[]"
+      }
+    ],
+    "name": "stakeXAddStakeBuckets",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bool",
+        "name": "_enabled",
+        "type": "bool"
+      }
+    ],
+    "name": "stakeXEnableDepositRestriction",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bool",
+        "name": "_enabled",
+        "type": "bool"
+      }
+    ],
+    "name": "stakeXEnableProtocol",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_block",
+        "type": "uint256"
+      }
+    ],
+    "name": "stakeXEnableProtocolByBlock",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_time",
+        "type": "uint256"
+      }
+    ],
+    "name": "stakeXEnableProtocolByTime",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_token",
+        "type": "address"
+      },
+      {
+        "internalType": "bool",
+        "name": "_enabled",
+        "type": "bool"
+      }
+    ],
+    "name": "stakeXEnableRewardToken",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "_bucketId",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "bool",
+        "name": "_enabled",
+        "type": "bool"
+      }
+    ],
+    "name": "stakeXEnableStakeBucket",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "components": [
+          {
+            "internalType": "address",
+            "name": "targetToken",
+            "type": "address"
+          },
+          {
+            "components": [
+              {
+                "internalType": "address",
+                "name": "rewardToken",
+                "type": "address"
+              },
+              {
+                "components": [
+                  {
+                    "internalType": "address",
+                    "name": "calleeSwap",
+                    "type": "address"
+                  },
+                  {
+                    "internalType": "address",
+                    "name": "calleeAmountOut",
+                    "type": "address"
+                  },
+                  {
+                    "internalType": "address[]",
+                    "name": "path",
+                    "type": "address[]"
+                  },
+                  {
+                    "internalType": "bool",
+                    "name": "isGmx",
+                    "type": "bool"
+                  }
+                ],
+                "internalType": "struct SwapCandidate[]",
+                "name": "candidates",
+                "type": "tuple[]"
+              }
+            ],
+            "internalType": "struct SwapCandidatesGroup[]",
+            "name": "candidatesGroup",
+            "type": "tuple[]"
+          }
+        ],
+        "internalType": "struct SetTargetTokenParams",
+        "name": "_params",
+        "type": "tuple"
+      },
+      {
+        "internalType": "bool",
+        "name": "_enable",
+        "type": "bool"
+      }
+    ],
+    "name": "stakeXEnableStakingTokenAsRewardToken",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_token",
+        "type": "address"
+      },
+      {
+        "internalType": "bool",
+        "name": "_enabled",
+        "type": "bool"
+      }
+    ],
+    "name": "stakeXEnableTargetToken",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bool",
+        "name": "_enabled",
+        "type": "bool"
+      }
+    ],
+    "name": "stakeXEnableTransferOnlyBurned",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "components": [
+          {
+            "internalType": "address",
+            "name": "targetToken",
+            "type": "address"
+          },
+          {
+            "components": [
+              {
+                "internalType": "address",
+                "name": "rewardToken",
+                "type": "address"
+              },
+              {
+                "components": [
+                  {
+                    "internalType": "address",
+                    "name": "calleeSwap",
+                    "type": "address"
+                  },
+                  {
+                    "internalType": "address",
+                    "name": "calleeAmountOut",
+                    "type": "address"
+                  },
+                  {
+                    "internalType": "address[]",
+                    "name": "path",
+                    "type": "address[]"
+                  },
+                  {
+                    "internalType": "bool",
+                    "name": "isGmx",
+                    "type": "bool"
+                  }
+                ],
+                "internalType": "struct SwapCandidate[]",
+                "name": "candidates",
+                "type": "tuple[]"
+              }
+            ],
+            "internalType": "struct SwapCandidatesGroup[]",
+            "name": "candidatesGroup",
+            "type": "tuple[]"
+          }
+        ],
+        "internalType": "struct SetTargetTokenParams",
+        "name": "_params",
+        "type": "tuple"
+      }
+    ],
+    "name": "stakeXSetTargetToken",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint16",
+        "name": "_bpsStake",
+        "type": "uint16"
+      },
+      {
+        "internalType": "uint16",
+        "name": "_bpsUnstake",
+        "type": "uint16"
+      },
+      {
+        "internalType": "uint16",
+        "name": "_bpsRestake",
+        "type": "uint16"
+      }
+    ],
+    "name": "stakeXUpdateFeesForStaking",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "components": [
+          {
+            "internalType": "bytes32",
+            "name": "id",
+            "type": "bytes32"
+          },
+          {
+            "internalType": "uint16",
+            "name": "share",
+            "type": "uint16"
+          }
+        ],
+        "internalType": "struct StakeBucketUpdateShareParams[]",
+        "name": "_params",
+        "type": "tuple[]"
+      }
+    ],
+    "name": "stakeXUpdateStakeBucketShares",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
     "inputs": [
       {
         "internalType": "bytes32",

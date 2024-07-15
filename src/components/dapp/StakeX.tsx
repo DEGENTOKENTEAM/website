@@ -21,7 +21,7 @@ import { StakingForm } from './staking/StakingForm'
 import { StakingPayoutTokenSelection } from './staking/StakingPayoutTokenSelection'
 import { StakingStatistics } from './staking/StakingSatistics'
 import { StakingTabber, StakingTabberItem } from './staking/StakingTabber'
-import { BaseOverlay } from './staking/overlays/BaseOverlay'
+import { BaseOverlay } from './shared/overlays/BaseOverlay'
 
 export const StakeX = () => {
     const { switchChain } = useSwitchChain()

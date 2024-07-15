@@ -3,7 +3,7 @@ import { Fragment } from 'react'
 
 export type BaseOverlayProps = {
     isOpen: boolean
-    onClose: () => void
+    onClose?: () => void
     closeOnBackdropClick?: boolean
     children?: any
 }
@@ -19,7 +19,7 @@ export const BaseOverlay = ({
                 as="div"
                 className="relative z-10"
                 onClose={() => {
-                    closeOnBackdropClick && onClose()
+                    closeOnBackdropClick && onClose && onClose()
                 }}
             >
                 <Transition.Child

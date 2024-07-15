@@ -4,6 +4,7 @@ import { useGetStakeBuckets } from '@dapphooks/staking/useGetStakeBuckets'
 import { useRestake } from '@dapphooks/staking/useRestake'
 import { CaretDivider } from '@dappshared/CaretDivider'
 import { StatsBoxTwoColumn } from '@dappshared/StatsBoxTwoColumn'
+import { BaseOverlay, BaseOverlayProps } from '@dappshared/overlays/BaseOverlay'
 import { StakeBucket, TokenInfo, TokenInfoResponse } from '@dapptypes'
 import { useEffect, useState } from 'react'
 import { AiOutlineQuestionCircle } from 'react-icons/ai'
@@ -19,7 +20,6 @@ import {
     StakeBucketButton,
     StakingDurationSelection,
 } from '../StakingDurationSelection'
-import { BaseOverlay, BaseOverlayProps } from './BaseOverlay'
 
 type StakingRestakeOverlayProps = {
     protocolAddress: Address

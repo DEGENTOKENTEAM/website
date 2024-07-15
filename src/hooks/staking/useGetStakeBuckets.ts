@@ -4,7 +4,7 @@ import BigNumber from 'bignumber.js'
 import { Address } from 'viem'
 import { useReadContract } from 'wagmi'
 
-export const useGetStakeBuckets = (address: Address) => {
+export const useGetStakeBuckets = (address: Address, all?: boolean) => {
     return useReadContract({
         address,
         abi,
@@ -17,7 +17,7 @@ export const useGetStakeBuckets = (address: Address) => {
                 if (!smallestShare) return []
 
                 return Array(...data)
-                    .filter(({ active }) => active)
+                    .filter(({ active }) => all || active)
                     .reduce<StakeBucket[]>(
                         (acc, res) => [
                             ...acc,

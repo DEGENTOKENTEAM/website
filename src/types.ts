@@ -70,6 +70,16 @@ export type StakeBucket = {
     staked: bigint
 }
 
+export type BucketParams = {
+    burn: boolean
+    lock: number
+    share: number
+}
+export type StakeBucketUpdateShareParams = {
+    id: Address
+    share: number
+}
+
 export type RewardEstimation = {
     tokenInfo: TokenInfo
     amount: bigint

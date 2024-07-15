@@ -10,7 +10,10 @@ export const Overview = () => {
             <Routes>
                 <Route index element={<Protocols />} />
                 <Route element={<Create />} path="create" />
-                <Route element={<Manage />} path="manage/:protocolAddress" />
+                <Route
+                    element={<Manage />}
+                    path="manage/:chainId/:protocolAddress"
+                />
             </Routes>
             <ToastContainer />
         </>

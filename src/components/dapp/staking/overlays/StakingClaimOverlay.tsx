@@ -8,6 +8,7 @@ import { useGetStakes } from '@dapphooks/staking/useGetStakes'
 import { useGetTargetTokens } from '@dapphooks/staking/useGetTargetTokens'
 import { CaretDivider } from '@dappshared/CaretDivider'
 import { StatsBoxTwoColumn } from '@dappshared/StatsBoxTwoColumn'
+import { BaseOverlay, BaseOverlayProps } from '@dappshared/overlays/BaseOverlay'
 import { TokenInfo, TokenInfoResponse } from '@dapptypes'
 import { pick } from 'lodash'
 import { Fragment, useEffect, useState } from 'react'
@@ -21,7 +22,6 @@ import { useAccount } from 'wagmi'
 import { Button } from '../../../Button'
 import { Spinner } from '../../elements/Spinner'
 import { StakingPayoutTokenSelection } from '../StakingPayoutTokenSelection'
-import { BaseOverlay, BaseOverlayProps } from './BaseOverlay'
 
 type StakingClaimOverlayAllProps = { tokenId?: never; isClaimAll: true }
 type StakingClaimOverlaySingleProps = { tokenId: bigint; isClaimAll?: false }

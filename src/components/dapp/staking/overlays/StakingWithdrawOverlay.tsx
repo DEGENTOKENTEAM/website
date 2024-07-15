@@ -5,6 +5,7 @@ import { useGetTargetTokens } from '@dapphooks/staking/useGetTargetTokens'
 import { useWithdraw } from '@dapphooks/staking/useWithdraw'
 import { CaretDivider } from '@dappshared/CaretDivider'
 import { StatsBoxTwoColumn } from '@dappshared/StatsBoxTwoColumn'
+import { BaseOverlay, BaseOverlayProps } from '@dappshared/overlays/BaseOverlay'
 import { StakeResponse, TokenInfo, TokenInfoResponse } from '@dapptypes'
 import { pick } from 'lodash'
 import { useEffect, useState } from 'react'
@@ -18,7 +19,6 @@ import { useAccount } from 'wagmi'
 import { Button } from '../../../Button'
 import { Spinner } from '../../elements/Spinner'
 import { StakingPayoutTokenSelection } from '../StakingPayoutTokenSelection'
-import { BaseOverlay, BaseOverlayProps } from './BaseOverlay'
 
 type StakingWithdrawOverlayProps = {
     protocolAddress: Address

@@ -74,14 +74,14 @@ export const useGetTVLinUSD = (
                         10 ** Number(rewardToken.decimals)
 
                     const { pairs } = dataFetchesResults[idx]
-                    const filteredPairs = pairs.filter(
+                    const filteredPairs = pairs?.filter(
                         ({ baseToken: { address } }) =>
                             rewardToken.source == address
                     )
                     const avgUSD =
-                        filteredPairs.reduce((acc: number, { priceUsd }) => {
+                        filteredPairs?.reduce((acc: number, { priceUsd }) => {
                             return acc + Number(priceUsd)
-                        }, 0) / filteredPairs.length
+                        }, 0) / filteredPairs?.length
 
                     return acc + balance * avgUSD
                 }

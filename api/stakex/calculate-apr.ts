@@ -1,9 +1,8 @@
 import { Handler } from 'aws-lambda'
 import { Address, createPublicClient, http } from 'viem'
-import { avalanche, avalancheFuji, mainnet } from 'viem/chains'
-import { chainByChainId } from '../../shared/supportedChains'
-import { DynamoDBHelper } from '../helpers/ddb/dynamodb'
+import { getChainById } from '../../shared/supportedChains'
 import abi from '../../src/abi/stakex/abi-ui.json'
+import { DynamoDBHelper } from '../helpers/ddb/dynamodb'
 // TODO maybe rename it in log APR
 
 type CalculateAprEventType = {
@@ -187,7 +186,7 @@ export const handler: Handler<CalculateAprEventType> = async (event, _, cb) => {
     if (!fromBlock) return cb('MISSING_FROM_BLOCK')
     if (!address) return cb('MISSING_PROTOCOL_ADDRESS')
 
-    const chain = chainByChainId(chainId)
+    const chain = getChainById(Number(chainId))
     const PARTITION_VERSION = 'v_1'
 
     if (!chain) return cb('UNSUPPORTED_CHAIN')

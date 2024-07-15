@@ -1,5 +1,5 @@
-import { explorerByChainId } from 'shared/supportedChains'
+import { getExplorerByChainId } from 'shared/supportedChains'
 import { Chain } from 'viem'
 
 export const useGetChainExplorer = (chain: Chain) =>
-    chain && explorerByChainId(chain.id)
+    chain && getExplorerByChainId(chain.id)

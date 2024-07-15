@@ -85,8 +85,8 @@ provider:
     DB_TABLE_NAME_STAKEX_ANNUAL_PERCENTAGE_LOGS: ${self:custom.ddb.tableNames.stakexAnnualPercentageLogs}
     DB_TABLE_NAME_STAKEX_LOGS: ${self:custom.ddb.tableNames.stakexStakeLogs}
     CORS_ALLOWED_ORIGIN: ${self:custom.corsAllowedOrigin.${opt:stage, self:provider.stage}}
-    SNOWTRACE_API_KEY: ${param:SNOWTRACE_API_KEY}
-    PINATA_API_KEY: ${param:PINATA_API_KEY}
+    SNOWTRACE_API_KEY: ${env:SNOWTRACE_API_KEY}
+    PINATA_API_KEY: ${env:PINATA_API_KEY}
 
 functions:
   snowtraceProxy:
@@ -177,6 +177,8 @@ functions:
                 protocol: true
           method: get
           cors: true
+    environment:
+      INFURA_ID: ${env:INFURA_ID}
 
   # STAKEX Tasks
   stakexCalculateApr:

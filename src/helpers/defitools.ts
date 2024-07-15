@@ -1,7 +1,7 @@
 import { StakingMetrics, TokenInfoResponse } from '@dapptypes'
-import { Chain } from '@wagmi/chains'
 import { createContext } from 'react'
 import { Address, zeroAddress } from 'viem'
+import { Chain } from 'viem/chains'
 
 export type DeFiToolsContextDataType = {
     // ... define data tha is needed

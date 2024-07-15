@@ -22,7 +22,7 @@ import {
     StakeBucketButton,
     StakingDurationSelection,
 } from './StakingDurationSelection'
-import { BaseOverlay } from './overlays/BaseOverlay'
+import { BaseOverlay } from '../shared/overlays/BaseOverlay'
 
 type StakingFormProps = {
     onDepositSuccessHandler: () => void

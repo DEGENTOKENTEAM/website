@@ -4,7 +4,6 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
 import { useAccount, useBalance } from 'wagmi'
-import { chainFromChainId } from '../../../helpers/chain'
 import { toPrecision } from '../../../helpers/number'
 import logoImage from '../../../images/logo_large.png'
 import { DarkmodeToggle } from '../../DarkmodeToggle'
@@ -49,16 +48,14 @@ const ConnectedButton = () => {
         chainId: chain?.id,
     })
 
-    const chainInfo = chainFromChainId(chain?.id!)
-
     return (
         <div className="-my-2 flex items-center gap-0.5 p-0">
             {balanceData && (
                 <div className="mr-2 flex items-center border-r border-dapp-blue-800 py-1 pr-2">
-                    {chainInfo && (
+                    {chain && (
                         <TokenImage
-                            src={`/chains/${chainInfo.logo}`}
-                            symbol={chainInfo.symbol}
+                            src={`/chains/${chain.id.toString()}.svg`}
+                            symbol={chain.nativeCurrency.symbol}
                             size={16}
                         />
                     )}

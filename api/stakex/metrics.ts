@@ -1,10 +1,10 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
+import { first } from 'lodash'
 import { createPublicClient, http } from 'viem'
-import { chainByChainId } from '../../shared/supportedChains'
+import { getChainById } from '../../shared/supportedChains'
 import { DynamoDBHelper } from '../helpers/ddb/dynamodb'
 import { createReturn } from '../helpers/return'
 import abi from './../../src/abi/stakex/abi-ui.json'
-import { first } from 'lodash'
 
 export const handler = async (
     event: APIGatewayProxyEvent
@@ -46,7 +46,7 @@ export const handler = async (
     }
 
     // latest APR/APY per bucket
-    const chain = chainByChainId(chainId)
+    const chain = getChainById(Number(chainId))
 
     if (!chain) return createReturn(403, JSON.stringify({}))
 

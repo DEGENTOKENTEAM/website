@@ -4,9 +4,11 @@ import {
     Chain,
     avalancheFuji,
     avalanche as avalancheOriginal,
+    goerli,
     hardhat,
-    mainnet,
-} from 'wagmi/chains'
+    localhost,
+    mainnet as mainnetOriginal,
+} from 'viem/chains'
 
 const avalanche = defineChain({
     ...avalancheOriginal,
@@ -15,28 +17,51 @@ const avalanche = defineChain({
         default: {
             ...avalancheOriginal.rpcUrls.default,
             http: [
-                // 'https://avalanche.public-rpc.com',
-                'https://api.tatum.io/v3/blockchain/node/avax-mainnet',
-                // 'http://127.0.0.1:8545',
-                ...avalancheOriginal.rpcUrls.default.http,
+                // TODO enable this RPC again
+                // `https://avalanche-mainnet.infura.io/v3/${
+                //     process.env.NEXT_PUBLIC_INFURA_ID || process.env.INFURA_ID
+                // }`,
+                'http://localhost:8545',
+                // 'http://localhost:9650/ext/bc/C/rpc',
+                // ...avalancheOriginal.rpcUrls.default.http,
+            ],
+        },
+    },
+})
+const mainnet = defineChain({
+    ...mainnetOriginal,
+    rpcUrls: {
+        ...mainnetOriginal.rpcUrls,
+        default: {
+            ...mainnetOriginal.rpcUrls.default,
+            http: [
+                `https://mainnet.infura.io/v3/${
+                    process.env.NEXT_PUBLIC_INFURA_ID || process.env.INFURA_ID
+                }`,
+                // 'http://localhost:9650/ext/bc/C/rpc',
+                ...mainnetOriginal.rpcUrls.default.http,
             ],
         },
     },
 })
 
-export const chains: Chain[] = [avalanche, hardhat, avalancheFuji, mainnet]
+export const chains: Chain[] = [
+    avalanche,
+    mainnet,
+    process.env.NODE_ENV != 'production' ? localhost : null,
+    ...(Boolean(process.env.NEXT_PUBLIC_ENABLE_TESTNETS)
+        ? [avalancheFuji, goerli]
+        : []),
+].filter((chain) => chain) as Chain[]
 
-export const chainIdToChainsMap = chains.reduce(
-    (acc, chain) => ({
-        ...acc,
-        [chain.id]: chain,
-    }),
-    {} as { [key: number]: Chain }
-)
-export const chainByChainId = (chainId: number) =>
-    get(chainIdToChainsMap, chainId, null)
+export const getChainById = (chainId: number) => {
+    for (const chain of Object.values(chains))
+        if ('id' in chain) if (chain.id === chainId) return chain
 
-export const explorerByChainId = (chainId: number) =>
+    throw new Error(`Chain with id ${chainId} not found`)
+}
+
+export const getExplorerByChainId = (chainId: number) =>
     get(
         {
             [avalanche.id]: {

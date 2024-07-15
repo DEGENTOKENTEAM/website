@@ -2,11 +2,11 @@
 // - Staking tokens and reward tokens are exchangeable to the same currency (like USDC, or the staking token itself)
 
 import { Handler } from 'aws-lambda'
+import { cloneDeep } from 'lodash'
 import { Address, createPublicClient, http } from 'viem'
-import { chainByChainId } from '../../shared/supportedChains'
+import { getChainById } from '../../shared/supportedChains'
 import abi from '../../src/abi/stakex/abi-ui.json'
 import { DynamoDBHelper } from '../helpers/ddb/dynamodb'
-import { cloneDeep } from 'lodash'
 
 type CalculateStakesEventType = {
     fromBlock: number
@@ -222,7 +222,7 @@ export const handler: Handler<CalculateStakesEventType> = async (
     if (!fromBlock) return cb('MISSING_FROM_BLOCK')
     if (!address) return cb('MISSING_PROTOCOL_ADDRESS')
 
-    const chain = chainByChainId(chainId)
+    const chain = getChainById(Number(chainId))
     if (!chain) return cb('UNSUPPORTED_CHAIN')
 
     const TableName = process.env.DB_TABLE_NAME_STAKEX_LOGS!
