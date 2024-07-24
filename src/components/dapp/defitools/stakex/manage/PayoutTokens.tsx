@@ -10,6 +10,7 @@ import { FaPlus, FaRegCheckCircle, FaRegTimesCircle } from 'react-icons/fa'
 import { IoMdOpen } from 'react-icons/io'
 import { Button } from 'src/components/Button'
 import { Spinner } from 'src/components/dapp/elements/Spinner'
+import { TokenType, TokensForm } from './tokens/Form'
 
 export const PayoutTokens = () => {
     const {
@@ -17,7 +18,7 @@ export const PayoutTokens = () => {
     } = useContext(ManageStakeXContext)
 
     const { data: dataTargetTokens, isLoading: isLoadingTargetTokens } =
-        useGetTargetTokens(protocol)
+        useGetTargetTokens(protocol, 43114) // TODO make chain id dynamic
 
     const chainExplorer = useGetChainExplorer(chain!)
 
@@ -32,6 +33,11 @@ export const PayoutTokens = () => {
                         <FaPlus /> <span>Add</span>
                     </Button>
                 )}
+            </div>
+            <div className="mt-8 grid grid-cols-1 gap-8 md:grid-cols-2">
+                <div className="md:col-span-2">
+                    <TokensForm tokenType={'payout'} />
+                </div>
             </div>
             {isLoadingTargetTokens ? (
                 <div className="flex w-full flex-row justify-center pt-8">

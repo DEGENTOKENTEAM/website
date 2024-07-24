@@ -108,7 +108,7 @@ export const StakingDetails = ({
             tokenIds!,
             defaultShowToken?.source
         )
-    const { data: targetTokens } = useGetTargetTokens(protocolAddress)
+    const { data: targetTokens } = useGetTargetTokens(protocolAddress, 43114) // TODO make chain id dynamic
     const { data: dataGetStakedSharesByStaker } = useGetStakedSharesByStaker(
         protocolAddress,
         address!

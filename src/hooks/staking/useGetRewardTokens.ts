@@ -10,6 +10,7 @@ export const useGetRewardTokens = (address: Address, chainId: number) =>
         abi,
         functionName: 'getRewardTokens',
         query: {
+            enabled: Boolean(address && chainId),
             select: (data: TokenInfoResponse[]) => data,
         },
     })

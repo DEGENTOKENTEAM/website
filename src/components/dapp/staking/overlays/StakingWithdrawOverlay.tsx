@@ -47,7 +47,10 @@ export const StakingWithdrawOverlay = ({
     const [targetTokens, setTargetTokens] = useState<TokenInfoResponse[]>([])
 
     const { data: dataStakes } = useGetStakes(true, protocolAddress, address!)
-    const { data: dataTargetTokens } = useGetTargetTokens(protocolAddress)
+    const { data: dataTargetTokens } = useGetTargetTokens(
+        protocolAddress,
+        43114
+    ) // TODO make chain id dynamic
     const { data: rewardEstimations, refetch: refetchRewardEstimations } =
         useGetRewardEstimationForTokens(
             protocolAddress,
@@ -74,7 +77,7 @@ export const StakingWithdrawOverlay = ({
 
     const onCloseHandler = () => {
         reset()
-        onClose()
+        onClose && onClose()
     }
 
     const onClickPayoutHandler = (target: TokenInfoResponse) => {

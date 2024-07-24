@@ -92,7 +92,7 @@ export const StakeX = () => {
         protocolAddress,
         address!
     )
-    const { data: targetTokens } = useGetTargetTokens(protocolAddress)
+    const { data: targetTokens } = useGetTargetTokens(protocolAddress, 43114) // TODO make chain id dynamic
     const { data: stableTokenInfo } = useGetStableToken(protocolAddress)
     const { data: stakingTokenInfo } = useGetStakingToken(protocolAddress)
 

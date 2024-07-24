@@ -82,7 +82,10 @@ export const StakingClaimOverlay = ({
         payoutToken?.source
     )
 
-    const { data: dataTargetTokens } = useGetTargetTokens(protocolAddress)
+    const { data: dataTargetTokens } = useGetTargetTokens(
+        protocolAddress,
+        43114
+    ) // TODO make chain id dynamic
     const { data: rewardEstimations, refetch: refetchRewardEstimations } =
         useGetRewardEstimationForTokens(
             protocolAddress,
@@ -112,7 +115,7 @@ export const StakingClaimOverlay = ({
         )
 
     const onCloseHandler = () => {
-        onClose()
+        onClose && onClose()
 
         if (isClaimAll) resetClaimAll()
         else resetClaim()

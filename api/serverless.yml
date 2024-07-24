@@ -89,6 +89,23 @@ provider:
     PINATA_API_KEY: ${env:PINATA_API_KEY}
 
 functions:
+
+  # coingecko proxy
+  coingeckoProxy:
+    handler: coingeckoProxy/get.handler
+    memorySize: 512
+    timeout: 29
+    events:
+      - http:
+          cors: true
+          path: /coingecko/{proxyPath+}
+          request:
+            parameters:
+              paths:
+                proxyPath: true
+          method: get
+
+  # snowtrace proxy
   snowtraceProxy:
     handler: snowtraceProxy/get.handler
     memorySize: 512
