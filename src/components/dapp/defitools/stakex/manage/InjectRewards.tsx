@@ -3,11 +3,13 @@ import { toReadableNumber } from '@dapphelpers/number'
 import { useGetERC20BalanceOf } from '@dapphooks/shared/useGetERC20BalanceOf'
 import { useGetRewardTokens } from '@dapphooks/staking/useGetRewardTokens'
 import { useHasDepositRestriction } from '@dapphooks/staking/useHasDepositRestriction'
+import { useInjectRewards } from '@dapphooks/staking/useInjectRewards'
 import { Tile } from '@dappshared/Tile'
 import { TokenInfoResponse } from '@dapptypes'
 import { Description, Field, Input, Label, Select } from '@headlessui/react'
 import clsx from 'clsx'
 import { ChangeEvent, useContext, useEffect, useRef, useState } from 'react'
+import { toast } from 'react-toastify'
 import { Button } from 'src/components/Button'
 import { Spinner } from 'src/components/dapp/elements/Spinner'
 import { formatUnits, getAddress, parseUnits } from 'viem'
@@ -39,8 +41,26 @@ export const InjectRewards = () => {
         protocol,
         chain?.id!
     )
-    const { data: dataBalanceOf, isLoading: isLoadingBalanceOf } =
-        useGetERC20BalanceOf(selectedRewardToken?.source!, address!, chainId)
+    const {
+        data: dataBalanceOf,
+        isLoading: isLoadingBalanceOf,
+        refetch: refetchBalanceOf,
+    } = useGetERC20BalanceOf(selectedRewardToken?.source!, address!, chainId)
+
+    const {
+        error: errorInjectRewards,
+        isLoading: isLoadingInjectRewards,
+        isPending: isPendingInjectRewards,
+        isSuccess: isSuccessInjectRewards,
+        isError: isErrorInjectRewards,
+        write: writeInjectRewards,
+        reset: resetInjectRewards,
+    } = useInjectRewards(
+        protocol,
+        chain?.id!,
+        selectedRewardToken?.source!,
+        rewardAmount
+    )
 
     //
     // Errors
@@ -76,7 +96,8 @@ export const InjectRewards = () => {
     }
 
     const onClickInject = () => {
-        console.log('[TRIGGER DEPOSIT]')
+        resetInjectRewards()
+        writeInjectRewards && writeInjectRewards()
     }
 
     useEffect(() => {
@@ -85,8 +106,10 @@ export const InjectRewards = () => {
     }, [dataHasDepositRestriction])
 
     useEffect(() => {
-        dataGetRewardTokens && setSelectedRewardToken(dataGetRewardTokens.at(0))
-    }, [dataGetRewardTokens])
+        dataGetRewardTokens &&
+            !selectedRewardToken &&
+            setSelectedRewardToken(dataGetRewardTokens.at(0))
+    }, [dataGetRewardTokens, selectedRewardToken])
 
     useEffect(() => {
         if (
@@ -124,6 +147,34 @@ export const InjectRewards = () => {
             resetError()
         }
     }, [dataBalanceOf, rewardAmountEntered, selectedRewardToken])
+
+    useEffect(() => {
+        if (
+            !isLoadingInjectRewards &&
+            isSuccessInjectRewards &&
+            selectedRewardToken
+        ) {
+            toast.success(
+                `Successfully injected ${formatUnits(
+                    rewardAmount,
+                    Number(selectedRewardToken.decimals)
+                )} ${selectedRewardToken.symbol}`
+            )
+            refetchBalanceOf && refetchBalanceOf()
+        }
+
+        !isLoadingInjectRewards &&
+            isErrorInjectRewards &&
+            errorInjectRewards &&
+            toast.error((errorInjectRewards as any).shortMessage)
+    }, [
+        isSuccessInjectRewards,
+        isErrorInjectRewards,
+        errorInjectRewards,
+        isLoadingInjectRewards,
+        selectedRewardToken,
+        refetchBalanceOf,
+    ])
 
     return (
         <Tile className="flex w-full flex-col gap-8">
@@ -194,13 +245,19 @@ export const InjectRewards = () => {
                     className="w-full"
                     variant={hasError || isRestricted ? 'error' : 'primary'}
                     onClick={onClickInject}
-                    disabled={hasError || isRestricted}
+                    disabled={hasError || isRestricted || rewardAmount === 0n}
                 >
-                    {hasError
-                        ? errorMessage
-                        : isRestricted
-                        ? 'Not allowed'
-                        : 'Inject now'}
+                    {!isPendingInjectRewards && !isLoadingInjectRewards ? (
+                        hasError ? (
+                            errorMessage
+                        ) : isRestricted ? (
+                            'Not allowed'
+                        ) : (
+                            'Inject now'
+                        )
+                    ) : (
+                        <Spinner theme="dark" className="h-4 w-4" />
+                    )}
                 </Button>
             </div>
         </Tile>

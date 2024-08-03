@@ -1,26 +1,19 @@
 import abi from '@dappabis/stakex/abi-ui.json'
-import { isUndefined } from 'lodash'
+import { toLower } from 'lodash'
 import { useCallback, useEffect, useState } from 'react'
 import { Address, decodeEventLog } from 'viem'
 import { usePublicClient, useSimulateContract, useWriteContract } from 'wagmi'
 
-export const useUpdateFeesForStaking = (
+export const useInjectRewards = (
     address: Address,
     chainId: number,
-    feeStake: bigint,
-    feeUnstake: bigint,
-    feeRestake: bigint
+    token: Address,
+    amount: bigint
 ) => {
     const [logs, setLogs] = useState<any[]>()
     const [isLoading, setIsLoading] = useState(false)
     const [isSuccess, setIsSuccess] = useState(false)
-    const enabled = Boolean(
-        address &&
-            chainId &&
-            !isUndefined(feeStake) &&
-            !isUndefined(feeUnstake) &&
-            !isUndefined(feeRestake)
-    )
+    const enabled = Boolean(address && chainId && token && amount)
 
     const {
         data,
@@ -29,8 +22,8 @@ export const useUpdateFeesForStaking = (
     } = useSimulateContract({
         address,
         abi,
-        functionName: 'stakeXUpdateFeesForStaking',
-        args: [feeStake, feeUnstake, feeRestake],
+        functionName: 'deposit',
+        args: [token, amount],
         query: {
             enabled,
         },
@@ -70,11 +63,13 @@ export const useUpdateFeesForStaking = (
         if (logs && logs.length > 0) {
             logs.forEach((log) => {
                 const { data, topics } = log
-                const event = decodeEventLog({ abi, data, topics })
-                if (event.eventName == 'UpdatedFeeForStaking') {
-                    setIsLoading(false)
-                    setIsSuccess(true)
-                    resetWriteContract()
+                if (toLower(address) === toLower(log.address)) {
+                    const event = decodeEventLog({ abi, data, topics })
+                    if (event.eventName == 'Deposited') {
+                        setIsLoading(false)
+                        setIsSuccess(true)
+                        resetWriteContract()
+                    }
                 }
             })
         }
