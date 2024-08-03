@@ -1,19 +1,18 @@
 import abi from '@dappabis/stakex/abi-ui.json'
+import { isBoolean } from 'lodash'
 import { useCallback, useEffect, useState } from 'react'
 import { Address, decodeEventLog } from 'viem'
 import { usePublicClient, useSimulateContract, useWriteContract } from 'wagmi'
 
-export const useEnableStakeBucket = (
-    enabled: boolean,
-    chainId: number,
+export const useEnableProtocol = (
     address: Address,
-    manager: Address,
-    bucketId: Address,
-    enableState: boolean
+    chainId: number,
+    status: boolean
 ) => {
     const [logs, setLogs] = useState<any[]>()
     const [isLoading, setIsLoading] = useState(false)
     const [isSuccess, setIsSuccess] = useState(false)
+    const enabled = Boolean(address && chainId && isBoolean(status))
 
     const {
         data,
@@ -22,8 +21,8 @@ export const useEnableStakeBucket = (
     } = useSimulateContract({
         address,
         abi,
-        functionName: 'stakeXEnableStakeBucket',
-        args: [bucketId, enableState],
+        functionName: 'stakeXEnableProtocol',
+        args: [status],
         query: {
             enabled,
         },
@@ -52,19 +51,22 @@ export const useEnableStakeBucket = (
     const publicClient = usePublicClient({ chainId })
 
     useEffect(() => {
-        if (!publicClient || !hash || !manager || !address) return
+        if (!publicClient || !hash || !address) return
         publicClient
             .getTransactionReceipt({ hash })
             .then((receipt) => setLogs(receipt.logs))
             .catch((reason) => console.log('[ERROR]', { reason }))
-    }, [publicClient, hash, address, manager])
+    }, [publicClient, hash, address])
 
     useEffect(() => {
         if (logs && logs.length > 0) {
             logs.forEach((log) => {
                 const { data, topics } = log
                 const event = decodeEventLog({ abi, data, topics })
-                if (event.eventName == 'EnabledStakeBucket') {
+                if (
+                    event.eventName == 'Enabled' ||
+                    event.eventName == 'Disabled'
+                ) {
                     setIsLoading(false)
                     setIsSuccess(true)
                     resetWriteContract()

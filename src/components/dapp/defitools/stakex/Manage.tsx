@@ -20,9 +20,8 @@ import { Customization } from './manage/Customization'
 import { Fees } from './manage/Fees'
 import { GeneralInformation } from './manage/GeneralInformation'
 import { InjectRewards } from './manage/InjectRewards'
-import { PayoutTokens } from './manage/PayoutTokens'
-import { RewardTokens } from './manage/RewardTokens'
 import { StakingProgressChart } from './manage/StakingProgressChart'
+import { TokenManagement } from './manage/TokenManagement'
 
 export const Manage = () => {
     const { protocolAddress, chainId } = useParams<{
@@ -94,8 +93,8 @@ export const Manage = () => {
                     <GeneralInformation />
                     <StakingProgressChart />
                     <Buckets />
-                    <RewardTokens />
-                    <PayoutTokens />
+                    <TokenManagement />
+                    {/* <RewardTokens /> */}
                     <Fees />
                     {data.isOwner && <Control />}
                     <InjectRewards />

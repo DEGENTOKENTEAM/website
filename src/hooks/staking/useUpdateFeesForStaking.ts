@@ -1,19 +1,23 @@
 import abi from '@dappabis/stakex/abi-ui.json'
+import { isUndefined } from 'lodash'
 import { useCallback, useEffect, useState } from 'react'
 import { Address, decodeEventLog } from 'viem'
 import { usePublicClient, useSimulateContract, useWriteContract } from 'wagmi'
 
-export const useEnableStakeBucket = (
-    enabled: boolean,
-    chainId: number,
+export const useUpdateFeesForStaking = (
     address: Address,
-    manager: Address,
-    bucketId: Address,
-    enableState: boolean
+    chainId: number,
+    feeStake: bigint,
+    feeUnstake: bigint,
+    feeRestake: bigint
 ) => {
     const [logs, setLogs] = useState<any[]>()
     const [isLoading, setIsLoading] = useState(false)
     const [isSuccess, setIsSuccess] = useState(false)
+    const enabled =
+        !isUndefined(feeStake) &&
+        !isUndefined(feeUnstake) &&
+        !isUndefined(feeRestake)
 
     const {
         data,
@@ -22,8 +26,8 @@ export const useEnableStakeBucket = (
     } = useSimulateContract({
         address,
         abi,
-        functionName: 'stakeXEnableStakeBucket',
-        args: [bucketId, enableState],
+        functionName: 'stakeXUpdateFeesForStaking',
+        args: [feeStake, feeUnstake, feeRestake],
         query: {
             enabled,
         },
@@ -52,19 +56,19 @@ export const useEnableStakeBucket = (
     const publicClient = usePublicClient({ chainId })
 
     useEffect(() => {
-        if (!publicClient || !hash || !manager || !address) return
+        if (!publicClient || !hash || !address) return
         publicClient
             .getTransactionReceipt({ hash })
             .then((receipt) => setLogs(receipt.logs))
             .catch((reason) => console.log('[ERROR]', { reason }))
-    }, [publicClient, hash, address, manager])
+    }, [publicClient, hash, address])
 
     useEffect(() => {
         if (logs && logs.length > 0) {
             logs.forEach((log) => {
                 const { data, topics } = log
                 const event = decodeEventLog({ abi, data, topics })
-                if (event.eventName == 'EnabledStakeBucket') {
+                if (event.eventName == 'UpdatedFeeForStaking') {
                     setIsLoading(false)
                     setIsSuccess(true)
                     resetWriteContract()

@@ -115,3 +115,27 @@ export type StakingMetrics = {
         staked: number
     }[]
 }
+
+type SwapCandidate = {
+    calleeSwap: Address
+    calleeAmountOut: Address
+    path: Address[]
+    isGmx: boolean
+}
+
+type SwapCandidatesGroup = {
+    rewardToken: Address
+    candidates: SwapCandidate[]
+}
+
+export type SetTargetTokenParams = {
+    targetToken: Address
+    candidatesGroup: SwapCandidatesGroup[]
+}
+
+type GetSwapResponse = {
+    from: Address
+    to: Address
+    swaps: SwapCandidate[]
+}
+export type GetSwapsResponse = GetSwapResponse[]

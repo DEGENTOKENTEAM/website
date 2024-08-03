@@ -1387,6 +1387,65 @@
         "components": [
           {
             "internalType": "address",
+            "name": "targetToken",
+            "type": "address"
+          },
+          {
+            "components": [
+              {
+                "internalType": "address",
+                "name": "rewardToken",
+                "type": "address"
+              },
+              {
+                "components": [
+                  {
+                    "internalType": "address",
+                    "name": "calleeSwap",
+                    "type": "address"
+                  },
+                  {
+                    "internalType": "address",
+                    "name": "calleeAmountOut",
+                    "type": "address"
+                  },
+                  {
+                    "internalType": "address[]",
+                    "name": "path",
+                    "type": "address[]"
+                  },
+                  {
+                    "internalType": "bool",
+                    "name": "isGmx",
+                    "type": "bool"
+                  }
+                ],
+                "internalType": "struct SwapCandidate[]",
+                "name": "candidates",
+                "type": "tuple[]"
+              }
+            ],
+            "internalType": "struct SwapCandidatesGroup[]",
+            "name": "candidatesGroup",
+            "type": "tuple[]"
+          }
+        ],
+        "internalType": "struct SetTargetTokenParams",
+        "name": "_params",
+        "type": "tuple"
+      }
+    ],
+    "name": "stakeXAddRewardAndTargetToken",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "components": [
+          {
+            "internalType": "address",
             "name": "token",
             "type": "address"
           }
@@ -2691,6 +2750,19 @@
         "internalType": "struct IStakeXPublicFacet.StakeResponse[]",
         "name": "_stakes",
         "type": "tuple[]"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "getFeeForMax",
+    "outputs": [
+      {
+        "internalType": "uint16",
+        "name": "_v",
+        "type": "uint16"
       }
     ],
     "stateMutability": "view",

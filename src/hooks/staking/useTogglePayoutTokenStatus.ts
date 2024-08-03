@@ -1,19 +1,20 @@
 import abi from '@dappabis/stakex/abi-ui.json'
+import { isBoolean } from 'lodash'
 import { useCallback, useEffect, useState } from 'react'
 import { Address, decodeEventLog } from 'viem'
 import { usePublicClient, useSimulateContract, useWriteContract } from 'wagmi'
 
-export const useEnableStakeBucket = (
-    enabled: boolean,
+export const useTogglePayoutTokenStatus = (
     chainId: number,
     address: Address,
-    manager: Address,
-    bucketId: Address,
-    enableState: boolean
+    manager: Address
 ) => {
     const [logs, setLogs] = useState<any[]>()
     const [isLoading, setIsLoading] = useState(false)
     const [isSuccess, setIsSuccess] = useState(false)
+
+    const [token, setToken] = useState<Address | null>(null)
+    const [status, setStatus] = useState<boolean | null>(null)
 
     const {
         data,
@@ -22,10 +23,10 @@ export const useEnableStakeBucket = (
     } = useSimulateContract({
         address,
         abi,
-        functionName: 'stakeXEnableStakeBucket',
-        args: [bucketId, enableState],
+        functionName: 'stakeXEnableTargetToken',
+        args: [token, status],
         query: {
-            enabled,
+            enabled: Boolean(token) && isBoolean(status),
         },
     })
 
@@ -38,10 +39,11 @@ export const useEnableStakeBucket = (
         isError: isErrorWrite,
     } = useWriteContract()
 
-    const write = useCallback(() => {
+    const write = (_token: Address, _status: boolean) => {
         setIsLoading(true)
-        data && writeContract && writeContract(data.request)
-    }, [data, writeContract])
+        setToken(_token)
+        setStatus(_status)
+    }
 
     const reset = useCallback(() => {
         if (!resetWriteContract) return
@@ -50,6 +52,14 @@ export const useEnableStakeBucket = (
     }, [resetWriteContract])
 
     const publicClient = usePublicClient({ chainId })
+
+    useEffect(() => {
+        isBoolean(status) &&
+            token &&
+            data &&
+            writeContract &&
+            writeContract(data.request)
+    }, [data, writeContract, token, status])
 
     useEffect(() => {
         if (!publicClient || !hash || !manager || !address) return
@@ -64,9 +74,14 @@ export const useEnableStakeBucket = (
             logs.forEach((log) => {
                 const { data, topics } = log
                 const event = decodeEventLog({ abi, data, topics })
-                if (event.eventName == 'EnabledStakeBucket') {
+                if (
+                    event.eventName == 'EnabledTargetToken' ||
+                    event.eventName == 'DisabledTargetToken'
+                ) {
                     setIsLoading(false)
                     setIsSuccess(true)
+                    setToken(null)
+                    setStatus(null)
                     resetWriteContract()
                 }
             })
@@ -74,10 +89,15 @@ export const useEnableStakeBucket = (
     }, [logs])
 
     useEffect(() => {
-        if (isErrorWrite) setIsLoading(false)
-    }, [isErrorWrite])
+        if (isErrorSimulate || isErrorWrite) {
+            setIsLoading(false)
+            setToken(null)
+            setStatus(null)
+        }
+    }, [isErrorSimulate, isErrorWrite])
 
     return {
+        token,
         write,
         reset,
         error: errorSimulate || errorWrite,
@@ -85,7 +105,7 @@ export const useEnableStakeBucket = (
         isLoading,
         isSuccess,
         isPending,
-        isEnabled: enabled,
+        isEnabled: Boolean(token),
         hash,
     }
 }

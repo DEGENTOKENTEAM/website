@@ -1,15 +1,16 @@
 import abi from '@dappabis/stakex/abi-ui.json'
+import { SetTargetTokenParams } from '@dapptypes'
 import { useCallback, useEffect, useState } from 'react'
 import { Address, decodeEventLog } from 'viem'
 import { usePublicClient, useSimulateContract, useWriteContract } from 'wagmi'
 
-export const useEnableStakeBucket = (
+export const useSetTokens = (
     enabled: boolean,
     chainId: number,
     address: Address,
     manager: Address,
-    bucketId: Address,
-    enableState: boolean
+    params: SetTargetTokenParams,
+    isReward: boolean
 ) => {
     const [logs, setLogs] = useState<any[]>()
     const [isLoading, setIsLoading] = useState(false)
@@ -22,8 +23,10 @@ export const useEnableStakeBucket = (
     } = useSimulateContract({
         address,
         abi,
-        functionName: 'stakeXEnableStakeBucket',
-        args: [bucketId, enableState],
+        functionName: isReward
+            ? 'stakeXAddRewardAndTargetToken'
+            : 'stakeXSetTargetToken',
+        args: [params],
         query: {
             enabled,
         },
@@ -64,7 +67,7 @@ export const useEnableStakeBucket = (
             logs.forEach((log) => {
                 const { data, topics } = log
                 const event = decodeEventLog({ abi, data, topics })
-                if (event.eventName == 'EnabledStakeBucket') {
+                if (event.eventName == 'SetTargetToken') {
                     setIsLoading(false)
                     setIsSuccess(true)
                     resetWriteContract()

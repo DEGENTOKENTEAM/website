@@ -34,16 +34,24 @@ export const useGetRoutingsForToken = ({
     tos,
     chainId,
 }: useGetRoutingsForTokenType) => {
+    const [error, setError] = useState<string | null>(null)
+    const [isError, setIsError] = useState(false)
     const [response, setResponse] = useState<RoutingsForTokenResponse>()
     const [loading, setLoading] = useState(true)
+
     useEffect(() => {
         if (!enabled || !from || !tos || tos.length === 0 || !chainId) return
+
+        setError(null)
+        setIsError(false)
 
         const abortController = new AbortController()
         const signal = abortController.signal
 
+        let hasError = false
+
         fetch(
-            `${process.env.NEXT_PUBLIC_DEGENX_BACKEND_API_ENDPOINT}/api/routing2`,
+            `${process.env.NEXT_PUBLIC_DEGENX_BACKEND_API_ENDPOINT}/api/uberrouting`,
             {
                 method: 'POST',
                 signal,
@@ -54,8 +62,13 @@ export const useGetRoutingsForToken = ({
                 },
             }
         )
-            .then((res) => res.json())
             .then((res) => {
+                if (res.status !== 200) hasError = true
+                return res.json()
+            })
+            .then((res) => {
+                setIsError(hasError)
+                if (hasError) setError(res.message)
                 if (!signal.aborted) {
                     setResponse(res)
                     setLoading(false)
@@ -66,5 +79,5 @@ export const useGetRoutingsForToken = ({
         return () => abortController.abort()
     }, [from, tos, chainId])
 
-    return { response, loading }
+    return { isError, error, response, loading }
 }

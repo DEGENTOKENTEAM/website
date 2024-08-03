@@ -87,9 +87,9 @@ provider:
     CORS_ALLOWED_ORIGIN: ${self:custom.corsAllowedOrigin.${opt:stage, self:provider.stage}}
     SNOWTRACE_API_KEY: ${env:SNOWTRACE_API_KEY}
     PINATA_API_KEY: ${env:PINATA_API_KEY}
+    INFURA_ID: ${env:INFURA_ID}
 
 functions:
-
   # coingecko proxy
   coingeckoProxy:
     handler: coingeckoProxy/get.handler
@@ -194,8 +194,6 @@ functions:
                 protocol: true
           method: get
           cors: true
-    environment:
-      INFURA_ID: ${env:INFURA_ID}
 
   # STAKEX Tasks
   stakexCalculateApr:
