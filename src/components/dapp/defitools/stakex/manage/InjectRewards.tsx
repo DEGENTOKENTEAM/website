@@ -1,6 +1,8 @@
 import { ManageStakeXContext } from '@dapphelpers/defitools'
 import { toReadableNumber } from '@dapphelpers/number'
+import { useERC20Approve } from '@dapphooks/shared/useERC20Approve'
 import { useGetERC20BalanceOf } from '@dapphooks/shared/useGetERC20BalanceOf'
+import { useHasERC20Allowance } from '@dapphooks/shared/useHasERC20Allowance'
 import { useGetRewardTokens } from '@dapphooks/staking/useGetRewardTokens'
 import { useHasDepositRestriction } from '@dapphooks/staking/useHasDepositRestriction'
 import { useInjectRewards } from '@dapphooks/staking/useInjectRewards'
@@ -32,6 +34,25 @@ export const InjectRewards = () => {
     const [rewardAmount, setRewardAmount] = useState<bigint>(0n)
     const [errorMessage, setErrorMessage] = useState('')
     const [hasError, setHasError] = useState(false)
+    const [allowance, setAllowance] = useState(0n)
+    const [hasAllowance, setHasAllowance] = useState(false)
+
+    const { data: dataHasAllowance } = useHasERC20Allowance(
+        selectedRewardToken?.source!,
+        address!,
+        protocol,
+        chain?.id!
+    )
+    const {
+        isPending: isPendingApproval,
+        isSuccess: isSuccessApproval,
+        write: writeApproval,
+    } = useERC20Approve(
+        selectedRewardToken?.source!,
+        protocol,
+        rewardAmount,
+        chain?.id!
+    )
 
     const { data: dataHasDepositRestriction } = useHasDepositRestriction(
         chain?.id!,
@@ -59,7 +80,8 @@ export const InjectRewards = () => {
         protocol,
         chain?.id!,
         selectedRewardToken?.source!,
-        rewardAmount
+        rewardAmount,
+        hasAllowance
     )
 
     //
@@ -97,8 +119,23 @@ export const InjectRewards = () => {
 
     const onClickInject = () => {
         resetInjectRewards()
-        writeInjectRewards && writeInjectRewards()
+        if (hasAllowance) writeInjectRewards && writeInjectRewards()
+        else writeApproval && writeApproval()
     }
+
+    useEffect(() => {
+        !isPendingApproval &&
+            isSuccessApproval &&
+            allowance >= rewardAmount &&
+            writeInjectRewards &&
+            writeInjectRewards()
+    }, [
+        isPendingApproval,
+        isSuccessApproval,
+        allowance,
+        rewardAmount,
+        writeInjectRewards,
+    ])
 
     useEffect(() => {
         typeof dataHasDepositRestriction === 'boolean' &&
@@ -176,6 +213,19 @@ export const InjectRewards = () => {
         refetchBalanceOf,
     ])
 
+    useEffect(() => {
+        if (dataHasAllowance) {
+            setAllowance(dataHasAllowance)
+            setHasAllowance(
+                Boolean(
+                    rewardAmount &&
+                        rewardAmount > 0n &&
+                        dataHasAllowance >= rewardAmount
+                )
+            )
+        }
+    }, [dataHasAllowance, rewardAmount])
+
     return (
         <Tile className="flex w-full flex-col gap-8">
             <div className="flex flex-row items-center">
@@ -247,7 +297,9 @@ export const InjectRewards = () => {
                     onClick={onClickInject}
                     disabled={hasError || isRestricted || rewardAmount === 0n}
                 >
-                    {!isPendingInjectRewards && !isLoadingInjectRewards ? (
+                    {!isPendingInjectRewards &&
+                    !isLoadingInjectRewards &&
+                    !isPendingApproval ? (
                         hasError ? (
                             errorMessage
                         ) : isRestricted ? (
@@ -256,7 +308,12 @@ export const InjectRewards = () => {
                             'Inject now'
                         )
                     ) : (
-                        <Spinner theme="dark" className="h-4 w-4" />
+                        <div className="flex items-center justify-center gap-2">
+                            <Spinner theme="dark" className="h-4 w-4" />{' '}
+                            {isPendingApproval
+                                ? 'Approving amount...'
+                                : 'Injecting amount...'}
+                        </div>
                     )}
                 </Button>
             </div>

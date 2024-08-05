@@ -23,6 +23,7 @@ import {
     StakingDurationSelection,
 } from './StakingDurationSelection'
 import { BaseOverlay } from '../shared/overlays/BaseOverlay'
+import { chain } from 'lodash'
 
 type StakingFormProps = {
     onDepositSuccessHandler: () => void
@@ -35,7 +36,7 @@ export const StakingForm = ({
 }: StakingFormProps) => {
     const defaultBucketId = toHex('boss mode', { size: 32 })
 
-    const { address, isConnected, isDisconnected } = useAccount()
+    const { address, isConnected, isDisconnected, chainId } = useAccount()
 
     // informative data (permanent)
     const [tokenSymbol, setTokenSymbol] = useState<string>()
@@ -79,7 +80,12 @@ export const StakingForm = ({
         data: dataAllowance,
         refetch: refetchERC20Allowance,
         isLoading: isLoadingERC20Allowance,
-    } = useHasERC20Allowance(stakingTokenInfo?.source, protocolAddress)
+    } = useHasERC20Allowance(
+        stakingTokenInfo?.source,
+        address!,
+        protocolAddress,
+        chainId!
+    )
     const { data: dataHasFees } = useHasFees(protocolAddress)
     const { data: feeForStaking } = useGetFeeFor(
         protocolAddress,
@@ -94,7 +100,12 @@ export const StakingForm = ({
         reset: resetERC20Approve,
         isError: isErrorERC20Approve,
         error: errorERC20Approve,
-    } = useERC20Approve(stakingTokenInfo?.source, protocolAddress, stakeAmount)
+    } = useERC20Approve(
+        stakingTokenInfo?.source,
+        protocolAddress,
+        stakeAmount,
+        chainId!
+    )
 
     const {
         isLoading: isLoadingDepositStake,

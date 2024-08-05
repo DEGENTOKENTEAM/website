@@ -8,12 +8,13 @@ export const useInjectRewards = (
     address: Address,
     chainId: number,
     token: Address,
-    amount: bigint
+    amount: bigint,
+    isEnabled: boolean
 ) => {
     const [logs, setLogs] = useState<any[]>()
     const [isLoading, setIsLoading] = useState(false)
     const [isSuccess, setIsSuccess] = useState(false)
-    const enabled = Boolean(address && chainId && token && amount)
+    const enabled = Boolean(isEnabled && address && chainId && token && amount)
 
     const {
         data,

@@ -58,7 +58,9 @@ export const BurnForBacking = (props: BurnForBackingProps) => {
     const { data: dataERC20Allowance, refetch: refetchERC20Allowance } =
         useHasERC20Allowance(
             props.baseTokenAddress,
-            process.env.NEXT_PUBLIC_CONTROLLER_ADDRESS! as Address
+            address!,
+            process.env.NEXT_PUBLIC_CONTROLLER_ADDRESS! as Address,
+            chainId
         )
     const {
         write: writeERC20Approve,
@@ -70,7 +72,8 @@ export const BurnForBacking = (props: BurnForBackingProps) => {
     } = useERC20Approve(
         props.baseTokenAddress,
         process.env.NEXT_PUBLIC_CONTROLLER_ADDRESS! as Address,
-        amountToBurn!
+        amountToBurn!,
+        chainId
     )
     const {
         write: writeDoBurnForBacking,
@@ -177,7 +180,7 @@ export const BurnForBacking = (props: BurnForBackingProps) => {
         isSuccessERC20Approve,
         isErrorERC20Approve,
         errorERC20Approve,
-        props.onSettingsChange
+        props.onSettingsChange,
     ])
 
     useEffect(() => {
