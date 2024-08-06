@@ -2,17 +2,14 @@ import abi from '@dappabis/stakex/abi-ui.json'
 import { Address } from 'viem'
 import { useReadContract } from 'wagmi'
 
-export const useGetMultipliersPerOneStakingToken = (
-    address: Address,
-    chainId: number
-) =>
+export const useGetActivationBlock = (address: Address, chainId: number) =>
     useReadContract({
         address,
         chainId,
         abi,
-        functionName: `getMultipliersPerOneStakingToken`,
+        functionName: 'getActivationBlock',
         query: {
-            select: (data: any[]) => data,
+            select: (data: bigint) => data,
             enabled: Boolean(address && chainId),
         },
     })

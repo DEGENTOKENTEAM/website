@@ -7,9 +7,9 @@ import { useGetMetrics } from '@dapphooks/staking/useGetMetrics'
 import { useGetStakingToken } from '@dapphooks/staking/useGetStakingToken'
 import { NotConnectedHint } from '@dappshared/NotConnectedHint'
 import { WrongChainHint } from '@dappshared/WrongChainHint'
-import _ from 'lodash'
+import _, { isUndefined } from 'lodash'
 import { useEffect, useState } from 'react'
-import { useNavigate, useParams } from 'react-router-dom'
+import { useActionData, useNavigate, useParams } from 'react-router-dom'
 import { toast } from 'react-toastify'
 import { getChainById } from 'shared/supportedChains'
 import { Address, zeroAddress } from 'viem'
@@ -20,8 +20,11 @@ import { Customization } from './manage/Customization'
 import { Fees } from './manage/Fees'
 import { GeneralInformation } from './manage/GeneralInformation'
 import { InjectRewards } from './manage/InjectRewards'
+import { NFTManagement } from './manage/NFTManagement'
 import { StakingProgressChart } from './manage/StakingProgressChart'
 import { TokenManagement } from './manage/TokenManagement'
+import { useActive } from '@dapphooks/staking/useActive'
+import { useRunning } from '@dapphooks/staking/useRunning'
 
 export const Manage = () => {
     const { protocolAddress, chainId } = useParams<{
@@ -32,7 +35,7 @@ export const Manage = () => {
     let protocolChainId = Number(chainId ?? 43114) // with Avalanche as fallback
 
     const navigate = useNavigate()
-    const { address, isConnected } = useAccount()
+    const { address, isConnected, chain: chainAccount } = useAccount()
 
     if (!protocolAddress) {
         toast.error('Invalid protocol address')
@@ -46,15 +49,22 @@ export const Manage = () => {
         chain,
         owner: zeroAddress,
         isOwner: false,
+        isActive: false,
+        isRunning: false,
         isLoading: false,
     })
 
-    const { data: dataStakingToken } = useGetStakingToken(protocolAddress)
-    const { data: dataContractOwner } = useGetContractOwner(protocolAddress)
-    const { response: dataMetrics } = useGetMetrics({
-        chainId: chain.id,
-        protocol: protocolAddress,
-    })
+    const { data: dataStakingToken } = useGetStakingToken(
+        protocolAddress,
+        chain?.id!
+    )
+    const { data: dataContractOwner } = useGetContractOwner(
+        protocolAddress,
+        chain?.id!
+    )
+    const { response: dataMetrics } = useGetMetrics(protocolAddress, chain?.id!)
+    const { data: dataIsActive } = useActive(protocolAddress, chain?.id!)
+    const { data: dataIsRunning } = useRunning(protocolAddress, chain?.id!)
 
     useEffect(() => {
         const _data: ManageStakeXContextDataType = {
@@ -64,8 +74,6 @@ export const Manage = () => {
             ),
         }
 
-        if (dataStakingToken) _data.stakingToken = dataStakingToken
-
         if (dataContractOwner) {
             _data.owner = dataContractOwner
             _data.isOwner = Boolean(
@@ -74,9 +82,19 @@ export const Manage = () => {
         }
 
         if (dataMetrics) _data.metrics = dataMetrics
+        if (dataStakingToken) _data.stakingToken = dataStakingToken
+        if (!isUndefined(dataIsActive)) _data.isActive = dataIsActive
+        if (!isUndefined(dataIsRunning)) _data.isRunning = dataIsRunning
 
         setData(_data)
-    }, [dataStakingToken, address, dataMetrics, dataContractOwner])
+    }, [
+        dataStakingToken,
+        address,
+        dataMetrics,
+        dataContractOwner,
+        dataIsActive,
+        dataIsRunning,
+    ])
 
     return (
         protocolAddress && (
@@ -87,16 +105,25 @@ export const Manage = () => {
                         <span className="text-degenOrange">X</span>
                         <span className="text-xl">Management</span>
                     </h1>
-                    {isConnected && <WrongChainHint chainId={chain.id} />}
+                    {isConnected &&
+                        chainAccount &&
+                        chain &&
+                        chain.id !== chainAccount.id && (
+                            <WrongChainHint
+                                chainIdProtocol={chain.id}
+                                chainIdAccount={chainAccount.id!}
+                            />
+                        )}
                     {!isConnected && <NotConnectedHint />}
                     <Customization />
                     <GeneralInformation />
                     <StakingProgressChart />
                     <Buckets />
                     <TokenManagement />
+                    <NFTManagement />
                     {/* <RewardTokens /> */}
-                    <Fees />
                     {data.isOwner && <Control />}
+                    <Fees />
                     <InjectRewards />
                 </div>
             </ManageStakeXContext.Provider>

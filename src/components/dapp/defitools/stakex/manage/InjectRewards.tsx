@@ -19,10 +19,10 @@ import { useAccount } from 'wagmi'
 
 export const InjectRewards = () => {
     const {
-        data: { chain, protocol },
+        data: { chain, protocol, isRunning },
     } = useContext(ManageStakeXContext)
 
-    const { address, chainId } = useAccount()
+    const { address } = useAccount()
 
     const rewardSelectionRef = useRef<HTMLElement>(null)
     const rewardAmountRef = useRef<HTMLElement>(null)
@@ -66,7 +66,7 @@ export const InjectRewards = () => {
         data: dataBalanceOf,
         isLoading: isLoadingBalanceOf,
         refetch: refetchBalanceOf,
-    } = useGetERC20BalanceOf(selectedRewardToken?.source!, address!, chainId)
+    } = useGetERC20BalanceOf(selectedRewardToken?.source!, address!, chain?.id!)
 
     const {
         error: errorInjectRewards,
@@ -233,90 +233,103 @@ export const InjectRewards = () => {
                     Inject Rewards
                 </span>
             </div>
-            {dataGetRewardTokens && (
-                <div className="flex flex-col gap-8">
-                    <Field>
-                        <Label className="text-base/6 font-normal text-dapp-cyan-50">
-                            Reward Token
-                        </Label>
-                        <Description className="text-sm/6 text-dapp-cyan-50/50">
-                            Select a reward token that you want to inject.
-                        </Description>
-                        <Select
-                            disabled={isRestricted}
-                            className={clsx(
-                                'mt-2 block w-full appearance-none rounded-lg border-0 bg-dapp-blue-800 text-left text-2xl leading-10 focus:ring-0 focus:ring-offset-0',
-                                'focus:outline-none data-[focus]:outline-2 data-[focus]:-outline-offset-2 data-[focus]:outline-white/25',
-                                '*:text-black'
-                            )}
-                            ref={rewardSelectionRef}
-                            onChange={onChangeRewardToken}
-                        >
-                            {dataGetRewardTokens.map((token) => (
-                                <option key={token.source} value={token.source}>
-                                    {token.name} ({token.symbol})
-                                </option>
-                            ))}
-                        </Select>
-                    </Field>
-                    <Field>
-                        <Label className="text-base/6 font-normal text-dapp-cyan-50">
-                            Amount
-                        </Label>
-                        <Description className="text-sm/6 text-dapp-cyan-50/50">
-                            Enter the amount you want to inject (No WEI amount)
-                        </Description>
-                        <Input
-                            disabled={isRestricted}
-                            type="number"
-                            placeholder="0"
-                            value={rewardAmountEntered}
-                            onChange={onChangeRewardAmount}
-                            onWheel={(e) => e.currentTarget.blur()}
-                            className="mt-2 w-full rounded-lg border-0 bg-dapp-blue-800 text-left text-2xl leading-10 [appearance:textfield] focus:ring-0 focus:ring-offset-0 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
-                            ref={rewardAmountRef}
-                        />
-                        <span className="mt-2 flex items-center gap-2 text-xs/8 text-dapp-cyan-50/50">
-                            Available:{' '}
-                            {isLoadingBalanceOf ? (
-                                <Spinner theme="dark" className="h-4 w-4" />
-                            ) : (
-                                `${toReadableNumber(
-                                    dataBalanceOf,
-                                    selectedRewardToken?.decimals
-                                )} ${selectedRewardToken?.symbol}`
-                            )}
-                        </span>
-                    </Field>
-                </div>
+            {!isRunning && (
+                <div>The protocol needs to be running to inject rewards</div>
             )}
-            <div>
-                <Button
-                    className="w-full"
-                    variant={hasError || isRestricted ? 'error' : 'primary'}
-                    onClick={onClickInject}
-                    disabled={hasError || isRestricted || rewardAmount === 0n}
-                >
-                    {!isPendingInjectRewards &&
-                    !isLoadingInjectRewards &&
-                    !isPendingApproval ? (
-                        hasError ? (
-                            errorMessage
-                        ) : isRestricted ? (
-                            'Not allowed'
-                        ) : (
-                            'Inject now'
-                        )
-                    ) : (
-                        <div className="flex items-center justify-center gap-2">
-                            <Spinner theme="dark" className="h-4 w-4" />{' '}
-                            {isPendingApproval
-                                ? 'Approving amount...'
-                                : 'Injecting amount...'}
-                        </div>
-                    )}
-                </Button>
-            </div>
+            {isRunning && dataGetRewardTokens && (
+                <>
+                    <div className="flex flex-col gap-8">
+                        <Field>
+                            <Label className="text-base/6 font-normal text-dapp-cyan-50">
+                                Reward Token
+                            </Label>
+                            <Description className="text-sm/6 text-dapp-cyan-50/50">
+                                Select a reward token that you want to inject.
+                            </Description>
+                            <Select
+                                disabled={isRestricted}
+                                className={clsx(
+                                    'mt-2 block w-full appearance-none rounded-lg border-0 bg-dapp-blue-800 text-left text-2xl leading-10 focus:ring-0 focus:ring-offset-0',
+                                    'focus:outline-none data-[focus]:outline-2 data-[focus]:-outline-offset-2 data-[focus]:outline-white/25',
+                                    '*:text-black'
+                                )}
+                                ref={rewardSelectionRef}
+                                onChange={onChangeRewardToken}
+                            >
+                                {dataGetRewardTokens.map((token) => (
+                                    <option
+                                        key={token.source}
+                                        value={token.source}
+                                    >
+                                        {token.name} ({token.symbol})
+                                    </option>
+                                ))}
+                            </Select>
+                        </Field>
+                        <Field>
+                            <Label className="text-base/6 font-normal text-dapp-cyan-50">
+                                Amount
+                            </Label>
+                            <Description className="text-sm/6 text-dapp-cyan-50/50">
+                                Enter the amount you want to inject (No WEI
+                                amount)
+                            </Description>
+                            <Input
+                                disabled={isRestricted}
+                                type="number"
+                                placeholder="0"
+                                value={rewardAmountEntered}
+                                onChange={onChangeRewardAmount}
+                                onWheel={(e) => e.currentTarget.blur()}
+                                className="mt-2 w-full rounded-lg border-0 bg-dapp-blue-800 text-left text-2xl leading-10 [appearance:textfield] focus:ring-0 focus:ring-offset-0 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+                                ref={rewardAmountRef}
+                            />
+                            <span className="mt-2 flex items-center gap-2 text-xs/8 text-dapp-cyan-50/50">
+                                Available:{' '}
+                                {isLoadingBalanceOf ? (
+                                    <Spinner theme="dark" className="h-4 w-4" />
+                                ) : (
+                                    `${toReadableNumber(
+                                        dataBalanceOf,
+                                        selectedRewardToken?.decimals
+                                    )} ${selectedRewardToken?.symbol}`
+                                )}
+                            </span>
+                        </Field>
+                    </div>
+                    <div>
+                        <Button
+                            className="w-full"
+                            variant={
+                                hasError || isRestricted ? 'error' : 'primary'
+                            }
+                            onClick={onClickInject}
+                            disabled={
+                                hasError || isRestricted || rewardAmount === 0n
+                            }
+                        >
+                            {!isPendingInjectRewards &&
+                            !isLoadingInjectRewards &&
+                            !isPendingApproval ? (
+                                hasError ? (
+                                    errorMessage
+                                ) : isRestricted ? (
+                                    'Not allowed'
+                                ) : (
+                                    'Inject now'
+                                )
+                            ) : (
+                                <div className="flex items-center justify-center gap-2">
+                                    <Spinner theme="dark" className="h-4 w-4" />{' '}
+                                    {isPendingApproval
+                                        ? 'Approving amount...'
+                                        : 'Injecting amount...'}
+                                </div>
+                            )}
+                        </Button>
+                    </div>
+                </>
+            )}
         </Tile>
     )
 }

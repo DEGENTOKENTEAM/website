@@ -979,6 +979,11 @@
   },
   {
     "inputs": [],
+    "name": "AlreadyActivated",
+    "type": "error"
+  },
+  {
+    "inputs": [],
     "name": "CalldataInvalid",
     "type": "error"
   },
@@ -2607,6 +2612,140 @@
       }
     ],
     "name": "tokenURI",
+    "outputs": [
+      {
+        "internalType": "string",
+        "name": "",
+        "type": "string"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "components": [
+          {
+            "internalType": "uint16",
+            "name": "width",
+            "type": "uint16"
+          },
+          {
+            "internalType": "uint16",
+            "name": "height",
+            "type": "uint16"
+          },
+          {
+            "components": [
+              {
+                "internalType": "enum SVGComponentType",
+                "name": "componentType",
+                "type": "uint8"
+              },
+              {
+                "components": [
+                  {
+                    "internalType": "bytes",
+                    "name": "data",
+                    "type": "bytes"
+                  },
+                  {
+                    "internalType": "enum SVGConditionType",
+                    "name": "cType",
+                    "type": "uint8"
+                  },
+                  {
+                    "internalType": "enum SVGConditionComperator",
+                    "name": "comperator",
+                    "type": "uint8"
+                  }
+                ],
+                "internalType": "struct LibStakeXNFTStorage.SVGCondition[]",
+                "name": "conditions",
+                "type": "tuple[]"
+              },
+              {
+                "internalType": "bytes32[]",
+                "name": "styles",
+                "type": "bytes32[]"
+              },
+              {
+                "internalType": "bytes",
+                "name": "data",
+                "type": "bytes"
+              },
+              {
+                "internalType": "bool",
+                "name": "hide",
+                "type": "bool"
+              }
+            ],
+            "internalType": "struct LibStakeXNFTStorage.SVGLayerData",
+            "name": "baseLayer",
+            "type": "tuple"
+          },
+          {
+            "components": [
+              {
+                "internalType": "enum SVGComponentType",
+                "name": "componentType",
+                "type": "uint8"
+              },
+              {
+                "components": [
+                  {
+                    "internalType": "bytes",
+                    "name": "data",
+                    "type": "bytes"
+                  },
+                  {
+                    "internalType": "enum SVGConditionType",
+                    "name": "cType",
+                    "type": "uint8"
+                  },
+                  {
+                    "internalType": "enum SVGConditionComperator",
+                    "name": "comperator",
+                    "type": "uint8"
+                  }
+                ],
+                "internalType": "struct LibStakeXNFTStorage.SVGCondition[]",
+                "name": "conditions",
+                "type": "tuple[]"
+              },
+              {
+                "internalType": "bytes32[]",
+                "name": "styles",
+                "type": "bytes32[]"
+              },
+              {
+                "internalType": "bytes",
+                "name": "data",
+                "type": "bytes"
+              },
+              {
+                "internalType": "bool",
+                "name": "hide",
+                "type": "bool"
+              }
+            ],
+            "internalType": "struct LibStakeXNFTStorage.SVGLayerData[]",
+            "name": "layers",
+            "type": "tuple[]"
+          },
+          {
+            "internalType": "uint8[]",
+            "name": "layerOrder",
+            "type": "uint8[]"
+          }
+        ],
+        "internalType": "struct LibStakeXNFTStorage.SVGConfig",
+        "name": "_config",
+        "type": "tuple"
+      }
+    ],
+    "name": "renderByConfig",
     "outputs": [
       {
         "internalType": "string",

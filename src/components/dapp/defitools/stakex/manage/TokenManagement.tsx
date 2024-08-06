@@ -183,7 +183,7 @@ export const TokenManagement = () => {
             <Tile className="w-full">
                 <div className="flex flex-row items-center">
                     <span className="flex-1 font-title text-xl font-bold">
-                        Token Management
+                        {isOwner ? `Token Management` : `Tokens`}
                     </span>
                     {isOwner &&
                         (showForm ? (

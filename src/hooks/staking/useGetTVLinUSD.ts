@@ -4,10 +4,7 @@ import { Address } from 'viem'
 import { usePublicClient } from 'wagmi'
 import { useGetRewardTokens } from './useGetRewardTokens'
 
-export const useGetTVLinUSD = (
-    chainId: number | undefined,
-    protocolAddress: Address
-) => {
+export const useGetTVLinUSD = (protocolAddress: Address, chainId: number) => {
     const [response, setResponse] = useState<number>(0)
     const [loading, setLoading] = useState(true)
     const client = usePublicClient({ chainId })

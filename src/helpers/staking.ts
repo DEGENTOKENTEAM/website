@@ -1,5 +1,4 @@
 import { createContext } from 'react'
-import { Address } from 'viem'
 
 export const durationFromSeconds = (
     timespan: number,

@@ -4,10 +4,16 @@ import BigNumber from 'bignumber.js'
 import { Address } from 'viem'
 import { useReadContract } from 'wagmi'
 
-export const useGetStakeBuckets = (address: Address, all?: boolean) => {
+export const useGetStakeBuckets = (
+    address: Address,
+    chainId: number,
+    all?: boolean
+) => {
     return useReadContract({
         address,
+        chainId,
         abi,
+        functionName: 'getStakeBuckets',
         query: {
             select: (data: StakeBucketDataResponse[]) => {
                 const smallestShare = Array(...data)
@@ -38,7 +44,7 @@ export const useGetStakeBuckets = (address: Address, all?: boolean) => {
                         []
                     )
             },
+            enabled: Boolean(address && chainId),
         },
-        functionName: 'getStakeBuckets',
     })
 }

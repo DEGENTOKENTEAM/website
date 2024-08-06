@@ -5,7 +5,7 @@ import { useReadContract } from 'wagmi'
 export const useGetERC20BalanceOf = (
     token: Address,
     owner: Address,
-    chainId = 43114
+    chainId: number
 ) =>
     useReadContract({
         address: token,
@@ -15,5 +15,6 @@ export const useGetERC20BalanceOf = (
         args: [owner],
         query: {
             select: (data: bigint) => data,
+            enabled: Boolean(token && owner && chainId),
         },
     })

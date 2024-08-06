@@ -57,13 +57,13 @@ export const Buckets = () => {
     const [isApplyChangesModalOpen, setIsApplyChangesModalOpen] =
         useState(false)
 
-    const { data: dataStaking } = useGetStakingData(protocol)
+    const { data: dataStaking } = useGetStakingData(protocol, chain?.id!)
     const { data: dataStakeBuckets, refetch: refetchStakeBuckets } =
-        useGetStakeBuckets(protocol, true)
+        useGetStakeBuckets(protocol, chain?.id!, true)
     const {
         data: dataMultipliersPerOneStakingToken,
         isLoading: isLoadingMultipliersPerOneStakingToken,
-    } = useGetMultipliersPerOneStakingToken(protocol)
+    } = useGetMultipliersPerOneStakingToken(protocol, chain?.id!)
     const {
         isLoading: isLoadingAddStakeBuckets,
         isSuccess: isSuccessAddStakeBuckets,
@@ -220,7 +220,7 @@ export const Buckets = () => {
             <Tile className="w-full">
                 <div className="flex flex-row items-center">
                     <span className="flex-1 font-title text-xl font-bold">
-                        Staking Pools
+                        {isOwner ? `Staking Pool Management` : `Staking Pools`}
                     </span>
                     {isOwner && (
                         <>
@@ -337,14 +337,17 @@ export const Buckets = () => {
                                                     theme="dark"
                                                     className="!h-4 !w-4"
                                                 />
-                                            ) : (
+                                            ) : multiplierPerStakingTokens &&
+                                              multiplierPerStakingTokens[
+                                                  bucket.id
+                                              ] ? (
                                                 `${
-                                                    multiplierPerStakingTokens
-                                                        ? multiplierPerStakingTokens[
-                                                              bucket.id
-                                                          ]
-                                                        : 0
+                                                    multiplierPerStakingTokens[
+                                                        bucket.id
+                                                    ]
                                                 }x`
+                                            ) : (
+                                                'n/a'
                                             )}
                                         </StatsBoxTwoColumn.RightColumn>
 
@@ -400,18 +403,19 @@ export const Buckets = () => {
                                             Staked in %
                                         </StatsBoxTwoColumn.LeftColumn>
                                         <StatsBoxTwoColumn.RightColumn>
-                                            {dataStaking &&
-                                                stakingToken &&
-                                                toReadableNumber(
-                                                    (Number(bucket.staked) /
-                                                        Number(
-                                                            dataStaking.staked
-                                                                .amount
-                                                        )) *
-                                                        100,
-                                                    0
-                                                )}
-                                            %
+                                            {bucket.staked &&
+                                            dataStaking &&
+                                            stakingToken
+                                                ? `${toReadableNumber(
+                                                      (Number(bucket.staked) /
+                                                          Number(
+                                                              dataStaking.staked
+                                                                  .amount
+                                                          )) *
+                                                          100,
+                                                      0
+                                                  )}%`
+                                                : 'n/a'}
                                         </StatsBoxTwoColumn.RightColumn>
                                         <div className="col-span-2">
                                             <CaretDivider />

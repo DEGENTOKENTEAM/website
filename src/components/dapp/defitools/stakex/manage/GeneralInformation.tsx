@@ -4,7 +4,6 @@ import { toReadableNumber } from '@dapphelpers/number'
 import { useFetch } from '@dapphooks/shared/useFetch'
 import { useGetERC20BalanceOf } from '@dapphooks/shared/useGetERC20BalanceOf'
 import { useActive } from '@dapphooks/staking/useActive'
-import { useGetContractOwner } from '@dapphooks/staking/useGetContractOwner'
 import { useGetStableToken } from '@dapphooks/staking/useGetStableToken'
 import { useGetStakingData } from '@dapphooks/staking/useGetStakingData'
 import { useGetStakingToken } from '@dapphooks/staking/useGetStakingToken'
@@ -14,47 +13,44 @@ import { useRunning } from '@dapphooks/staking/useRunning'
 import { CaretDivider } from '@dappshared/CaretDivider'
 import { StatsBoxTwoColumn } from '@dappshared/StatsBoxTwoColumn'
 import { Tile } from '@dappshared/Tile'
+import { isUndefined } from 'lodash'
 import { useContext, useEffect, useState } from 'react'
 import { FaRegCheckCircle, FaRegTimesCircle } from 'react-icons/fa'
 import { Spinner } from 'src/components/dapp/elements/Spinner'
-import { Address } from 'viem'
 
 export const GeneralInformation = () => {
     const {
         data: { chain, protocol, owner },
     } = useContext(ManageStakeXContext)
 
-    const [ownerAddress, setOwnerAddress] = useState<Address>()
     const [tvlUsd, setTvlUsd] = useState(0)
-    const [rewardTokenFetches, setRewardTokenFetches] = useState<any[]>([])
 
     const { data: dataStakingToken, isLoading: isLoadingStakingToken } =
-        useGetStakingToken(protocol)
+        useGetStakingToken(protocol, chain?.id!)
     const { data: dataStableToken, isLoading: isLoadingStableToken } =
-        useGetStableToken(protocol)
-    const { data: dataContractOwner, isLoading: isLoadingContractOwner } =
-        useGetContractOwner(protocol)
-    const { data: dataIsActive, isLoading: isLoadingIsActive } =
-        useActive(protocol)
+        useGetStableToken(protocol, chain?.id!)
+    const { data: dataIsActive, isLoading: isLoadingIsActive } = useActive(
+        protocol,
+        chain?.id!
+    )
     const { data: dataIsInitialized, isLoading: isLoadingIsInitialized } =
-        useInitialized(protocol)
-    const { data: dataIsRunning, isLoading: isLoadingIsRunning } =
-        useRunning(protocol)
-    const { data: dataStakingData, isLoading: isLoadingStakingData } =
-        useGetStakingData(protocol)
-
+        useInitialized(protocol, chain?.id!)
+    const { data: dataIsRunning, isLoading: isLoadingIsRunning } = useRunning(
+        protocol,
+        chain?.id!
+    )
+    const { data: dataStakingData } = useGetStakingData(protocol, chain?.id!)
     const {
         data: dataStakingTokenBalance,
         isLoading: isLoadingStakingTokenBalance,
-    } = useGetERC20BalanceOf(dataStakingToken?.source!, protocol, 43114)
+    } = useGetERC20BalanceOf(dataStakingToken?.source!, protocol, chain?.id!)
 
     /// get dollar price per token
     const { response: responseStakingTokenInfo } = useFetch({
         enabled: Boolean(dataStakingToken?.source),
         url: `${process.env.NEXT_PUBLIC_STAKEX_API_ENDPOINT}/latest/dex/tokens/${dataStakingToken?.source}`,
     })
-
-    const { response: responseTVLinUSD } = useGetTVLinUSD(chain?.id, protocol)
+    const { response: responseTVLinUSD } = useGetTVLinUSD(protocol, chain?.id!)
 
     useEffect(() => {
         if (
@@ -89,7 +85,6 @@ export const GeneralInformation = () => {
                     url: `${process.env.NEXT_PUBLIC_STAKEX_API_ENDPOINT}/latest/dex/tokens/${reward.tokenInfo.source}`,
                 })
             }
-            setRewardTokenFetches(fetches)
         }
     }, [dataStakingData])
 
@@ -134,9 +129,11 @@ export const GeneralInformation = () => {
                 <StatsBoxTwoColumn.RightColumn>
                     <div className="flex justify-end">
                         {!isLoadingStakingTokenBalance &&
-                        dataStakingTokenBalance &&
+                        !isUndefined(dataStakingTokenBalance) &&
                         dataStakingToken ? (
-                            `~${toReadableNumber(
+                            `${
+                                dataStakingTokenBalance ? '~' : ''
+                            }${toReadableNumber(
                                 dataStakingTokenBalance,
                                 dataStakingToken.decimals,
                                 {

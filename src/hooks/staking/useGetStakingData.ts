@@ -14,12 +14,14 @@ type StakingData = {
     stakesBurned: bigint
 }
 
-export const useGetStakingData = (address: Address) =>
+export const useGetStakingData = (address: Address, chainId: number) =>
     useReadContract({
         address,
+        chainId,
         abi,
         functionName: 'getStakingData',
         query: {
             select: (data: StakingData) => data,
+            enabled: Boolean(address && chainId),
         },
     })

@@ -123,7 +123,7 @@ export const Fees = () => {
             <Tile className="w-full">
                 <div className="flex flex-row items-center gap-4">
                     <span className="flex-1 font-title text-xl font-bold">
-                        Protocol Fees
+                        {isOwner ? `Protocol Fee Management` : `Protocol Fees`}
                     </span>
                     {isOwner &&
                         (isEditMode ? (

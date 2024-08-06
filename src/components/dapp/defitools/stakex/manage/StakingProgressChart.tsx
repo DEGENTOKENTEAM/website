@@ -119,7 +119,7 @@ export const StakingProgressChart = () => {
                     {stakingToken?.symbol} staked over time
                 </span>
             </div>
-            {chartData && (
+            {chartData ? (
                 <div>
                     <Chart
                         options={chartData.options}
@@ -127,6 +127,8 @@ export const StakingProgressChart = () => {
                         type="line"
                     />
                 </div>
+            ) : (
+                <div className="mt-4">No data available to provide a chart</div>
             )}
         </Tile>
     )
