@@ -30,11 +30,11 @@ export const Fees = () => {
 
     const { data: dataGetFeeMax } = useGetFeeMax(protocol, chain?.id!)
     const { data: dataFeeForStaking, refetch: refetchFeeForStaking } =
-        useGetFeeFor(protocol, 'staking', 10000n)
+        useGetFeeFor(protocol, chain?.id!, 'staking', 10000n)
     const { data: dataFeeForRestaking, refetch: refetchFeeForRestaking } =
-        useGetFeeFor(protocol, 'restaking', 10000n)
+        useGetFeeFor(protocol, chain?.id!, 'restaking', 10000n)
     const { data: dataFeeForWithdraw, refetch: refetchFeeForWithdraw } =
-        useGetFeeFor(protocol, 'unstaking', 10000n)
+        useGetFeeFor(protocol, chain?.id!, 'unstaking', 10000n)
     const {
         write: writeUpdateFeesForStaking,
         error: errorUpdateFeesForStaking,
@@ -68,7 +68,7 @@ export const Fees = () => {
         setIsApplyChangesModalOpen(true)
     }
 
-    const steps = 10n
+    const steps = 5n
     const onChangeStakingFee = (value: bigint) => setStakingFee(value)
     const onChangeRestakingFee = (value: bigint) => setRestakingFee(value)
     const onChangeWithdrawFee = (value: bigint) => setWithdrawFee(value)
@@ -157,9 +157,8 @@ export const Fees = () => {
                 </div>
                 <div className="mt-8 grid grid-cols-1 gap-8 sm:grid-cols-3">
                     <div className="flex flex-col gap-1 rounded-lg bg-dapp-blue-400 p-3">
-                        <div>Deposit Stake</div>
+                        <div>Deposit Fee %</div>
                         <CaretDivider />
-
                         <BigIntUpDown
                             min={0n}
                             max={dataGetFeeMax || 0n}
@@ -171,7 +170,7 @@ export const Fees = () => {
                         />
                     </div>
                     <div className="flex flex-col gap-1 rounded-lg bg-dapp-blue-400 p-3">
-                        <div>Restake Rewards</div>
+                        <div>Restake Fee %</div>
                         <CaretDivider />
                         <BigIntUpDown
                             min={0n}
@@ -184,7 +183,7 @@ export const Fees = () => {
                         />
                     </div>
                     <div className="flex flex-col gap-1 rounded-lg bg-dapp-blue-400 p-3">
-                        <div>Withdraw Stake</div>
+                        <div>Withdraw Fee %</div>
                         <CaretDivider />
                         <BigIntUpDown
                             min={0n}

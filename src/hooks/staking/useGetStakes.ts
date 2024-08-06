@@ -6,7 +6,8 @@ import { useReadContract } from 'wagmi'
 export const useGetStakes = (
     address: Address,
     chainId: number,
-    staker: Address
+    staker: Address,
+    isEnabled: boolean
 ) =>
     useReadContract({
         address,
@@ -16,6 +17,6 @@ export const useGetStakes = (
         args: [staker],
         query: {
             select: (data: StakeResponse[]) => data,
-            enabled: Boolean(address && chainId && staker),
+            enabled: Boolean(address && chainId && staker && isEnabled),
         },
     })

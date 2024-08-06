@@ -159,7 +159,8 @@ export const Control = () => {
                     <div
                         className={clsx([
                             `flex flex-row items-center gap-8`,
-                            Boolean(currentActivationTime) && 'opacity-30',
+                            Boolean(currentActivationTime || isActive) &&
+                                'opacity-30',
                         ])}
                     >
                         <FaCubes className="h-8 w-8" />{' '}
@@ -211,7 +212,8 @@ export const Control = () => {
                     <div
                         className={clsx([
                             `flex flex-row items-center gap-8`,
-                            Boolean(currentActivationBlock) && 'opacity-30',
+                            Boolean(currentActivationTime || isActive) &&
+                                'opacity-30',
                         ])}
                     >
                         <FaRegClock className="h-8 w-8" />
@@ -293,11 +295,23 @@ export const Control = () => {
                     </div>
                     <CaretDivider />
                     <div className="flex flex-row items-center gap-8">
-                        <FaCheckDouble className="h-8 w-8" />
-                        <span className="flex-grow">
-                            Enable the protocol, no matter of setting start time
-                            or start block
-                        </span>
+                        <FaCheckDouble
+                            className={clsx([
+                                `h-8 w-8`,
+                                isActive && 'text-dapp-cyan-500',
+                            ])}
+                        />
+                        {isActive ? (
+                            <span className="flex-grow">
+                                Your protocol is enabled
+                            </span>
+                        ) : (
+                            <span className="flex-grow">
+                                Enable the protocol, no matter of setting start
+                                time or start block
+                            </span>
+                        )}
+
                         {isOwner && (
                             <Button
                                 disabled={

@@ -29,6 +29,7 @@ import { Address } from 'viem'
 import { BucketsForm } from './buckets/Form'
 import { ApplyChangesConfirmation } from './buckets/overlays/ApplyChangesConfirmation'
 import { ChangeStateConfirmation } from './buckets/overlays/ChangeStateConfirmation'
+import clsx from 'clsx'
 
 export const Buckets = () => {
     const {
@@ -268,7 +269,14 @@ export const Buckets = () => {
                         <Spinner theme="dark" />
                     </div>
                 ) : (
-                    <div className="mt-8 grid grid-cols-1 gap-8 md:grid-cols-2">
+                    <div
+                        className={clsx([
+                            'mt-8 grid grid-cols-1 gap-8',
+                            dataStakeBuckets &&
+                                dataStakeBuckets.length > 1 &&
+                                'md:grid-cols-2',
+                        ])}
+                    >
                         {isOwner &&
                             (showAddBucketsForm || showChangeSharesForm) && (
                                 <div className="md:col-span-2">

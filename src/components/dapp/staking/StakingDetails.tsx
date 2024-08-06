@@ -493,6 +493,7 @@ export const StakingDetails = ({
             {isInProgessClaimAll && (
                 <StakingClaimOverlay
                     protocolAddress={protocol}
+                    chainId={chain?.id!}
                     targetToken={defaultPayoutToken}
                     isClaimAll={true}
                     isOpen={true}
@@ -502,6 +503,7 @@ export const StakingDetails = ({
             {isInProgessClaim && tokenIdToClaim && (
                 <StakingClaimOverlay
                     protocolAddress={protocol}
+                    chainId={chain?.id!}
                     targetToken={defaultPayoutToken}
                     tokenId={tokenIdToClaim}
                     isOpen={true}
@@ -511,6 +513,7 @@ export const StakingDetails = ({
             {isInProgessRestake && tokenIdToRestake && (
                 <StakingRestakeOverlay
                     protocolAddress={protocol}
+                    chainId={chain?.id!}
                     stakingTokenInfo={stakingTokenInfo}
                     payoutTokenInfo={defaultPayoutToken}
                     tokenId={tokenIdToRestake}
@@ -521,6 +524,7 @@ export const StakingDetails = ({
             {isInProgessWithdraw && tokenIdToWithdraw && (
                 <StakingWithdrawOverlay
                     protocolAddress={protocol}
+                    chainId={chain?.id!}
                     stakingTokenInfo={stakingTokenInfo}
                     payoutTokenInfo={defaultPayoutToken}
                     tokenId={tokenIdToWithdraw}

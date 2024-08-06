@@ -62,7 +62,7 @@ export const StakingDurationSelection = ({
                     'mb-6': description,
                 })}
             >
-                Reward Multiplier & Duration
+                Reward Multiplier & Lock Duration
                 {description && (
                     <>
                         <br />
@@ -73,7 +73,14 @@ export const StakingDurationSelection = ({
                 )}
             </div>
 
-            <div className="grid grid-cols-2 gap-x-3 gap-y-2">
+            <div
+                className={clsx([
+                    'grid gap-x-3 gap-y-2',
+                    durations && durations.length <= 1
+                        ? 'grid-cols-1'
+                        : 'grid-cols-2',
+                ])}
+            >
                 {durations && durations.length == 0 && (
                     <div className="col-span-2 rounded-lg bg-dapp-blue-800 px-5 py-2 text-sm">
                         No options available

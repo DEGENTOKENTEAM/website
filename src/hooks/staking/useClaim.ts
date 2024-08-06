@@ -9,20 +9,26 @@ import {
 } from 'wagmi'
 
 export const useClaim = (
-    enabled: boolean,
     address: Address,
+    chainId: number,
     tokenId: bigint,
-    target: Address
+    target: Address,
+    isEnabled: boolean
 ) => {
     const [logs, setLogs] = useState<any[]>()
     const [isLoading, setIsLoading] = useState<boolean>()
     const [rewardAmount, setRewardAmount] = useState<bigint>()
+
+    const enabled =
+        isEnabled && Boolean(address && chainId && tokenId && target)
+
     const {
         data,
         isError: isErrorSimulate,
         error: errorSimulate,
     } = useSimulateContract({
         address,
+        chainId,
         abi,
         functionName: 'claim',
         args: [tokenId, target],
@@ -44,7 +50,7 @@ export const useClaim = (
         data && writeContract && writeContract(data.request)
     }, [data, writeContract])
 
-    const publicClient = usePublicClient()
+    const publicClient = usePublicClient({ chainId })
 
     const { data: dataBlockNumber } = useBlockNumber({
         watch: Boolean(isLoading),

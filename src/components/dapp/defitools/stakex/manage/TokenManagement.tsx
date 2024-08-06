@@ -19,6 +19,7 @@ import { Spinner } from 'src/components/dapp/elements/Spinner'
 import { Address } from 'viem'
 import { TokensForm } from './tokens/Form'
 import { ApplyChangesConfirmation } from './tokens/overlays/ApplyChangesConfirmation'
+import clsx from 'clsx'
 
 export const TokenManagement = () => {
     const {
@@ -224,7 +225,14 @@ export const TokenManagement = () => {
                         <Spinner theme="dark" />
                     </div>
                 ) : (
-                    <div className="mt-8 grid grid-cols-1 gap-8 md:grid-cols-2">
+                    <div
+                        className={clsx([
+                            'mt-8 grid grid-cols-1 gap-8',
+                            dataTargetTokens &&
+                                dataTargetTokens.length > 1 &&
+                                'md:grid-cols-2',
+                        ])}
+                    >
                         {dataTargetTokens &&
                             dataTargetTokens.map((targetToken) => (
                                 <div

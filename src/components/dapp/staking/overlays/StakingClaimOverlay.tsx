@@ -27,6 +27,7 @@ type StakingClaimOverlayAllProps = { tokenId?: never; isClaimAll: true }
 type StakingClaimOverlaySingleProps = { tokenId: bigint; isClaimAll?: false }
 type StakingClaimOverlayProps = {
     protocolAddress: Address
+    chainId: number
     targetToken: TokenInfo
 } & (StakingClaimOverlayAllProps | StakingClaimOverlaySingleProps) &
     BaseOverlayProps
@@ -37,6 +38,7 @@ export const StakingClaimOverlay = ({
     onClose,
     targetToken,
     protocolAddress,
+    chainId,
     isClaimAll = false,
 }: StakingClaimOverlayProps) => {
     const { address } = useAccount()
@@ -60,11 +62,7 @@ export const StakingClaimOverlay = ({
         reset: resetClaimAll,
         rewardAmount: rewardAmountClaimAll,
         hash: hashClaimAll,
-    } = useClaimAll(
-        Boolean(payoutToken && isClaimAll),
-        protocolAddress,
-        payoutToken?.source
-    )
+    } = useClaimAll(protocolAddress, chainId, payoutToken?.source, isClaimAll)
 
     const {
         write: writeClaim,
@@ -76,26 +74,29 @@ export const StakingClaimOverlay = ({
         rewardAmount: rewardAmountClaim,
         hash: hashClaim,
     } = useClaim(
-        Boolean(payoutToken && tokenId && !isClaimAll),
         protocolAddress,
+        chainId,
         tokenId!,
-        payoutToken?.source
+        payoutToken?.source,
+        !isClaimAll
     )
 
     const { data: dataTargetTokens } = useGetTargetTokens(
         protocolAddress,
-        43114
-    ) // TODO make chain id dynamic
+        chainId
+    )
     const { data: rewardEstimations, refetch: refetchRewardEstimations } =
         useGetRewardEstimationForTokens(
             protocolAddress,
+            chainId,
             tokenIds!,
             payoutToken?.source
         )
     const { data: dataStakes } = useGetStakes(
-        isClaimAll,
         protocolAddress,
-        address!
+        chainId,
+        address!,
+        isClaimAll
     )
     const { data: claimAllEstimation, isLoading: isLoadingClaimAllEstimation } =
         useGetClaimAllEstimation(

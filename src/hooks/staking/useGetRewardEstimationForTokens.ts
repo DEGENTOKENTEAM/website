@@ -29,6 +29,12 @@ export const useGetRewardEstimationForTokens = (
                         (data) =>
                             (data.result as Array<any>)[0] as RewardEstimation
                     ),
-            enabled: Boolean(address && chainId && tokenIds && targetToken),
+            enabled: Boolean(
+                address &&
+                    chainId &&
+                    tokenIds &&
+                    tokenIds.length > 0 &&
+                    targetToken
+            ),
         },
     })

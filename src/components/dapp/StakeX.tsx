@@ -104,7 +104,8 @@ export const StakeX = () => {
     const { data: stakes, refetch: refetchStakes } = useGetStakes(
         stakingData.protocol,
         stakingData.chain?.id!,
-        address!
+        address!,
+        true
     )
     const { data: targetTokens } = useGetTargetTokens(
         stakingData.protocol,
@@ -132,12 +133,18 @@ export const StakeX = () => {
 
     const onSelectPayoutTokenHandler = (tokenInfo: TokenInfoResponse) => {
         setSelectedPayoutToken(tokenInfo)
-        localStorage.setItem('ptoken', JSON.stringify(tokenInfo.source))
+        localStorage.setItem(
+            `ptoken${stakingData.protocol}`,
+            JSON.stringify(tokenInfo.source)
+        )
     }
 
     const onSelectShowTokenHandler = (tokenInfo: TokenInfoResponse) => {
         setSelectedShowToken(tokenInfo)
-        localStorage.setItem('stoken', JSON.stringify(tokenInfo.source))
+        localStorage.setItem(
+            `stoken${stakingData.protocol}`,
+            JSON.stringify(tokenInfo.source)
+        )
     }
 
     const onDepositSuccessHandler = () => {
@@ -167,32 +174,45 @@ export const StakeX = () => {
     }, [isConnected, stakes])
 
     useEffect(() => {
-        if (targetTokens) {
-            // if there is a stable token, it'll be used by default, otherwise the staking tokenß
-            let payoutToken = JSON.parse(
-                localStorage.getItem('ptoken') || 'null'
-            )
-            if (!payoutToken) {
-                payoutToken = (stableTokenInfo || stakingTokenInfo)?.source
-                if (payoutToken)
-                    localStorage.setItem('ptoken', JSON.stringify(payoutToken))
-            }
+        if (targetTokens && stakingData && stakingData.protocol) {
+            let payoutTokenInfo =
+                targetTokens.find(
+                    (token) =>
+                        token.source ==
+                            JSON.parse(
+                                localStorage.getItem(
+                                    `ptoken${stakingData.protocol}`
+                                ) || 'null'
+                            ) ||
+                        token.source == stableTokenInfo?.source ||
+                        token.source == stakingTokenInfo?.source
+                ) || targetTokens[0]
 
-            let showToken = JSON.parse(localStorage.getItem('stoken') || 'null')
-            if (!showToken) {
-                showToken = (stableTokenInfo || stakingTokenInfo)?.source
-                if (showToken)
-                    localStorage.setItem('stoken', JSON.stringify(showToken))
-            }
+            localStorage.setItem(
+                `ptoken${stakingData.protocol}`,
+                JSON.stringify(payoutTokenInfo.source)
+            )
 
-            setSelectedPayoutToken(
-                targetTokens.find((token) => token.source == payoutToken) ||
-                    stakingTokenInfo
+            let showTokenInfo =
+                targetTokens.find(
+                    (token) =>
+                        token.source ==
+                            JSON.parse(
+                                localStorage.getItem(
+                                    `stoken${stakingData.protocol}`
+                                ) || 'null'
+                            ) ||
+                        token.source == stableTokenInfo?.source ||
+                        token.source == stakingTokenInfo?.source
+                ) || targetTokens[0]
+
+            localStorage.setItem(
+                `stoken${stakingData.protocol}`,
+                JSON.stringify(showTokenInfo.source)
             )
-            setSelectedShowToken(
-                targetTokens.find((token) => token.source == showToken) ||
-                    stakingTokenInfo
-            )
+
+            setSelectedPayoutToken(payoutTokenInfo)
+            setSelectedShowToken(showTokenInfo)
 
             setActiveTargetTokens(
                 targetTokens.filter((token) => token.isTargetActive)
@@ -200,7 +220,7 @@ export const StakeX = () => {
 
             setIsLoadingSettings(false)
         }
-    }, [targetTokens, stableTokenInfo, stakingTokenInfo])
+    }, [stakingData, targetTokens, stableTokenInfo, stakingTokenInfo])
 
     useEffect(() => {
         if (isDisconnected) {

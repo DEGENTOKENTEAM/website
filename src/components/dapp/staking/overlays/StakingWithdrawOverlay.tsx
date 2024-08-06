@@ -22,6 +22,7 @@ import { StakingPayoutTokenSelection } from '../StakingPayoutTokenSelection'
 
 type StakingWithdrawOverlayProps = {
     protocolAddress: Address
+    chainId: number
     stakingTokenInfo: TokenInfoResponse
     payoutTokenInfo: TokenInfo
     tokenId: bigint
@@ -32,6 +33,7 @@ export const StakingWithdrawOverlay = ({
     isOpen,
     onClose,
     protocolAddress,
+    chainId,
     stakingTokenInfo,
     payoutTokenInfo,
 }: StakingWithdrawOverlayProps) => {
@@ -46,14 +48,20 @@ export const StakingWithdrawOverlay = ({
     const [stake, setStake] = useState<StakeResponse>()
     const [targetTokens, setTargetTokens] = useState<TokenInfoResponse[]>([])
 
-    const { data: dataStakes } = useGetStakes(true, protocolAddress, address!)
+    const { data: dataStakes } = useGetStakes(
+        protocolAddress,
+        chainId,
+        address!,
+        true
+    )
     const { data: dataTargetTokens } = useGetTargetTokens(
         protocolAddress,
-        43114
-    ) // TODO make chain id dynamic
+        chainId
+    )
     const { data: rewardEstimations, refetch: refetchRewardEstimations } =
         useGetRewardEstimationForTokens(
             protocolAddress,
+            chainId,
             [tokenId],
             payoutToken?.source
         )

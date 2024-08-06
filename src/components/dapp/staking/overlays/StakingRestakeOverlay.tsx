@@ -23,6 +23,7 @@ import {
 
 type StakingRestakeOverlayProps = {
     protocolAddress: Address
+    chainId: number
     stakingTokenInfo: TokenInfoResponse
     payoutTokenInfo: TokenInfo
     tokenId: bigint
@@ -30,6 +31,7 @@ type StakingRestakeOverlayProps = {
 
 export const StakingRestakeOverlay = ({
     protocolAddress,
+    chainId,
     payoutTokenInfo,
     stakingTokenInfo,
     tokenId,
@@ -48,7 +50,7 @@ export const StakingRestakeOverlay = ({
     // Data Hooks
     //
     const { data: stakeBucketsData, isLoading: isLoadingGetStakeBuckets } =
-        useGetStakeBuckets(protocolAddress)
+        useGetStakeBuckets(protocolAddress, chainId)
     const { data: claimEstimationNFT, isLoading: isLoadingClaimEstimationNFT } =
         useGetClaimEstimation(
             true,
@@ -93,7 +95,7 @@ export const StakingRestakeOverlay = ({
 
     const onCloseHandler = () => {
         reset()
-        onClose()
+        onClose && onClose()
     }
 
     const onCheckboxHandler = (checked: boolean) =>

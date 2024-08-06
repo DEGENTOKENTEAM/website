@@ -9,13 +9,16 @@ import {
 } from 'wagmi'
 
 export const useClaimAll = (
-    enabled: boolean,
     address: Address,
-    target: Address
+    chainId: number,
+    target: Address,
+    isEnabled: boolean
 ) => {
     const [logs, setLogs] = useState<any[]>()
     const [isLoading, setIsLoading] = useState<boolean>()
     const [rewardAmount, setRewardAmount] = useState<bigint>()
+
+    const enabled = isEnabled && Boolean(address && chainId && target)
 
     const {
         data,
@@ -24,6 +27,7 @@ export const useClaimAll = (
     } = useSimulateContract({
         address,
         abi,
+        chainId,
         functionName: 'claimAll',
         args: [target],
         query: {
