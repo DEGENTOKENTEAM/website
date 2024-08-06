@@ -113,7 +113,6 @@ export const TokensForm = ({ onChange, error: _error }: TokensFormProps) => {
     }, [data, isLoadingTokenInfo, isLoadingRoutings, isErrorRoutings])
 
     useEffect(() => {
-        console.log({ responseRoutings, isErrorRoutings, errorRoutings })
         !isErrorRoutings && responseRoutings && setRoutings(responseRoutings)
         if (isErrorRoutings) setErrorMessage(errorRoutings)
     }, [responseRoutings, isErrorRoutings, errorRoutings])

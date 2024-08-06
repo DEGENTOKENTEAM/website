@@ -1,3 +1,5 @@
-export const visualAddress = (address: string) => {
-    return `${address.substring(0, 6)}...${address.substring(address.length-4)}`;
+export const visualAddress = (address: string, pad = 4) => {
+    return `${address.substring(0, pad + 2)}...${address.substring(
+        address.length - pad
+    )}`
 }

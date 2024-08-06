@@ -2,6 +2,7 @@ import { visualAddress } from '@dapphelpers/address'
 import { ManageStakeXContext } from '@dapphelpers/defitools'
 import { toReadableNumber } from '@dapphelpers/number'
 import { useFetch } from '@dapphooks/shared/useFetch'
+import { useGetChainExplorer } from '@dapphooks/shared/useGetChainExplorer'
 import { useGetERC20BalanceOf } from '@dapphooks/shared/useGetERC20BalanceOf'
 import { useActive } from '@dapphooks/staking/useActive'
 import { useGetStableToken } from '@dapphooks/staking/useGetStableToken'
@@ -16,6 +17,7 @@ import { Tile } from '@dappshared/Tile'
 import { isUndefined } from 'lodash'
 import { useContext, useEffect, useState } from 'react'
 import { FaRegCheckCircle, FaRegTimesCircle } from 'react-icons/fa'
+import { IoMdOpen } from 'react-icons/io'
 import { Spinner } from 'src/components/dapp/elements/Spinner'
 
 export const GeneralInformation = () => {
@@ -44,6 +46,8 @@ export const GeneralInformation = () => {
         data: dataStakingTokenBalance,
         isLoading: isLoadingStakingTokenBalance,
     } = useGetERC20BalanceOf(dataStakingToken?.source!, protocol, chain?.id!)
+
+    const chainExplorer = useGetChainExplorer(chain!)
 
     /// get dollar price per token
     const { response: responseStakingTokenInfo } = useFetch({
@@ -97,25 +101,67 @@ export const GeneralInformation = () => {
                 <div className="col-span-2">
                     <span className="font-bold">Protocol address</span>
                     <br />
-                    <span className="font-mono text-sm">
+                    <span className="flex flex-row items-center gap-2 font-mono text-sm">
                         <span className=" xs:hidden">
-                            {visualAddress(protocol)}
+                            {visualAddress(protocol, 8)}
                         </span>
                         <span className="hidden text-xs xs:inline sm:text-sm">
                             {protocol}
                         </span>
+                        {chainExplorer && dataStakingToken && (
+                            <a
+                                href={chainExplorer.getAddressUrl(protocol)}
+                                target="_blank"
+                                className="flex flex-row items-center justify-start"
+                            >
+                                <IoMdOpen />
+                            </a>
+                        )}
                     </span>
                 </div>
                 <div className="col-span-2 mt-4">
                     <span className="font-bold">Owner address</span>
                     <br />
-                    <span className="font-mono text-sm">
+                    <span className="flex flex-row items-center gap-2 font-mono text-sm">
                         <span className=" xs:hidden">
-                            {owner && visualAddress(owner)}
+                            {owner && visualAddress(owner, 8)}
                         </span>
                         <span className="hidden text-xs xs:inline sm:text-sm">
                             {owner}
                         </span>
+                        {chainExplorer && dataStakingToken && (
+                            <a
+                                href={chainExplorer.getAddressUrl(owner)}
+                                target="_blank"
+                                className="flex flex-row items-center justify-start"
+                            >
+                                <IoMdOpen />
+                            </a>
+                        )}
+                    </span>
+                </div>
+                <div className="col-span-2 mt-4">
+                    <span className="font-bold">Staking token address</span>
+                    <br />
+                    <span className="flex flex-row items-center gap-2 font-mono text-sm">
+                        <span className="xs:hidden">
+                            {dataStakingToken &&
+                                visualAddress(dataStakingToken.source, 8)}
+                        </span>
+                        <span className="hidden text-xs xs:inline sm:text-sm">
+                            {dataStakingToken && dataStakingToken.source}
+                        </span>
+                        {chainExplorer && dataStakingToken && (
+                            <a
+                                href={chainExplorer.getTokenUrl(
+                                    dataStakingToken.source
+                                )}
+                                target="_blank"
+                                className="flex flex-row items-center justify-start"
+                            >
+                                <IoMdOpen />
+                            </a>
+                        )}
                     </span>
                 </div>
 
