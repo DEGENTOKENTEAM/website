@@ -5,6 +5,7 @@ import { useReadContracts } from 'wagmi'
 
 export const useGetRewardEstimationForTokens = (
     address: Address,
+    chainId: number,
     tokenIds: bigint[],
     targetToken: Address
 ) =>
@@ -13,6 +14,7 @@ export const useGetRewardEstimationForTokens = (
             (tokenId) =>
                 ({
                     address,
+                    chainId,
                     abi,
                     functionName: 'getRewardEstimationInToken',
                     args: [tokenId, targetToken],
@@ -27,5 +29,6 @@ export const useGetRewardEstimationForTokens = (
                         (data) =>
                             (data.result as Array<any>)[0] as RewardEstimation
                     ),
+            enabled: Boolean(address && chainId && tokenIds && targetToken),
         },
     })

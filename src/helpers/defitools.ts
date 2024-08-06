@@ -38,14 +38,18 @@ export type ManageStakeXContextType = {
     data: ManageStakeXContextDataType
 }
 
+export const ManageStakeXContextInitialData = {
+    protocol: zeroAddress,
+    owner: zeroAddress,
+    isOwner: false,
+    isActive: false,
+    isRunning: false,
+    isLoading: true,
+}
+
 export const ManageStakeXContext = createContext<ManageStakeXContextType>({
     setData: () => {},
     data: {
-        protocol: zeroAddress,
-        owner: zeroAddress,
-        isOwner: false,
-        isActive: false,
-        isRunning: false,
-        isLoading: true,
+        ...ManageStakeXContextInitialData,
     },
 })

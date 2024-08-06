@@ -6,10 +6,12 @@ import { useMemo } from 'react'
 import { IoMdOpen } from 'react-icons/io'
 import { MdLockOutline } from 'react-icons/md'
 import { Address } from 'viem'
+import { useBlock } from 'wagmi'
 import { Button } from '../../Button'
 
 type StakingNFTTileProps = {
     protocolAddress: Address
+    chainId: number
     tokenId: bigint
     stakedTokenSymbol: string
     stakedTokenAmount: string
@@ -27,6 +29,7 @@ type StakingNFTTileProps = {
 }
 export const StakingNFTTile = ({
     protocolAddress,
+    chainId,
     tokenId,
     stakedTokenSymbol,
     stakedTokenAmount,
@@ -44,6 +47,7 @@ export const StakingNFTTile = ({
 }: StakingNFTTileProps) => {
     const { data, loadData } = useFetchTokenURI(protocolAddress, tokenId)
     const timeAgo = new TimeAgo(navigator.language)
+    const { data: dataBlock } = useBlock({ chainId })
     useMemo(() => {
         if (data) {
             const w = window.open('about:blank')
@@ -105,10 +109,13 @@ export const StakingNFTTile = ({
                                     lockStartDate * 1000
                                 ).toLocaleTimeString(navigator.language)}`}
                             >
-                                {timeAgo.format(withdrawDate * 1000, {
-                                    future: true,
-                                    round: 'floor',
-                                })}
+                                {Boolean(dataBlock && dataBlock?.timestamp) &&
+                                    timeAgo.format(withdrawDate * 1000, {
+                                        future: true,
+                                        round: 'floor',
+                                        now:
+                                            Number(dataBlock?.timestamp) * 1000,
+                                    })}
                             </span>
                         </StatsBoxTwoColumn.RightColumn>
                     </>

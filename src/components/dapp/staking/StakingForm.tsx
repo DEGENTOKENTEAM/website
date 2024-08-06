@@ -1,5 +1,5 @@
 import { toReadableNumber } from '@dapphelpers/number'
-import { durationFromSeconds } from '@dapphelpers/staking'
+import { durationFromSeconds, StakeXContext } from '@dapphelpers/staking'
 import { useERC20Approve } from '@dapphooks/shared/useERC20Approve'
 import { useGetERC20BalanceOf } from '@dapphooks/shared/useGetERC20BalanceOf'
 import { useHasERC20Allowance } from '@dapphooks/shared/useHasERC20Allowance'
@@ -10,7 +10,13 @@ import { useGetStakeBuckets } from '@dapphooks/staking/useGetStakeBuckets'
 import { useHasFees } from '@dapphooks/staking/useHasFees'
 import { StatsBoxTwoColumn } from '@dappshared/StatsBoxTwoColumn'
 import { StakeBucket, StakingBaseProps } from '@dapptypes'
-import { ChangeEvent, useCallback, useEffect, useState } from 'react'
+import {
+    ChangeEvent,
+    useCallback,
+    useContext,
+    useEffect,
+    useState,
+} from 'react'
 import { IoCheckmarkCircle } from 'react-icons/io5'
 import { MdError, MdLockOpen, MdLockOutline } from 'react-icons/md'
 import { SpinnerCircular } from 'spinners-react'
@@ -18,23 +24,25 @@ import { Address, formatUnits, parseUnits, toHex } from 'viem'
 import { useAccount } from 'wagmi'
 import { Button } from '../../Button'
 import { Spinner } from '../elements/Spinner'
+import { BaseOverlay } from '../shared/overlays/BaseOverlay'
 import {
     StakeBucketButton,
     StakingDurationSelection,
 } from './StakingDurationSelection'
-import { BaseOverlay } from '../shared/overlays/BaseOverlay'
-import { chain } from 'lodash'
 
 type StakingFormProps = {
     onDepositSuccessHandler: () => void
 } & StakingBaseProps
 
 export const StakingForm = ({
-    protocolAddress,
     stakingTokenInfo,
     onDepositSuccessHandler,
 }: StakingFormProps) => {
     const defaultBucketId = toHex('boss mode', { size: 32 })
+
+    const {
+        data: { protocol, chain },
+    } = useContext(StakeXContext)
 
     const { address, isConnected, isDisconnected, chainId } = useAccount()
 
@@ -69,12 +77,13 @@ export const StakingForm = ({
     // Hooks
     //
     // base data hooks
-    const { data: dataStakeBuckets } = useGetStakeBuckets(protocolAddress)
+    const { data: dataStakeBuckets } = useGetStakeBuckets(protocol, chain?.id!)
     const { data: dataMultiplierPerToken } =
-        useGetMultipliersPerOneStakingToken(protocolAddress)
+        useGetMultipliersPerOneStakingToken(protocol, chain?.id!)
     const { data: dataBalanceOf } = useGetERC20BalanceOf(
         stakingTokenInfo?.source,
-        address!
+        address!,
+        chain?.id!
     )
     const {
         data: dataAllowance,
@@ -83,12 +92,13 @@ export const StakingForm = ({
     } = useHasERC20Allowance(
         stakingTokenInfo?.source,
         address!,
-        protocolAddress,
-        chainId!
+        protocol,
+        chain?.id!
     )
-    const { data: dataHasFees } = useHasFees(protocolAddress)
+    const { data: dataHasFees } = useHasFees(protocol, chain?.id!)
     const { data: feeForStaking } = useGetFeeFor(
-        protocolAddress,
+        protocol,
+        chain?.id!,
         'staking',
         stakeAmount
     )
@@ -102,9 +112,9 @@ export const StakingForm = ({
         error: errorERC20Approve,
     } = useERC20Approve(
         stakingTokenInfo?.source,
-        protocolAddress,
+        protocol,
         stakeAmount,
-        chainId!
+        chain?.id!
     )
 
     const {
@@ -120,10 +130,11 @@ export const StakingForm = ({
         isSuccessSimulation: isSuccessSimulationDepositStake,
         hash: hashDepositStake,
     } = useDepositStake(
-        Boolean(hasAllowance && startDeposit),
-        protocolAddress,
+        protocol,
+        chain?.id!,
         stakeBucketId,
-        stakeAmount
+        stakeAmount,
+        Boolean(hasAllowance && startDeposit)
     )
 
     //

@@ -7,11 +7,13 @@ type GetFeeFor = 'staking' | 'unstaking' | 'restaking'
 
 export const useGetFeeFor = (
     address: Address,
+    chainId: number,
     whatFor: GetFeeFor,
     amount: bigint
 ) =>
     useReadContract({
         address,
+        chainId,
         abi,
         functionName: `getFeeFor${_.upperFirst(whatFor)}`,
         args: [amount],
@@ -20,5 +22,6 @@ export const useGetFeeFor = (
                 stakeAmount: data[0],
                 feeAmount: data[1],
             }),
+            enabled: Boolean(address && chainId && whatFor && amount),
         },
     })

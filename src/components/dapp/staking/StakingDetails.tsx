@@ -15,7 +15,7 @@ import {
     StakingBaseProps,
     TokenInfoResponse,
 } from '@dapptypes'
-import { useContext, useEffect, useMemo, useState } from 'react'
+import { Fragment, useContext, useEffect, useMemo, useState } from 'react'
 import { useAccount } from 'wagmi'
 import { Button } from '../../Button'
 import { Spinner } from '../elements/Spinner'
@@ -36,12 +36,15 @@ type BucketStakedShareInfo = Partial<BucketStakedShare & StakeBucket>
 type ComponentProps = StakingBaseProps & StakingDetailsProps
 
 export const StakingDetails = ({
-    protocolAddress,
     stakingTokenInfo,
     defaultShowToken,
     defaultPayoutToken,
     stakes,
 }: ComponentProps) => {
+    const {
+        data: { protocol, chain },
+    } = useContext(StakeXContext)
+
     const sortOptions: SortOption[] = useMemo(
         () => [
             {
@@ -86,8 +89,15 @@ export const StakingDetails = ({
     const [canClaimAll, setCanClaimAll] = useState(false)
 
     const [stakesOrdered, setStakesOrdered] = useState<StakeResponse[]>()
-    const [stakeShareInfo, setStakeShareInfo] =
-        useState<BucketStakedShareInfo[]>()
+    const [stakeShareInfo, setStakeShareInfo] = useState<
+        {
+            share: bigint
+            staked: bigint
+            divider: bigint
+            duration: bigint
+            burn: boolean
+        }[]
+    >()
 
     // processing / cta / interative
     const [isInProgess, setIsInProgess] = useState(false)
@@ -104,16 +114,21 @@ export const StakingDetails = ({
 
     const { data: rewardEstimations, refetch: refetchRewardEstimations } =
         useGetRewardEstimationForTokens(
-            protocolAddress,
+            protocol,
+            chain?.id!,
             tokenIds!,
             defaultShowToken?.source
         )
-    const { data: targetTokens } = useGetTargetTokens(protocolAddress, 43114) // TODO make chain id dynamic
+    const { data: targetTokens } = useGetTargetTokens(protocol, chain?.id!)
     const { data: dataGetStakedSharesByStaker } = useGetStakedSharesByStaker(
-        protocolAddress,
+        protocol,
+        chain?.id!,
         address!
     )
-    const { data: dataGetStakeBuckets } = useGetStakeBuckets(protocolAddress)
+    const { data: dataGetStakeBuckets } = useGetStakeBuckets(
+        protocol,
+        chain?.id!
+    )
 
     //
     // handlers
@@ -178,16 +193,22 @@ export const StakingDetails = ({
     ])
 
     useEffect(() => {
-        if (!dataGetStakedSharesByStaker || !dataGetStakeBuckets) return
-
-        setStakeShareInfo(
-            dataGetStakedSharesByStaker.map((share) => ({
-                ...share,
-                ...dataGetStakeBuckets.find(
-                    (bucket) => share.bucketId == bucket.id
-                ),
-            }))
-        )
+        dataGetStakedSharesByStaker &&
+            dataGetStakeBuckets &&
+            setStakeShareInfo(
+                dataGetStakedSharesByStaker.map((share) => {
+                    const bucketData = dataGetStakeBuckets.find(
+                        (bucket) => share.bucketId == bucket.id
+                    )
+                    return {
+                        burn: bucketData?.burn!,
+                        divider: BigInt(share.divider),
+                        duration: BigInt(bucketData?.duration!),
+                        share: share.share,
+                        staked: share.staked,
+                    }
+                })
+            )
     }, [dataGetStakedSharesByStaker, dataGetStakeBuckets])
 
     useEffect(() => {
@@ -340,8 +361,8 @@ export const StakingDetails = ({
                                 </div>
                             </StatsBoxTwoColumn.RightColumn>
 
-                            {stakeShareInfo.map((share) => (
-                                <>
+                            {stakeShareInfo.map((share, i) => (
+                                <Fragment key={i}>
                                     <StatsBoxTwoColumn.LeftColumn>
                                         <span className="text-darkTextLowEmphasis">
                                             {share.burn && (
@@ -376,7 +397,7 @@ export const StakingDetails = ({
                                             </div>
                                         </div>
                                     </StatsBoxTwoColumn.RightColumn>
-                                </>
+                                </Fragment>
                             ))}
                         </>
                     )}
@@ -430,7 +451,8 @@ export const StakingDetails = ({
                             stakesOrdered.map((stake) => (
                                 <StakingNFTTile
                                     key={'' + stake.tokenId}
-                                    protocolAddress={protocolAddress}
+                                    protocolAddress={protocol}
+                                    chainId={chain?.id!}
                                     rewardAmount={toReadableNumber(
                                         tokenIdRewards[
                                             parseInt('' + stake.tokenId)
@@ -470,7 +492,7 @@ export const StakingDetails = ({
             </div>
             {isInProgessClaimAll && (
                 <StakingClaimOverlay
-                    protocolAddress={protocolAddress}
+                    protocolAddress={protocol}
                     targetToken={defaultPayoutToken}
                     isClaimAll={true}
                     isOpen={true}
@@ -479,7 +501,7 @@ export const StakingDetails = ({
             )}
             {isInProgessClaim && tokenIdToClaim && (
                 <StakingClaimOverlay
-                    protocolAddress={protocolAddress}
+                    protocolAddress={protocol}
                     targetToken={defaultPayoutToken}
                     tokenId={tokenIdToClaim}
                     isOpen={true}
@@ -488,7 +510,7 @@ export const StakingDetails = ({
             )}
             {isInProgessRestake && tokenIdToRestake && (
                 <StakingRestakeOverlay
-                    protocolAddress={protocolAddress}
+                    protocolAddress={protocol}
                     stakingTokenInfo={stakingTokenInfo}
                     payoutTokenInfo={defaultPayoutToken}
                     tokenId={tokenIdToRestake}
@@ -498,7 +520,7 @@ export const StakingDetails = ({
             )}
             {isInProgessWithdraw && tokenIdToWithdraw && (
                 <StakingWithdrawOverlay
-                    protocolAddress={protocolAddress}
+                    protocolAddress={protocol}
                     stakingTokenInfo={stakingTokenInfo}
                     payoutTokenInfo={defaultPayoutToken}
                     tokenId={tokenIdToWithdraw}

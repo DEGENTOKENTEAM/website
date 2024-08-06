@@ -4,17 +4,18 @@ import { Address } from 'viem'
 import { useReadContract } from 'wagmi'
 
 export const useGetStakes = (
-    enabled: boolean,
     address: Address,
+    chainId: number,
     staker: Address
 ) =>
     useReadContract({
         address,
+        chainId,
         abi,
         functionName: 'getStakes',
         args: [staker],
         query: {
             select: (data: StakeResponse[]) => data,
-            enabled,
+            enabled: Boolean(address && chainId && staker),
         },
     })

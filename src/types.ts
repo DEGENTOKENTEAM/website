@@ -29,7 +29,6 @@ export type TokenInfoResponse = {
 }
 
 export type StakingBaseProps = {
-    protocolAddress: Address
     stakingTokenInfo: TokenInfoResponse
 }
 

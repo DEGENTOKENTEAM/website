@@ -1,34 +1,46 @@
-import { STAKEX_ADDRESS } from '@dappconstants'
-import { StakeXContext } from '@dapphelpers/staking'
+import { ManageStakeXContextInitialData } from '@dapphelpers/defitools'
+import { StakeXContext, StakeXContextDataType } from '@dapphelpers/staking'
 import { useActive } from '@dapphooks/staking/useActive'
+import { useGetCustomization } from '@dapphooks/staking/useGetCustomization'
 import { useGetStableToken } from '@dapphooks/staking/useGetStableToken'
 import { useGetStakes } from '@dapphooks/staking/useGetStakes'
 import { useGetStakingToken } from '@dapphooks/staking/useGetStakingToken'
 import { useGetTargetTokens } from '@dapphooks/staking/useGetTargetTokens'
+import { useRunning } from '@dapphooks/staking/useRunning'
 import { Tile } from '@dappshared/Tile'
 import { TokenInfoResponse } from '@dapptypes'
 import { ConnectKitButton } from 'connectkit'
+import { isUndefined } from 'lodash'
 import { useEffect, useMemo, useState } from 'react'
 import { FaGear } from 'react-icons/fa6'
 import { MdClose } from 'react-icons/md'
 import { useParams } from 'react-router-dom'
+import { getChainById } from 'shared/supportedChains'
 import { Address } from 'viem'
 import { useAccount, useSwitchChain } from 'wagmi'
 import { Button } from '../Button'
 import { Spinner } from './elements/Spinner'
+import { BaseOverlay } from './shared/overlays/BaseOverlay'
 import { StakingDetails } from './staking/StakingDetails'
 import { StakingForm } from './staking/StakingForm'
 import { StakingPayoutTokenSelection } from './staking/StakingPayoutTokenSelection'
+import { StakingProjectLogo } from './staking/StakingProjectLogo'
 import { StakingStatistics } from './staking/StakingSatistics'
 import { StakingTabber, StakingTabberItem } from './staking/StakingTabber'
-import { BaseOverlay } from './shared/overlays/BaseOverlay'
 
 export const StakeX = () => {
     const { switchChain } = useSwitchChain()
     const { isConnected, isDisconnected, isConnecting, address, chain } =
         useAccount()
 
-    const { hash } = useParams()
+    const [stakingData, setStakingData] = useState<StakeXContextDataType>(
+        ManageStakeXContextInitialData
+    )
+
+    const { protocolAddress, chainId } = useParams<{
+        protocolAddress: Address
+        chainId: string
+    }>()
 
     const DEFAULT_TABBER_INDEX = 0
 
@@ -80,21 +92,35 @@ export const StakeX = () => {
         return _networks
     }, [])
 
-    const protocolAddress = useMemo<Address>(() => {
-        return (hash || STAKEX_ADDRESS) as Address
-    }, [hash])
-
-    const { isError: isErrorActive, error: errorActive } =
-        useActive(protocolAddress)
-
+    const {
+        data: dataActive,
+        isError: isErrorActive,
+        error: errorActive,
+    } = useActive(stakingData.protocol, stakingData.chain?.id!)
+    const { data: dataRunning } = useRunning(
+        stakingData.protocol,
+        stakingData.chain?.id!
+    )
     const { data: stakes, refetch: refetchStakes } = useGetStakes(
-        isConnected,
-        protocolAddress,
+        stakingData.protocol,
+        stakingData.chain?.id!,
         address!
     )
-    const { data: targetTokens } = useGetTargetTokens(protocolAddress, 43114) // TODO make chain id dynamic
-    const { data: stableTokenInfo } = useGetStableToken(protocolAddress)
-    const { data: stakingTokenInfo } = useGetStakingToken(protocolAddress)
+    const { data: targetTokens } = useGetTargetTokens(
+        stakingData.protocol,
+        stakingData.chain?.id!
+    )
+    const { data: stableTokenInfo } = useGetStableToken(
+        stakingData.protocol,
+        stakingData.chain?.id!
+    )
+    const { data: stakingTokenInfo } = useGetStakingToken(
+        stakingData.protocol,
+        stakingData.chain?.id!
+    )
+
+    const { response: responseCustomization, load: loadCustomization } =
+        useGetCustomization(stakingData.protocol)
 
     const onClickHandler = () => {
         setShowSettings(true)
@@ -197,12 +223,43 @@ export const StakeX = () => {
         )
     }, [chain, isConnected, availableNetworks])
 
+    useEffect(() => {
+        const _data = { ...stakingData }
+        if (protocolAddress) _data.protocol = protocolAddress
+        if (chainId) _data.chain = getChainById(Number(chainId))
+        if (!isUndefined(dataActive)) _data.isActive = dataActive
+        if (!isUndefined(dataRunning)) _data.isRunning = dataRunning
+        setStakingData(_data)
+    }, [protocolAddress, chainId, dataActive, dataRunning])
+
+    useEffect(() => {
+        stakingData && stakingData.protocol && loadCustomization()
+    }, [stakingData])
+
     return (
-        <StakeXContext.Provider value={{ refetchStakes }}>
+        <StakeXContext.Provider
+            value={{
+                refetchStakes,
+                data: stakingData,
+                setData: setStakingData,
+            }}
+        >
             <div className="mb-5 flex w-full flex-col items-center gap-8">
                 <h1 className="flex w-full max-w-2xl flex-row gap-1 px-8 font-title text-3xl font-bold tracking-wide sm:px-0">
-                    <span className="text-techGreen">STAKE</span>
-                    <span className="text-degenOrange">X</span>
+                    {stakingTokenInfo &&
+                        stakingData.protocol &&
+                        responseCustomization && (
+                            <StakingProjectLogo
+                                projectName={
+                                    responseCustomization.data.projectName
+                                        ? responseCustomization.data.projectName
+                                        : `${stakingTokenInfo.symbol} staking`
+                                }
+                                source={
+                                    responseCustomization.data.logoUrl || ''
+                                }
+                            />
+                        )}
                 </h1>
 
                 {isConnected ? (
@@ -237,7 +294,7 @@ export const StakeX = () => {
                                 If you&apos;ve selected the correct network,
                                 then the given protocol address{' '}
                                 <span className="block rounded-md bg-dapp-blue-800 p-1 font-mono">
-                                    {protocolAddress}
+                                    {stakingData.protocol}
                                 </span>{' '}
                                 is not supported on it <br />
                                 <br />
@@ -246,7 +303,10 @@ export const StakeX = () => {
                         </Tile>
                     ) : (
                         <>
-                            <StakingStatistics protocol={protocolAddress} />
+                            <StakingStatistics
+                                protocol={stakingData.protocol}
+                                chainId={stakingData.chain?.id!}
+                            />
                             <Tile className="w-full max-w-2xl text-lg leading-6">
                                 {isLoading ? (
                                     <div className="flex flex-col items-center gap-4">
@@ -278,9 +338,6 @@ export const StakeX = () => {
                                             {stakingTokenInfo &&
                                                 activeTabIndex == 0 && (
                                                     <StakingForm
-                                                        protocolAddress={
-                                                            protocolAddress
-                                                        }
                                                         onDepositSuccessHandler={
                                                             onDepositSuccessHandler
                                                         }
@@ -295,9 +352,6 @@ export const StakeX = () => {
                                                 stakes &&
                                                 activeTabIndex == 1 && (
                                                     <StakingDetails
-                                                        protocolAddress={
-                                                            protocolAddress
-                                                        }
                                                         stakingTokenInfo={
                                                             stakingTokenInfo
                                                         }

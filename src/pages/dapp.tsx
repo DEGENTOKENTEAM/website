@@ -89,11 +89,7 @@ export default function Dapp() {
                                     />
                                     <Route
                                         element={<StakeX />}
-                                        path="/dapp/staking"
-                                    />
-                                    <Route
-                                        element={<StakeX />}
-                                        path="/dapp/staking/:hash"
+                                        path="/dapp/staking/:chainId/:protocolAddress"
                                     />{' '}
                                     <Route
                                         element={<DeFiTools />}

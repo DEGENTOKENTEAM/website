@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 import { StakeXCustomizationResponseType } from 'types/stakex'
-import { Address } from 'viem'
+import { Address, getAddress, zeroAddress } from 'viem'
 
 export const useGetCustomization = (protocolAddress: Address) => {
     const [response, setResponse] =
@@ -11,12 +11,14 @@ export const useGetCustomization = (protocolAddress: Address) => {
         const abortController = new AbortController()
         const signal = abortController.signal
 
-        if (loading) return
+        if (loading || protocolAddress == zeroAddress) return
 
         setLoading(true)
 
         fetch(
-            `${process.env.NEXT_PUBLIC_STAKEX_API_ENDPOINT}/ipfs/stakex/customization/fetch/${protocolAddress}`,
+            `${
+                process.env.NEXT_PUBLIC_STAKEX_API_ENDPOINT
+            }/ipfs/stakex/customization/fetch/${getAddress(protocolAddress)}`,
             {
                 method: 'GET',
                 signal,

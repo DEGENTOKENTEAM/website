@@ -1,19 +1,29 @@
 import { toReadableNumber } from '@dapphelpers/number'
-import { durationFromSeconds } from '@dapphelpers/staking'
-import { useActive } from '@dapphooks/staking/useActive'
+import { durationFromSeconds, StakeXContext } from '@dapphelpers/staking'
 import { useGetStakingData } from '@dapphooks/staking/useGetStakingData'
 import { useGetUSDForToken } from '@dapphooks/staking/useGetUSDForToken'
 import { Tile } from '@dappshared/Tile'
+import { useContext } from 'react'
 import { Address } from 'viem'
 import { Spinner } from '../elements/Spinner'
 
 type StakingStatisticsProps = {
     protocol: Address
+    chainId: number
     children?: any
 }
-export const StakingStatistics = ({ protocol }: StakingStatisticsProps) => {
-    const { data: isActive } = useActive(protocol)
-    const { data: stakingData, isLoading } = useGetStakingData(protocol)
+export const StakingStatistics = ({
+    protocol,
+    chainId,
+}: StakingStatisticsProps) => {
+    const {
+        data: { isActive },
+    } = useContext(StakeXContext)
+
+    const { data: stakingData, isLoading } = useGetStakingData(
+        protocol,
+        chainId
+    )
 
     const [usdPerToken] = useGetUSDForToken(
         stakingData?.staked?.tokenInfo.source!

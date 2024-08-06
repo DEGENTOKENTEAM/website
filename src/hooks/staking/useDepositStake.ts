@@ -9,19 +9,25 @@ import {
 } from 'wagmi'
 
 export const useDepositStake = (
-    enabled: boolean,
     address: Address,
+    chainId: number,
     stakeBucketId: Address,
-    amount: bigint
+    amount: bigint,
+    isEnabled: boolean
 ) => {
     const [logs, setLogs] = useState<any[]>()
     const [isLoading, setIsLoading] = useState<boolean>()
     const [feeAmount, setFeeAmount] = useState<bigint>()
     const [stakeAmount, setStakeAmount] = useState<bigint>()
 
+    const enabled = Boolean(
+        isEnabled && stakeBucketId && amount && address && chainId
+    )
+
     const _simulate = useSimulateContract({
         address,
         abi,
+        chainId,
         functionName: 'stake',
         args: [stakeBucketId, amount],
         query: {

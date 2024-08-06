@@ -1,4 +1,5 @@
 import { createContext } from 'react'
+import { Address, Chain, zeroAddress } from 'viem'
 
 export const durationFromSeconds = (
     timespan: number,
@@ -111,10 +112,27 @@ export const durationFromSeconds = (
     return ret
 }
 
-type StakeXContextType = {
+export type StakeXContextDataType = {
+    protocol: Address
+    chain?: Chain
+    isActive: boolean
+    isRunning: boolean
+    isLoading: boolean
+}
+
+export type StakeXContextType = {
     refetchStakes: () => void
+    setData: Function
+    data: StakeXContextDataType
 }
 
 export const StakeXContext = createContext<StakeXContextType>({
     refetchStakes: () => {},
+    setData: () => {},
+    data: {
+        protocol: zeroAddress,
+        isActive: false,
+        isRunning: false,
+        isLoading: true,
+    },
 })

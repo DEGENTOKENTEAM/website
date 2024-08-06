@@ -47,7 +47,7 @@ const navigation = [
     {
         name: 'Staking',
         icon: MdLockClock,
-        href: 'staking',
+        href: 'staking/43114/0x00000000004545cb8440fdd6095a97debd1f3814/',
         count: undefined,
         children: null,
     },
