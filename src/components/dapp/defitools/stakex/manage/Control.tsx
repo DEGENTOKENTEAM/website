@@ -167,7 +167,7 @@ export const Control = () => {
                         {Boolean(currentBlock) &&
                             (!Boolean(currentActivationBlock) ? (
                                 <span className="flex-grow">
-                                    Set Block Number when the protocol should
+                                    Set a block number when the protocol should
                                     start
                                 </span>
                             ) : (

@@ -121,7 +121,7 @@ type BucketsFormType = {
     editSharesOnly: boolean
     onChange?: (
         bucketAddParams: BucketParams[],
-        buketUpdateShareParams: StakeBucketUpdateShareParams[]
+        bucketUpdateShareParams: StakeBucketUpdateShareParams[]
     ) => void
 }
 

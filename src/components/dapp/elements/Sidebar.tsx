@@ -1,10 +1,12 @@
 import { Popover, Transition } from '@headlessui/react'
 import clsx from 'clsx'
+import { isArray } from 'lodash'
 import { Fragment, useCallback } from 'react'
-import { FaPiggyBank } from 'react-icons/fa'
+import { FaPiggyBank, FaTools } from 'react-icons/fa'
 import { GiPayMoney } from 'react-icons/gi'
 import { HiCurrencyDollar, HiHome } from 'react-icons/hi'
 import { MdLockClock } from 'react-icons/md'
+import { PiCoins } from 'react-icons/pi'
 import { RiGovernmentFill } from 'react-icons/ri'
 import { Link, useLocation } from 'react-router-dom'
 
@@ -53,31 +55,32 @@ const navigation = [
     },
     {
         name: 'DeFi Tools',
-        icon: MdLockClock,
-        href: 'defitools',
+        icon: FaTools,
+        href: 'defitools/stakex',
         count: undefined,
         children: [
             {
                 name: 'STAKEX',
-                icon: MdLockClock,
+                icon: PiCoins,
                 href: 'defitools/stakex',
                 count: undefined,
-                children: [
-                    {
-                        name: 'Create',
-                        icon: MdLockClock,
-                        href: 'defitools/stakex/create',
-                        count: undefined,
-                        children: null,
-                    },
-                    {
-                        name: 'Manage',
-                        icon: MdLockClock,
-                        href: 'defitools/stakex/manage',
-                        count: undefined,
-                        children: null,
-                    },
-                ],
+                children: [],
+                // children: [
+                //     {
+                //         name: 'Create',
+                //         icon: MdLockClock,
+                //         href: 'defitools/stakex/create',
+                //         count: undefined,
+                //         children: null,
+                //     },
+                //     {
+                //         name: 'Manage',
+                //         icon: MdLockClock,
+                //         href: 'defitools/stakex/manage',
+                //         count: undefined,
+                //         children: null,
+                //     },
+                // ],
             },
         ],
     },
@@ -253,7 +256,10 @@ export default function Sidebar(props: { mobile?: boolean }) {
                                                     current={isCurrent(child)}
                                                 />
                                                 {isCurrent(child) &&
-                                                    child.children && (
+                                                    child.children &&
+                                                    isArray(child.children) &&
+                                                    child.children.length >
+                                                        0 && (
                                                         <div className="flex flex-col gap-2  space-y-1 border-l-2 border-l-dapp-blue-400 pl-4">
                                                             {child.children.map(
                                                                 (

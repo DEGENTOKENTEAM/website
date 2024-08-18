@@ -12,7 +12,8 @@ export const handler = async (
     const baseResponse = {
         data: {
             projectName: null,
-            logoUrl: `https://ipfs.io/ipfs/QmdwBqUkw37CpEfype5tdNPRs29BQGagzqu6DQN6VGp8x2`,
+            // logoUrl: `https://ipfs.io/ipfs/QmdwBqUkw37CpEfype5tdNPRs29BQGagzqu6DQN6VGp8x2`,
+            logoUrl: null,
             logoUrlUpdatePending: false,
             stylesUrl: null,
             stylesUrlUpdatePending: false,

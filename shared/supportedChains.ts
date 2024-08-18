@@ -18,10 +18,10 @@ const avalanche = defineChain({
             ...avalancheOriginal.rpcUrls.default,
             http: [
                 // TODO enable this RPC again
-                // `https://avalanche-mainnet.infura.io/v3/${
-                //     process.env.NEXT_PUBLIC_INFURA_ID || process.env.INFURA_ID
-                // }`,
-                'http://localhost:8545',
+                `https://avalanche-mainnet.infura.io/v3/${
+                    process.env.NEXT_PUBLIC_INFURA_ID || process.env.INFURA_ID
+                }`,
+                // 'http://127.0.0.1:8545',
                 // 'http://localhost:9650/ext/bc/C/rpc',
                 // ...avalancheOriginal.rpcUrls.default.http,
             ],

@@ -10,12 +10,12 @@ import {
     GetCommandOutput,
     PutCommand,
     PutCommandInput,
-    QueryCommandInput,
-    UpdateCommand,
-    UpdateCommandInput,
     QueryCommand,
+    QueryCommandInput,
     ScanCommand,
     ScanCommandInput,
+    UpdateCommand,
+    UpdateCommandInput,
 } from '@aws-sdk/lib-dynamodb'
 
 export class DynamoDBHelper {

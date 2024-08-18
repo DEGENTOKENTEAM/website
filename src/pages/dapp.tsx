@@ -18,6 +18,7 @@ import { LiquidityBacking } from '../components/dapp/LiquidityBacking'
 import { StakeX } from '../components/dapp/StakeX'
 import { DappHeader } from '../components/dapp/elements/DappHeader'
 import Sidebar from '../components/dapp/elements/Sidebar'
+import { DAppContext, DAppContextDataType } from '@dapphelpers/dapp'
 
 TimeAgo.addDefaultLocale(en)
 
@@ -40,71 +41,83 @@ const queryClient = new QueryClient({
 })
 
 export default function Dapp() {
-    const [ready, setReady] = useState(false)
     const { theme } = useTheme()
+    const defaultTitle = 'DEGENX Ecosystem'
+    const [title, setTitle] = useState<string>(defaultTitle)
+    const [data, setData] = useState<DAppContextDataType>({
+        ready: false,
+        title: '',
+    })
 
     useEffect(() => {
-        setReady(true)
-    }, [])
+        let _titleUpdate = defaultTitle
+        if (title) _titleUpdate += ` - ${title}`
+        setData({ ready: true, title: _titleUpdate })
+    }, [title])
 
-    if (!ready) {
+    if (!data.ready) {
         return null
     }
 
     return (
-        <BrowserRouter>
-            <Head>
-                <title>DEGENX Ecosystem</title>
-                <meta
-                    name="description"
-                    content="DEGENX is multichain ecosystem that offers a suite of decentralized applications (dApps) and services to provide solutions for projects and individuals in the DeFi space. $DGNX is a multichain token with liquidity backing."
-                />
-            </Head>
-            <WagmiProvider config={config}>
-                <QueryClientProvider client={queryClient}>
-                    <ConnectKitProvider mode={theme as 'light' | 'dark'}>
-                        <DappHeader />
-                        <div className="dapp my-40 flex sm:my-24 lg:ml-3">
-                            <div className="mr-4 hidden w-64 max-w-4xl lg:block">
-                                <Sidebar />
-                            </div>
-                            <main className="mx-auto w-full sm:w-11/12 lg:w-8/12">
-                                <Routes>
-                                    <Route
-                                        element={<Dashboard />}
-                                        path="/dapp"
-                                    />
-                                    <Route
-                                        element={<LiquidityBacking />}
-                                        path="/dapp/liquidity-backing"
-                                    />
-                                    <Route
-                                        element={<Disburser />}
-                                        path="/dapp/disburser"
-                                    />
-                                    <Route element={<ATM />} path="/dapp/atm" />
-                                    <Route
-                                        element={<Bouncer />}
-                                        path="/dapp/bouncer/:hash"
-                                    />
-                                    <Route
-                                        element={<StakeX />}
-                                        path="/dapp/staking/:chainId/:protocolAddress"
-                                    />{' '}
-                                    <Route
-                                        element={<DeFiTools />}
-                                        path="/dapp/defitools/*"
-                                    />
-                                    {/* <Route
+        <DAppContext.Provider value={{ data, setData, setTitle }}>
+            <BrowserRouter>
+                <Head>
+                    <title>{data.title}</title>
+                    <meta
+                        name="description"
+                        content="DEGENX is multichain ecosystem that offers a suite of decentralized applications (dApps) and services to provide solutions for projects and individuals in the DeFi space. $DGNX is a multichain token with liquidity backing."
+                    />
+                </Head>
+                <WagmiProvider config={config}>
+                    <QueryClientProvider client={queryClient}>
+                        <ConnectKitProvider mode={theme as 'light' | 'dark'}>
+                            <DappHeader />
+                            <div className="dapp my-40 flex sm:my-24 lg:ml-3">
+                                <div className="mr-4 hidden w-64 max-w-4xl lg:block">
+                                    <Sidebar />
+                                </div>
+                                <main className="mx-auto w-full sm:w-11/12 lg:w-8/12">
+                                    <Routes>
+                                        <Route
+                                            element={<Dashboard />}
+                                            path="/dapp"
+                                        />
+                                        <Route
+                                            element={<LiquidityBacking />}
+                                            path="/dapp/liquidity-backing"
+                                        />
+                                        <Route
+                                            element={<Disburser />}
+                                            path="/dapp/disburser"
+                                        />
+                                        <Route
+                                            element={<ATM />}
+                                            path="/dapp/atm"
+                                        />
+                                        <Route
+                                            element={<Bouncer />}
+                                            path="/dapp/bouncer/:hash"
+                                        />
+                                        <Route
+                                            element={<StakeX />}
+                                            path="/dapp/staking/:chainId/:protocolAddress"
+                                        />{' '}
+                                        <Route
+                                            element={<DeFiTools />}
+                                            path="/dapp/defitools/*"
+                                        />
+                                        {/* <Route
                                     element={<Products />}
                                     path="/dapp/products"
                                 ></Route> */}
-                                </Routes>
-                            </main>
-                        </div>
-                    </ConnectKitProvider>
-                </QueryClientProvider>
-            </WagmiProvider>
-        </BrowserRouter>
+                                    </Routes>
+                                </main>
+                            </div>
+                        </ConnectKitProvider>
+                    </QueryClientProvider>
+                </WagmiProvider>
+            </BrowserRouter>
+        </DAppContext.Provider>
     )
 }

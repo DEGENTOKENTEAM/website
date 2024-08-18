@@ -88,6 +88,7 @@ provider:
     SNOWTRACE_API_KEY: ${env:SNOWTRACE_API_KEY}
     PINATA_API_KEY: ${env:PINATA_API_KEY}
     INFURA_ID: ${env:INFURA_ID}
+    CLOUDFRONT_URL: https://${cf:${self:custom.serviceName}.ApiDistribution}
 
 functions:
   # coingecko proxy
@@ -194,6 +195,23 @@ functions:
                 protocol: true
           method: get
           cors: true
+
+  stakexProtocolsGet:
+    name: ${self:custom.serviceName}-stakexProtocolsGet
+    handler: stakex/protocols.handler
+    events:
+      - http:
+          path: /stakex/protocols
+          method: get
+          cors: true
+      - http:
+          path: /stakex/protocols/{chainId}
+          method: get
+          cors: true
+    environment:
+      LAMBDA_COINGECKO_NAME: ${self:custom.serviceName}-coingeckoProxy
+      LAMBDA_CUSTOMIZATION_NAME: ${self:custom.serviceName}-ipfsStakexCustomizationFetch
+
 
   # STAKEX Tasks
   stakexCalculateApr:

@@ -16,6 +16,7 @@ import {
     StakeBucket,
     StakeBucketUpdateShareParams,
 } from '@dapptypes'
+import clsx from 'clsx'
 import { useCallback, useContext, useEffect, useState } from 'react'
 import {
     FaPen,
@@ -29,7 +30,6 @@ import { Address } from 'viem'
 import { BucketsForm } from './buckets/Form'
 import { ApplyChangesConfirmation } from './buckets/overlays/ApplyChangesConfirmation'
 import { ChangeStateConfirmation } from './buckets/overlays/ChangeStateConfirmation'
-import clsx from 'clsx'
 
 export const Buckets = () => {
     const {
@@ -53,7 +53,7 @@ export const Buckets = () => {
     const [hasChanges, setHasChanges] = useState(false)
     const [addBucketFormData, setAddBucketFormData] = useState<{
         bucketAddParams: BucketParams[]
-        buketUpdateShareParams: StakeBucketUpdateShareParams[]
+        bucketUpdateShareParams: StakeBucketUpdateShareParams[]
     }>()
     const [isApplyChangesModalOpen, setIsApplyChangesModalOpen] =
         useState(false)
@@ -76,9 +76,9 @@ export const Buckets = () => {
         Boolean(
             addBucketFormData &&
                 // enable this when bucket add params are available
-                addBucketFormData?.bucketAddParams &&
-                addBucketFormData?.bucketAddParams.length > 0 &&
-                addBucketFormData?.buketUpdateShareParams &&
+                addBucketFormData.bucketAddParams &&
+                addBucketFormData.bucketAddParams.length > 0 &&
+                addBucketFormData.bucketUpdateShareParams &&
                 chain &&
                 owner
         ),
@@ -86,7 +86,7 @@ export const Buckets = () => {
         protocol,
         owner,
         addBucketFormData?.bucketAddParams!,
-        addBucketFormData?.buketUpdateShareParams!
+        addBucketFormData?.bucketUpdateShareParams!
     )
     const {
         isLoading: isLoadingUpdateStakeBucketShares,
@@ -98,14 +98,15 @@ export const Buckets = () => {
     } = useUpdateStakeBucketShares(
         Boolean(
             addBucketFormData &&
-                addBucketFormData?.buketUpdateShareParams &&
+                addBucketFormData.bucketAddParams.length == 0 &&
+                addBucketFormData.bucketUpdateShareParams.length > 0 &&
                 chain &&
                 owner
         ),
         chain?.id!,
         protocol,
         owner,
-        addBucketFormData?.buketUpdateShareParams!
+        addBucketFormData?.bucketUpdateShareParams!
     )
 
     const onClickAddButton = () => setShowAddBucketsForm(true)
@@ -286,11 +287,11 @@ export const Buckets = () => {
                                         )}
                                         onChange={(
                                             bucketAddParams,
-                                            buketUpdateShareParams
+                                            bucketUpdateShareParams
                                         ) =>
                                             setAddBucketFormData({
                                                 bucketAddParams,
-                                                buketUpdateShareParams,
+                                                bucketUpdateShareParams,
                                             })
                                         }
                                         existingBuckets={dataStakeBuckets || []}
@@ -312,7 +313,7 @@ export const Buckets = () => {
                                         <StatsBoxTwoColumn.RightColumn>
                                             <span className="font-bold">
                                                 {bucket.burn
-                                                    ? `burns staked ${stakingToken?.symbol}`
+                                                    ? `burns ${stakingToken?.symbol}`
                                                     : bucket.duration > 0
                                                     ? `${durationFromSeconds(
                                                           bucket.duration,
