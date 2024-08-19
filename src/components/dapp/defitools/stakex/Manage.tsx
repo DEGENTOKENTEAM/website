@@ -2,14 +2,16 @@ import {
     ManageStakeXContext,
     ManageStakeXContextDataType,
 } from '@dapphelpers/defitools'
+import { useActive } from '@dapphooks/staking/useActive'
 import { useGetContractOwner } from '@dapphooks/staking/useGetContractOwner'
 import { useGetMetrics } from '@dapphooks/staking/useGetMetrics'
 import { useGetStakingToken } from '@dapphooks/staking/useGetStakingToken'
+import { useRunning } from '@dapphooks/staking/useRunning'
 import { NotConnectedHint } from '@dappshared/NotConnectedHint'
 import { WrongChainHint } from '@dappshared/WrongChainHint'
 import _, { isUndefined } from 'lodash'
 import { useEffect, useState } from 'react'
-import { useActionData, useNavigate, useParams } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 import { toast } from 'react-toastify'
 import { getChainById } from 'shared/supportedChains'
 import { Address, zeroAddress } from 'viem'
@@ -23,8 +25,6 @@ import { InjectRewards } from './manage/InjectRewards'
 import { NFTManagement } from './manage/NFTManagement'
 import { StakingProgressChart } from './manage/StakingProgressChart'
 import { TokenManagement } from './manage/TokenManagement'
-import { useActive } from '@dapphooks/staking/useActive'
-import { useRunning } from '@dapphooks/staking/useRunning'
 
 export const Manage = () => {
     const { protocolAddress, chainId } = useParams<{

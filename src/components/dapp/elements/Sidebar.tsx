@@ -56,7 +56,7 @@ const navigation = [
     {
         name: 'DeFi Tools',
         icon: FaTools,
-        href: 'defitools/stakex',
+        href: 'defitools',
         count: undefined,
         children: [
             {
@@ -163,21 +163,46 @@ function MobileSidebar() {
                         {navigation
                             .filter(({ name, href }) => Boolean(name && href))
                             .map((item) => (
-                                <MobileNavLink
-                                    key={item.name}
-                                    target={
-                                        item.href?.startsWith('http')
-                                            ? '_blank'
-                                            : '_self'
-                                    }
-                                    href={
-                                        item.href?.startsWith('http')
-                                            ? item.href
-                                            : `/dapp/${item.href}`
-                                    }
-                                >
-                                    {item.name}
-                                </MobileNavLink>
+                                <Fragment key={item.name}>
+                                    <MobileNavLink
+                                        target={
+                                            item.href?.startsWith('http')
+                                                ? '_blank'
+                                                : '_self'
+                                        }
+                                        href={
+                                            item.href?.startsWith('http')
+                                                ? item.href
+                                                : `/dapp/${item.href}`
+                                        }
+                                    >
+                                        {item.name}
+                                    </MobileNavLink>
+                                    {item.children &&
+                                        item.children.map((item) => (
+                                            <MobileNavLink
+                                                key={item.name}
+                                                target={
+                                                    item.href?.startsWith(
+                                                        'http'
+                                                    )
+                                                        ? '_blank'
+                                                        : '_self'
+                                                }
+                                                href={
+                                                    item.href?.startsWith(
+                                                        'http'
+                                                    )
+                                                        ? item.href
+                                                        : `/dapp/${item.href}`
+                                                }
+                                            >
+                                                <span className="pl-4">
+                                                    - {item.name}
+                                                </span>
+                                            </MobileNavLink>
+                                        ))}
+                                </Fragment>
                             ))}
                     </Popover.Panel>
                 </Transition.Child>
@@ -246,7 +271,6 @@ export default function Sidebar(props: { mobile?: boolean }) {
                                     item={item}
                                     current={isCurrent(item)}
                                 />
-
                                 {isCurrent(item) && item.children && (
                                     <div className="flex flex-col gap-2  space-y-1 border-l-2 border-l-dapp-blue-400 pl-4">
                                         {item.children.map((child, j) => (

@@ -162,7 +162,11 @@ export const handler = async (
                     new TextDecoder().decode(invokeCoingeckoResponse.Payload)
                 ).body
             )
-            logo = cgdata.image.large
+
+            console.log(JSON.stringify({ cgdata }))
+
+            if (cgdata && cgdata.image && cgdata.image.large)
+                logo = cgdata.image.large
         }
 
         protocolResponse.protocol.logo = logo
@@ -176,5 +180,5 @@ export const handler = async (
         ret.push(protocolResponse)
     }
 
-    return createReturn(200, JSON.stringify(ret))
+    return createReturn(200, JSON.stringify(ret), 300) // 5m cache
 }

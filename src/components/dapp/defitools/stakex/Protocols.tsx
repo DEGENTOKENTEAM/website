@@ -1,21 +1,23 @@
+import { Spinner } from '@dappelements/Spinner'
 import { DAppContext } from '@dapphelpers/dapp'
+import { toReadableNumber } from '@dapphelpers/number'
 import { CaretDivider } from '@dappshared/CaretDivider'
 import { Tile } from '@dappshared/Tile'
 import { useCallback, useContext, useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { getChainById } from 'shared/supportedChains'
 import { ProtocolsResponse } from 'shared/types'
+import { Button } from 'src/components/Button'
 import { Address } from 'viem'
 import { StakingProjectLogo } from '../../staking/StakingProjectLogo'
-import { toReadableNumber } from '@dapphelpers/number'
-import { Button } from 'src/components/Button'
-import { useNavigate } from 'react-router-dom'
-import { Spinner } from '@dappelements/Spinner'
+import { toLower } from 'lodash'
 
 export const Protocols = () => {
     const { setTitle } = useContext(DAppContext)
     const [isLoading, setIsLoading] = useState(true)
     const navigate = useNavigate()
     const [topProtocols, setTopProtocols] = useState<Address[]>([
-        '0x00000000004545cB8440FDD6095a97DEBd1F3814',
+        toLower('0x00000000004545cB8440FDD6095a97DEBd1F3814') as Address,
     ])
 
     const [selectedChain, setSelectedChain] = useState<number>() // set default chain until we expand on additional networks
@@ -31,13 +33,19 @@ export const Protocols = () => {
             .then((res) => res.json())
             .then((res) => {
                 setProtocols(
-                    res.map((p: any) => ({
-                        ...p,
-                        protocol: {
-                            ...p.protocol,
-                            stakedAbs: BigInt(p.protocol.stakedAbs),
-                        },
-                    }))
+                    res
+                        .map((p: any) => ({
+                            ...p,
+                            protocol: {
+                                ...p.protocol,
+                                stakedAbs: BigInt(p.protocol.stakedAbs),
+                            },
+                        }))
+                        .sort((p: any) =>
+                            topProtocols.includes(toLower(p.source) as Address)
+                                ? -1
+                                : 1
+                        )
                 )
             })
     }, [selectedChain])
@@ -77,12 +85,18 @@ export const Protocols = () => {
                                 isLite={true}
                             />
                             <CaretDivider color="cyan" />
-                            <div className="mt-1 grid grid-cols-2 gap-x-1 gap-y-1">
-                                <div>Token:</div>
-                                <div>{token.symbol}</div>
-
-                                <div>Staked:</div>
+                            <div className="mt-1 flex flex-col gap-2">
                                 <div>
+                                    <span className="mr-2 font-bold">
+                                        Token
+                                    </span>{' '}
+                                    {token.symbol}
+                                </div>
+
+                                <div>
+                                    <span className="mr-2 font-bold">
+                                        Staked
+                                    </span>{' '}
                                     {toReadableNumber(
                                         protocol.stakedAbs,
                                         token.decimals,
@@ -90,8 +104,8 @@ export const Protocols = () => {
                                             maximumFractionDigits: 2,
                                             minimumFractionDigits: 2,
                                         }
-                                    )}
-                                    <br />(
+                                    )}{' '}
+                                    (
                                     {toReadableNumber(protocol.stakedRel, 0, {
                                         maximumFractionDigits: 2,
                                         minimumFractionDigits: 2,
@@ -99,11 +113,15 @@ export const Protocols = () => {
                                     % of total supply)
                                 </div>
 
-                                <div>Stakes:</div>
-                                <div>{protocol.stakes}</div>
-
-                                <div>APR:</div>
                                 <div>
+                                    <span className="mr-2 font-bold">
+                                        Stakers
+                                    </span>{' '}
+                                    {protocol.stakes}
+                                </div>
+
+                                <div>
+                                    <span className="mr-2 font-bold">APR</span>{' '}
                                     {toReadableNumber(protocol.apr.high, 0, {
                                         maximumFractionDigits: 4,
                                         minimumFractionDigits: 2,
@@ -111,13 +129,20 @@ export const Protocols = () => {
                                     %
                                 </div>
 
-                                <div>APY:</div>
                                 <div>
+                                    <span className="mr-2 font-bold">APY</span>{' '}
                                     {toReadableNumber(protocol.apy.high, 0, {
                                         maximumFractionDigits: 4,
                                         minimumFractionDigits: 2,
                                     })}
                                     %
+                                </div>
+                                <div>
+                                    <span className="mr-2 font-bold">
+                                        Network
+                                    </span>{' '}
+                                    {getChainById(protocol.chainId).name} (ID:{' '}
+                                    {protocol.chainId})
                                 </div>
                             </div>
                             <Button

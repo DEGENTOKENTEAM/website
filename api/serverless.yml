@@ -7,6 +7,7 @@ package:
   individually: true
 
 plugins:
+  - serverless-dotenv-plugin
   - serverless-webpack
   - serverless-api-cloudfront
 
@@ -21,6 +22,7 @@ custom:
     tableNames:
       dexscreenerPairCache: ${self:custom.serviceName}-dexscreenerPairCache
       dexscreenerTokenCache: ${self:custom.serviceName}-dexscreenerTokenCache
+      coingeckoApiCache: ${self:custom.serviceName}-coingeckoApiCache
       stakexCustomization: ${self:custom.serviceName}-stakexCustomization
       stakexProtocols: ${self:custom.serviceName}-stakexProtocols
       stakexAnnualPercentageLogs: ${self:custom.serviceName}-stakexAnnualPercentageLogs
@@ -65,6 +67,7 @@ provider:
           Resource:
             - 'arn:aws:dynamodb:${self:provider.region}:*:table/${self:custom.ddb.tableNames.dexscreenerPairCache}*'
             - 'arn:aws:dynamodb:${self:provider.region}:*:table/${self:custom.ddb.tableNames.dexscreenerTokenCache}*'
+            - 'arn:aws:dynamodb:${self:provider.region}:*:table/${self:custom.ddb.tableNames.coingeckoApiCache}*'
             - 'arn:aws:dynamodb:${self:provider.region}:*:table/${self:custom.ddb.tableNames.stakexCustomization}*'
             - 'arn:aws:dynamodb:${self:provider.region}:*:table/${self:custom.ddb.tableNames.stakexProtocols}*'
             - 'arn:aws:dynamodb:${self:provider.region}:*:table/${self:custom.ddb.tableNames.stakexAnnualPercentageLogs}*'
@@ -80,6 +83,8 @@ provider:
   environment:
     DB_TABLE_NAME_DEXSCREENER_PAIR_CACHE: ${self:custom.ddb.tableNames.dexscreenerPairCache}
     DB_TABLE_NAME_DEXSCREENER_TOKEN_CACHE: ${self:custom.ddb.tableNames.dexscreenerTokenCache}
+    DB_TABLE_NAME_COINGECKO_API_CACHE: ${self:custom.ddb.tableNames.coingeckoApiCache}
+    DB_TABLE_NAME_COINGECKO_API_CACHE_TTL: 2628000 # 1 month
     DB_TABLE_NAME_STAKEX_CUSTOMIZATION: ${self:custom.ddb.tableNames.stakexCustomization}
     DB_TABLE_NAME_STAKEX_PROTOCOLS: ${self:custom.ddb.tableNames.stakexProtocols}
     DB_TABLE_NAME_STAKEX_ANNUAL_PERCENTAGE_LOGS: ${self:custom.ddb.tableNames.stakexAnnualPercentageLogs}
@@ -212,7 +217,6 @@ functions:
       LAMBDA_COINGECKO_NAME: ${self:custom.serviceName}-coingeckoProxy
       LAMBDA_CUSTOMIZATION_NAME: ${self:custom.serviceName}-ipfsStakexCustomizationFetch
 
-
   # STAKEX Tasks
   stakexCalculateApr:
     name: ${self:custom.serviceName}-stakexCalculateApr
@@ -282,6 +286,29 @@ resources:
         KeySchema:
           - AttributeName: TokenKey
             KeyType: HASH
+        BillingMode: PAY_PER_REQUEST
+        PointInTimeRecoverySpecification:
+          PointInTimeRecoveryEnabled: true
+        TimeToLiveSpecification:
+          AttributeName: ttl
+          Enabled: true
+
+    coingeckoApiCacheTable:
+      Type: AWS::DynamoDB::Table
+      DeletionPolicy: ${self:custom.ddb.deletionPolicy.${opt:stage, 'default'}}
+      UpdateReplacePolicy: ${self:custom.ddb.updateReplacePolicy.${opt:stage, 'default'}}
+      Properties:
+        TableName: ${self:custom.ddb.tableNames.coingeckoApiCache}
+        AttributeDefinitions:
+          - AttributeName: pkey
+            AttributeType: S
+          - AttributeName: skey # path/to/endpoint
+            AttributeType: S
+        KeySchema:
+          - AttributeName: pkey
+            KeyType: HASH
+          - AttributeName: skey
+            KeyType: RANGE
         BillingMode: PAY_PER_REQUEST
         PointInTimeRecoverySpecification:
           PointInTimeRecoveryEnabled: true
