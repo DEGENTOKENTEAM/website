@@ -46,8 +46,8 @@ export const useGetNetworkFeeEstimationDeployerSTAKEX = (
                 value: deployFee,
                 account: protocols[chainId].nativeWrapper,
             })
-            .then((estimatedGase) => {
-                setGas(estimatedGase)
+            .then((estimatedGas) => {
+                setGas(estimatedGas)
             })
             .catch((err) => {
                 console.log('useGetNetworkFeeEstimationDeployerSTAKEX', { err })

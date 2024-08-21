@@ -17,7 +17,7 @@ const defitools: DeFiToolType[] = [
     {
         name: 'STAKEX',
         logo: '/defitools/dummy-defitools-logo.png',
-        to: './stakex/create',
+        to: './stakex/create/',
         toLabel: 'Create your own STAKEX',
         toMore: 'https://docs.dgnx.finance/degenx-ecosystem/Products/stakex/introduction',
         description: `STAKEX is an audited staking protocol providing a new staking methodology, powered by the DEGENX Ecosystem. It's a deployable protocol for projects based on EVM networks like Ethereum, Binance Smart Chain, and Avalanche.`,

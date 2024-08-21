@@ -7,12 +7,12 @@ import { usePublicClient, useSimulateContract, useWriteContract } from 'wagmi'
 export const useEnableProtocol = (
     address: Address,
     chainId: number,
-    status: boolean
+    status: boolean,
+    enabled: boolean
 ) => {
     const [logs, setLogs] = useState<any[]>()
     const [isLoading, setIsLoading] = useState(false)
     const [isSuccess, setIsSuccess] = useState(false)
-    const enabled = Boolean(address && chainId && isBoolean(status))
 
     const {
         data,
@@ -24,7 +24,9 @@ export const useEnableProtocol = (
         functionName: 'stakeXEnableProtocol',
         args: [status],
         query: {
-            enabled,
+            enabled: Boolean(
+                address && chainId && isBoolean(status) && enabled
+            ),
         },
     })
 

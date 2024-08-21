@@ -36,6 +36,7 @@ export type ManageStakeXContextDataType = {
 export type ManageStakeXContextType = {
     setData: Function
     data: ManageStakeXContextDataType
+    reloadData: Function
 }
 
 export const ManageStakeXContextInitialData = {
@@ -49,6 +50,7 @@ export const ManageStakeXContextInitialData = {
 
 export const ManageStakeXContext = createContext<ManageStakeXContextType>({
     setData: () => {},
+    reloadData: () => {},
     data: {
         ...ManageStakeXContextInitialData,
     },

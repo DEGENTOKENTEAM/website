@@ -13,16 +13,16 @@ import { TokenSearchInput } from '@dappshared/TokenSearchInput'
 import { STAKEXCreatorData, STAKEXCreatorDataInitParams, STAKEXDeployArgs } from '@dapptypes'
 import { isNumber } from 'lodash'
 import { ChangeEvent, useCallback, useContext, useEffect, useState } from 'react'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { getChainById } from 'shared/supportedChains'
 import { Button } from 'src/components/Button'
-import { useLocalStorage } from 'usehooks-ts'
 import { Address, Chain, encodeFunctionData, parseAbi, zeroAddress } from 'viem'
-import { useAccount, useBalance } from 'wagmi'
+import { useAccount } from 'wagmi'
 import protocols from './../../../../../config/protocols'
 import { CreateProtocolConfirmation } from './create/overlays/CreateProtocolConfirmation'
 import { BucketFormParams } from './manage/buckets/Form'
 import { LockUnits, LockUnitsForm } from './manage/buckets/LockUnitsForm'
-import { useNavigate } from 'react-router-dom'
+import { useGetReferrerById } from '@dapphooks/deployer/useGetReferrerById'
 
 const initParams: STAKEXCreatorDataInitParams = {
     stakingToken: null,
@@ -59,6 +59,7 @@ export const Create = () => {
     const { setTitle } = useContext(DAppContext)
     const navigate = useNavigate()
     const { isConnected, chainId, address: addressConnected } = useAccount()
+    const [searchParams, setSearchParams] = useSearchParams()
     const chainIds = Object.keys(protocols).map((v) => +v)
 
     const [data, setData] = useState<STAKEXCreatorData>(initStorageData)
@@ -71,10 +72,6 @@ export const Create = () => {
     const [networkFee, setNetworkFee] = useState<bigint>()
     const [totalFeeEstimation, setTotalFeeEstimation] = useState<bigint>()
     const [isConfirmationModalOpen, setIsConfirmationModalOpen] = useState(false)
-    const [storage, setStorage, removeStorage] = useLocalStorage<STAKEXCreatorData>(
-        'stakex-creator-data',
-        initStorageData
-    )
 
     // staking token selection
     const [stakingTokenAddress, setStakingTokenAddress] = useState<Address | null>(null)
@@ -91,8 +88,6 @@ export const Create = () => {
 
     // deployment parameter
     const [deploymentParams, setDeploymentParams] = useState<STAKEXDeployArgs | null>(null)
-
-    const { data: dataBalance } = useBalance({ address: addressConnected, chainId: selectedChain?.id })
 
     const {
         error: errorStakingTokenInfo,
@@ -112,18 +107,16 @@ export const Create = () => {
         token: rewardTokenAddress!,
         chainId: selectedChain?.id!,
     })
-    const {
-        data: dataFeeEstimation,
-        refetch: refetchFeeEstimation,
-        isLoading: isLoadingFeeEstimation,
-    } = useGetFeeEstimationDeployerSTAKEX(deployerAddress!, selectedChain?.id!)
-    const { data: dataNetworkFeeEstimation, isLoading: isLoadingNetworkFeeEstimation } =
-        useGetNetworkFeeEstimationDeployerSTAKEX(
-            deployerAddress!,
-            selectedChain?.id!,
-            dataFeeEstimation!,
-            deploymentParams
-        )
+    const { data: dataFeeEstimation, refetch: refetchFeeEstimation } = useGetFeeEstimationDeployerSTAKEX(
+        deployerAddress!,
+        selectedChain?.id!
+    )
+    const { data: dataNetworkFeeEstimation } = useGetNetworkFeeEstimationDeployerSTAKEX(
+        deployerAddress!,
+        selectedChain?.id!,
+        dataFeeEstimation!,
+        deploymentParams
+    )
     const {
         write: writeDeployProtocol,
         reset: resetDeployProtocol,
@@ -138,6 +131,11 @@ export const Create = () => {
         deployFee!,
         deploymentParams!,
         isValid && isConnected
+    )
+    const { data: dataReferrer } = useGetReferrerById(
+        deployerAddress!,
+        selectedChain?.id!,
+        searchParams.get('ref') as Address
     )
 
     const onChangeSelectedNetwork = (chain: Chain) => {
@@ -217,10 +215,11 @@ export const Create = () => {
 
     useEffect(() => {
         if (!selectedChain || !protocols) return
+
         setData({
             chainId: selectedChain.id,
             deployArgs: {
-                referral: zeroAddress,
+                referral: dataReferrer && dataReferrer.active ? dataReferrer.account : zeroAddress,
                 initContract: protocols[selectedChain.id].stakex.init,
                 initFn: encodeFunctionData({
                     abi: parseAbi(['function init(address)']),
@@ -251,6 +250,7 @@ export const Create = () => {
     }, [
         protocols,
         selectedChain,
+        dataReferrer,
         bucketFormData,
         dataStakingTokenInfo,
         dataRewardTokenInfo,
@@ -258,11 +258,8 @@ export const Create = () => {
         useDifferentRewardToken,
     ])
 
-    // put data in store
     useEffect(() => {
         if (!data) return
-
-        setStorage(data)
 
         const { deployArgs } = data
 

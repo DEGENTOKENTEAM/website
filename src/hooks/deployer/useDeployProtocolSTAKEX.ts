@@ -14,6 +14,7 @@ export const useDeployProtocolSTAKEX = (
     enabled: boolean
 ) => {
     const [deployedProtocol, setDeployedProtocol] = useState<Address>()
+
     const execParams = {
         address,
         chainId,
@@ -24,12 +25,10 @@ export const useDeployProtocolSTAKEX = (
         value,
         enabled: Boolean(address && chainId && !isUndefined(value) && enabled),
     }
-    console.log('useDeployProtocolSTAKEX execParams', execParams)
     const exec = useExecuteFunction(execParams)
-    console.log('useDeployProtocolSTAKEX exec', exec)
 
     const publicClient = usePublicClient({ chainId })
-
+    
     useEffect(() => {
         if (!publicClient || !exec || !exec.hash) return
         publicClient

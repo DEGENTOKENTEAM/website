@@ -22,6 +22,7 @@ import { InjectRewards } from './manage/InjectRewards'
 import { NFTManagement } from './manage/NFTManagement'
 import { StakingProgressChart } from './manage/StakingProgressChart'
 import { TokenManagement } from './manage/TokenManagement'
+import { Checklist } from './manage/Checklist'
 
 export const Manage = () => {
     const { protocolAddress, chainId } = useParams<{
@@ -76,9 +77,13 @@ export const Manage = () => {
         setData(_data)
     }, [dataStakingToken, address, dataMetrics, dataContractOwner, dataIsActive, dataIsRunning])
 
+    const reloadData = () => {
+        // TODO maybe to something to update protocol specific stuff
+    }
+
     return (
         protocolAddress && (
-            <ManageStakeXContext.Provider value={{ data, setData }}>
+            <ManageStakeXContext.Provider value={{ data, setData, reloadData }}>
                 <div className="mb-8 flex w-full max-w-5xl flex-col gap-8">
                     <h1 className="flex w-full max-w-2xl flex-row items-end px-8 font-title text-3xl font-bold tracking-wide sm:px-0">
                         <span className="text-techGreen">STAKE</span>
@@ -89,6 +94,7 @@ export const Manage = () => {
                         <WrongChainHint chainIdProtocol={chain.id} chainIdAccount={chainAccount.id!} />
                     )}
                     {!isConnected && <NotConnectedHint />}
+                    <Checklist />
                     <Customization />
                     <GeneralInformation />
                     <StakingProgressChart />

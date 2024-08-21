@@ -543,6 +543,52 @@
     "inputs": [
       {
         "internalType": "bytes32",
+        "name": "_referrerId",
+        "type": "bytes32"
+      }
+    ],
+    "name": "deployerGetReferrerById",
+    "outputs": [
+      {
+        "components": [
+          {
+            "internalType": "bool",
+            "name": "active",
+            "type": "bool"
+          },
+          {
+            "internalType": "address",
+            "name": "account",
+            "type": "address"
+          },
+          {
+            "internalType": "uint16",
+            "name": "share",
+            "type": "uint16"
+          },
+          {
+            "internalType": "uint32",
+            "name": "activeUntil",
+            "type": "uint32"
+          },
+          {
+            "internalType": "bytes32",
+            "name": "referrerId",
+            "type": "bytes32"
+          }
+        ],
+        "internalType": "struct LibDeployerReferralStorage.Data",
+        "name": "_referrerData",
+        "type": "tuple"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
         "name": "_feeId",
         "type": "bytes32"
       },
@@ -553,6 +599,25 @@
       }
     ],
     "name": "deployerHasReferrer",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "_has",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "_referrerId",
+        "type": "bytes32"
+      }
+    ],
+    "name": "deployerHasReferrerById",
     "outputs": [
       {
         "internalType": "bool",
@@ -837,7 +902,7 @@
     "outputs": [
       {
         "internalType": "uint256",
-        "name": "_totalCosts",
+        "name": "_gasConsumed",
         "type": "uint256"
       }
     ],
