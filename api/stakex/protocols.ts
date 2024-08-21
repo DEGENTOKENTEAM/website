@@ -162,9 +162,6 @@ export const handler = async (
                     new TextDecoder().decode(invokeCoingeckoResponse.Payload)
                 ).body
             )
-
-            console.log(JSON.stringify({ cgdata }))
-
             if (cgdata && cgdata.image && cgdata.image.large)
                 logo = cgdata.image.large
         }

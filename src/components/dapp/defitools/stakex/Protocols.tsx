@@ -61,10 +61,10 @@ export const Protocols = () => {
 
     return (
         <div className="mb-8 flex w-full max-w-5xl flex-col gap-8">
-            <h1 className="flex w-full max-w-2xl flex-row items-end gap-1 px-8 font-title text-3xl font-bold tracking-wide sm:px-0">
+            <h1 className="flex w-full max-w-2xl flex-row items-end px-8 font-title text-3xl font-bold tracking-wide sm:px-0">
                 <span className="text-techGreen">STAKE</span>
                 <span className="text-degenOrange">X</span>
-                <span className="text-xl">Protocols</span>
+                <span className="text-xl ml-1">Protocols</span>
             </h1>
             {isLoading && (
                 <div className="flex w-full items-center justify-center">

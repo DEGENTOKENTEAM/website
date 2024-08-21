@@ -138,3 +138,28 @@ type GetSwapResponse = {
     swaps: SwapCandidate[]
 }
 export type GetSwapsResponse = GetSwapResponse[]
+
+//
+// STAKEX Creator Types
+//
+export type STAKEXCreatorDataInitParams = {
+    stakingToken: Address | null
+    stableToken: Address | null
+    bucketsToAdd: BucketParams[] | null
+    swaps: SetTargetTokenParams[] | null
+    rewards: { token: Address }[] | null
+    manager: Address | null
+    excludeStakingTokenFromRewards: boolean
+}
+
+export type STAKEXDeployArgs = {
+    referral: Address
+    initContract: Address
+    initFn: string
+    initParams: STAKEXCreatorDataInitParams
+}
+
+export type STAKEXCreatorData = {
+    chainId: number
+    deployArgs: STAKEXDeployArgs
+}

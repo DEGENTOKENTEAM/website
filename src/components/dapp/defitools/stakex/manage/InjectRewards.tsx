@@ -28,8 +28,7 @@ export const InjectRewards = () => {
     const rewardAmountRef = useRef<HTMLElement>(null)
 
     const [isRestricted, setIsRestricted] = useState(false)
-    const [selectedRewardToken, setSelectedRewardToken] =
-        useState<TokenInfoResponse>()
+    const [selectedRewardToken, setSelectedRewardToken] = useState<TokenInfoResponse>()
     const [rewardAmountEntered, setRewardAmountEntered] = useState<string>('')
     const [rewardAmount, setRewardAmount] = useState<bigint>(0n)
     const [errorMessage, setErrorMessage] = useState('')
@@ -47,21 +46,10 @@ export const InjectRewards = () => {
         isPending: isPendingApproval,
         isSuccess: isSuccessApproval,
         write: writeApproval,
-    } = useERC20Approve(
-        selectedRewardToken?.source!,
-        protocol,
-        rewardAmount,
-        chain?.id!
-    )
+    } = useERC20Approve(selectedRewardToken?.source!, protocol, rewardAmount, chain?.id!)
 
-    const { data: dataHasDepositRestriction } = useHasDepositRestriction(
-        chain?.id!,
-        protocol
-    )
-    const { data: dataGetRewardTokens } = useGetRewardTokens(
-        protocol,
-        chain?.id!
-    )
+    const { data: dataHasDepositRestriction } = useHasDepositRestriction(chain?.id!, protocol)
+    const { data: dataGetRewardTokens } = useGetRewardTokens(protocol, chain?.id!)
     const {
         data: dataBalanceOf,
         isLoading: isLoadingBalanceOf,
@@ -76,13 +64,7 @@ export const InjectRewards = () => {
         isError: isErrorInjectRewards,
         write: writeInjectRewards,
         reset: resetInjectRewards,
-    } = useInjectRewards(
-        protocol,
-        chain?.id!,
-        selectedRewardToken?.source!,
-        rewardAmount,
-        hasAllowance
-    )
+    } = useInjectRewards(protocol, chain?.id!, selectedRewardToken?.source!, rewardAmount, hasAllowance)
 
     //
     // Errors
@@ -100,11 +82,7 @@ export const InjectRewards = () => {
     const onChangeRewardToken = () => {
         setSelectedRewardToken(
             dataGetRewardTokens?.find(
-                (token) =>
-                    token.source ===
-                    getAddress(
-                        (rewardSelectionRef.current as HTMLSelectElement).value
-                    )
+                (token) => token.source === getAddress((rewardSelectionRef.current as HTMLSelectElement).value)
             )
         )
 
@@ -129,43 +107,24 @@ export const InjectRewards = () => {
             allowance >= rewardAmount &&
             writeInjectRewards &&
             writeInjectRewards()
-    }, [
-        isPendingApproval,
-        isSuccessApproval,
-        allowance,
-        rewardAmount,
-        writeInjectRewards,
-    ])
+    }, [isPendingApproval, isSuccessApproval, allowance, rewardAmount, writeInjectRewards])
 
     useEffect(() => {
-        typeof dataHasDepositRestriction === 'boolean' &&
-            setIsRestricted(dataHasDepositRestriction)
+        typeof dataHasDepositRestriction === 'boolean' && setIsRestricted(dataHasDepositRestriction)
     }, [dataHasDepositRestriction])
 
     useEffect(() => {
-        dataGetRewardTokens &&
-            !selectedRewardToken &&
-            setSelectedRewardToken(dataGetRewardTokens.at(0))
+        dataGetRewardTokens && !selectedRewardToken && setSelectedRewardToken(dataGetRewardTokens.at(0))
     }, [dataGetRewardTokens, selectedRewardToken])
 
     useEffect(() => {
-        if (
-            Boolean(dataBalanceOf && rewardAmountEntered && selectedRewardToken)
-        ) {
-            const rewardAmountEnteredBN = parseUnits(
-                rewardAmountEntered,
-                Number(selectedRewardToken?.decimals)
-            )
-            const checkRewardAmountEntered = formatUnits(
-                rewardAmountEnteredBN,
-                Number(selectedRewardToken?.decimals)
-            )
+        if (Boolean(dataBalanceOf && rewardAmountEntered && selectedRewardToken)) {
+            const rewardAmountEnteredBN = parseUnits(rewardAmountEntered, Number(selectedRewardToken?.decimals))
+            const checkRewardAmountEntered = formatUnits(rewardAmountEnteredBN, Number(selectedRewardToken?.decimals))
 
             if (rewardAmountEntered != checkRewardAmountEntered) {
                 setRewardAmount(0n)
-                setError(
-                    `Invalid decimals (${selectedRewardToken?.decimals} allowed)`
-                )
+                setError(`Invalid decimals (${selectedRewardToken?.decimals} allowed)`)
                 return
             }
 
@@ -186,16 +145,11 @@ export const InjectRewards = () => {
     }, [dataBalanceOf, rewardAmountEntered, selectedRewardToken])
 
     useEffect(() => {
-        if (
-            !isLoadingInjectRewards &&
-            isSuccessInjectRewards &&
-            selectedRewardToken
-        ) {
+        if (!isLoadingInjectRewards && isSuccessInjectRewards && selectedRewardToken) {
             toast.success(
-                `Successfully injected ${formatUnits(
-                    rewardAmount,
-                    Number(selectedRewardToken.decimals)
-                )} ${selectedRewardToken.symbol}`
+                `Successfully injected ${formatUnits(rewardAmount, Number(selectedRewardToken.decimals))} ${
+                    selectedRewardToken.symbol
+                }`
             )
             refetchBalanceOf && refetchBalanceOf()
         }
@@ -216,33 +170,21 @@ export const InjectRewards = () => {
     useEffect(() => {
         if (dataHasAllowance) {
             setAllowance(dataHasAllowance)
-            setHasAllowance(
-                Boolean(
-                    rewardAmount &&
-                        rewardAmount > 0n &&
-                        dataHasAllowance >= rewardAmount
-                )
-            )
+            setHasAllowance(Boolean(rewardAmount && rewardAmount > 0n && dataHasAllowance >= rewardAmount))
         }
     }, [dataHasAllowance, rewardAmount])
 
     return (
         <Tile className="flex w-full flex-col gap-8">
             <div className="flex flex-row items-center">
-                <span className="flex-1 font-title text-xl font-bold">
-                    Inject Rewards
-                </span>
+                <span className="flex-1 font-title text-xl font-bold">Inject Rewards</span>
             </div>
-            {!isRunning && (
-                <div>The protocol needs to be running to inject rewards</div>
-            )}
+            {!isRunning && <div>The protocol needs to run in order to inject rewards</div>}
             {isRunning && dataGetRewardTokens && (
                 <>
                     <div className="flex flex-col gap-8">
                         <Field>
-                            <Label className="text-base/6 font-normal text-dapp-cyan-50">
-                                Reward Token
-                            </Label>
+                            <Label className="text-base/6 font-normal text-dapp-cyan-50">Reward Token</Label>
                             <Description className="text-sm/6 text-dapp-cyan-50/50">
                                 Select a reward token that you want to inject.
                             </Description>
@@ -257,22 +199,16 @@ export const InjectRewards = () => {
                                 onChange={onChangeRewardToken}
                             >
                                 {dataGetRewardTokens.map((token) => (
-                                    <option
-                                        key={token.source}
-                                        value={token.source}
-                                    >
+                                    <option key={token.source} value={token.source}>
                                         {token.name} ({token.symbol})
                                     </option>
                                 ))}
                             </Select>
                         </Field>
                         <Field>
-                            <Label className="text-base/6 font-normal text-dapp-cyan-50">
-                                Amount
-                            </Label>
+                            <Label className="text-base/6 font-normal text-dapp-cyan-50">Amount</Label>
                             <Description className="text-sm/6 text-dapp-cyan-50/50">
-                                Enter the amount you want to inject (No WEI
-                                amount)
+                                Enter the amount you want to inject (No WEI amount)
                             </Description>
                             <Input
                                 disabled={isRestricted}
@@ -289,10 +225,9 @@ export const InjectRewards = () => {
                                 {isLoadingBalanceOf ? (
                                     <Spinner theme="dark" className="h-4 w-4" />
                                 ) : (
-                                    `${toReadableNumber(
-                                        dataBalanceOf,
-                                        selectedRewardToken?.decimals
-                                    )} ${selectedRewardToken?.symbol}`
+                                    `${toReadableNumber(dataBalanceOf, selectedRewardToken?.decimals)} ${
+                                        selectedRewardToken?.symbol
+                                    }`
                                 )}
                             </span>
                         </Field>
@@ -300,17 +235,11 @@ export const InjectRewards = () => {
                     <div>
                         <Button
                             className="w-full"
-                            variant={
-                                hasError || isRestricted ? 'error' : 'primary'
-                            }
+                            variant={hasError || isRestricted ? 'error' : 'primary'}
                             onClick={onClickInject}
-                            disabled={
-                                hasError || isRestricted || rewardAmount === 0n
-                            }
+                            disabled={hasError || isRestricted || rewardAmount === 0n}
                         >
-                            {!isPendingInjectRewards &&
-                            !isLoadingInjectRewards &&
-                            !isPendingApproval ? (
+                            {!isPendingInjectRewards && !isLoadingInjectRewards && !isPendingApproval ? (
                                 hasError ? (
                                     errorMessage
                                 ) : isRestricted ? (
@@ -321,9 +250,7 @@ export const InjectRewards = () => {
                             ) : (
                                 <div className="flex items-center justify-center gap-2">
                                     <Spinner theme="dark" className="h-4 w-4" />{' '}
-                                    {isPendingApproval
-                                        ? 'Approving amount...'
-                                        : 'Injecting amount...'}
+                                    {isPendingApproval ? 'Approving amount...' : 'Injecting amount...'}
                                 </div>
                             )}
                         </Button>

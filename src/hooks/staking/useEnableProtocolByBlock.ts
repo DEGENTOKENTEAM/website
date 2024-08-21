@@ -8,12 +8,12 @@ export const useEnableProtocolByBlock = (
     chainId: number,
     blockNumber: bigint
 ) =>
-    useExecuteFunction(
+    useExecuteFunction({
         address,
         chainId,
         abi,
-        'stakeXEnableProtocolByBlock',
-        [blockNumber],
-        ['UpdatedActiveBlock'],
-        Boolean(address && chainId && !isUndefined(blockNumber))
-    )
+        functionName: 'stakeXEnableProtocolByBlock',
+        args: [blockNumber],
+        eventNames: ['UpdatedActiveBlock'],
+        enabled: Boolean(address && chainId && !isUndefined(blockNumber)),
+    })

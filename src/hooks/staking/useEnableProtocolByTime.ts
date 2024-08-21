@@ -8,12 +8,12 @@ export const useEnableProtocolByTime = (
     chainId: number,
     timestamp: bigint
 ) =>
-    useExecuteFunction(
+    useExecuteFunction({
         address,
         chainId,
         abi,
-        'stakeXEnableProtocolByTime',
-        [timestamp],
-        ['UpdatedActiveTime'],
-        Boolean(address && chainId && !isUndefined(timestamp))
-    )
+        functionName: 'stakeXEnableProtocolByTime',
+        args: [timestamp],
+        eventNames: ['UpdatedActiveTime'],
+        enabled: Boolean(address && chainId && !isUndefined(timestamp)),
+    })

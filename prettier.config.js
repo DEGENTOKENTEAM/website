@@ -7,6 +7,7 @@ module.exports = {
       files: '*.tsx',
       options: {
         tabWidth: 4,
+        printWidth: 120,
       },
     },
     {

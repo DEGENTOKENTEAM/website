@@ -1,4 +1,9 @@
-import { DynamoDBClient, DynamoDBClientConfig } from '@aws-sdk/client-dynamodb'
+import {
+    DynamoDBClient,
+    DynamoDBClientConfig,
+    PutItemCommand,
+    PutItemCommandInput,
+} from '@aws-sdk/client-dynamodb'
 import {
     BatchWriteCommand,
     BatchWriteCommandInput,

@@ -32,12 +32,13 @@ const defitools: DeFiToolType[] = [
             'Liquidity Backing is setting a foundational value for your project by establishing a growing pool of assets based on your total supply. This mechanism allows your holders to unlock their share of Liquidity Backing assets by choosing to burn their tokens. With this product, your project will earn more trust and security for the holders.',
     },
     {
-        name: 'LOCKER',
+        name: 'LOCKR',
         logo: '/defitools/dummy-defitools-logo.png',
         to: null,
         toLabel: 'Create a Locker',
         toMore: null,
-        description: 'TBD',
+        description:
+            "Time-Lock your tokens the smart way! LOCKR is more than just a token locker. It's the perfect solution for keeping your tokens secure and also releasing them gradually over time. Easy to use and ideal for vesting, rewards or locking liquidity. A smart way to protect your assets.",
     },
     {
         name: 'DISBURSER',
@@ -45,7 +46,8 @@ const defitools: DeFiToolType[] = [
         to: null,
         toLabel: 'Create a Disburser',
         toMore: null,
-        description: 'TBD',
+        description:
+            'An innovative vesting protocol that pays out tokens based on the current amount of tokens held. It can be used to raise liquidity or to provide holding incentives.',
     },
 ]
 
@@ -115,12 +117,7 @@ export const DeFiToolsOverview = () => {
             </h1>
             <div className="grid grid-cols-2 gap-8">
                 {defitools.map((tool, i) => (
-                    <DeFiToolTile
-                        data={tool}
-                        hero={i == 0}
-                        key={i}
-                        className={clsx([i == 0 && 'col-span-2'])}
-                    />
+                    <DeFiToolTile data={tool} hero={i == 0} key={i} className={clsx(['col-span-2'])} />
                 ))}
             </div>
         </div>

@@ -44,6 +44,7 @@ export const handler = async (
                             Item: {
                                 PairKey,
                                 result,
+                                ttl: 86400,
                             },
                         },
                     },

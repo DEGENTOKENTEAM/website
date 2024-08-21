@@ -1,0 +1,860 @@
+[
+  {
+    "inputs": [],
+    "name": "AddressZero",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "AlreadyInitialized",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "feeId",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "address",
+        "name": "issuer",
+        "type": "address"
+      }
+    ],
+    "name": "DiscountExists",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "DiscountIsNotActive",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "feeId",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "address",
+        "name": "issuer",
+        "type": "address"
+      }
+    ],
+    "name": "DiscountNotExists",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "DiscountOutOfRangeAbsolute",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint16",
+        "name": "allowed",
+        "type": "uint16"
+      },
+      {
+        "internalType": "uint256",
+        "name": "given",
+        "type": "uint256"
+      }
+    ],
+    "name": "DiscountOutOfRangePercentage",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "DiscountTypeInvalid",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "NoChanges",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "NotActive",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "NotAllowed",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint16",
+        "name": "allowed",
+        "type": "uint16"
+      },
+      {
+        "internalType": "uint16",
+        "name": "given",
+        "type": "uint16"
+      }
+    ],
+    "name": "OutOfRange",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "ReferralIsNotActive",
+    "type": "error"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "manager",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "bytes32",
+        "name": "feeId",
+        "type": "bytes32"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "issuer",
+        "type": "address"
+      }
+    ],
+    "name": "DiscountAdded",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [],
+    "name": "DiscountDisabled",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [],
+    "name": "DiscountEnabled",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "manager",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "bytes32",
+        "name": "feeId",
+        "type": "bytes32"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "issuer",
+        "type": "address"
+      }
+    ],
+    "name": "DiscountRemoved",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "manager",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "bytes32",
+        "name": "feeId",
+        "type": "bytes32"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "issuer",
+        "type": "address"
+      }
+    ],
+    "name": "DiscountUpdated",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "uint16",
+        "name": "amount",
+        "type": "uint16"
+      }
+    ],
+    "name": "UpdatedMaxDiscountPercentage",
+    "type": "event"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "_feeId",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "address",
+        "name": "_issuer",
+        "type": "address"
+      }
+    ],
+    "name": "deployerGetDiscount",
+    "outputs": [
+      {
+        "components": [
+          {
+            "internalType": "address",
+            "name": "issuer",
+            "type": "address"
+          },
+          {
+            "internalType": "bytes32",
+            "name": "feeId",
+            "type": "bytes32"
+          },
+          {
+            "internalType": "enum DiscountType",
+            "name": "discountType",
+            "type": "uint8"
+          },
+          {
+            "internalType": "uint256",
+            "name": "discountValue",
+            "type": "uint256"
+          }
+        ],
+        "internalType": "struct DiscountParams",
+        "name": "_discountParams",
+        "type": "tuple"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "_feeId",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "address",
+        "name": "_issuer",
+        "type": "address"
+      }
+    ],
+    "name": "deployerHasDiscount",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "_has",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "feeId",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "address",
+        "name": "account",
+        "type": "address"
+      }
+    ],
+    "name": "ReferrerExists",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "referrerId",
+        "type": "bytes32"
+      }
+    ],
+    "name": "ReferrerNotExists",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "ReferrerShareIsTheSame",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint16",
+        "name": "share",
+        "type": "uint16"
+      }
+    ],
+    "name": "ReferrerShareTooHigh",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "timestamp",
+        "type": "uint256"
+      }
+    ],
+    "name": "ReferrerUntilTimeIsInPast",
+    "type": "error"
+  },
+  {
+    "anonymous": false,
+    "inputs": [],
+    "name": "ReferralDisabled",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [],
+    "name": "ReferralEnabled",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "manager",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "referral",
+        "type": "address"
+      }
+    ],
+    "name": "ReferrerAdded",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "manager",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "bytes32",
+        "name": "referrerId",
+        "type": "bytes32"
+      }
+    ],
+    "name": "ReferrerDisabled",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "manager",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "bytes32",
+        "name": "referrerId",
+        "type": "bytes32"
+      }
+    ],
+    "name": "ReferrerEnabled",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "manager",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "referral",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "bytes32",
+        "name": "referrerId",
+        "type": "bytes32"
+      }
+    ],
+    "name": "ReferrerRemoved",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "manager",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "bytes32",
+        "name": "referrerId",
+        "type": "bytes32"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint32",
+        "name": "previous",
+        "type": "uint32"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint32",
+        "name": "updated",
+        "type": "uint32"
+      }
+    ],
+    "name": "ReferrerUpdatedActiveUntil",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "manager",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "bytes32",
+        "name": "referrerId",
+        "type": "bytes32"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint16",
+        "name": "previous",
+        "type": "uint16"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint16",
+        "name": "updated",
+        "type": "uint16"
+      }
+    ],
+    "name": "ReferrerUpdatedShare",
+    "type": "event"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "_feeId",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "address",
+        "name": "_referral",
+        "type": "address"
+      }
+    ],
+    "name": "deployerGetReferrer",
+    "outputs": [
+      {
+        "components": [
+          {
+            "internalType": "bool",
+            "name": "active",
+            "type": "bool"
+          },
+          {
+            "internalType": "address",
+            "name": "account",
+            "type": "address"
+          },
+          {
+            "internalType": "uint16",
+            "name": "share",
+            "type": "uint16"
+          },
+          {
+            "internalType": "uint32",
+            "name": "activeUntil",
+            "type": "uint32"
+          },
+          {
+            "internalType": "bytes32",
+            "name": "referrerId",
+            "type": "bytes32"
+          }
+        ],
+        "internalType": "struct LibDeployerReferralStorage.Data",
+        "name": "_referrerData",
+        "type": "tuple"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "_feeId",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "address",
+        "name": "_referral",
+        "type": "address"
+      }
+    ],
+    "name": "deployerHasReferrer",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "_has",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "InactiveDeployer",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "InsufficientValue",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "InvalidDiamondCut",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "InvalidDiamondLoupe",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "InvalidDiamondSetup",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "MissingFeeId",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "NoFundsNeeded",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "NotInitialized",
+    "type": "error"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "admin",
+        "type": "address"
+      }
+    ],
+    "name": "DisabledDeployerStakeX",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "admin",
+        "type": "address"
+      }
+    ],
+    "name": "EnabledDeployerStakeX",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "deployer",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "protocol",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "referral",
+        "type": "address"
+      },
+      {
+        "components": [
+          {
+            "internalType": "uint256",
+            "name": "amountSent",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "referrerShare",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "feeCharged",
+            "type": "uint256"
+          }
+        ],
+        "indexed": false,
+        "internalType": "struct DeployerStakeXFacet.DeployedEvent",
+        "name": "deployEvent",
+        "type": "tuple"
+      }
+    ],
+    "name": "StakeXProtocolDeployed",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "admin",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "bytes32",
+        "name": "feeId",
+        "type": "bytes32"
+      }
+    ],
+    "name": "UpdatedFeeId",
+    "type": "event"
+  },
+  {
+    "inputs": [
+      {
+        "components": [
+          {
+            "internalType": "address",
+            "name": "referral",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "initContract",
+            "type": "address"
+          },
+          {
+            "internalType": "bytes",
+            "name": "initFn",
+            "type": "bytes"
+          },
+          {
+            "components": [
+              {
+                "internalType": "address",
+                "name": "stakingToken",
+                "type": "address"
+              },
+              {
+                "internalType": "address",
+                "name": "stableToken",
+                "type": "address"
+              },
+              {
+                "components": [
+                  {
+                    "internalType": "address",
+                    "name": "targetToken",
+                    "type": "address"
+                  },
+                  {
+                    "components": [
+                      {
+                        "internalType": "address",
+                        "name": "rewardToken",
+                        "type": "address"
+                      },
+                      {
+                        "components": [
+                          {
+                            "internalType": "address",
+                            "name": "calleeSwap",
+                            "type": "address"
+                          },
+                          {
+                            "internalType": "address",
+                            "name": "calleeAmountOut",
+                            "type": "address"
+                          },
+                          {
+                            "internalType": "address[]",
+                            "name": "path",
+                            "type": "address[]"
+                          },
+                          {
+                            "internalType": "bool",
+                            "name": "isGmx",
+                            "type": "bool"
+                          }
+                        ],
+                        "internalType": "struct SwapCandidate[]",
+                        "name": "candidates",
+                        "type": "tuple[]"
+                      }
+                    ],
+                    "internalType": "struct SwapCandidatesGroup[]",
+                    "name": "candidatesGroup",
+                    "type": "tuple[]"
+                  }
+                ],
+                "internalType": "struct SetTargetTokenParams[]",
+                "name": "swaps",
+                "type": "tuple[]"
+              },
+              {
+                "components": [
+                  {
+                    "internalType": "bool",
+                    "name": "burn",
+                    "type": "bool"
+                  },
+                  {
+                    "internalType": "uint32",
+                    "name": "lock",
+                    "type": "uint32"
+                  },
+                  {
+                    "internalType": "uint16",
+                    "name": "share",
+                    "type": "uint16"
+                  }
+                ],
+                "internalType": "struct StakeBucketAddParams[]",
+                "name": "bucketsToAdd",
+                "type": "tuple[]"
+              },
+              {
+                "components": [
+                  {
+                    "internalType": "address",
+                    "name": "token",
+                    "type": "address"
+                  }
+                ],
+                "internalType": "struct RewardAddParams[]",
+                "name": "rewards",
+                "type": "tuple[]"
+              },
+              {
+                "internalType": "address",
+                "name": "manager",
+                "type": "address"
+              },
+              {
+                "internalType": "bool",
+                "name": "excludeStakingTokenFromRewards",
+                "type": "bool"
+              }
+            ],
+            "internalType": "struct IStakeXCoreFacet.InitStakeXCoreFacetParams",
+            "name": "initParams",
+            "type": "tuple"
+          }
+        ],
+        "internalType": "struct DeployerStakeXFacet.DeployParams",
+        "name": "_params",
+        "type": "tuple"
+      }
+    ],
+    "name": "deployerStakeXDeploy",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "_totalCosts",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "payable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "deployerStakeXGetFeeEstimation",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "_fee",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  }
+]

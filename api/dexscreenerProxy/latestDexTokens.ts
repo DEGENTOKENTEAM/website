@@ -41,6 +41,7 @@ export const handler = async (
                             Item: {
                                 TokenKey: tokenAddress,
                                 result,
+                                ttl: 86400
                             },
                         },
                     },

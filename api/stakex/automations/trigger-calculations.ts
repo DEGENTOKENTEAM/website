@@ -2,42 +2,31 @@ import { InvokeAsyncCommand, LambdaClient } from '@aws-sdk/client-lambda'
 import { Handler } from 'aws-lambda'
 import { createPublicClient, http } from 'viem'
 import { chains } from '../../../shared/supportedChains'
-import { DynamoDBHelper } from '../../helpers/ddb/dynamodb'
+import { StakeXProtocolsRepository } from '../../services/protocols'
 
-export const handler: Handler = async (event, context, callback) => {
+export const handler: Handler = async (_, __, callback) => {
     const { LAMBDA_APR_NAME, LAMBDA_STAKES_NAME } = process.env
-    const PARTITION_VERSION = 'v_1'
-    const db = new DynamoDBHelper({ region: 'eu-west-1' })
     const lambdaClient = new LambdaClient()
 
+    const protocolsRepo = new StakeXProtocolsRepository()
+
     for (const chain of chains) {
-        const publicClient = createPublicClient({
-            chain,
-            transport: http(),
-        })
+        const protocols = await protocolsRepo.getAllByChainId(chain.id, 1000)
 
-        const protocols = await db.query({
-            TableName: process.env.DB_TABLE_NAME_STAKEX_PROTOCOLS,
-            KeyConditionExpression:
-                '#pkey = :version AND begins_with(#skey, :skey)',
-            ExpressionAttributeNames: {
-                '#pkey': 'pkey',
-                '#skey': 'skey',
-            },
-            ExpressionAttributeValues: {
-                ':version': PARTITION_VERSION,
-                ':skey': `${chain.id}#`,
-            },
-        })
+        if (protocols.count) {
+            const publicClient = createPublicClient({
+                chain,
+                transport: http(),
+            })
 
-        if (protocols && protocols.Count) {
-            const { Items: items } = protocols
-            const toBlock = Number((await publicClient.getBlock()).number)
-            for (const item of items!) {
+            const toBlock = Number(await publicClient.getBlockNumber())
+
+            for (const item of protocols.items) {
                 const {
                     chainId,
                     blockNumberAPUpdate,
                     blockNumberAPUpdateIntervall,
+                    blockNumberAPPeriod,
                     protocol,
                     blockNumberEnabled,
                 } = item
@@ -58,7 +47,8 @@ export const handler: Handler = async (event, context, callback) => {
                                     InvokeArgs: JSON.stringify({
                                         chainId: Number(chainId),
                                         protocol,
-                                        fromBlock: toBlock - 907_200, // TODO gather for nearly last 3 weeks, maybe put this in db for the protocol, based on chain id
+                                        fromBlock:
+                                            toBlock - blockNumberAPPeriod,
                                         toBlock,
                                     }),
                                 })

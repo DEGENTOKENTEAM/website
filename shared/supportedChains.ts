@@ -36,11 +36,15 @@ const mainnet = defineChain({
         default: {
             ...mainnetOriginal.rpcUrls.default,
             http: [
-                `https://mainnet.infura.io/v3/${
-                    process.env.NEXT_PUBLIC_INFURA_ID || process.env.INFURA_ID
-                }`,
+                process.env.USE_LOCALFORK_INSTEAD !== 'true' &&
+                process.env.NEXT_PUBLIC_USE_LOCALFORK_INSTEAD !== 'true'
+                    ? `https://mainnet.infura.io/v3/${
+                          process.env.NEXT_PUBLIC_INFURA_ID ||
+                          process.env.INFURA_ID
+                      }`
+                    : 'http://127.0.0.1:8546',
                 // 'http://localhost:9650/ext/bc/C/rpc',
-                ...mainnetOriginal.rpcUrls.default.http,
+                // ...mainnetOriginal.rpcUrls.default.http,
             ],
         },
     },

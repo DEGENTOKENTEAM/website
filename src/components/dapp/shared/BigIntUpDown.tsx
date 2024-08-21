@@ -32,29 +32,18 @@ export const BigIntUpDown = ({
         _event.stopPropagation()
         let enteredNumber = Number(_event.target.value.replace(/(,|\.)/, '.'))
         const diviver = !decimals ? 1 : 10 ** Number(decimals)
-        console.log(
-            _event.target.value,
-            enteredNumber,
-            diviver,
-            enteredNumber * diviver
-        )
         _event.target.value = ''
         processNewValue(BigInt(Math.floor(enteredNumber * diviver).toFixed(0)))
     }
 
-    const processNewValue = (value: bigint) =>
-        onChange && onChange(value <= min ? min : value >= max ? max : value)
+    const processNewValue = (value: bigint) => onChange && onChange(value <= min ? min : value >= max ? max : value)
 
     return (
         <>
             <div className="grid grid-cols-3 gap-2">
                 <div className="flex items-center justify-start">
                     {!hideControls && (
-                        <Button
-                            disabled={value <= min}
-                            onClick={() => onClick(-step)}
-                            variant="secondary"
-                        >
+                        <Button disabled={value <= min} onClick={() => onClick(-step)} variant="secondary">
                             -
                         </Button>
                     )}
@@ -72,11 +61,7 @@ export const BigIntUpDown = ({
                 </div>
                 <div className="flex items-center justify-end">
                     {!hideControls && (
-                        <Button
-                            disabled={value >= max}
-                            onClick={() => onClick(step)}
-                            variant="secondary"
-                        >
+                        <Button disabled={value >= max} onClick={() => onClick(step)} variant="secondary">
                             +
                         </Button>
                     )}

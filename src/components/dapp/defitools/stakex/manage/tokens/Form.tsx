@@ -7,6 +7,7 @@ import {
     useGetRoutingsForToken,
 } from '@dapphooks/staking/useGetRoutingsForToken'
 import { useGetTargetTokens } from '@dapphooks/staking/useGetTargetTokens'
+import { TokenSearchInput } from '@dappshared/TokenSearchInput'
 import { TokenInfo, TokenInfoResponse } from '@dapptypes'
 import { Checkbox, Description, Field, Input, Label } from '@headlessui/react'
 import clsx from 'clsx'
@@ -199,62 +200,14 @@ export const TokensForm = ({ onChange, error: _error }: TokensFormProps) => {
                     Add Token
                 </div>
                 <div className="flex flex-col gap-2">
-                    <Field className="flex flex-col gap-2">
-                        <Description className="text-xs/4 text-dapp-cyan-50/50">
-                            Enter an ERC20 token address
-                        </Description>
-                        <Input
-                            pattern="0x[a-zA-Z0-9]{40}"
-                            onChange={onChangeTokenAddress}
-                            required={true}
-                            disabled={false}
-                            placeholder="0x..."
-                            className="mt-2 w-full rounded-lg border-0 bg-dapp-blue-800 p-2 text-2xl leading-10 outline-0 [appearance:textfield] focus:ring-0 focus:ring-offset-0"
-                        />
-                        {isSearchActive && (
-                            <>
-                                <div className="pl-2 text-xs">
-                                    {!error &&
-                                        !isLoadingTokenInfo &&
-                                        tokenInfo &&
-                                        tokenInfo?.name && (
-                                            <div className="flex flex-row items-center gap-2">
-                                                <FaRegCheckCircle className="h-5 w-5 text-success" />{' '}
-                                                Found: {tokenInfo.name} (
-                                                {tokenInfo.symbol}) with{' '}
-                                                {Number(tokenInfo.decimals)}{' '}
-                                                decimals
-                                            </div>
-                                        )}
-                                    {!error && isLoadingTokenInfo && (
-                                        <div className="flex flex-row items-center gap-2">
-                                            <Spinner
-                                                className="!h-5 !w-5"
-                                                theme="dark"
-                                            />
-                                            Searching...
-                                        </div>
-                                    )}
-                                    {((!isLoadingTokenInfo &&
-                                        tokenInfo &&
-                                        !tokenInfo?.name) ||
-                                        error) && (
-                                        <div className="flex flex-row items-center gap-2">
-                                            <FaRegTimesCircle className="h-5 w-5 text-error" />{' '}
-                                            {error ? (
-                                                error
-                                            ) : (
-                                                <span>
-                                                    Not found! Please check the
-                                                    entered address
-                                                </span>
-                                            )}
-                                        </div>
-                                    )}
-                                </div>
-                            </>
-                        )}
-                    </Field>
+                    <TokenSearchInput
+                        error={error}
+                        isLoadingTokenInfo={isLoadingTokenInfo}
+                        isSearchActive={isSearchActive}
+                        onChangeTokenAddress={onChangeTokenAddress}
+                        tokenInfo={tokenInfo}
+                        showDescription={true}
+                    />
                     <Field className="flex flex-col gap-2 px-2 pt-2">
                         <div className="flex gap-2">
                             <Checkbox

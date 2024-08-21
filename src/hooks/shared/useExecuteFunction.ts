@@ -3,15 +3,29 @@ import { useCallback, useEffect, useState } from 'react'
 import { Address, decodeEventLog } from 'viem'
 import { usePublicClient, useSimulateContract, useWriteContract } from 'wagmi'
 
-export const useExecuteFunction = (
-    address: Address,
-    chainId: number,
-    abi: any,
-    functionName: string,
-    args: any[],
-    eventNames: string[],
+type useExecuteFunctionProps = {
+    address: Address
+    chainId: number
+    abi: any
+    functionName: string
+    args: any[]
+    eventNames: string[]
+    account?: Address
+    value?: bigint
     enabled?: boolean
-) => {
+}
+
+export const useExecuteFunction = ({
+    address,
+    chainId,
+    abi,
+    functionName,
+    args,
+    eventNames,
+    account,
+    value,
+    enabled,
+}: useExecuteFunctionProps) => {
     const [logs, setLogs] = useState<any[]>()
     const [isLoading, setIsLoading] = useState(false)
     const [isSuccess, setIsSuccess] = useState(false)
@@ -22,9 +36,12 @@ export const useExecuteFunction = (
         error: errorSimulate,
     } = useSimulateContract({
         address,
+        chainId,
         abi,
         functionName,
         args,
+        account: account || undefined,
+        value: value || undefined,
         query: {
             enabled: Boolean(
                 address && chainId && abi && functionName && enabled

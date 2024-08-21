@@ -1,7 +1,4 @@
-import {
-    ManageStakeXContext,
-    ManageStakeXContextDataType,
-} from '@dapphelpers/defitools'
+import { ManageStakeXContext, ManageStakeXContextDataType } from '@dapphelpers/defitools'
 import { useActive } from '@dapphooks/staking/useActive'
 import { useGetContractOwner } from '@dapphooks/staking/useGetContractOwner'
 import { useGetMetrics } from '@dapphooks/staking/useGetMetrics'
@@ -54,14 +51,8 @@ export const Manage = () => {
         isLoading: false,
     })
 
-    const { data: dataStakingToken } = useGetStakingToken(
-        protocolAddress,
-        chain?.id!
-    )
-    const { data: dataContractOwner } = useGetContractOwner(
-        protocolAddress,
-        chain?.id!
-    )
+    const { data: dataStakingToken } = useGetStakingToken(protocolAddress, chain?.id!)
+    const { data: dataContractOwner } = useGetContractOwner(protocolAddress, chain?.id!)
     const { response: dataMetrics } = useGetMetrics(protocolAddress, chain?.id!)
     const { data: dataIsActive } = useActive(protocolAddress, chain?.id!)
     const { data: dataIsRunning } = useRunning(protocolAddress, chain?.id!)
@@ -69,16 +60,12 @@ export const Manage = () => {
     useEffect(() => {
         const _data: ManageStakeXContextDataType = {
             ...data,
-            isLoading: !Boolean(
-                dataStakingToken && dataMetrics && dataContractOwner
-            ),
+            isLoading: !Boolean(dataStakingToken && dataMetrics && dataContractOwner),
         }
 
         if (dataContractOwner) {
             _data.owner = dataContractOwner
-            _data.isOwner = Boolean(
-                address && _.toLower(address) === _.toLower(dataContractOwner)
-            )
+            _data.isOwner = Boolean(address && _.toLower(address) === _.toLower(dataContractOwner))
         }
 
         if (dataMetrics) _data.metrics = dataMetrics
@@ -87,33 +74,20 @@ export const Manage = () => {
         if (!isUndefined(dataIsRunning)) _data.isRunning = dataIsRunning
 
         setData(_data)
-    }, [
-        dataStakingToken,
-        address,
-        dataMetrics,
-        dataContractOwner,
-        dataIsActive,
-        dataIsRunning,
-    ])
+    }, [dataStakingToken, address, dataMetrics, dataContractOwner, dataIsActive, dataIsRunning])
 
     return (
         protocolAddress && (
             <ManageStakeXContext.Provider value={{ data, setData }}>
                 <div className="mb-8 flex w-full max-w-5xl flex-col gap-8">
-                    <h1 className="flex w-full max-w-2xl flex-row items-end gap-1 px-8 font-title text-3xl font-bold tracking-wide sm:px-0">
+                    <h1 className="flex w-full max-w-2xl flex-row items-end px-8 font-title text-3xl font-bold tracking-wide sm:px-0">
                         <span className="text-techGreen">STAKE</span>
                         <span className="text-degenOrange">X</span>
-                        <span className="text-xl">Management</span>
+                        <span className="ml-1 text-xl">Management</span>
                     </h1>
-                    {isConnected &&
-                        chainAccount &&
-                        chain &&
-                        chain.id !== chainAccount.id && (
-                            <WrongChainHint
-                                chainIdProtocol={chain.id}
-                                chainIdAccount={chainAccount.id!}
-                            />
-                        )}
+                    {isConnected && chainAccount && chain && chain.id !== chainAccount.id && (
+                        <WrongChainHint chainIdProtocol={chain.id} chainIdAccount={chainAccount.id!} />
+                    )}
                     {!isConnected && <NotConnectedHint />}
                     <Customization />
                     <GeneralInformation />
@@ -121,7 +95,6 @@ export const Manage = () => {
                     <Buckets />
                     <TokenManagement />
                     <NFTManagement />
-                    {/* <RewardTokens /> */}
                     {data.isOwner && <Control />}
                     <Fees />
                     <InjectRewards />

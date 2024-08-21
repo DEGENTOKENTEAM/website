@@ -7,12 +7,12 @@ export const useNFTAddConfig = (
     chainId: number,
     nftConfig: any
 ) =>
-    useExecuteFunction(
+    useExecuteFunction({
         address,
         chainId,
         abi,
-        'stakeXNFTAddConfig',
-        [nftConfig],
-        ['AddedConfig'],
-        Boolean(address && chainId && nftConfig)
-    )
+        functionName: 'stakeXNFTAddConfig',
+        args: [nftConfig],
+        eventNames: ['AddedConfig'],
+        enabled: Boolean(address && chainId && nftConfig),
+    })

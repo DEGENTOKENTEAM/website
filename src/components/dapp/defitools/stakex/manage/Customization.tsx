@@ -30,24 +30,15 @@ export const Customization = () => {
     const [cropImage, setCropImage] = useState<string | null>(null)
     const [baseImage, setBaseImage] = useState('')
     const [previewImage, setPreviewImage] = useState<string | null>(null)
-    const [challengeMessage, setChallengeMessage] = useState<string | null>(
-        null
-    )
+    const [challengeMessage, setChallengeMessage] = useState<string | null>(null)
 
-    const [checkForNewImageInterval, setCheckForNewImageInterval] = useState<
-        number | null
-    >(null)
+    const [checkForNewImageInterval, setCheckForNewImageInterval] = useState<number | null>(null)
 
     const [isLoadingLogoUpload, setIsLoadingLogoUpload] = useState(false)
     const [isPendingNewLogo, setIsPendingNewLogo] = useState(false)
 
     const { response, load } = useGetCustomization(protocol)
-    const {
-        loading: loadingUpdate,
-        response: responseUpdate,
-        error: errorUpdate,
-        update,
-    } = useUpdateCustomization()
+    const { loading: loadingUpdate, response: responseUpdate, error: errorUpdate, update } = useUpdateCustomization()
     const {
         signMessage,
         data: signature,
@@ -112,13 +103,7 @@ export const Customization = () => {
 
     useEffect(() => {
         const image = cropperRef.current?.getCanvas()?.toDataURL().split(',')[1]
-        if (
-            signature &&
-            isLoadingLogoUpload &&
-            chain &&
-            challengeMessage &&
-            image
-        ) {
+        if (signature && isLoadingLogoUpload && chain && challengeMessage && image) {
             update({
                 chainId: chain.id,
                 sig: signature,
@@ -147,15 +132,17 @@ export const Customization = () => {
     }, [responseUpdate, loadingUpdate, errorUpdate])
 
     useEffect(() => {
-        stakingToken &&
-            stakingToken.symbol &&
-            setProjectName(`${stakingToken.symbol} staking`)
+        stakingToken && stakingToken.symbol && setProjectName(`${stakingToken.symbol} staking`)
     }, [stakingToken])
     return (
         <>
             <Tile className="flex w-full flex-col gap-8">
                 <StakingProjectLogo
-                    source={previewImage || baseImage}
+                    source={
+                        previewImage ||
+                        baseImage ||
+                        'https://ipfs.io/ipfs/QmdwBqUkw37CpEfype5tdNPRs29BQGagzqu6DQN6VGp8x2'
+                    }
                     isPending={isPendingNewLogo}
                     projectName={projectName ?? ''}
                 />
@@ -164,15 +151,10 @@ export const Customization = () => {
             {isOwner && (
                 <>
                     <Tile className="w-full">
-                        <span className="flex-1 font-title text-xl font-bold">
-                            Project Logo
-                        </span>
+                        <span className="flex-1 font-title text-xl font-bold">Project Logo</span>
                         <div className="mt-8 flex flex-col gap-4">
                             {!cropImage && (
-                                <Button
-                                    onClick={onClickUploadLogo}
-                                    variant="primary"
-                                >
+                                <Button onClick={onClickUploadLogo} variant="primary">
                                     Choose new logo
                                 </Button>
                             )}
@@ -219,14 +201,8 @@ export const Customization = () => {
                                             {isLoadingLogoUpload && (
                                                 <span className="flex items-center justify-center gap-2 whitespace-nowrap">
                                                     <Spinner theme="dark" />
-                                                    {isPendingSignMessage && (
-                                                        <span>
-                                                            wait for signing
-                                                        </span>
-                                                    )}
-                                                    {!isPendingSignMessage && (
-                                                        <span>upload logo</span>
-                                                    )}
+                                                    {isPendingSignMessage && <span>wait for signing</span>}
+                                                    {!isPendingSignMessage && <span>upload logo</span>}
                                                 </span>
                                             )}
 
