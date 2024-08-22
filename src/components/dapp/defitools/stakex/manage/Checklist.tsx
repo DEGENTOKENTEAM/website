@@ -14,7 +14,7 @@ export const Checklist = () => {
     const [hasNFTConfiguration, setHasNFTConfiguration] = useState(false)
     const [hasLogo, setHasLogo] = useState(false)
 
-    const { response } = useGetCustomization(protocol)
+    const { response } = useGetCustomization(protocol, chain?.id!)
     const { data: dataNFTConfigs } = useNFTGetConfigs(protocol, chain?.id!)
 
     useEffect(() => {

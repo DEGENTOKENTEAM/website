@@ -143,34 +143,10 @@ export const handler = async (
             ).body
         )
 
-        let logo = ipfsdata.data.logoUrl
-
-        // if it is not set on ipfs, then use coingecko data
-        if (!Boolean(logo)) {
-            const invokeCoingeckoResponse = await lambdaClient.send(
-                new InvokeCommand({
-                    FunctionName: process.env.LAMBDA_COINGECKO_NAME,
-                    Payload: JSON.stringify({
-                        pathParameters: {
-                            proxyPath: `api/v3/coins/id/contract/${stakingToken.source}`,
-                        },
-                    }),
-                })
-            )
-            const cgdata = JSON.parse(
-                JSON.parse(
-                    new TextDecoder().decode(invokeCoingeckoResponse.Payload)
-                ).body
-            )
-            if (cgdata && cgdata.image && cgdata.image.large)
-                logo = cgdata.image.large
-        }
-
-        protocolResponse.protocol.logo = logo
-
         //
         // Token Info
         //
+        protocolResponse.protocol.logo = ipfsdata.data.logoUrl
         protocolResponse.token.symbol = stakingData.staked.tokenInfo.symbol
         protocolResponse.token.decimals = stakingData.staked.tokenInfo.decimals
 

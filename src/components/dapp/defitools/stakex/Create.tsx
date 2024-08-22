@@ -4,6 +4,7 @@ import { toReadableNumber } from '@dapphelpers/number'
 import { useDeployProtocolSTAKEX } from '@dapphooks/deployer/useDeployProtocolSTAKEX'
 import { useGetFeeEstimationDeployerSTAKEX } from '@dapphooks/deployer/useGetFeeEstimationDeployerSTAKEX'
 import { useGetNetworkFeeEstimationDeployerSTAKEX } from '@dapphooks/deployer/useGetNetworkFeeEstimationDeployerSTAKEX'
+import { useGetReferrerById } from '@dapphooks/deployer/useGetReferrerById'
 import { useGetTokenInfo } from '@dapphooks/shared/useGetTokenInfo'
 import { CaretDivider } from '@dappshared/CaretDivider'
 import { NetworkSelectorForm } from '@dappshared/NetworkSelectorForm'
@@ -22,7 +23,6 @@ import protocols from './../../../../../config/protocols'
 import { CreateProtocolConfirmation } from './create/overlays/CreateProtocolConfirmation'
 import { BucketFormParams } from './manage/buckets/Form'
 import { LockUnits, LockUnitsForm } from './manage/buckets/LockUnitsForm'
-import { useGetReferrerById } from '@dapphooks/deployer/useGetReferrerById'
 
 const initParams: STAKEXCreatorDataInitParams = {
     stakingToken: null,
@@ -504,7 +504,12 @@ export const Create = () => {
                         </div>
 
                         {isConnected ? (
-                            <Button disabled={!isValid} onClick={onClickCreate} variant="primary">
+                            <Button
+                                disabled={!isValid}
+                                onClick={onClickCreate}
+                                variant="primary"
+                                className="h-20 text-xl"
+                            >
                                 Create my protocol
                             </Button>
                         ) : (

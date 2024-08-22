@@ -3,6 +3,7 @@ import { DAppContext } from '@dapphelpers/dapp'
 import { toReadableNumber } from '@dapphelpers/number'
 import { CaretDivider } from '@dappshared/CaretDivider'
 import { Tile } from '@dappshared/Tile'
+import { toLower } from 'lodash'
 import { useCallback, useContext, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { getChainById } from 'shared/supportedChains'
@@ -10,7 +11,6 @@ import { ProtocolsResponse } from 'shared/types'
 import { Button } from 'src/components/Button'
 import { Address } from 'viem'
 import { StakingProjectLogo } from '../../staking/StakingProjectLogo'
-import { toLower } from 'lodash'
 
 export const Protocols = () => {
     const { setTitle } = useContext(DAppContext)
@@ -41,11 +41,7 @@ export const Protocols = () => {
                                 stakedAbs: BigInt(p.protocol.stakedAbs),
                             },
                         }))
-                        .sort((p: any) =>
-                            topProtocols.includes(toLower(p.source) as Address)
-                                ? -1
-                                : 1
-                        )
+                        .sort((p: any) => (topProtocols.includes(toLower(p.source) as Address) ? -1 : 1))
                 )
             })
     }, [selectedChain])
@@ -64,7 +60,7 @@ export const Protocols = () => {
             <h1 className="flex w-full max-w-2xl flex-row items-end px-8 font-title text-3xl font-bold tracking-wide sm:px-0">
                 <span className="text-techGreen">STAKE</span>
                 <span className="text-degenOrange">X</span>
-                <span className="text-xl ml-1">Protocols</span>
+                <span className="ml-1 text-xl">Protocols</span>
             </h1>
             {isLoading && (
                 <div className="flex w-full items-center justify-center">
@@ -75,36 +71,20 @@ export const Protocols = () => {
                 {!isLoading &&
                     protocols &&
                     protocols.map(({ protocol, token }) => (
-                        <Tile
-                            key={protocol.source}
-                            className="flex w-full flex-col gap-6"
-                        >
-                            <StakingProjectLogo
-                                projectName={protocol.name}
-                                source={protocol.logo}
-                                isLite={true}
-                            />
+                        <Tile key={protocol.source} className="flex w-full flex-col gap-6">
+                            <StakingProjectLogo projectName={protocol.name} source={protocol.logo} isLite={true} />
                             <CaretDivider color="cyan" />
                             <div className="mt-1 flex flex-col gap-2">
                                 <div>
-                                    <span className="mr-2 font-bold">
-                                        Token
-                                    </span>{' '}
-                                    {token.symbol}
+                                    <span className="mr-2 font-bold">Token</span> {token.symbol}
                                 </div>
 
                                 <div>
-                                    <span className="mr-2 font-bold">
-                                        Staked
-                                    </span>{' '}
-                                    {toReadableNumber(
-                                        protocol.stakedAbs,
-                                        token.decimals,
-                                        {
-                                            maximumFractionDigits: 2,
-                                            minimumFractionDigits: 2,
-                                        }
-                                    )}{' '}
+                                    <span className="mr-2 font-bold">Staked</span>{' '}
+                                    {toReadableNumber(protocol.stakedAbs, token.decimals, {
+                                        maximumFractionDigits: 2,
+                                        minimumFractionDigits: 2,
+                                    })}{' '}
                                     (
                                     {toReadableNumber(protocol.stakedRel, 0, {
                                         maximumFractionDigits: 2,
@@ -114,10 +94,7 @@ export const Protocols = () => {
                                 </div>
 
                                 <div>
-                                    <span className="mr-2 font-bold">
-                                        Stakers
-                                    </span>{' '}
-                                    {protocol.stakes}
+                                    <span className="mr-2 font-bold">Stakers</span> {protocol.stakes}
                                 </div>
 
                                 <div>
@@ -138,20 +115,14 @@ export const Protocols = () => {
                                     %
                                 </div>
                                 <div>
-                                    <span className="mr-2 font-bold">
-                                        Network
-                                    </span>{' '}
-                                    {getChainById(protocol.chainId).name} (ID:{' '}
-                                    {protocol.chainId})
+                                    <span className="mr-2 font-bold">Network</span>{' '}
+                                    {getChainById(protocol.chainId).name} (ID: {protocol.chainId})
                                 </div>
                             </div>
                             <Button
                                 className=""
                                 onClick={() => {
-                                    navigate(
-                                        `manage/${protocol.chainId}/${protocol.source}`,
-                                        { relative: 'route' }
-                                    )
+                                    navigate(`manage/${protocol.chainId}/${protocol.source}`, { relative: 'route' })
                                 }}
                                 variant="primary"
                             >

@@ -1,5 +1,1 @@
-{
-  "pathParameters": {
-    "protocol": "0x00000000004545cB8440FDD6095a97DEBd1F3814"
-  }
-}
+{"pathParameters":{"protocol": "0x00000000004545cB8440FDD6095a97DEBd1F3814","chainId":"43114"}}

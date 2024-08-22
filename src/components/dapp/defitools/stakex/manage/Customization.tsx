@@ -28,7 +28,7 @@ export const Customization = () => {
     const [projectName, setProjectName] = useState<string | null>(null)
 
     const [cropImage, setCropImage] = useState<string | null>(null)
-    const [baseImage, setBaseImage] = useState('')
+    const [baseImage, setBaseImage] = useState<string | null>(null)
     const [previewImage, setPreviewImage] = useState<string | null>(null)
     const [challengeMessage, setChallengeMessage] = useState<string | null>(null)
 
@@ -37,7 +37,7 @@ export const Customization = () => {
     const [isLoadingLogoUpload, setIsLoadingLogoUpload] = useState(false)
     const [isPendingNewLogo, setIsPendingNewLogo] = useState(false)
 
-    const { response, load } = useGetCustomization(protocol)
+    const { response, load } = useGetCustomization(protocol, chain?.id!)
     const { loading: loadingUpdate, response: responseUpdate, error: errorUpdate, update } = useUpdateCustomization()
     const {
         signMessage,
@@ -93,7 +93,7 @@ export const Customization = () => {
 
     useEffect(() => {
         if (response && response.data) {
-            if (response.data.logoUrl) setBaseImage(response.data.logoUrl)
+            setBaseImage(response.data.logoUrl)
 
             const pendingLogo = response.data.logoUrlUpdatePending
             setCheckForNewImageInterval(pendingLogo ? CHECK_INTERVAL : null)
@@ -138,11 +138,7 @@ export const Customization = () => {
         <>
             <Tile className="flex w-full flex-col gap-8">
                 <StakingProjectLogo
-                    source={
-                        previewImage ||
-                        baseImage ||
-                        'https://ipfs.io/ipfs/QmdwBqUkw37CpEfype5tdNPRs29BQGagzqu6DQN6VGp8x2'
-                    }
+                    source={previewImage || baseImage}
                     isPending={isPendingNewLogo}
                     projectName={projectName ?? ''}
                 />

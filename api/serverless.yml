@@ -170,13 +170,16 @@ functions:
     timeout: 29
     events:
       - http:
-          path: /ipfs/stakex/customization/fetch/{protocol}
+          path: /ipfs/stakex/customization/fetch/{chainId}/{protocol}
           request:
             parameters:
               paths:
+                chainId: true
                 protocol: true
           method: get
           cors: true
+    environment:
+      LAMBDA_COINGECKO_NAME: ${self:custom.serviceName}-coingeckoProxy
 
   ipfsStakexCustomizationCheckAvailability:
     handler: ipfs/stakex/customization/check-availability.handler
@@ -217,7 +220,6 @@ functions:
           method: get
           cors: true
     environment:
-      LAMBDA_COINGECKO_NAME: ${self:custom.serviceName}-coingeckoProxy
       LAMBDA_CUSTOMIZATION_NAME: ${self:custom.serviceName}-ipfsStakexCustomizationFetch
 
   # STAKEX Tasks

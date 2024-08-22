@@ -30,12 +30,9 @@ import { StakingTabber, StakingTabberItem } from './staking/StakingTabber'
 
 export const StakeX = () => {
     const { switchChain } = useSwitchChain()
-    const { isConnected, isDisconnected, isConnecting, address, chain } =
-        useAccount()
+    const { isConnected, isDisconnected, isConnecting, address, chain } = useAccount()
 
-    const [stakingData, setStakingData] = useState<StakeXContextDataType>(
-        ManageStakeXContextInitialData
-    )
+    const [stakingData, setStakingData] = useState<StakeXContextDataType>(ManageStakeXContextInitialData)
 
     const { protocolAddress, chainId } = useParams<{
         protocolAddress: Address
@@ -44,8 +41,7 @@ export const StakeX = () => {
 
     const DEFAULT_TABBER_INDEX = 0
 
-    const [activeTabIndex, setActiveTabIndex] =
-        useState<number>(DEFAULT_TABBER_INDEX)
+    const [activeTabIndex, setActiveTabIndex] = useState<number>(DEFAULT_TABBER_INDEX)
     const [isLoading, setIsLoading] = useState(true)
     const [isLoadingSettings, setIsLoadingSettings] = useState(true)
     const [isUnsupportedNetwork, setIsUnsupportedNetwork] = useState(true)
@@ -54,12 +50,9 @@ export const StakeX = () => {
     const [hasStakes, setHasStakes] = useState(false)
     const [headline, setHeadline] = useState<string>()
 
-    const [selectedPayoutToken, setSelectedPayoutToken] =
-        useState<TokenInfoResponse>()
-    const [selectedShowToken, setSelectedShowToken] =
-        useState<TokenInfoResponse>()
-    const [activeTargetTokens, setActiveTargetTokens] =
-        useState<TokenInfoResponse[]>()
+    const [selectedPayoutToken, setSelectedPayoutToken] = useState<TokenInfoResponse>()
+    const [selectedShowToken, setSelectedShowToken] = useState<TokenInfoResponse>()
+    const [activeTargetTokens, setActiveTargetTokens] = useState<TokenInfoResponse[]>()
 
     //
     // Memoized
@@ -87,8 +80,7 @@ export const StakeX = () => {
         const _networks = [{ name: 'Avalanche Mainnet', chainId: 43114 }]
         if (Boolean(process.env.NEXT_PUBLIC_ENABLE_TESTNETS))
             _networks.push({ name: 'Avalanche Testnet', chainId: 43113 })
-        if (Boolean(process.env.NEXT_PUBLIC_ENABLE_LOCALFORK))
-            _networks.push({ name: 'Localfork', chainId: 1337 })
+        if (Boolean(process.env.NEXT_PUBLIC_ENABLE_LOCALFORK)) _networks.push({ name: 'Localfork', chainId: 1337 })
         return _networks
     }, [])
 
@@ -97,31 +89,21 @@ export const StakeX = () => {
         isError: isErrorActive,
         error: errorActive,
     } = useActive(stakingData.protocol, stakingData.chain?.id!)
-    const { data: dataRunning } = useRunning(
-        stakingData.protocol,
-        stakingData.chain?.id!
-    )
+    const { data: dataRunning } = useRunning(stakingData.protocol, stakingData.chain?.id!)
     const { data: stakes, refetch: refetchStakes } = useGetStakes(
         stakingData.protocol,
         stakingData.chain?.id!,
         address!,
         true
     )
-    const { data: targetTokens } = useGetTargetTokens(
-        stakingData.protocol,
-        stakingData.chain?.id!
-    )
-    const { data: stableTokenInfo } = useGetStableToken(
-        stakingData.protocol,
-        stakingData.chain?.id!
-    )
-    const { data: stakingTokenInfo } = useGetStakingToken(
-        stakingData.protocol,
-        stakingData.chain?.id!
-    )
+    const { data: targetTokens } = useGetTargetTokens(stakingData.protocol, stakingData.chain?.id!)
+    const { data: stableTokenInfo } = useGetStableToken(stakingData.protocol, stakingData.chain?.id!)
+    const { data: stakingTokenInfo } = useGetStakingToken(stakingData.protocol, stakingData.chain?.id!)
 
-    const { response: responseCustomization, load: loadCustomization } =
-        useGetCustomization(stakingData.protocol)
+    const { response: responseCustomization, load: loadCustomization } = useGetCustomization(
+        stakingData.protocol,
+        stakingData.chain?.id!
+    )
 
     const onClickHandler = () => {
         setShowSettings(true)
@@ -133,18 +115,12 @@ export const StakeX = () => {
 
     const onSelectPayoutTokenHandler = (tokenInfo: TokenInfoResponse) => {
         setSelectedPayoutToken(tokenInfo)
-        localStorage.setItem(
-            `ptoken${stakingData.protocol}`,
-            JSON.stringify(tokenInfo.source)
-        )
+        localStorage.setItem(`ptoken${stakingData.protocol}`, JSON.stringify(tokenInfo.source))
     }
 
     const onSelectShowTokenHandler = (tokenInfo: TokenInfoResponse) => {
         setSelectedShowToken(tokenInfo)
-        localStorage.setItem(
-            `stoken${stakingData.protocol}`,
-            JSON.stringify(tokenInfo.source)
-        )
+        localStorage.setItem(`stoken${stakingData.protocol}`, JSON.stringify(tokenInfo.source))
     }
 
     const onDepositSuccessHandler = () => {
@@ -153,9 +129,7 @@ export const StakeX = () => {
     }
 
     useEffect(() => {
-        isErrorActive &&
-            (errorActive as any).name == 'ContractFunctionExecutionError' &&
-            setIsUnsupportedProtocol(true)
+        isErrorActive && (errorActive as any).name == 'ContractFunctionExecutionError' && setIsUnsupportedProtocol(true)
     }, [isErrorActive, errorActive])
 
     useEffect(() => {
@@ -178,45 +152,27 @@ export const StakeX = () => {
             let payoutTokenInfo =
                 targetTokens.find(
                     (token) =>
-                        token.source ==
-                            JSON.parse(
-                                localStorage.getItem(
-                                    `ptoken${stakingData.protocol}`
-                                ) || 'null'
-                            ) ||
+                        token.source == JSON.parse(localStorage.getItem(`ptoken${stakingData.protocol}`) || 'null') ||
                         token.source == stableTokenInfo?.source ||
                         token.source == stakingTokenInfo?.source
                 ) || targetTokens[0]
 
-            localStorage.setItem(
-                `ptoken${stakingData.protocol}`,
-                JSON.stringify(payoutTokenInfo.source)
-            )
+            localStorage.setItem(`ptoken${stakingData.protocol}`, JSON.stringify(payoutTokenInfo.source))
 
             let showTokenInfo =
                 targetTokens.find(
                     (token) =>
-                        token.source ==
-                            JSON.parse(
-                                localStorage.getItem(
-                                    `stoken${stakingData.protocol}`
-                                ) || 'null'
-                            ) ||
+                        token.source == JSON.parse(localStorage.getItem(`stoken${stakingData.protocol}`) || 'null') ||
                         token.source == stableTokenInfo?.source ||
                         token.source == stakingTokenInfo?.source
                 ) || targetTokens[0]
 
-            localStorage.setItem(
-                `stoken${stakingData.protocol}`,
-                JSON.stringify(showTokenInfo.source)
-            )
+            localStorage.setItem(`stoken${stakingData.protocol}`, JSON.stringify(showTokenInfo.source))
 
             setSelectedPayoutToken(payoutTokenInfo)
             setSelectedShowToken(showTokenInfo)
 
-            setActiveTargetTokens(
-                targetTokens.filter((token) => token.isTargetActive)
-            )
+            setActiveTargetTokens(targetTokens.filter((token) => token.isTargetActive))
 
             setIsLoadingSettings(false)
         }
@@ -233,13 +189,7 @@ export const StakeX = () => {
 
     useEffect(() => {
         setIsUnsupportedNetwork(
-            Boolean(
-                isConnected &&
-                    chain &&
-                    !availableNetworks.find(
-                        (_network) => _network.chainId === chain.id
-                    )
-            )
+            Boolean(isConnected && chain && !availableNetworks.find((_network) => _network.chainId === chain.id))
         )
     }, [chain, isConnected, availableNetworks])
 
@@ -266,53 +216,39 @@ export const StakeX = () => {
         >
             <div className="mb-5 flex w-full flex-col items-center gap-8">
                 <h1 className="flex w-full max-w-2xl flex-row gap-1 px-8 font-title text-3xl font-bold tracking-wide sm:px-0">
-                    {stakingTokenInfo &&
-                        stakingData.protocol &&
-                        responseCustomization && (
-                            <StakingProjectLogo
-                                projectName={
-                                    responseCustomization.data.projectName
-                                        ? responseCustomization.data.projectName
-                                        : `${stakingTokenInfo.symbol} staking`
-                                }
-                                source={
-                                    responseCustomization.data.logoUrl || ''
-                                }
-                            />
-                        )}
+                    {stakingTokenInfo && stakingData.protocol && responseCustomization && (
+                        <StakingProjectLogo
+                            projectName={responseCustomization.data.projectName || ''}
+                            // source={responseCustomization.data.logoUrl}
+                            source={null}
+                        />
+                    )}
                 </h1>
 
                 {isConnected ? (
                     isUnsupportedNetwork ? (
                         <Tile className="w-full max-w-2xl text-lg leading-10">
                             <div className="flex flex-col justify-center gap-4">
-                                <p>
-                                    The selected network is not supported just
-                                    yet.
-                                </p>
-                                {availableNetworks.map(
-                                    ({ chainId, name }, _index) => (
-                                        <Button
-                                            key={_index}
-                                            variant="primary"
-                                            disabled={isConnecting}
-                                            onClick={() => {
-                                                switchChain({ chainId })
-                                            }}
-                                        >
-                                            Switch to {name}
-                                        </Button>
-                                    )
-                                )}
+                                <p>The selected network is not supported just yet.</p>
+                                {availableNetworks.map(({ chainId, name }, _index) => (
+                                    <Button
+                                        key={_index}
+                                        variant="primary"
+                                        disabled={isConnecting}
+                                        onClick={() => {
+                                            switchChain({ chainId })
+                                        }}
+                                    >
+                                        Switch to {name}
+                                    </Button>
+                                ))}
                             </div>
                         </Tile>
                     ) : isUnsupportedProtocol ? (
                         <Tile className="w-full max-w-2xl">
                             <p className="text-center text-lg leading-8">
-                                Please check if you&apos;re connected to the
-                                corrected network <br /> <br />
-                                If you&apos;ve selected the correct network,
-                                then the given protocol address{' '}
+                                Please check if you&apos;re connected to the corrected network <br /> <br />
+                                If you&apos;ve selected the correct network, then the given protocol address{' '}
                                 <span className="block rounded-md bg-dapp-blue-800 p-1 font-mono">
                                     {stakingData.protocol}
                                 </span>{' '}
@@ -323,17 +259,11 @@ export const StakeX = () => {
                         </Tile>
                     ) : (
                         <>
-                            <StakingStatistics
-                                protocol={stakingData.protocol}
-                                chainId={stakingData.chain?.id!}
-                            />
+                            <StakingStatistics protocol={stakingData.protocol} chainId={stakingData.chain?.id!} />
                             <Tile className="w-full max-w-2xl text-lg leading-6">
                                 {isLoading ? (
                                     <div className="flex flex-col items-center gap-4">
-                                        <Spinner
-                                            className="!h-10 !w-10"
-                                            theme="dark"
-                                        />
+                                        <Spinner className="!h-10 !w-10" theme="dark" />
                                     </div>
                                 ) : (
                                     <>
@@ -341,46 +271,29 @@ export const StakeX = () => {
                                             <span>{headline}</span>
                                             {activeTabIndex == 1 && (
                                                 <span className="flex flex-grow flex-row justify-end">
-                                                    <button
-                                                        type="button"
-                                                        onClick={onClickHandler}
-                                                    >
+                                                    <button type="button" onClick={onClickHandler}>
                                                         <FaGear className="h-5 w-5" />
                                                     </button>
                                                 </span>
                                             )}
                                         </h1>
-                                        <StakingTabber
-                                            tabs={tabs}
-                                            setActiveTab={setActiveTabIndex}
-                                        />
+                                        <StakingTabber tabs={tabs} setActiveTab={setActiveTabIndex} />
                                         <div className="mt-8">
-                                            {stakingTokenInfo &&
-                                                activeTabIndex == 0 && (
-                                                    <StakingForm
-                                                        onDepositSuccessHandler={
-                                                            onDepositSuccessHandler
-                                                        }
-                                                        stakingTokenInfo={
-                                                            stakingTokenInfo
-                                                        }
-                                                    />
-                                                )}
+                                            {stakingTokenInfo && activeTabIndex == 0 && (
+                                                <StakingForm
+                                                    onDepositSuccessHandler={onDepositSuccessHandler}
+                                                    stakingTokenInfo={stakingTokenInfo}
+                                                />
+                                            )}
                                             {stakingTokenInfo &&
                                                 selectedPayoutToken &&
                                                 selectedShowToken &&
                                                 stakes &&
                                                 activeTabIndex == 1 && (
                                                     <StakingDetails
-                                                        stakingTokenInfo={
-                                                            stakingTokenInfo
-                                                        }
-                                                        defaultPayoutToken={
-                                                            selectedPayoutToken
-                                                        }
-                                                        defaultShowToken={
-                                                            selectedShowToken
-                                                        }
+                                                        stakingTokenInfo={stakingTokenInfo}
+                                                        defaultPayoutToken={selectedPayoutToken}
+                                                        defaultShowToken={selectedShowToken}
                                                         stakes={stakes}
                                                     />
                                                 )}
@@ -388,17 +301,10 @@ export const StakeX = () => {
                                     </>
                                 )}
                             </Tile>
-                            <BaseOverlay
-                                isOpen={showSettings}
-                                closeOnBackdropClick={true}
-                                onClose={onCloseHandler}
-                            >
+                            <BaseOverlay isOpen={showSettings} closeOnBackdropClick={true} onClose={onCloseHandler}>
                                 {isLoadingSettings ? (
                                     <div className="item-center flex flex-row justify-center">
-                                        <Spinner
-                                            theme="dark"
-                                            className="m-20 !h-24 !w-24"
-                                        />
+                                        <Spinner theme="dark" className="m-20 !h-24 !w-24" />
                                     </div>
                                 ) : (
                                     <div className="flex flex-col gap-4 text-base">
@@ -418,34 +324,24 @@ export const StakeX = () => {
                                             </div>
                                         </h3>
 
-                                        {activeTargetTokens &&
-                                            selectedShowToken && (
-                                                <StakingPayoutTokenSelection
-                                                    headline="View Token"
-                                                    description="Choose an asset which will be used in the UI to show your estimated rewards"
-                                                    tokens={activeTargetTokens}
-                                                    selectedToken={
-                                                        selectedShowToken
-                                                    }
-                                                    onSelect={
-                                                        onSelectShowTokenHandler
-                                                    }
-                                                />
-                                            )}
+                                        {activeTargetTokens && selectedShowToken && (
+                                            <StakingPayoutTokenSelection
+                                                headline="View Token"
+                                                description="Choose an asset which will be used in the UI to show your estimated rewards"
+                                                tokens={activeTargetTokens}
+                                                selectedToken={selectedShowToken}
+                                                onSelect={onSelectShowTokenHandler}
+                                            />
+                                        )}
 
-                                        {activeTargetTokens &&
-                                            selectedPayoutToken && (
-                                                <StakingPayoutTokenSelection
-                                                    description="Choose an asset which will be the pre-selected payout token for claiming. You can change this asset during the claiming process"
-                                                    tokens={activeTargetTokens}
-                                                    selectedToken={
-                                                        selectedPayoutToken
-                                                    }
-                                                    onSelect={
-                                                        onSelectPayoutTokenHandler
-                                                    }
-                                                />
-                                            )}
+                                        {activeTargetTokens && selectedPayoutToken && (
+                                            <StakingPayoutTokenSelection
+                                                description="Choose an asset which will be the pre-selected payout token for claiming. You can change this asset during the claiming process"
+                                                tokens={activeTargetTokens}
+                                                selectedToken={selectedPayoutToken}
+                                                onSelect={onSelectPayoutTokenHandler}
+                                            />
+                                        )}
                                     </div>
                                 )}
                             </BaseOverlay>
@@ -456,12 +352,9 @@ export const StakeX = () => {
                         {({ isConnecting, show }) => {
                             return (
                                 <Tile className="w-full max-w-2xl text-lg leading-10">
-                                    <h2 className="mb-4 text-2xl font-bold">
-                                        Welcome to STAKEX Staking Protocol
-                                    </h2>
+                                    <h2 className="mb-4 text-2xl font-bold">Welcome to STAKEX Staking Protocol</h2>
                                     <p>
-                                        You&apos;ll find more information about
-                                        STAKEX in our{' '}
+                                        You&apos;ll find more information about STAKEX in our{' '}
                                         <a
                                             href="https://docs.dgnx.finance/degenx-ecosystem/Products/stakex/introduction"
                                             title="Link to documentation section of STAKEX protocol"
@@ -474,15 +367,9 @@ export const StakeX = () => {
                                         section.
                                     </p>
                                     <p className="pb-4">
-                                        In order to stake{' '}
-                                        {stakingTokenInfo?.symbol}, you need to
-                                        connect your wallet.
+                                        In order to stake {stakingTokenInfo?.symbol}, you need to connect your wallet.
                                     </p>
-                                    <Button
-                                        variant="primary"
-                                        disabled={isConnecting}
-                                        onClick={show}
-                                    >
+                                    <Button variant="primary" disabled={isConnecting} onClick={show}>
                                         Connect your wallet
                                     </Button>
                                 </Tile>
