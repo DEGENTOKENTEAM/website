@@ -65,14 +65,28 @@ export const handler = async (
         const chain = getChainById(chainId)
 
         if (!chain)
-            return createReturn(403, JSON.stringify('chain not supported'))
+            return createReturn(
+                403,
+                JSON.stringify({ message: 'chain not supported' })
+            )
 
         const client = createPublicClient({ chain, transport: http() })
-        const stakingTokenData = (await client.readContract({
-            abi,
-            address: protocol as Address,
-            functionName: 'getStakingToken',
-        })) as TokenInfoResponse
+
+        let stakingTokenData: TokenInfoResponse | null = null
+
+        try {
+            stakingTokenData = (await client.readContract({
+                abi,
+                address: protocol as Address,
+                functionName: 'getStakingToken',
+            })) as TokenInfoResponse
+        } catch (e) {}
+
+        if (!stakingTokenData)
+            return createReturn(
+                404,
+                JSON.stringify({ message: 'protocol not available' })
+            )
 
         if (!response.data.projectName)
             response.data.projectName = `${stakingTokenData.symbol} staking`
