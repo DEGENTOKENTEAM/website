@@ -2,24 +2,36 @@ import clsx from 'clsx'
 import { getChainById } from 'shared/supportedChains'
 import { useSwitchChain } from 'wagmi'
 import { Tile } from './Tile'
+import { Chain } from 'viem'
+import { useEffect, useState } from 'react'
 
-export const WrongChainHint = ({
-    chainIdProtocol,
-    chainIdAccount,
-}: {
-    chainIdProtocol: number
-    chainIdAccount: number
-}) => {
+type WrongChainHintProps = {
+    chainIdProtocol?: number
+    chainIdAccount?: number
+    className?: string
+}
+
+export const WrongChainHint = ({ chainIdProtocol, chainIdAccount, className }: WrongChainHintProps) => {
     const { switchChain } = useSwitchChain()
-    const chainProtocol = getChainById(chainIdProtocol)
-    const chainAccount = getChainById(chainIdAccount)
+    const [chainProtocol, setChainProtocol] = useState<Chain>()
+    const [chainAccount, setChainAccount] = useState<Chain>()
+    useEffect(() => {
+        chainIdProtocol && setChainProtocol(getChainById(chainIdProtocol))
+    }, [chainIdProtocol])
+
+    useEffect(() => {
+        chainIdAccount && setChainAccount(getChainById(chainIdAccount))
+    }, [chainIdAccount])
+
+    if (!chainProtocol || !chainProtocol) return <></>
+
     return (
-        <Tile className="flex flex-col items-center gap-8 md:flex-row">
+        <Tile className={clsx([`flex flex-col items-center gap-8 md:flex-row`, className])}>
             <p className="flex-grow-1 w-full">
                 {chainAccount && (
                     <>
-                        You&apos;re connected to the wrong network:{' '}
-                        {chainAccount.name}
+                        You&apos;re connected to the <span className="font-bold">{chainAccount.name}</span>, but you
+                        need to be connected to <span className="font-bold">{chainProtocol.name}</span>
                     </>
                 )}
             </p>

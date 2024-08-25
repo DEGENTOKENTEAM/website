@@ -16,7 +16,7 @@ import { FaGear } from 'react-icons/fa6'
 import { MdClose } from 'react-icons/md'
 import { useParams } from 'react-router-dom'
 import { getChainById } from 'shared/supportedChains'
-import { Address } from 'viem'
+import { Address, Chain } from 'viem'
 import { useAccount, useSwitchChain } from 'wagmi'
 import { Button } from '../Button'
 import { Spinner } from './elements/Spinner'
@@ -27,10 +27,12 @@ import { StakingPayoutTokenSelection } from './staking/StakingPayoutTokenSelecti
 import { StakingProjectLogo } from './staking/StakingProjectLogo'
 import { StakingStatistics } from './staking/StakingSatistics'
 import { StakingTabber, StakingTabberItem } from './staking/StakingTabber'
+import { WrongChainHint } from '@dappshared/WrongChainHint'
 
+// TODO disable action when wallet is connected to wrong chain
 export const StakeX = () => {
     const { switchChain } = useSwitchChain()
-    const { isConnected, isDisconnected, isConnecting, address, chain } = useAccount()
+    const { isConnected, isDisconnected, isConnecting, address, chain: chainAccount } = useAccount()
 
     const [stakingData, setStakingData] = useState<StakeXContextDataType>(ManageStakeXContextInitialData)
 
@@ -49,6 +51,7 @@ export const StakeX = () => {
     const [showSettings, setShowSettings] = useState(false)
     const [hasStakes, setHasStakes] = useState(false)
     const [headline, setHeadline] = useState<string>()
+    const [chain, setChain] = useState<Chain>()
 
     const [selectedPayoutToken, setSelectedPayoutToken] = useState<TokenInfoResponse>()
     const [selectedShowToken, setSelectedShowToken] = useState<TokenInfoResponse>()
@@ -206,6 +209,10 @@ export const StakeX = () => {
         stakingData && stakingData.protocol && loadCustomization()
     }, [stakingData])
 
+    useEffect(() => {
+        chainId && setChain(getChainById(Number(chainId)))
+    }, [chainId])
+
     return (
         <StakeXContext.Provider
             value={{
@@ -246,18 +253,25 @@ export const StakeX = () => {
                     ) : isUnsupportedProtocol ? (
                         <Tile className="w-full max-w-2xl">
                             <p className="text-center text-lg leading-8">
-                                Please check if you&apos;re connected to the corrected network <br /> <br />
-                                If you&apos;ve selected the correct network, then the given protocol address{' '}
+                                The protocol with the given address{' '}
                                 <span className="block rounded-md bg-dapp-blue-800 p-1 font-mono">
                                     {stakingData.protocol}
                                 </span>{' '}
-                                is not supported on it <br />
+                                does not exist on this network
+                                <br />
                                 <br />
                                 Please check your source of information
                             </p>
                         </Tile>
                     ) : (
                         <>
+                            {chainAccount && stakingData && stakingData.chain && (
+                                <WrongChainHint
+                                    chainIdAccount={chainAccount?.id}
+                                    chainIdProtocol={stakingData.chain?.id}
+                                    className="max-w-2xl"
+                                />
+                            )}
                             <StakingStatistics protocol={stakingData.protocol} chainId={stakingData.chain?.id!} />
                             <Tile className="w-full max-w-2xl text-lg leading-6">
                                 {isLoading ? (

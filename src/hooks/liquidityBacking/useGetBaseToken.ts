@@ -2,10 +2,11 @@ import abi from '@dappabis/controller.json'
 import { Address } from 'viem'
 import { useReadContract } from 'wagmi'
 
-export const useGetBaseToken = () =>
+export const useGetBaseToken = (chainId: number) =>
     useReadContract({
         abi,
         address: process.env.NEXT_PUBLIC_CONTROLLER_ADDRESS! as Address,
+        chainId,
         functionName: 'baseToken',
         query: {
             select: (data: Address) => data,

@@ -5,10 +5,8 @@ import {
 import { getTokenData } from '@dapphelpers/token'
 import { useCallback, useEffect, useState } from 'react'
 import { Address } from 'viem'
-import { useConfig } from 'wagmi'
 
-export const useGetStats = () => {
-    const config = useConfig()
+export const useGetStats = (chainId: number) => {
     const [vaultData, setVaultData] = useState<
         {
             tokenAddress: Address
@@ -37,7 +35,7 @@ export const useGetStats = () => {
             bigint,
             bigint,
             bigint
-        ] = (await readControllerContract(config, {
+        ] = (await readControllerContract(chainId, {
             functionName: 'counts',
         })) as any
 
@@ -46,13 +44,13 @@ export const useGetStats = () => {
                 await Promise.all(
                     Array.from(Array(countVaults).keys()).map(async (index) => {
                         const vaultAddress: Address =
-                            (await readControllerContract(config, {
+                            (await readControllerContract(chainId, {
                                 functionName: 'allVaults',
                                 args: [index],
                             })) as Address
 
                         const amountOfTokensInVault: bigint =
-                            (await readVaultContract(config, {
+                            (await readVaultContract(chainId, {
                                 address: vaultAddress,
                                 functionName: 'countAssets',
                             })) as bigint
@@ -64,14 +62,14 @@ export const useGetStats = () => {
                         return await Promise.all(
                             tokensIndices.map(async (index) => {
                                 const tokenAddress: Address =
-                                    (await readVaultContract(config, {
+                                    (await readVaultContract(chainId, {
                                         address: vaultAddress,
                                         functionName: 'allAssets',
                                         args: [index],
                                     })) as Address
 
                                 const balance: bigint =
-                                    (await readVaultContract(config, {
+                                    (await readVaultContract(chainId, {
                                         address: vaultAddress,
                                         functionName: 'balanceOf',
                                         args: [tokenAddress],
@@ -93,7 +91,7 @@ export const useGetStats = () => {
             const dataIncNames = await Promise.all(
                 Object.entries(data).map(async (tokenInfo) => {
                     const [name, symbol, decimals] = await getTokenData(
-                        config,
+                        chainId,
                         tokenInfo[0] as Address
                     )
 
@@ -116,19 +114,22 @@ export const useGetStats = () => {
                     Array.from(Array(Number(countWantTokens)).keys()).map(
                         async (index) => {
                             const address = (await readControllerContract(
-                                config,
+                                chainId,
                                 { functionName: 'allWantTokens', args: [index] }
                             )) as Address
 
-                            const info = (await readControllerContract(config, {
-                                functionName: 'wantTokens',
-                                args: [address],
-                            })) as [string, boolean, boolean]
+                            const info = (await readControllerContract(
+                                chainId,
+                                {
+                                    functionName: 'wantTokens',
+                                    args: [address],
+                                }
+                            )) as [string, boolean, boolean]
 
                             const [name, enabled, isWantToken] = info
 
                             const [_, __, decimals] = await getTokenData(
-                                config,
+                                chainId,
                                 address
                             )
 
@@ -146,7 +147,7 @@ export const useGetStats = () => {
         }
 
         setIsLoading(false)
-    }, [config])
+    }, [chainId])
 
     useEffect(() => {
         if (!Boolean(loadData)) return

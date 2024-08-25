@@ -3,11 +3,11 @@ import { toReadableNumber } from '@dapphelpers/number'
 import { useDisburserClaim } from '@dapphooks/disburser/useDisburserClaim'
 import { useEffect } from 'react'
 import { RouteObject } from 'react-router-dom'
+import { ToastContainer, toast } from 'react-toastify'
 import { useCountdownTimer } from 'use-countdown-timer'
 import { useAccount, useReadContract } from 'wagmi'
 import { Button } from '../../Button'
 import { Spinner } from './Spinner'
-import { ToastContainer, toast } from 'react-toastify'
 
 const DISBURSER_ADDRESS = '0x8a0E3264Da08bf999AfF5a50AabF5d2dc89fab79'
 
@@ -41,8 +41,7 @@ const Countdown = (props: { seconds: number }) => {
 }
 
 const ClaimButton = (props: { amount: string | number }) => {
-    const { write, isLoading, isSuccess, isError, error } =
-        useDisburserClaim(DISBURSER_ADDRESS)
+    const { write, isLoading, isSuccess, isError, error } = useDisburserClaim(DISBURSER_ADDRESS)
 
     useEffect(() => {
         if (isError) toast.error((error as any).shortMessage)
@@ -50,9 +49,7 @@ const ClaimButton = (props: { amount: string | number }) => {
 
     return (
         <Button
-            className={`mt-3 w-full ${
-                isLoading || isSuccess ? 'orangeDisabled' : ''
-            }`}
+            className={`mt-3 w-full ${isLoading || isSuccess ? 'orangeDisabled' : ''}`}
             color="orange"
             disabled={isLoading}
             onClick={() => {
@@ -67,10 +64,11 @@ const ClaimButton = (props: { amount: string | number }) => {
 }
 
 const Dapp = () => {
-    const { address } = useAccount()
+    const { address, chain } = useAccount()
 
     const { data: amountLeft, isLoading: amountLeftLoading } = useReadContract({
         address: DISBURSER_ADDRESS,
+        chainId: chain?.id,
         abi,
         functionName: 'amountLeft',
         args: [address],
@@ -78,6 +76,7 @@ const Dapp = () => {
 
     const { data: paidOut, isLoading: paidOutLoading } = useReadContract({
         address: DISBURSER_ADDRESS,
+        chainId: chain?.id,
         abi,
         functionName: 'paidOutAmounts',
         args: [address],
@@ -85,6 +84,7 @@ const Dapp = () => {
 
     const { data: timeUntilNextClaim } = useReadContract({
         address: DISBURSER_ADDRESS,
+        chainId: chain?.id,
         abi,
         functionName: 'timeLeftUntilNextClaim',
         args: [address],
@@ -93,32 +93,28 @@ const Dapp = () => {
         },
     })
 
-    const { data: claimEstimate, isLoading: claimEstimateLoading } =
-        useReadContract({
-            address: DISBURSER_ADDRESS,
-            abi,
-            functionName: 'claimEstimate',
-            account: address,
-            query: {
-                select: (data: [bigint, bigint, bigint, boolean]) => ({
-                    claimable: data[0],
-                    missedPayouts: data[1],
-                    currentBalance: data[2],
-                    lastClaim: data[3],
-                }),
-            },
-        })
+    const { data: claimEstimate, isLoading: claimEstimateLoading } = useReadContract({
+        address: DISBURSER_ADDRESS,
+        chainId: chain?.id,
+        abi,
+        functionName: 'claimEstimate',
+        account: address,
+        query: {
+            select: (data: [bigint, bigint, bigint, boolean]) => ({
+                claimable: data[0],
+                missedPayouts: data[1],
+                currentBalance: data[2],
+                lastClaim: data[3],
+            }),
+        },
+    })
 
-    const claimableAmount = claimEstimateLoading
-        ? 0
-        : `${toReadableNumber(claimEstimate?.claimable, 18)}`
+    const claimableAmount = claimEstimateLoading ? 0 : `${toReadableNumber(claimEstimate?.claimable, 18)}`
 
     const amountLeftStr = amountLeftLoading
         ? '...'
         : `${(parseInt(amountLeft as string) / Math.pow(10, 18)).toFixed(4)}`
-    const amountClaimedStr = paidOutLoading
-        ? '...'
-        : `${(parseInt(paidOut as string) / Math.pow(10, 18)).toFixed(4)}`
+    const amountClaimedStr = paidOutLoading ? '...' : `${(parseInt(paidOut as string) / Math.pow(10, 18)).toFixed(4)}`
 
     return (
         <>
@@ -146,19 +142,18 @@ const Dapp = () => {
 }
 
 export const DisburserApp = (props: RouteObject) => {
-    const { address, isConnected } = useAccount()
+    const { address, isConnected, chain } = useAccount()
     const { data: hasAmountLeft, isLoading } = useReadContract({
         address: DISBURSER_ADDRESS,
         abi,
+        chainId: chain?.id,
         functionName: 'hasAmountLeft',
         args: [address],
     })
 
     return (
         <>
-            {!isConnected && (
-                <div className="font-bold">Please connect wallet</div>
-            )}
+            {!isConnected && <div className="font-bold">Please connect wallet</div>}
             {isLoading && (
                 <div className="flex w-full items-center justify-center">
                     <Spinner />
@@ -167,10 +162,8 @@ export const DisburserApp = (props: RouteObject) => {
             {hasAmountLeft && <Dapp />}
             {isConnected && !isLoading && !hasAmountLeft && (
                 <div>
-                    Unfortunately you don&apos;t have a claim on the legacy
-                    disburser (anymore). <br />
-                    If this is not the case, you may want to check if
-                    you&apos;re connected with the desired wallet.
+                    Unfortunately you don&apos;t have a claim on the legacy disburser (anymore). <br />
+                    If this is not the case, you may want to check if you&apos;re connected with the desired wallet.
                 </div>
             )}
             <ToastContainer />

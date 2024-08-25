@@ -25,8 +25,7 @@ TimeAgo.addDefaultLocale(en)
 const config = createConfig(
     getDefaultConfig({
         chains: chains as any,
-        walletConnectProjectId:
-            process.env.NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID!,
+        walletConnectProjectId: process.env.NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID!,
         // infuraId: process.env.NEXT_PUBLIC_INFURA_ID!,
         appName: 'DEGENX Ecosystem DAPP',
     })
@@ -79,38 +78,16 @@ export default function Dapp() {
                                 </div>
                                 <main className="mx-auto w-full sm:w-11/12 lg:w-8/12">
                                     <Routes>
-                                        <Route
-                                            element={<Dashboard />}
-                                            path="/dapp"
-                                        />
-                                        <Route
-                                            element={<LiquidityBacking />}
-                                            path="/dapp/liquidity-backing"
-                                        />
-                                        <Route
-                                            element={<Disburser />}
-                                            path="/dapp/disburser"
-                                        />
-                                        <Route
-                                            element={<ATM />}
-                                            path="/dapp/atm"
-                                        />
-                                        <Route
-                                            element={<Bouncer />}
-                                            path="/dapp/bouncer/:hash"
-                                        />
+                                        <Route element={<Dashboard />} path="/dapp" />
+                                        <Route element={<LiquidityBacking />} path="/dapp/liquidity-backing" />
+                                        <Route element={<Disburser />} path="/dapp/disburser" />
+                                        <Route element={<ATM />} path="/dapp/atm" />
+                                        <Route element={<Bouncer />} path="/dapp/bouncer/:hash" />
                                         <Route
                                             element={<StakeX />}
                                             path="/dapp/staking/:chainId/:protocolAddress"
                                         />{' '}
-                                        <Route
-                                            element={<DeFiTools />}
-                                            path="/dapp/defitools/*"
-                                        />
-                                        {/* <Route
-                                    element={<Products />}
-                                    path="/dapp/products"
-                                ></Route> */}
+                                        <Route element={<DeFiTools />} path="/dapp/defitools/*" />
                                     </Routes>
                                 </main>
                             </div>

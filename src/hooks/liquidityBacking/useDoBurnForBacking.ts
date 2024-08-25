@@ -6,10 +6,12 @@ import { useSimulateContract, useWriteContract } from 'wagmi'
 export const useDoBurnForBacking = (
     amountToBurn: bigint,
     wantTokenAddress: Address,
-    wantTokenAmountExpected: bigint
+    wantTokenAmountExpected: bigint,
+    chainId: number
 ) => {
     const { data, isError, error } = useSimulateContract({
         address: process.env.NEXT_PUBLIC_CONTROLLER_ADDRESS! as Address,
+        chainId,
         abi,
         functionName: 'payout',
         args: [wantTokenAddress, amountToBurn, wantTokenAmountExpected],
