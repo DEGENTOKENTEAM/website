@@ -54,7 +54,7 @@ const ConnectedButton = () => {
                 <div className="mr-2 flex items-center border-r border-dapp-blue-800 py-1 pr-2">
                     {chain && (
                         <TokenImage
-                            src={`/chains/${chain.id.toString()}.svg`}
+                            src={chain.id == 56 ? `/chains/${chain.id}.png` : `/chains/${chain.id}.svg`}
                             symbol={chain.nativeCurrency.symbol}
                             size={16}
                         />
@@ -96,11 +96,7 @@ export function DappHeader() {
                                             'flex items-center gap-1 rounded-lg bg-light-100 px-3 py-2 font-bold text-light-800 transition-colors hover:bg-degenOrange  dark:bg-dapp-blue-400 dark:text-dapp-cyan-50 dark:hover:bg-dapp-blue-200'
                                         )}
                                     >
-                                        {isConnected ? (
-                                            <ConnectedButton />
-                                        ) : (
-                                            'Connect Wallet'
-                                        )}
+                                        {isConnected ? <ConnectedButton /> : 'Connect Wallet'}
                                     </button>
                                 )
                             }}

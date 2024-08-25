@@ -7,6 +7,11 @@ import {
     goerli,
     localhost,
     mainnet as mainnetOriginal,
+    polygon as polygonOriginal,
+    arbitrum as arbitrumOriginal,
+    bsc as bscOriginal,
+    base as baseOriginal,
+    optimism as optimismOriginal,
 } from 'viem/chains'
 
 const avalanche = defineChain({
@@ -50,9 +55,71 @@ const mainnet = defineChain({
     },
 })
 
+const polygon = defineChain({
+    ...polygonOriginal,
+    rpcUrls: {
+        ...polygonOriginal.rpcUrls,
+        default: {
+            ...polygonOriginal.rpcUrls.default,
+            http: [
+                `https://polygon-mainnet.infura.io/v3/${
+                    process.env.NEXT_PUBLIC_INFURA_ID || process.env.INFURA_ID
+                }`,
+            ],
+        },
+    },
+})
+const bsc = defineChain({
+    ...bscOriginal,
+    rpcUrls: {
+        ...bscOriginal.rpcUrls,
+        default: {
+            ...bscOriginal.rpcUrls.default,
+            http: [
+                `https://bsc-mainnet.infura.io/v3/${
+                    process.env.NEXT_PUBLIC_INFURA_ID || process.env.INFURA_ID
+                }`,
+            ],
+        },
+    },
+})
+const arbitrum = defineChain({
+    ...arbitrumOriginal,
+    rpcUrls: {
+        ...arbitrumOriginal.rpcUrls,
+        default: {
+            ...arbitrumOriginal.rpcUrls.default,
+            http: [
+                `https://arbitrum-mainnet.infura.io/v3/${
+                    process.env.NEXT_PUBLIC_INFURA_ID || process.env.INFURA_ID
+                }`,
+            ],
+        },
+    },
+})
+const optimism = defineChain({
+    ...optimismOriginal,
+    rpcUrls: {
+        ...optimismOriginal.rpcUrls,
+        default: {
+            ...optimismOriginal.rpcUrls.default,
+            http: [
+                `https://optimism-mainnet.infura.io/v3/${
+                    process.env.NEXT_PUBLIC_INFURA_ID || process.env.INFURA_ID
+                }`,
+            ],
+        },
+    },
+})
+
 export const chains: Chain[] = [
     avalanche,
     mainnet,
+    bsc,
+    polygon,
+    arbitrum,
+    baseOriginal,
+    optimism,
     process.env.NODE_ENV != 'production' ? localhost : null,
     ...(Boolean(process.env.NEXT_PUBLIC_ENABLE_TESTNETS)
         ? [avalancheFuji, goerli]

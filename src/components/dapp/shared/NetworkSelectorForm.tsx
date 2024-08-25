@@ -11,25 +11,15 @@ type NetworkSelectorFormProps = {
     selectedChain: Chain
     onChange: (chain: Chain) => void
 }
-export const NetworkSelectorForm = ({
-    chains,
-    selectedChain,
-    onChange,
-}: NetworkSelectorFormProps) => {
+export const NetworkSelectorForm = ({ chains, selectedChain, onChange }: NetworkSelectorFormProps) => {
     let [selected, setSelected] = useState<number>(selectedChain.id)
 
     useEffect(() => {
-        chains &&
-            isNumber(selected) &&
-            onChange(chains.find((chain) => chain.id == selected)!)
+        chains && isNumber(selected) && onChange(chains.find((chain) => chain.id == selected)!)
     }, [chains, selected])
 
     return (
-        <RadioGroup
-            value={selected}
-            onChange={setSelected}
-            className="grid grid-cols-2 gap-4"
-        >
+        <RadioGroup value={selected} onChange={setSelected} className="grid grid-cols-1 gap-4 md:grid-cols-2">
             {chains.map((chain, i) => (
                 <Field key={i} className="flex w-full items-center ">
                     <Radio
@@ -39,17 +29,15 @@ export const NetworkSelectorForm = ({
                         <div className="flex w-full flex-row items-center justify-between gap-4">
                             <span className="rounded-full bg-dapp-blue-50 p-1">
                                 <Image
-                                    src={`/chains/${chain.id}.svg`}
+                                    src={chain.id == 56 ? `/chains/${chain.id}.png` : `/chains/${chain.id}.svg`}
                                     alt={`${chain.name} Logo`}
                                     width={40}
                                     height={40}
                                 />
                             </span>
-                            <p className="flex-1 font-semibold text-white">
-                                {chain.name}
-                            </p>
+                            <p className="flex-1 font-semibold text-white">{chain.name}</p>
                             <FaCircleCheck className="hidden h-6 w-6 fill-white transition group-data-[checked]:block" />
-                            <FaRegCircle className="block h-6 w-6 opacity-30 fill-white transition group-data-[checked]:hidden" />
+                            <FaRegCircle className="block h-6 w-6 fill-white opacity-30 transition group-data-[checked]:hidden" />
                         </div>
                     </Radio>
                 </Field>
