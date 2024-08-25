@@ -56,31 +56,15 @@ const navigation = [
     {
         name: 'DeFi Tools',
         icon: FaTools,
-        href: 'defitools',
+        href: 'defitools/',
         count: undefined,
         children: [
             {
                 name: 'STAKEX',
                 icon: PiCoins,
-                href: 'defitools/stakex',
+                href: 'defitools/stakex/',
                 count: undefined,
                 children: [],
-                // children: [
-                //     {
-                //         name: 'Create',
-                //         icon: MdLockClock,
-                //         href: 'defitools/stakex/create',
-                //         count: undefined,
-                //         children: null,
-                //     },
-                //     {
-                //         name: 'Manage',
-                //         icon: MdLockClock,
-                //         href: 'defitools/stakex/manage',
-                //         count: undefined,
-                //         children: null,
-                //     },
-                // ],
             },
         ],
     },
@@ -88,12 +72,7 @@ const navigation = [
 
 function MobileNavLink({ href, children, ...props }) {
     return (
-        <Popover.Button
-            as={Link}
-            to={href}
-            className="block w-full p-2"
-            {...props}
-        >
+        <Popover.Button as={Link} to={href} className="block w-full p-2" {...props}>
             {children}
         </Popover.Button>
     )
@@ -110,17 +89,11 @@ function MobileNavIcon({ open }) {
         >
             <path
                 d="M0 1H14M0 7H14M0 13H14"
-                className={clsx(
-                    'origin-center transition',
-                    open && 'scale-90 opacity-0'
-                )}
+                className={clsx('origin-center transition', open && 'scale-90 opacity-0')}
             />
             <path
                 d="M2 2L12 12M12 2L2 12"
-                className={clsx(
-                    'origin-center transition',
-                    !open && 'scale-90 opacity-0'
-                )}
+                className={clsx('origin-center transition', !open && 'scale-90 opacity-0')}
             />
         </svg>
     )
@@ -165,16 +138,8 @@ function MobileSidebar() {
                             .map((item) => (
                                 <Fragment key={item.name}>
                                     <MobileNavLink
-                                        target={
-                                            item.href?.startsWith('http')
-                                                ? '_blank'
-                                                : '_self'
-                                        }
-                                        href={
-                                            item.href?.startsWith('http')
-                                                ? item.href
-                                                : `/dapp/${item.href}`
-                                        }
+                                        target={item.href?.startsWith('http') ? '_blank' : '_self'}
+                                        href={item.href?.startsWith('http') ? item.href : `/dapp/${item.href}`}
                                     >
                                         {item.name}
                                     </MobileNavLink>
@@ -182,24 +147,10 @@ function MobileSidebar() {
                                         item.children.map((item) => (
                                             <MobileNavLink
                                                 key={item.name}
-                                                target={
-                                                    item.href?.startsWith(
-                                                        'http'
-                                                    )
-                                                        ? '_blank'
-                                                        : '_self'
-                                                }
-                                                href={
-                                                    item.href?.startsWith(
-                                                        'http'
-                                                    )
-                                                        ? item.href
-                                                        : `/dapp/${item.href}`
-                                                }
+                                                target={item.href?.startsWith('http') ? '_blank' : '_self'}
+                                                href={item.href?.startsWith('http') ? item.href : `/dapp/${item.href}`}
                                             >
-                                                <span className="pl-4">
-                                                    - {item.name}
-                                                </span>
+                                                <span className="pl-4">- {item.name}</span>
                                             </MobileNavLink>
                                         ))}
                                 </Fragment>
@@ -260,47 +211,28 @@ export default function Sidebar(props: { mobile?: boolean }) {
     return (
         <div className="flex flex-grow flex-col overflow-y-auto ">
             <div className="flex flex-grow flex-col">
-                <nav
-                    className="fixed flex w-64 flex-col gap-2 space-y-1 px-2"
-                    aria-label="Sidebar"
-                >
+                <nav className="fixed flex w-64 flex-col gap-2 space-y-1 px-2" aria-label="Sidebar">
                     {navigation.map((item, i) => {
                         return (
                             <Fragment key={i}>
-                                <SidebarItem
-                                    item={item}
-                                    current={isCurrent(item)}
-                                />
+                                <SidebarItem item={item} current={isCurrent(item)} />
                                 {isCurrent(item) && item.children && (
                                     <div className="flex flex-col gap-2  space-y-1 border-l-2 border-l-dapp-blue-400 pl-4">
                                         {item.children.map((child, j) => (
                                             <Fragment key={j}>
-                                                <SidebarItem
-                                                    item={child}
-                                                    current={isCurrent(child)}
-                                                />
+                                                <SidebarItem item={child} current={isCurrent(child)} />
                                                 {isCurrent(child) &&
                                                     child.children &&
                                                     isArray(child.children) &&
-                                                    child.children.length >
-                                                        0 && (
+                                                    child.children.length > 0 && (
                                                         <div className="flex flex-col gap-2  space-y-1 border-l-2 border-l-dapp-blue-400 pl-4">
-                                                            {child.children.map(
-                                                                (
-                                                                    grandchild,
-                                                                    k
-                                                                ) => (
-                                                                    <SidebarItem
-                                                                        key={k}
-                                                                        item={
-                                                                            grandchild
-                                                                        }
-                                                                        current={isCurrent(
-                                                                            grandchild
-                                                                        )}
-                                                                    />
-                                                                )
-                                                            )}
+                                                            {child.children.map((grandchild, k) => (
+                                                                <SidebarItem
+                                                                    key={k}
+                                                                    item={grandchild}
+                                                                    current={isCurrent(grandchild)}
+                                                                />
+                                                            ))}
                                                         </div>
                                                     )}
                                             </Fragment>

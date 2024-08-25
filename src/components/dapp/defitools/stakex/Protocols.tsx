@@ -119,15 +119,28 @@ export const Protocols = () => {
                                     {getChainById(protocol.chainId).name} (ID: {protocol.chainId})
                                 </div>
                             </div>
-                            <Button
-                                className=""
-                                onClick={() => {
-                                    navigate(`manage/${protocol.chainId}/${protocol.source}`, { relative: 'route' })
-                                }}
-                                variant="primary"
-                            >
-                                Details
-                            </Button>
+                            <div className="flex h-16 w-full flex-row gap-8 sm:h-auto">
+                                <Button
+                                    className="w-full"
+                                    onClick={() => {
+                                        navigate(`manage/${protocol.chainId}/${protocol.source}`, { relative: 'route' })
+                                    }}
+                                    variant="primary"
+                                >
+                                    Details
+                                </Button>
+                                <Button
+                                    className="w-full"
+                                    onClick={() => {
+                                        navigate(`/dapp/staking/${protocol.chainId}/${protocol.source}`, {
+                                            relative: 'path',
+                                        })
+                                    }}
+                                    variant="primary"
+                                >
+                                    Deposit
+                                </Button>
+                            </div>
                         </Tile>
                     ))}
             </div>

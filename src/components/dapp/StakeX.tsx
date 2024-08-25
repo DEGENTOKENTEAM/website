@@ -219,8 +219,7 @@ export const StakeX = () => {
                     {stakingTokenInfo && stakingData.protocol && responseCustomization && (
                         <StakingProjectLogo
                             projectName={responseCustomization.data.projectName || ''}
-                            // source={responseCustomization.data.logoUrl}
-                            source={null}
+                            source={responseCustomization.data.logoUrl}
                         />
                     )}
                 </h1>
