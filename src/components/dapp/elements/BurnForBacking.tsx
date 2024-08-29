@@ -26,6 +26,15 @@ type BurnForBackingProps = {
 }
 
 export const BurnForBacking = (props: BurnForBackingProps) => {
+    const {
+        activeWantToken,
+        baseTokenAddress,
+        baseTokenAmount,
+        baseTokenDecimals,
+        baseTokenSymbol,
+        isLoading,
+        onSettingsChange,
+    } = props
     const tokensToBurnInputRef = useRef<HTMLInputElement>(null)
     const slippageInputRef = useRef<HTMLInputElement>(null)
     const chainId = +process.env.NEXT_PUBLIC_CHAIN_ID!
@@ -47,9 +56,9 @@ export const BurnForBacking = (props: BurnForBackingProps) => {
     // Hooks
     //
     const { data: dataGetBackingFromWantToken, isLoading: isLoadingGetBackingFromWantToken } =
-        useGetBackingFromWantToken(props?.activeWantToken?.address, amountToBurn!, chainId)
+        useGetBackingFromWantToken(activeWantToken?.address, amountToBurn!, chainId)
     const { data: dataERC20Allowance, refetch: refetchERC20Allowance } = useHasERC20Allowance(
-        props.baseTokenAddress,
+        baseTokenAddress,
         address!,
         process.env.NEXT_PUBLIC_CONTROLLER_ADDRESS! as Address,
         chainId
@@ -62,7 +71,7 @@ export const BurnForBacking = (props: BurnForBackingProps) => {
         error: errorERC20Approve,
         hash: hashApproval,
     } = useERC20Approve(
-        props.baseTokenAddress,
+        baseTokenAddress,
         process.env.NEXT_PUBLIC_CONTROLLER_ADDRESS! as Address,
         amountToBurn!,
         chainId
@@ -74,7 +83,7 @@ export const BurnForBacking = (props: BurnForBackingProps) => {
         isError: isErrorDoBurnForBacking,
         error: errorDoBurnForBacking,
         hash: hashDoBurnForBacking,
-    } = useDoBurnForBacking(amountToBurn!, props?.activeWantToken?.address, slippageAmount, chainId)
+    } = useDoBurnForBacking(amountToBurn!, activeWantToken?.address, slippageAmount, chainId)
 
     const resetForm = () => {
         setAmountToBurn(undefined)
@@ -98,13 +107,10 @@ export const BurnForBacking = (props: BurnForBackingProps) => {
     }, [isConnected, refetchERC20Allowance, address])
 
     useEffect(() => {
-        if (Boolean(amountToBurnEntered && props.baseTokenAmount)) {
-            const amountToBurnEnteredProcessable = parseUnits(amountToBurnEntered, Number(props.baseTokenDecimals))
+        if (Boolean(amountToBurnEntered && baseTokenAmount)) {
+            const amountToBurnEnteredProcessable = parseUnits(amountToBurnEntered, Number(baseTokenDecimals))
 
-            const checkAmountToBurnEntered = formatUnits(
-                amountToBurnEnteredProcessable,
-                Number(props.baseTokenDecimals)
-            )
+            const checkAmountToBurnEntered = formatUnits(amountToBurnEnteredProcessable, Number(baseTokenDecimals))
 
             if (amountToBurnEntered != checkAmountToBurnEntered) {
                 setAmountToBurn(0n)
@@ -112,7 +118,7 @@ export const BurnForBacking = (props: BurnForBackingProps) => {
                 return
             }
 
-            if (props.baseTokenAmount - amountToBurnEnteredProcessable < 0n) {
+            if (baseTokenAmount - amountToBurnEnteredProcessable < 0n) {
                 setAmountToBurn(0n)
                 // TODO error
                 return
@@ -126,7 +132,7 @@ export const BurnForBacking = (props: BurnForBackingProps) => {
 
         if (amountToBurnEntered) {
         }
-    }, [amountToBurnEntered, props.baseTokenAmount, props.baseTokenDecimals])
+    }, [amountToBurnEntered, baseTokenAmount, baseTokenDecimals])
 
     useEffect(() => {
         if (!isInApproval) return
@@ -137,13 +143,13 @@ export const BurnForBacking = (props: BurnForBackingProps) => {
             })
             setToastId(id)
         } else {
-            if (toastId) toast.dismiss(toastId)
+            toastId && toast.dismiss(toastId)
 
             if (isSuccessERC20Approve) {
                 toast.success(`Approval successfully. View on <a href="https://snowtrace/tx/${hashApproval}">`, {
                     autoClose: 3000,
                 })
-                props.onSettingsChange()
+                onSettingsChange()
             }
 
             if (isErrorERC20Approve && errorERC20Approve)
@@ -152,14 +158,14 @@ export const BurnForBacking = (props: BurnForBackingProps) => {
                 })
         }
     }, [
-        toast,
         hashApproval,
         isInApproval,
         isPendingERC20Approve,
         isSuccessERC20Approve,
         isErrorERC20Approve,
         errorERC20Approve,
-        props.onSettingsChange,
+        onSettingsChange,
+        toastId,
     ])
 
     useEffect(() => {
@@ -171,7 +177,7 @@ export const BurnForBacking = (props: BurnForBackingProps) => {
             })
             setToastId(id)
         } else {
-            if (toastId) toast.dismiss(toastId)
+            toastId && toast.dismiss(toastId)
 
             if (isSuccessDoBurnForBacking) {
                 toast.success(
@@ -180,7 +186,7 @@ export const BurnForBacking = (props: BurnForBackingProps) => {
                         autoClose: 3000,
                     }
                 )
-                props.onSettingsChange()
+                onSettingsChange()
                 resetForm()
             }
 
@@ -196,7 +202,8 @@ export const BurnForBacking = (props: BurnForBackingProps) => {
         isSuccessDoBurnForBacking,
         isErrorDoBurnForBacking,
         errorDoBurnForBacking,
-        props.onSettingsChange,
+        onSettingsChange,
+        toastId,
     ])
 
     useEffect(() => {
@@ -205,11 +212,11 @@ export const BurnForBacking = (props: BurnForBackingProps) => {
     }, [slippage, dataGetBackingFromWantToken])
 
     if (!isConnected) {
-        return <p>Connect wallet to burn {props.baseTokenSymbol}</p>
+        return <p>Connect wallet to burn {baseTokenSymbol}</p>
     }
 
-    if (!props.baseTokenAmount || !props.baseTokenDecimals) {
-        return <p>You have no {props.baseTokenSymbol} to burn on the connected wallet.</p>
+    if (!baseTokenAmount || !baseTokenDecimals) {
+        return <p>You have no {baseTokenSymbol} to burn on the connected wallet.</p>
     }
 
     return (
@@ -286,13 +293,13 @@ export const BurnForBacking = (props: BurnForBackingProps) => {
                     <span
                         className="cursor-pointer underline"
                         onClick={() => {
-                            setAmountToBurn(props.baseTokenAmount)
-                            setAmountToBurnEntered(formatUnits(props.baseTokenAmount, Number(props.baseTokenDecimals)))
+                            setAmountToBurn(baseTokenAmount)
+                            setAmountToBurnEntered(formatUnits(baseTokenAmount, Number(baseTokenDecimals)))
                         }}
                     >
-                        {toReadableNumber(props.baseTokenAmount, props.baseTokenDecimals)}
+                        {toReadableNumber(baseTokenAmount, baseTokenDecimals)}
                     </span>{' '}
-                    {props.baseTokenSymbol}
+                    {baseTokenSymbol}
                 </p>
 
                 {chainId === 43114 &&
@@ -356,15 +363,15 @@ export const BurnForBacking = (props: BurnForBackingProps) => {
                             <div className="flex gap-x-5">
                                 <p className="flex-grow">Expected output:</p>
                                 <p className="text-right">
-                                    {toReadableNumber(dataGetBackingFromWantToken, props.activeWantToken.decimals)}{' '}
-                                    {props.activeWantToken.info.name}
+                                    {toReadableNumber(dataGetBackingFromWantToken, activeWantToken.decimals)}{' '}
+                                    {activeWantToken.info.name}
                                 </p>
                             </div>
                             <div className="flex gap-x-5">
                                 <p className="flex-grow">Minimum received:</p>
                                 <p className="text-right">
-                                    {toReadableNumber(slippageAmount, props.activeWantToken.decimals)}{' '}
-                                    {props.activeWantToken.info.name}
+                                    {toReadableNumber(slippageAmount, activeWantToken.decimals)}{' '}
+                                    {activeWantToken.info.name}
                                 </p>
                             </div>
                         </div>

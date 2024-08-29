@@ -197,17 +197,18 @@ export const StakeX = () => {
     }, [chain, isConnected, availableNetworks])
 
     useEffect(() => {
+        if (!stakingData) return
         const _data = { ...stakingData }
         if (protocolAddress) _data.protocol = protocolAddress
         if (chainId) _data.chain = getChainById(Number(chainId))
         if (!isUndefined(dataActive)) _data.isActive = dataActive
         if (!isUndefined(dataRunning)) _data.isRunning = dataRunning
         setStakingData(_data)
-    }, [protocolAddress, chainId, dataActive, dataRunning])
+    }, [protocolAddress, chainId, dataActive, dataRunning, stakingData])
 
     useEffect(() => {
-        stakingData && stakingData.protocol && loadCustomization()
-    }, [stakingData])
+        stakingData && stakingData.protocol && loadCustomization && loadCustomization()
+    }, [stakingData, loadCustomization])
 
     useEffect(() => {
         chainId && setChain(getChainById(Number(chainId)))

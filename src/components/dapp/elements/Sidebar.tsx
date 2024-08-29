@@ -192,11 +192,6 @@ const SidebarItem = ({ item, current }: { item: any; current: boolean }) => (
 
 export default function Sidebar(props: { mobile?: boolean }) {
     const location = useLocation()
-
-    if (props.mobile) {
-        return <MobileSidebar />
-    }
-
     const isCurrent = useCallback(
         (item: any) => {
             return (
@@ -207,6 +202,10 @@ export default function Sidebar(props: { mobile?: boolean }) {
         },
         [location]
     )
+
+    if (props.mobile) {
+        return <MobileSidebar />
+    }
 
     return (
         <div className="flex flex-grow flex-col overflow-y-auto ">

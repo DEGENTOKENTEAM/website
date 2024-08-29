@@ -24,6 +24,8 @@ export const Protocols = () => {
 
     const [protocols, setProtocols] = useState<ProtocolsResponse[]>()
 
+    const [loaded, setLoaded] = useState(false)
+
     const loadProtocols = useCallback(() => {
         fetch(
             selectedChain
@@ -44,12 +46,12 @@ export const Protocols = () => {
                         .sort((p: any) => (topProtocols.includes(toLower(p.source) as Address) ? -1 : 1))
                 )
             })
-    }, [selectedChain])
+    }, [selectedChain, topProtocols])
 
     useEffect(() => {
-        setTitle('Overview STAKEX protocols')
-        loadProtocols()
-    }, [])
+        setTitle && setTitle('Overview STAKEX protocols')
+        if ((!protocols || protocols.length == 0) && loadProtocols) loadProtocols()
+    }, [setTitle, loadProtocols, protocols])
 
     useEffect(() => {
         if (protocols) setIsLoading(false)

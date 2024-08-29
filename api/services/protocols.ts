@@ -5,7 +5,7 @@ import {
 } from '@aws-sdk/lib-dynamodb'
 import { DynamoDBHelper } from '../helpers/ddb/dynamodb'
 
-type StakeXProtocolsDTO = {
+export type StakeXProtocolsDTO = {
     chainId: number
     protocol: string
     timestamp: number

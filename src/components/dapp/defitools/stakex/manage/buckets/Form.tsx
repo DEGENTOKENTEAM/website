@@ -123,7 +123,7 @@ export const BucketsForm = ({ existingBuckets, onChange, editSharesOnly }: Bucke
     }
 
     useEffect(() => {
-        if (!currentBuckets || !currentBuckets.length) return
+        if (!onChange || !currentBuckets || !currentBuckets.length) return
 
         const unlockedShares = currentBuckets.filter((bucket) => !bucket.shareLock).length
 
@@ -134,18 +134,17 @@ export const BucketsForm = ({ existingBuckets, onChange, editSharesOnly }: Bucke
         )
 
         // trigger on change event for parent component
-        onChange &&
-            onChange(
-                currentBuckets
-                    .filter((b) => !b.id)
-                    .map((bucket) => ({
-                        burn: bucket.burn,
-                        lock: bucket.lock && !bucket.burn ? bucket.lockPeriod * LockUnits[bucket.lockUnit] : 0,
-                        share: bucket.share * 100,
-                    })),
-                currentBuckets.filter((b) => b.id).map(({ id, share }) => ({ id: id!, share: share * 100 }))
-            )
-    }, [currentBuckets])
+        onChange(
+            currentBuckets
+                .filter((b) => !b.id)
+                .map((bucket) => ({
+                    burn: bucket.burn,
+                    lock: bucket.lock && !bucket.burn ? bucket.lockPeriod * LockUnits[bucket.lockUnit] : 0,
+                    share: bucket.share * 100,
+                })),
+            currentBuckets.filter((b) => b.id).map(({ id, share }) => ({ id: id!, share: share * 100 }))
+        )
+    }, [currentBuckets, onChange])
 
     const onChangeLockUnit = (bucketIndex: number, lockUnit: keyof typeof LockUnits) => {
         const updateBuckets = cloneDeep(currentBuckets)

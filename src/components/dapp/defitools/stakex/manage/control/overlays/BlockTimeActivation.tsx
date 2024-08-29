@@ -41,21 +41,15 @@ export const BlockTimeActivation = ({
         setBlockTime(Number(Date.parse(blockTimeRef.current?.value!) / 1000))
     }
 
-    useEffect(() => onChange(blockTime), [blockTime])
+    useEffect(() => onChange && onChange(blockTime), [blockTime, onChange])
 
     return (
-        <BaseOverlay
-            isOpen={isOpen}
-            closeOnBackdropClick={false}
-            onClose={() => {}}
-        >
+        <BaseOverlay isOpen={isOpen} closeOnBackdropClick={false} onClose={() => {}}>
             {showSuccessMessage && (
                 <div>
                     <div className="flex flex-col items-center gap-6 p-6 text-center text-base">
                         <IoCheckmarkCircle className="h-[100px] w-[100px] text-success" />
-                        <span className="font-bold">
-                            Successfully updated the protocol
-                        </span>
+                        <span className="font-bold">Successfully updated the protocol</span>
                     </div>
                     <Button
                         variant="primary"
@@ -94,17 +88,14 @@ export const BlockTimeActivation = ({
                         <span className="px-2 text-xs">
                             current time:{' '}
                             {currentTime &&
-                                new Date(currentTime * 1000).toLocaleString(
-                                    navigator.language,
-                                    {
-                                        day: '2-digit',
-                                        month: '2-digit',
-                                        year: 'numeric',
-                                        hour: 'numeric',
-                                        minute: 'numeric',
-                                        second: 'numeric',
-                                    }
-                                )}
+                                new Date(currentTime * 1000).toLocaleString(navigator.language, {
+                                    day: '2-digit',
+                                    month: '2-digit',
+                                    year: 'numeric',
+                                    hour: 'numeric',
+                                    minute: 'numeric',
+                                    second: 'numeric',
+                                })}
                         </span>
                     </div>
                     <div className="flex w-full flex-row-reverse gap-4">
@@ -116,11 +107,7 @@ export const BlockTimeActivation = ({
                         >
                             Confirm & Proceed
                         </Button>
-                        <Button
-                            variant="secondary"
-                            onClick={() => onCancel()}
-                            className="w-1/3"
-                        >
+                        <Button variant="secondary" onClick={() => onCancel()} className="w-1/3">
                             Cancel
                         </Button>
                     </div>
@@ -139,19 +126,10 @@ export const BlockTimeActivation = ({
                         or cancel the process.
                     </div>
                     <div className="flex w-full flex-row-reverse gap-4">
-                        <Button
-                            variant="primary"
-                            disabled={!blockTime}
-                            onClick={() => onConfirm()}
-                            className="w-2/3"
-                        >
+                        <Button variant="primary" disabled={!blockTime} onClick={() => onConfirm()} className="w-2/3">
                             Retry
                         </Button>
-                        <Button
-                            variant="secondary"
-                            onClick={() => onCancel()}
-                            className="w-1/3"
-                        >
+                        <Button variant="secondary" onClick={() => onCancel()} className="w-1/3">
                             Cancel
                         </Button>
                     </div>

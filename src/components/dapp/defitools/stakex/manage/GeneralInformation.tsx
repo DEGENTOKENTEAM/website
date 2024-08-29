@@ -98,6 +98,7 @@ export const GeneralInformation = () => {
                             <a
                                 href={chainExplorer.getAddressUrl(protocol)}
                                 target="_blank"
+                                rel="noreferrer"
                                 className="flex flex-row items-center justify-start"
                             >
                                 <IoMdOpen />
@@ -115,6 +116,7 @@ export const GeneralInformation = () => {
                             <a
                                 href={chainExplorer.getAddressUrl(owner)}
                                 target="_blank"
+                                rel="noreferrer"
                                 className="flex flex-row items-center justify-start"
                             >
                                 <IoMdOpen />
@@ -136,6 +138,7 @@ export const GeneralInformation = () => {
                             <a
                                 href={chainExplorer.getTokenUrl(dataStakingToken.source)}
                                 target="_blank"
+                                rel="noreferrer"
                                 className="flex flex-row items-center justify-start"
                             >
                                 <IoMdOpen />

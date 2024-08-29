@@ -77,7 +77,7 @@ export const useGetRoutingsForToken = ({
             .catch((error) => console.warn('[useFetch Error]', error))
 
         return () => abortController.abort()
-    }, [from, tos, chainId])
+    }, [from, tos, chainId, enabled])
 
     return { isError, error, response, loading }
 }

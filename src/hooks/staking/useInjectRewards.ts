@@ -61,7 +61,7 @@ export const useInjectRewards = (
     }, [publicClient, hash, address])
 
     useEffect(() => {
-        if (logs && logs.length > 0) {
+        if (address && resetWriteContract && logs && logs.length > 0) {
             logs.forEach((log) => {
                 const { data, topics } = log
                 if (toLower(address) === toLower(log.address)) {
@@ -74,7 +74,7 @@ export const useInjectRewards = (
                 }
             })
         }
-    }, [logs])
+    }, [logs, resetWriteContract, address])
 
     useEffect(() => {
         if (isErrorWrite) setIsLoading(false)

@@ -18,8 +18,7 @@ export const Fees = () => {
     const [isEditMode, setIsEditMode] = useState(false)
     const [hasChanges, setHasChanges] = useState(false)
     const [isLoading, setIsLoading] = useState(false)
-    const [isApplyChangesModalOpen, setIsApplyChangesModalOpen] =
-        useState(false)
+    const [isApplyChangesModalOpen, setIsApplyChangesModalOpen] = useState(false)
 
     const [stakingFee, setStakingFee] = useState(0n)
     const [restakingFee, setRestakingFee] = useState(0n)
@@ -29,12 +28,24 @@ export const Fees = () => {
     const [withdrawFeeOrig, setWithdrawFeeOrig] = useState(0n)
 
     const { data: dataGetFeeMax } = useGetFeeMax(protocol, chain?.id!)
-    const { data: dataFeeForStaking, refetch: refetchFeeForStaking } =
-        useGetFeeFor(protocol, chain?.id!, 'staking', 10000n)
-    const { data: dataFeeForRestaking, refetch: refetchFeeForRestaking } =
-        useGetFeeFor(protocol, chain?.id!, 'restaking', 10000n)
-    const { data: dataFeeForWithdraw, refetch: refetchFeeForWithdraw } =
-        useGetFeeFor(protocol, chain?.id!, 'unstaking', 10000n)
+    const { data: dataFeeForStaking, refetch: refetchFeeForStaking } = useGetFeeFor(
+        protocol,
+        chain?.id!,
+        'staking',
+        10000n
+    )
+    const { data: dataFeeForRestaking, refetch: refetchFeeForRestaking } = useGetFeeFor(
+        protocol,
+        chain?.id!,
+        'restaking',
+        10000n
+    )
+    const { data: dataFeeForWithdraw, refetch: refetchFeeForWithdraw } = useGetFeeFor(
+        protocol,
+        chain?.id!,
+        'unstaking',
+        10000n
+    )
     const {
         write: writeUpdateFeesForStaking,
         error: errorUpdateFeesForStaking,
@@ -43,13 +54,7 @@ export const Fees = () => {
         isLoading: isLoadingUpdateFeesForStaking,
         isPending: isPendingUpdateFeesForStaking,
         reset: resetUpdateFeesForStaking,
-    } = useUpdateFeesForStaking(
-        protocol,
-        chain?.id!,
-        stakingFee,
-        withdrawFee,
-        restakingFee
-    )
+    } = useUpdateFeesForStaking(protocol, chain?.id!, stakingFee, withdrawFee, restakingFee)
 
     const onClickChangeFees = () => {
         setIsEditMode(true)
@@ -111,11 +116,9 @@ export const Fees = () => {
     useEffect(
         () =>
             setHasChanges(
-                stakingFee != stakingFeeOrig ||
-                    restakingFee != restakingFeeOrig ||
-                    withdrawFee != withdrawFeeOrig
+                stakingFee != stakingFeeOrig || restakingFee != restakingFeeOrig || withdrawFee != withdrawFeeOrig
             ),
-        [stakingFee, restakingFee, withdrawFee]
+        [stakingFee, restakingFee, withdrawFee, restakingFeeOrig, stakingFeeOrig, withdrawFeeOrig]
     )
 
     return (
@@ -129,28 +132,16 @@ export const Fees = () => {
                         (isEditMode ? (
                             <>
                                 {hasChanges && (
-                                    <Button
-                                        variant="primary"
-                                        onClick={onClickApplyChanges}
-                                        className="gap-3"
-                                    >
+                                    <Button variant="primary" onClick={onClickApplyChanges} className="gap-3">
                                         <span>Apply Changes</span>
                                     </Button>
                                 )}
-                                <Button
-                                    variant="secondary"
-                                    onClick={onClickCancel}
-                                    className="gap-3"
-                                >
+                                <Button variant="secondary" onClick={onClickCancel} className="gap-3">
                                     <span>Cancel</span>
                                 </Button>
                             </>
                         ) : (
-                            <Button
-                                variant="primary"
-                                onClick={onClickChangeFees}
-                                className="gap-3"
-                            >
+                            <Button variant="primary" onClick={onClickChangeFees} className="gap-3">
                                 <FaPen /> <span>Change Fees</span>
                             </Button>
                         ))}

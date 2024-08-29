@@ -28,9 +28,9 @@ export const useDeployProtocolSTAKEX = (
     const exec = useExecuteFunction(execParams)
 
     const publicClient = usePublicClient({ chainId })
-    
+
     useEffect(() => {
-        if (!publicClient || !exec || !exec.hash) return
+        if (!address || !publicClient || !exec || !exec.hash) return
         publicClient
             ?.getTransactionReceipt({ hash: exec.hash })
             .then((receipt) => {
@@ -46,7 +46,7 @@ export const useDeployProtocolSTAKEX = (
                             setDeployedProtocol(event.args.protocol)
                     })
             })
-    }, [publicClient, exec])
+    }, [publicClient, exec, address])
 
     return { ...exec, deployedProtocol }
 }

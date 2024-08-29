@@ -19,13 +19,11 @@ export const NFTManagement = () => {
     const client = usePublicClient({ chainId: chain?.id })
 
     const [hasConfigs, setHasConfigs] = useState(false)
-    const [isConfirmationModalOpen, setIsConfirmationModalOpen] =
-        useState(false)
+    const [isConfirmationModalOpen, setIsConfirmationModalOpen] = useState(false)
     const [nftConfig, setNftConfig] = useState<any>(null)
     const [renderedNFTs, setRenderedNTFs] = useState<any>(null)
 
-    const { data: dataNFTConfigs, refetch: refetchNFTConfigs } =
-        useNFTGetConfigs(protocol, chain?.id!)
+    const { data: dataNFTConfigs, refetch: refetchNFTConfigs } = useNFTGetConfigs(protocol, chain?.id!)
     const {
         error: errorAddNFTConfig,
         isLoading: isLoadingAddNFTConfig,
@@ -36,10 +34,7 @@ export const NFTManagement = () => {
     } = useNFTAddConfig(protocol, chain?.id!, nftConfig)
 
     const onClickChooseRecommendedTemplate = async () => {
-        setNftConfig(
-            (await import('../../../../../../public/stakex/nft.default.json'))
-                .default
-        )
+        setNftConfig((await import('../../../../../../public/stakex/nft.default.json')).default)
         setIsConfirmationModalOpen(true)
     }
 
@@ -56,7 +51,7 @@ export const NFTManagement = () => {
     }
 
     useEffect(() => {
-        if (Boolean(dataNFTConfigs && dataNFTConfigs.length)) {
+        if (Boolean(protocol && dataNFTConfigs && dataNFTConfigs.length)) {
             setHasConfigs(true)
             if (client) {
                 const reqs: Promise<any>[] = []
@@ -74,7 +69,7 @@ export const NFTManagement = () => {
                 Promise.all(reqs).then((configs) => setRenderedNTFs(configs))
             }
         }
-    }, [dataNFTConfigs, client])
+    }, [dataNFTConfigs, client, protocol])
 
     return (
         <>
@@ -88,11 +83,7 @@ export const NFTManagement = () => {
                     (renderedNFTs ? (
                         <div className="grid grid-cols-3 gap-6">
                             {renderedNFTs.map((nft: string, i: number) => (
-                                <img
-                                    key={i}
-                                    src={nft}
-                                    className="rounded-xl shadow-lg"
-                                />
+                                <Image key={i} alt={`NFT`} src={nft} className="rounded-xl shadow-lg" />
                             ))}
                         </div>
                     ) : (
@@ -101,24 +92,17 @@ export const NFTManagement = () => {
                 {!hasConfigs && (
                     <>
                         <div>
-                            Your STAKEX protocols needs to have NFTs configured.
-                            After this you&apos;re able to set a starting
-                            condition or enable the protocol without a starting
-                            condition <br />
+                            Your STAKEX protocols needs to have NFTs configured. After this you&apos;re able to set a
+                            starting condition or enable the protocol without a starting condition <br />
                             <br />
                             We propose the following default template to use:
                         </div>
                         <div className="flex">
                             <div className="relative w-1/3 overflow-auto rounded-xl">
-                                <Image
-                                    src={previewImage}
-                                    alt="Proposed NFT Image"
-                                />
+                                <Image src={previewImage} alt="Proposed NFT Image" />
                                 <div className="pointer-events-none absolute inset-0 flex items-center justify-center bg-dapp-cyan-50/30  hover:bg-dapp-cyan-50/70">
                                     <Button
-                                        onClick={() =>
-                                            onClickChooseRecommendedTemplate()
-                                        }
+                                        onClick={() => onClickChooseRecommendedTemplate()}
                                         variant="primary"
                                         className="pointer-events-auto !opacity-80 hover:!opacity-100"
                                     >

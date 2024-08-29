@@ -145,7 +145,7 @@ export const InjectRewards = () => {
     }, [dataBalanceOf, rewardAmountEntered, selectedRewardToken])
 
     useEffect(() => {
-        if (!isLoadingInjectRewards && isSuccessInjectRewards && selectedRewardToken) {
+        if (!isLoadingInjectRewards && isSuccessInjectRewards && selectedRewardToken && rewardAmount) {
             toast.success(
                 `Successfully injected ${formatUnits(rewardAmount, Number(selectedRewardToken.decimals))} ${
                     selectedRewardToken.symbol
@@ -159,6 +159,7 @@ export const InjectRewards = () => {
             errorInjectRewards &&
             toast.error((errorInjectRewards as any).shortMessage)
     }, [
+        rewardAmount,
         isSuccessInjectRewards,
         isErrorInjectRewards,
         errorInjectRewards,

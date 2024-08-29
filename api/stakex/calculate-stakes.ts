@@ -247,7 +247,7 @@ export const handler: Handler<CalculateStakesEventType> = async (
         Limit: 1,
     })
 
-    let error = null
+    let error: Error | null = null
 
     const getLogsData: any = {
         address,

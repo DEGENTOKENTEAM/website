@@ -39,11 +39,11 @@ export const useGetCustomization = (protocol: Address, chainId: number) => {
             })
 
         return () => abortController.abort()
-    }, [protocol, chainId])
+    }, [protocol, chainId, loading])
 
     useEffect(() => {
-        load()
-    }, [protocol, chainId])
+        load && load()
+    }, [protocol, chainId, load])
 
     return { response, loading, load }
 }

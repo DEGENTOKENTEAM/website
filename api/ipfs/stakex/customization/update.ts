@@ -84,7 +84,9 @@ export const handler = async (
     if (!authorized)
         return createReturn(403, JSON.stringify({ message: 'INVALID_OWNER' }))
 
-    const pinata = new PinataSDK({ pinataJWTKey: process.env.PINATA_API_KEY })
+    const pinata = new PinataSDK({
+        pinataJWTKey: `${process.env.PINATA_API_KEY}`,
+    })
 
     const fb = Buffer.from(image, 'base64')
     const readable = new Readable()

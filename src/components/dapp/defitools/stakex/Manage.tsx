@@ -35,15 +35,9 @@ export const Manage = () => {
     const navigate = useNavigate()
     const { address, isConnected, chain: chainAccount } = useAccount()
 
-    if (!protocolAddress) {
-        toast.error('Invalid protocol address')
-        navigate('/dapp/defitools')
-        return <></>
-    }
-
     const chain = getChainById(protocolChainId)
     const [data, setData] = useState<ManageStakeXContextDataType>({
-        protocol: protocolAddress,
+        protocol: protocolAddress!,
         chain,
         owner: zeroAddress,
         isOwner: false,
@@ -52,13 +46,15 @@ export const Manage = () => {
         isLoading: false,
     })
 
-    const { data: dataStakingToken } = useGetStakingToken(protocolAddress, chain?.id!)
-    const { data: dataContractOwner } = useGetContractOwner(protocolAddress, chain?.id!)
-    const { response: dataMetrics } = useGetMetrics(protocolAddress, chain?.id!)
-    const { data: dataIsActive } = useActive(protocolAddress, chain?.id!)
-    const { data: dataIsRunning } = useRunning(protocolAddress, chain?.id!)
+    const { data: dataStakingToken } = useGetStakingToken(protocolAddress!, chain?.id!)
+    const { data: dataContractOwner } = useGetContractOwner(protocolAddress!, chain?.id!)
+    const { response: dataMetrics } = useGetMetrics(protocolAddress!, chain?.id!)
+    const { data: dataIsActive } = useActive(protocolAddress!, chain?.id!)
+    const { data: dataIsRunning } = useRunning(protocolAddress!, chain?.id!)
 
     useEffect(() => {
+        if (!data) return
+
         const _data: ManageStakeXContextDataType = {
             ...data,
             isLoading: !Boolean(dataStakingToken && dataMetrics && dataContractOwner),
@@ -75,7 +71,13 @@ export const Manage = () => {
         if (!isUndefined(dataIsRunning)) _data.isRunning = dataIsRunning
 
         setData(_data)
-    }, [dataStakingToken, address, dataMetrics, dataContractOwner, dataIsActive, dataIsRunning])
+    }, [dataStakingToken, address, dataMetrics, dataContractOwner, dataIsActive, dataIsRunning, data])
+
+    if (!protocolAddress) {
+        toast.error('Invalid protocol address')
+        navigate('/dapp/defitools')
+        return <></>
+    }
 
     const reloadData = () => {
         // TODO maybe to something to update protocol specific stuff

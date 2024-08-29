@@ -18,7 +18,12 @@ export const useGetTVLinUSD = (protocolAddress: Address, chainId: number) => {
     )
 
     useEffect(() => {
-        if (!client || !dataRewardTokens || dataRewardTokens.length === 0)
+        if (
+            !client ||
+            !protocolAddress ||
+            !dataRewardTokens ||
+            dataRewardTokens.length === 0
+        )
             return
 
         const abortController = new AbortController()
@@ -57,7 +62,7 @@ export const useGetTVLinUSD = (protocolAddress: Address, chainId: number) => {
             .then(setDataFetchesResult)
 
         Promise.all(balanceFetches).then(setBalanceFetchesResults)
-    }, [client, dataRewardTokens])
+    }, [client, dataRewardTokens, protocolAddress])
 
     useEffect(() => {
         if (!dataRewardTokens || !balanceFetchesResults || !dataFetchesResults)

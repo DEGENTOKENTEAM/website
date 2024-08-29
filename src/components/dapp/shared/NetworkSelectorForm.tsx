@@ -15,8 +15,8 @@ export const NetworkSelectorForm = ({ chains, selectedChain, onChange }: Network
     let [selected, setSelected] = useState<number>(selectedChain.id)
 
     useEffect(() => {
-        chains && isNumber(selected) && onChange(chains.find((chain) => chain.id == selected)!)
-    }, [chains, selected])
+        chains && isNumber(selected) && onChange && onChange(chains.find((chain) => chain.id == selected)!)
+    }, [chains, selected, onChange])
 
     return (
         <RadioGroup value={selected} onChange={setSelected} className="grid grid-cols-1 gap-4 md:grid-cols-2">

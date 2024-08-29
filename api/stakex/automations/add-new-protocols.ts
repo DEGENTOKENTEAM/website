@@ -9,7 +9,10 @@ import {
     StakeXChainSyncDTOResponse,
     StakeXChainSyncRepository,
 } from '../../services/chainSync'
-import { StakeXProtocolsRepository } from '../../services/protocols'
+import {
+    StakeXProtocolsDTO,
+    StakeXProtocolsRepository,
+} from '../../services/protocols'
 
 const abi = [
     {
@@ -126,7 +129,7 @@ export const handler: Handler = async (_, __, callback) => {
             }),
         })
 
-        const protocolBatch = []
+        const protocolBatch: StakeXProtocolsDTO[] = []
         for (const log of logs as any[])
             protocolBatch.push({
                 chainId,

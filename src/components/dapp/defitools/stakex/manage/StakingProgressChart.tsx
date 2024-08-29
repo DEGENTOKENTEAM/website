@@ -15,19 +15,15 @@ export const StakingProgressChart = () => {
     useEffect(() => {
         if (!metrics || !metrics.stakeLogs) return
 
-        const stakedOnDailyBasis = metrics.stakeLogs.reduce(
-            (acc, { timestamp, staked }) => {
-                const dayFromTS = timestamp - (timestamp % 86400)
+        const stakedOnDailyBasis = metrics.stakeLogs.reduce((acc, { timestamp, staked }) => {
+            const dayFromTS = timestamp - (timestamp % 86400)
 
-                if (!acc[dayFromTS]) acc[dayFromTS] = 0
+            if (!acc[dayFromTS]) acc[dayFromTS] = 0
 
-                acc[dayFromTS] =
-                    staked > acc[dayFromTS] ? staked : acc[dayFromTS]
+            acc[dayFromTS] = staked > acc[dayFromTS] ? staked : acc[dayFromTS]
 
-                return acc
-            },
-            {} as { [timestamp: number]: number }
-        )
+            return acc
+        }, {} as { [timestamp: number]: number })
 
         const logs = Object.keys(stakedOnDailyBasis).map((key) => ({
             timestamp: Number(key),
@@ -53,13 +49,10 @@ export const StakingProgressChart = () => {
                 },
                 xaxis: {
                     categories: logs.map(({ timestamp }) =>
-                        new Date(timestamp * 1000).toLocaleString(
-                            navigator.language,
-                            {
-                                day: '2-digit',
-                                month: '2-digit',
-                            }
-                        )
+                        new Date(timestamp * 1000).toLocaleString(navigator.language, {
+                            day: '2-digit',
+                            month: '2-digit',
+                        })
                     ),
                     axisTicks: {
                         show: false,
@@ -110,22 +103,16 @@ export const StakingProgressChart = () => {
                 },
             ],
         })
-    }, [metrics])
+    }, [metrics, protocol])
 
     return (
         <Tile className="w-full">
             <div className="flex flex-row items-center">
-                <span className="flex-1 font-title text-xl font-bold">
-                    {stakingToken?.symbol} staked over time
-                </span>
+                <span className="flex-1 font-title text-xl font-bold">{stakingToken?.symbol} staked over time</span>
             </div>
             {chartData ? (
                 <div>
-                    <Chart
-                        options={chartData.options}
-                        series={chartData.series}
-                        type="line"
-                    />
+                    <Chart options={chartData.options} series={chartData.series} type="line" />
                 </div>
             ) : (
                 <div className="mt-4">No data available to provide a chart</div>

@@ -27,6 +27,7 @@ export const useGetNetworkFeeEstimationDeployerSTAKEX = (
             !address ||
             !chainId ||
             !deployArgs ||
+            !refetchGasPrice ||
             !deployArgs.initParams.manager ||
             !deployArgs.initParams.stakingToken ||
             !deployArgs.initParams.stableToken ||
@@ -52,11 +53,11 @@ export const useGetNetworkFeeEstimationDeployerSTAKEX = (
             .catch((err) => {
                 console.log('useGetNetworkFeeEstimationDeployerSTAKEX', { err })
             })
-    }, [publicClient, address, chainId, deployFee, deployArgs])
+    }, [publicClient, address, chainId, deployFee, deployArgs, refetchGasPrice])
 
     useEffect(() => {
-        fetch()
-    }, [publicClient, address, chainId, deployArgs])
+        fetch && fetch()
+    }, [publicClient, address, chainId, deployArgs, fetch])
 
     useEffect(() => {
         dataGasPrice && setGasPrice(dataGasPrice)

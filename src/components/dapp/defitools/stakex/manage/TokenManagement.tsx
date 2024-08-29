@@ -20,6 +20,7 @@ import { Address } from 'viem'
 import { TokensForm } from './tokens/Form'
 import { ApplyChangesConfirmation } from './tokens/overlays/ApplyChangesConfirmation'
 import clsx from 'clsx'
+import { cloneDeep } from 'lodash'
 
 export const TokenManagement = () => {
     const {
@@ -30,10 +31,8 @@ export const TokenManagement = () => {
     const [isReward, setIsReward] = useState<boolean | null>(null)
 
     const [showForm, setShowForm] = useState(false)
-    const [payoutTokenData, setPayoutTokenData] =
-        useState<SetTargetTokenParams | null>(null)
-    const [isApplyChangesModalOpen, setIsApplyChangesModalOpen] =
-        useState(false)
+    const [payoutTokenData, setPayoutTokenData] = useState<SetTargetTokenParams | null>(null)
+    const [isApplyChangesModalOpen, setIsApplyChangesModalOpen] = useState(false)
 
     const {
         data: dataTargetTokens,
@@ -79,10 +78,7 @@ export const TokenManagement = () => {
 
     const resetError = () => setError(null)
 
-    const onChangeForm = (
-        routings: RoutingsForTokenResponse,
-        isReward: boolean
-    ) => {
+    const onChangeForm = (routings: RoutingsForTokenResponse, isReward: boolean) => {
         resetError()
         if (!routings) {
             setPayoutTokenData(null)
@@ -95,12 +91,14 @@ export const TokenManagement = () => {
             targetToken: routings[0].fromToken.address,
             candidatesGroup: routings.map((route) => ({
                 rewardToken: route.toToken.address,
-                candidates: route.paths.toReversed().map((path) => ({
-                    calleeSwap: path.dex.router,
-                    calleeAmountOut: path.dex.reader ?? path.dex.router,
-                    path: [path.toToken.address, path.fromToken.address],
-                    isGmx: Boolean(path.dex.reader),
-                })),
+                candidates: cloneDeep(route.paths)
+                    .reverse()
+                    .map((path) => ({
+                        calleeSwap: path.dex.router,
+                        calleeAmountOut: path.dex.reader ?? path.dex.router,
+                        path: [path.toToken.address, path.fromToken.address],
+                        isGmx: Boolean(path.dex.reader),
+                    })),
             })),
         })
     }
@@ -122,10 +120,7 @@ export const TokenManagement = () => {
     }
 
     const onConfirmationModalOK = useCallback(() => {
-        payoutTokenData &&
-            writeSetTokens &&
-            isReward !== null &&
-            writeSetTokens()
+        payoutTokenData && writeSetTokens && isReward !== null && writeSetTokens()
     }, [writeSetTokens, payoutTokenData, isReward])
 
     const onConfirmationModalNOK = () => {
@@ -150,33 +145,38 @@ export const TokenManagement = () => {
     useEffect(() => {
         if (isSuccessTogglePayoutToken && !isErrorTogglePayoutToken) {
             toast.success(`Successfully changed the payout token status`)
-            refetchTargetTokens()
-            resetTogglePayoutToken()
+            refetchTargetTokens && refetchTargetTokens()
+            resetTogglePayoutToken && resetTogglePayoutToken()
         }
         if (isErrorTogglePayoutToken && errorTogglePayoutToken) {
             toast.error((errorTogglePayoutToken as any).shortMessage)
-            resetTogglePayoutToken()
+            resetTogglePayoutToken && resetTogglePayoutToken()
         }
     }, [
         isSuccessTogglePayoutToken,
         isErrorTogglePayoutToken,
         errorTogglePayoutToken,
+        refetchTargetTokens,
+        resetTogglePayoutToken,
     ])
 
     useEffect(() => {
         if (isSuccessToggleRewardToken && !isErrorToggleRewardToken) {
             toast.success(`Successfully changed the payout token status`)
-            refetchTargetTokens()
-            resetToggleRewardToken()
+            refetchTargetTokens && refetchTargetTokens()
+            resetToggleRewardToken && resetToggleRewardToken()
         }
         if (isErrorToggleRewardToken && errorToggleRewardToken) {
             toast.error((errorToggleRewardToken as any).shortMessage)
-            resetToggleRewardToken()
+            resetToggleRewardToken && resetToggleRewardToken()
         }
     }, [
         isSuccessToggleRewardToken,
         isErrorToggleRewardToken,
         errorToggleRewardToken,
+        resetTogglePayoutToken,
+        refetchTargetTokens,
+        resetToggleRewardToken,
     ])
 
     return (
@@ -189,10 +189,7 @@ export const TokenManagement = () => {
                     {isOwner &&
                         (showForm ? (
                             <div className="flex gap-2">
-                                <Button
-                                    onClick={onClickCancelButton}
-                                    variant="secondary"
-                                >
+                                <Button onClick={onClickCancelButton} variant="secondary">
                                     <span>Cancel</span>
                                 </Button>
                                 <Button
@@ -204,11 +201,7 @@ export const TokenManagement = () => {
                                 </Button>
                             </div>
                         ) : (
-                            <Button
-                                onClick={onClickAddButton}
-                                variant="primary"
-                                className="gap-3"
-                            >
+                            <Button onClick={onClickAddButton} variant="primary" className="gap-3">
                                 <FaPlus /> <span>Add</span>
                             </Button>
                         ))}
@@ -228,30 +221,22 @@ export const TokenManagement = () => {
                     <div
                         className={clsx([
                             'mt-8 grid grid-cols-1 gap-8',
-                            dataTargetTokens &&
-                                dataTargetTokens.length > 1 &&
-                                'md:grid-cols-2',
+                            dataTargetTokens && dataTargetTokens.length > 1 && 'md:grid-cols-2',
                         ])}
                     >
                         {dataTargetTokens &&
                             dataTargetTokens.map((targetToken) => (
-                                <div
-                                    key={targetToken.source}
-                                    className="flex flex-col gap-4"
-                                >
+                                <div key={targetToken.source} className="flex flex-col gap-4">
                                     <StatsBoxTwoColumn.Wrapper className="w-full rounded-lg bg-dapp-blue-800 px-5 py-2 text-sm">
                                         <StatsBoxTwoColumn.LeftColumn>
-                                            <span className="font-bold">
-                                                {targetToken.symbol}
-                                            </span>
+                                            <span className="font-bold">{targetToken.symbol}</span>
                                         </StatsBoxTwoColumn.LeftColumn>
                                         <StatsBoxTwoColumn.RightColumn>
                                             {chainExplorer && (
                                                 <a
-                                                    href={chainExplorer.getTokenUrl(
-                                                        targetToken.source
-                                                    )}
+                                                    href={chainExplorer.getTokenUrl(targetToken.source)}
                                                     target="_blank"
+                                                    rel="noreferrer"
                                                     className="flex w-full flex-row items-center justify-end gap-1"
                                                 >
                                                     {chainExplorer.name}
@@ -264,9 +249,7 @@ export const TokenManagement = () => {
                                             <CaretDivider />
                                         </div>
 
-                                        <StatsBoxTwoColumn.LeftColumn>
-                                            Is payout token?
-                                        </StatsBoxTwoColumn.LeftColumn>
+                                        <StatsBoxTwoColumn.LeftColumn>Is payout token?</StatsBoxTwoColumn.LeftColumn>
                                         <StatsBoxTwoColumn.RightColumn>
                                             <div className="flex items-center justify-end">
                                                 {targetToken.isTarget ? (
@@ -277,9 +260,7 @@ export const TokenManagement = () => {
                                             </div>
                                         </StatsBoxTwoColumn.RightColumn>
 
-                                        <StatsBoxTwoColumn.LeftColumn>
-                                            Enabled as payout?
-                                        </StatsBoxTwoColumn.LeftColumn>
+                                        <StatsBoxTwoColumn.LeftColumn>Enabled as payout?</StatsBoxTwoColumn.LeftColumn>
                                         <StatsBoxTwoColumn.RightColumn>
                                             <div className="flex items-center justify-end">
                                                 {targetToken.isTargetActive ? (
@@ -290,23 +271,16 @@ export const TokenManagement = () => {
                                             </div>
                                         </StatsBoxTwoColumn.RightColumn>
 
-                                        <StatsBoxTwoColumn.LeftColumn>
-                                            Paid out
-                                        </StatsBoxTwoColumn.LeftColumn>
+                                        <StatsBoxTwoColumn.LeftColumn>Paid out</StatsBoxTwoColumn.LeftColumn>
                                         <StatsBoxTwoColumn.RightColumn>
-                                            {toReadableNumber(
-                                                targetToken.rewarded,
-                                                targetToken.decimals
-                                            )}
+                                            {toReadableNumber(targetToken.rewarded, targetToken.decimals)}
                                         </StatsBoxTwoColumn.RightColumn>
 
                                         <div className="col-span-2">
                                             <CaretDivider />
                                         </div>
 
-                                        <StatsBoxTwoColumn.LeftColumn>
-                                            Is reward token?
-                                        </StatsBoxTwoColumn.LeftColumn>
+                                        <StatsBoxTwoColumn.LeftColumn>Is reward token?</StatsBoxTwoColumn.LeftColumn>
                                         <StatsBoxTwoColumn.RightColumn>
                                             <div className="flex items-center justify-end">
                                                 {targetToken.isReward ? (
@@ -317,9 +291,7 @@ export const TokenManagement = () => {
                                             </div>
                                         </StatsBoxTwoColumn.RightColumn>
 
-                                        <StatsBoxTwoColumn.LeftColumn>
-                                            Enabled as reward?
-                                        </StatsBoxTwoColumn.LeftColumn>
+                                        <StatsBoxTwoColumn.LeftColumn>Enabled as reward?</StatsBoxTwoColumn.LeftColumn>
                                         <StatsBoxTwoColumn.RightColumn>
                                             <div className="flex items-center justify-end">
                                                 {targetToken.isRewardActive ? (
@@ -330,38 +302,25 @@ export const TokenManagement = () => {
                                             </div>
                                         </StatsBoxTwoColumn.RightColumn>
 
-                                        <StatsBoxTwoColumn.LeftColumn>
-                                            Injected
-                                        </StatsBoxTwoColumn.LeftColumn>
+                                        <StatsBoxTwoColumn.LeftColumn>Injected</StatsBoxTwoColumn.LeftColumn>
                                         <StatsBoxTwoColumn.RightColumn>
-                                            {toReadableNumber(
-                                                targetToken.injected,
-                                                targetToken.decimals
-                                            )}
+                                            {toReadableNumber(targetToken.injected, targetToken.decimals)}
                                         </StatsBoxTwoColumn.RightColumn>
                                     </StatsBoxTwoColumn.Wrapper>
                                     {isOwner && (
                                         <div className="flex flex-row gap-4">
                                             <Button
-                                                disabled={
-                                                    togglePayoutTokenAddress ===
-                                                    targetToken.source
-                                                }
+                                                disabled={togglePayoutTokenAddress === targetToken.source}
                                                 onClick={() =>
                                                     onClickTogglePayoutToken(
                                                         targetToken.source,
                                                         !targetToken.isTargetActive
                                                     )
                                                 }
-                                                variant={`${
-                                                    targetToken.isTargetActive
-                                                        ? 'error'
-                                                        : 'primary'
-                                                }`}
+                                                variant={`${targetToken.isTargetActive ? 'error' : 'primary'}`}
                                                 className=" w-full"
                                             >
-                                                {togglePayoutTokenAddress ===
-                                                targetToken.source ? (
+                                                {togglePayoutTokenAddress === targetToken.source ? (
                                                     <Spinner theme="dark" />
                                                 ) : targetToken.isTargetActive ? (
                                                     'Disable Payout'
@@ -370,25 +329,17 @@ export const TokenManagement = () => {
                                                 )}
                                             </Button>{' '}
                                             <Button
-                                                disabled={
-                                                    toggleRewardTokenAddress ===
-                                                    targetToken.source
-                                                }
+                                                disabled={toggleRewardTokenAddress === targetToken.source}
                                                 onClick={() =>
                                                     onClickToggleRewardToken(
                                                         targetToken.source,
                                                         !targetToken.isRewardActive
                                                     )
                                                 }
-                                                variant={`${
-                                                    targetToken.isRewardActive
-                                                        ? 'error'
-                                                        : 'primary'
-                                                }`}
+                                                variant={`${targetToken.isRewardActive ? 'error' : 'primary'}`}
                                                 className=" w-full"
                                             >
-                                                {toggleRewardTokenAddress ===
-                                                targetToken.source ? (
+                                                {toggleRewardTokenAddress === targetToken.source ? (
                                                     <Spinner theme="dark" />
                                                 ) : targetToken.isRewardActive ? (
                                                     'Disable Reward'

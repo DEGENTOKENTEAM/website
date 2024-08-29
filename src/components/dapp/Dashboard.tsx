@@ -202,7 +202,7 @@ export const Dashboard = (props: RouteObject) => {
     useEffect(() => {
         if (dataTotalSupply && balanceOfDeadAddress)
             setBurnAmount(Number((DGNX_INITIAL_SUPPLY - dataTotalSupply + balanceOfDeadAddress) / 10n ** 18n))
-    }, [balanceOfDeadAddress, dataTotalSupply])
+    }, [balanceOfDeadAddress, dataTotalSupply, DGNX_INITIAL_SUPPLY])
 
     useEffect(() => {
         fetch('https://api.dexscreener.com/latest/dex/tokens/0x51e48670098173025C477D9AA3f0efF7BF9f7812')

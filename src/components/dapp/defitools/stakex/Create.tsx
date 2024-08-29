@@ -204,14 +204,15 @@ export const Create = () => {
     useEffect(() => setIsLoading(!Boolean(chains && chains.length > 0)), [chains])
 
     useEffect(() => {
+        if (!chainIds || chainIds.length == 0) return
         let networks = chainIds.map((id) => getChainById(id))
 
-        if (isNumber(chainId) && chainId > 0) networks = networks.toSorted((chain) => (chainId == chain.id ? -1 : 1))
+        if (isNumber(chainId) && chainId > 0) networks = networks.sort((chain) => (chainId == chain.id ? -1 : 1))
 
         setChains(networks)
         setSelectedChain(networks[0])
         setDeployerAddress(protocols[networks[0].id].deployer)
-    }, [chainId])
+    }, [chainId, chainIds])
 
     useEffect(() => {
         if (!selectedChain || !protocols) return
@@ -248,7 +249,6 @@ export const Create = () => {
             },
         })
     }, [
-        protocols,
         selectedChain,
         dataReferrer,
         bucketFormData,
@@ -300,14 +300,14 @@ export const Create = () => {
     }, [enableStakeLock])
 
     useEffect(() => {
-        refetchFeeEstimation()
+        refetchFeeEstimation && refetchFeeEstimation()
         setNetworkFee(undefined)
         setTotalFeeEstimation(undefined)
-    }, [selectedChain])
+    }, [selectedChain, refetchFeeEstimation])
 
     useEffect(() => {
         setTitle('STAKEX Creator')
-    }, [])
+    })
 
     return (
         <>

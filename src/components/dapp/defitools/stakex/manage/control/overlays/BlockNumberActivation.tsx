@@ -32,30 +32,22 @@ export const BlockNumberActivation = ({
     const showSuccessMessage = !error && !isLoading && isSuccess && currentBlock
     const showSpinner = !error && (isLoading || !currentBlock) && !isSuccess
     const showContent = !error && !isLoading && !isSuccess && currentBlock
-    const showError =
-        (!!error && !isLoading && !isSuccess) || (!!error && isLoading)
+    const showError = (!!error && !isLoading && !isSuccess) || (!!error && isLoading)
 
     const blockNumberRef = useRef<HTMLInputElement>(null)
     const [blockNumber, setBlockNumber] = useState<bigint>()
 
-    const onChangeBlockNumber = () =>
-        setBlockNumber(BigInt(blockNumberRef.current?.value!))
+    const onChangeBlockNumber = () => setBlockNumber(BigInt(blockNumberRef.current?.value!))
 
-    useEffect(() => onChange(blockNumber), [blockNumber])
+    useEffect(() => onChange && onChange(blockNumber), [blockNumber, onChange])
 
     return (
-        <BaseOverlay
-            isOpen={isOpen}
-            closeOnBackdropClick={false}
-            onClose={() => {}}
-        >
+        <BaseOverlay isOpen={isOpen} closeOnBackdropClick={false} onClose={() => {}}>
             {showSuccessMessage && (
                 <div>
                     <div className="flex flex-col items-center gap-6 p-6 text-center text-base">
                         <IoCheckmarkCircle className="h-[100px] w-[100px] text-success" />
-                        <span className="font-bold">
-                            Successfully updated the protocol
-                        </span>
+                        <span className="font-bold">Successfully updated the protocol</span>
                     </div>
                     <Button
                         variant="primary"
@@ -92,26 +84,18 @@ export const BlockNumberActivation = ({
                             className="mt-2 w-full rounded-lg border-0 bg-dapp-blue-800 text-left text-2xl leading-10 [appearance:textfield] focus:ring-0 focus:ring-offset-0 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
                             ref={blockNumberRef}
                         />
-                        <span className="px-2 text-xs">
-                            current block: {currentBlock.toString()}
-                        </span>
+                        <span className="px-2 text-xs">current block: {currentBlock.toString()}</span>
                     </div>
                     <div className="flex w-full flex-row-reverse gap-4">
                         <Button
                             variant="primary"
-                            disabled={
-                                !blockNumber || blockNumber < currentBlock
-                            }
+                            disabled={!blockNumber || blockNumber < currentBlock}
                             onClick={() => onConfirm()}
                             className="w-2/3"
                         >
                             Confirm & Proceed
                         </Button>
-                        <Button
-                            variant="secondary"
-                            onClick={() => onCancel()}
-                            className="w-1/3"
-                        >
+                        <Button variant="secondary" onClick={() => onCancel()} className="w-1/3">
                             Cancel
                         </Button>
                     </div>
@@ -130,19 +114,10 @@ export const BlockNumberActivation = ({
                         or cancel the process.
                     </div>
                     <div className="flex w-full flex-row-reverse gap-4">
-                        <Button
-                            variant="primary"
-                            disabled={!blockNumber}
-                            onClick={() => onConfirm()}
-                            className="w-2/3"
-                        >
+                        <Button variant="primary" disabled={!blockNumber} onClick={() => onConfirm()} className="w-2/3">
                             Retry
                         </Button>
-                        <Button
-                            variant="secondary"
-                            onClick={() => onCancel()}
-                            className="w-1/3"
-                        >
+                        <Button variant="secondary" onClick={() => onCancel()} className="w-1/3">
                             Cancel
                         </Button>
                     </div>

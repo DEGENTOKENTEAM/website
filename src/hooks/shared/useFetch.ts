@@ -38,7 +38,7 @@ export const useFetch = <T = any>({
             .catch((error) => console.warn('[useFetch Error]', error))
 
         return () => abortController.abort()
-    }, [url, method, body])
+    }, [url, method, body, enabled])
 
     return { response, loading }
 }

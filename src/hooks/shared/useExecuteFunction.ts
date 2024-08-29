@@ -95,7 +95,7 @@ export const useExecuteFunction = ({
                 }
             })
         }
-    }, [logs, eventNames])
+    }, [logs, eventNames, abi, address])
 
     useEffect(() => {
         if (isErrorWrite) setIsLoading(false)

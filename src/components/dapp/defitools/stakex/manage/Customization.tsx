@@ -103,7 +103,7 @@ export const Customization = () => {
 
     useEffect(() => {
         const image = cropperRef.current?.getCanvas()?.toDataURL().split(',')[1]
-        if (signature && isLoadingLogoUpload && chain && challengeMessage && image) {
+        if (update && protocol && signature && isLoadingLogoUpload && chain && challengeMessage && image) {
             update({
                 chainId: chain.id,
                 sig: signature,
@@ -113,12 +113,12 @@ export const Customization = () => {
                 image,
             })
         }
-    }, [isLoadingLogoUpload, signature, chain, challengeMessage])
+    }, [isLoadingLogoUpload, signature, chain, challengeMessage, protocol, update])
 
     useEffect(() => {
         if (!loadingUpdate) {
             if (responseUpdate) {
-                load()
+                load && load()
                 setCropImage(null)
                 setPreviewImage(null)
                 setIsLoadingLogoUpload(false)
@@ -129,11 +129,12 @@ export const Customization = () => {
                 toast.error(errorUpdate, { autoClose: 5000 })
             }
         }
-    }, [responseUpdate, loadingUpdate, errorUpdate])
+    }, [responseUpdate, loadingUpdate, errorUpdate, load])
 
     useEffect(() => {
         stakingToken && stakingToken.symbol && setProjectName(`${stakingToken.symbol} staking`)
     }, [stakingToken])
+
     return (
         <>
             <Tile className="flex w-full flex-col gap-8">

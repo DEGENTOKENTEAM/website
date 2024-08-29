@@ -63,7 +63,7 @@ export const useSetTokens = (
     }, [publicClient, hash, address, manager])
 
     useEffect(() => {
-        if (logs && logs.length > 0) {
+        if (resetWriteContract && logs && logs.length > 0) {
             logs.forEach((log) => {
                 const { data, topics } = log
                 const event = decodeEventLog({ abi, data, topics })
@@ -74,7 +74,7 @@ export const useSetTokens = (
                 }
             })
         }
-    }, [logs])
+    }, [logs, resetWriteContract])
 
     useEffect(() => {
         if (isErrorWrite) setIsLoading(false)
