@@ -23,9 +23,7 @@ export const TokenSearchInput = ({
     return (
         <Field className="flex flex-col gap-2">
             {showDescription && (
-                <Description className="text-xs/4 text-dapp-cyan-50/50">
-                    Enter an ERC20 token address
-                </Description>
+                <Description className="text-xs/4 text-dapp-cyan-50/50">Enter an ERC20 token address</Description>
             )}
             <Input
                 pattern="0x[a-zA-Z0-9]{40}"
@@ -38,36 +36,22 @@ export const TokenSearchInput = ({
             {isSearchActive && (
                 <>
                     <div className="pl-2 text-xs">
-                        {!error &&
-                            !isLoadingTokenInfo &&
-                            tokenInfo &&
-                            tokenInfo?.name && (
-                                <div className="flex flex-row items-center gap-2">
-                                    <FaRegCheckCircle className="h-5 w-5 text-success" />{' '}
-                                    Found: {tokenInfo.name} ({tokenInfo.symbol})
-                                    with {Number(tokenInfo.decimals)} decimals
-                                </div>
-                            )}
+                        {!error && !isLoadingTokenInfo && tokenInfo && tokenInfo?.name && (
+                            <div className="flex flex-row items-center gap-2">
+                                <FaRegCheckCircle className="h-5 w-5 text-success" /> Found: {tokenInfo.name} (
+                                {tokenInfo.symbol}) with {Number(tokenInfo.decimals)} decimals
+                            </div>
+                        )}
                         {!error && isLoadingTokenInfo && (
                             <div className="flex flex-row items-center gap-2">
                                 <Spinner className="!h-5 !w-5" theme="dark" />
                                 Searching...
                             </div>
                         )}
-                        {((!isLoadingTokenInfo &&
-                            tokenInfo &&
-                            !tokenInfo?.name) ||
-                            error) && (
+                        {((!isLoadingTokenInfo && tokenInfo && !tokenInfo?.name) || error) && (
                             <div className="flex flex-row items-center gap-2">
                                 <FaRegTimesCircle className="h-5 w-5 text-error" />{' '}
-                                {error ? (
-                                    error
-                                ) : (
-                                    <span>
-                                        Not found! Please check the entered
-                                        address
-                                    </span>
-                                )}
+                                {error ? error : <span>Not found! Please check the entered address</span>}
                             </div>
                         )}
                     </div>

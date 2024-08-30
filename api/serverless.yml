@@ -39,7 +39,7 @@ custom:
       staging: Retain
       production: Retain
   corsAllowedOrigin:
-    dev: http://localhost:3000
+    dev: '*'
     staging: https://staging.dgnx.finance
     production: https://dgnx.finance
   webpack:

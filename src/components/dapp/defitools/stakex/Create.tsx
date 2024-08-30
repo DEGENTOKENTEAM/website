@@ -12,7 +12,6 @@ import { SwitchForm } from '@dappshared/SwitchForm'
 import { Tile } from '@dappshared/Tile'
 import { TokenSearchInput } from '@dappshared/TokenSearchInput'
 import { STAKEXCreatorData, STAKEXCreatorDataInitParams, STAKEXDeployArgs } from '@dapptypes'
-import { isNumber } from 'lodash'
 import { ChangeEvent, useCallback, useContext, useEffect, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { getChainById } from 'shared/supportedChains'
@@ -55,6 +54,7 @@ const initBucketData: BucketFormParams = {
     lock: false,
     share: 10000,
 }
+
 export const Create = () => {
     const { setTitle } = useContext(DAppContext)
     const navigate = useNavigate()
@@ -93,15 +93,18 @@ export const Create = () => {
         error: errorStakingTokenInfo,
         isLoading: isLoadingStakingTokenInfo,
         data: dataStakingTokenInfo,
+        refetch: refetchStakingTokenInfo,
     } = useGetTokenInfo({
         enabled: Boolean(selectedChain && selectedChain.id && stakingTokenAddress),
         token: stakingTokenAddress!,
         chainId: selectedChain?.id!,
     })
+
     const {
         error: errorRewardTokenInfo,
         isLoading: isLoadingRewardTokenInfo,
         data: dataRewardTokenInfo,
+        refetch: refetchRewardTokenInfo,
     } = useGetTokenInfo({
         enabled: Boolean(selectedChain && selectedChain.id && rewardTokenAddress),
         token: rewardTokenAddress!,
@@ -204,14 +207,10 @@ export const Create = () => {
     // TODO respect discounts
 
     useEffect(() => {
-        if (!chainId || !isNumber(chainId)) return
-
-        const _chain = networks.find((chain) => chain.id === chainId)
-
-        if (_chain && selectedChain?.id != _chain.id) {
-            setIsLoading(false)
-            setSelectedChain(_chain)
-        }
+        const _chainId = Number(chainId || process.env.NEXT_PUBLIC_CHAIN_ID)
+        const _chain = networks.find((chain) => chain.id === _chainId)
+        if (_chain && (!selectedChain || selectedChain?.id != _chain.id)) setSelectedChain(_chain)
+        setIsLoading(false)
     }, [chainId])
 
     useEffect(() => {
@@ -230,8 +229,11 @@ export const Create = () => {
                 initParams: {
                     ...initParams,
                     rewards:
-                        useDifferentRewardToken && dataRewardTokenInfo ? [{ token: dataRewardTokenInfo.source }] : [],
-                    stakingToken: dataStakingTokenInfo ? dataStakingTokenInfo.source : null,
+                        useDifferentRewardToken && dataRewardTokenInfo && dataRewardTokenInfo.symbol
+                            ? [{ token: dataRewardTokenInfo.source }]
+                            : [],
+                    stakingToken:
+                        dataStakingTokenInfo && dataStakingTokenInfo.symbol ? dataStakingTokenInfo.source : null,
                     bucketsToAdd: bucketFormData
                         ? [
                               {
@@ -284,7 +286,6 @@ export const Create = () => {
     }, [data])
 
     useEffect(() => {
-        console.log({ dataFeeEstimation })
         setDeployFee(dataFeeEstimation ? dataFeeEstimation : 0n)
         setNetworkFee(dataNetworkFeeEstimation ? dataNetworkFeeEstimation : 0n)
         setTotalFeeEstimation(
@@ -308,7 +309,7 @@ export const Create = () => {
 
     useEffect(() => {
         setDeployerAddress(selectedChain ? protocols[selectedChain.id].deployer : undefined)
-    }, [selectedChain])
+    }, [selectedChain, refetchRewardTokenInfo, refetchStakingTokenInfo])
 
     useEffect(() => {
         setTitle('STAKEX Creator')
@@ -377,7 +378,6 @@ export const Create = () => {
                                         stakers.
                                     </span>
                                 </div>
-
                                 {selectedChain && (
                                     <TokenSearchInput
                                         error={errorRewardTokenInfo?.message || ''}
