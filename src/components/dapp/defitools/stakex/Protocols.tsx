@@ -24,8 +24,6 @@ export const Protocols = () => {
 
     const [protocols, setProtocols] = useState<ProtocolsResponse[]>()
 
-    const [loaded, setLoaded] = useState(false)
-
     const loadProtocols = useCallback(() => {
         fetch(
             selectedChain

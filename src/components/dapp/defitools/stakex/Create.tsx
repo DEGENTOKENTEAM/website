@@ -61,11 +61,11 @@ export const Create = () => {
     const { isConnected, chainId, address: addressConnected } = useAccount()
     const [searchParams, setSearchParams] = useSearchParams()
     const chainIds = Object.keys(protocols).map((v) => +v)
+    const networks = chainIds.map((id) => getChainById(id))
 
     const [data, setData] = useState<STAKEXCreatorData>(initStorageData)
     const [isLoading, setIsLoading] = useState(true)
     const [isValid, setIsValid] = useState(false)
-    const [chains, setChains] = useState<Chain[]>()
     const [selectedChain, setSelectedChain] = useState<Chain>()
     const [deployerAddress, setDeployerAddress] = useState<Address>()
     const [deployFee, setDeployFee] = useState<bigint>()
@@ -107,10 +107,12 @@ export const Create = () => {
         token: rewardTokenAddress!,
         chainId: selectedChain?.id!,
     })
-    const { data: dataFeeEstimation, refetch: refetchFeeEstimation } = useGetFeeEstimationDeployerSTAKEX(
-        deployerAddress!,
-        selectedChain?.id!
-    )
+    const {
+        data: dataFeeEstimation,
+        refetch: refetchFeeEstimation,
+        error,
+    } = useGetFeeEstimationDeployerSTAKEX(deployerAddress!, selectedChain?.id!)
+
     const { data: dataNetworkFeeEstimation } = useGetNetworkFeeEstimationDeployerSTAKEX(
         deployerAddress!,
         selectedChain?.id!,
@@ -139,7 +141,7 @@ export const Create = () => {
     )
 
     const onChangeSelectedNetwork = (chain: Chain) => {
-        setSelectedChain(chain)
+        if (!selectedChain || chain.id !== selectedChain?.id) setSelectedChain(chain)
     }
 
     const onChangeStakingTokenAddress = (e: ChangeEvent<HTMLInputElement>) => {
@@ -201,18 +203,16 @@ export const Create = () => {
     // TODO respect referral
     // TODO respect discounts
 
-    useEffect(() => setIsLoading(!Boolean(chains && chains.length > 0)), [chains])
-
     useEffect(() => {
-        if (!chainIds || chainIds.length == 0) return
-        let networks = chainIds.map((id) => getChainById(id))
+        if (!chainId || !isNumber(chainId)) return
 
-        if (isNumber(chainId) && chainId > 0) networks = networks.sort((chain) => (chainId == chain.id ? -1 : 1))
+        const _chain = networks.find((chain) => chain.id === chainId)
 
-        setChains(networks)
-        setSelectedChain(networks[0])
-        setDeployerAddress(protocols[networks[0].id].deployer)
-    }, [chainId, chainIds])
+        if (_chain && selectedChain?.id != _chain.id) {
+            setIsLoading(false)
+            setSelectedChain(_chain)
+        }
+    }, [chainId])
 
     useEffect(() => {
         if (!selectedChain || !protocols) return
@@ -284,6 +284,7 @@ export const Create = () => {
     }, [data])
 
     useEffect(() => {
+        console.log({ dataFeeEstimation })
         setDeployFee(dataFeeEstimation ? dataFeeEstimation : 0n)
         setNetworkFee(dataNetworkFeeEstimation ? dataNetworkFeeEstimation : 0n)
         setTotalFeeEstimation(
@@ -306,6 +307,10 @@ export const Create = () => {
     }, [selectedChain, refetchFeeEstimation])
 
     useEffect(() => {
+        setDeployerAddress(selectedChain ? protocols[selectedChain.id].deployer : undefined)
+    }, [selectedChain])
+
+    useEffect(() => {
         setTitle('STAKEX Creator')
     })
 
@@ -317,13 +322,13 @@ export const Create = () => {
                     <span className="text-degenOrange">X</span>
                     <span className="ml-1 text-xl">Creator</span>
                 </h1>
-                {!isLoading && chains && (
+                {!isLoading && (
                     <Tile className="flex flex-col gap-8">
                         <div className="flex flex-col">
                             <span className="text-lg font-bold">Choose network</span>
                             {selectedChain && (
                                 <NetworkSelectorForm
-                                    chains={chains}
+                                    chains={networks}
                                     selectedChain={selectedChain}
                                     onChange={onChangeSelectedNetwork}
                                 />

@@ -16,7 +16,7 @@ type DeFiToolType = {
 const defitools: DeFiToolType[] = [
     {
         name: 'STAKEX',
-        logo: '/defitools/dummy-defitools-logo.png',
+        logo: '/defitools/stakex.svg',
         to: './stakex/create/',
         toLabel: 'Create your own STAKEX',
         toMore: 'https://docs.dgnx.finance/degenx-ecosystem/Products/stakex/introduction',
@@ -24,7 +24,7 @@ const defitools: DeFiToolType[] = [
     },
     {
         name: 'LIQUIDITY BACKING',
-        logo: '/defitools/dummy-defitools-logo.png',
+        logo: '/defitools/backing.svg',
         to: null,
         toLabel: 'Create your own Liquidity Backing',
         toMore: 'https://docs.dgnx.finance/degenx-ecosystem/Products/Liquidity_Backing/liquidity_backing',
@@ -33,7 +33,7 @@ const defitools: DeFiToolType[] = [
     },
     {
         name: 'LOCKR',
-        logo: '/defitools/dummy-defitools-logo.png',
+        logo: '/defitools/locker.svg',
         to: null,
         toLabel: 'Create a Locker',
         toMore: null,
@@ -42,7 +42,7 @@ const defitools: DeFiToolType[] = [
     },
     {
         name: 'DISBURSER',
-        logo: '/defitools/dummy-defitools-logo.png',
+        logo: '/defitools/disburser.svg',
         to: null,
         toLabel: 'Create a Disburser',
         toMore: null,

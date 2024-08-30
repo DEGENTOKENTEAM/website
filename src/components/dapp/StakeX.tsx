@@ -104,8 +104,8 @@ export const StakeX = () => {
     const { data: stakingTokenInfo } = useGetStakingToken(stakingData.protocol, stakingData.chain?.id!)
 
     const { response: responseCustomization, load: loadCustomization } = useGetCustomization(
-        stakingData.protocol,
-        stakingData.chain?.id!
+        protocolAddress!,
+        Number(chainId)
     )
 
     const onClickHandler = () => {
@@ -197,22 +197,18 @@ export const StakeX = () => {
     }, [chain, isConnected, availableNetworks])
 
     useEffect(() => {
-        if (!stakingData) return
-        const _data = { ...stakingData }
+        const _data = { ...(stakingData || {}) }
         if (protocolAddress) _data.protocol = protocolAddress
         if (chainId) _data.chain = getChainById(Number(chainId))
         if (!isUndefined(dataActive)) _data.isActive = dataActive
         if (!isUndefined(dataRunning)) _data.isRunning = dataRunning
         setStakingData(_data)
-    }, [protocolAddress, chainId, dataActive, dataRunning, stakingData])
+    }, [protocolAddress, chainId, dataActive, dataRunning])
 
-    useEffect(() => {
-        stakingData && stakingData.protocol && loadCustomization && loadCustomization()
-    }, [stakingData, loadCustomization])
-
-    useEffect(() => {
-        chainId && setChain(getChainById(Number(chainId)))
-    }, [chainId])
+    useMemo(() => {
+        protocolAddress && chainId && loadCustomization && loadCustomization()
+        Number(chainId) && (!chain || chain?.id !== Number(chainId)) && setChain(getChainById(Number(chainId)))
+    }, [protocolAddress, chainId, loadCustomization])
 
     return (
         <StakeXContext.Provider

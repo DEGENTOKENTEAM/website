@@ -13,6 +13,7 @@ export const handler = async (
     event: APIGatewayProxyEvent
 ): Promise<APIGatewayProxyResult> => {
     const { chainId } = event.pathParameters || {}
+
     const protocolResponseBlank: ProtocolsResponse = {
         protocol: {
             apr: { avg: 0, high: Number.MIN_VALUE, low: Number.MAX_VALUE },
@@ -132,11 +133,13 @@ export const handler = async (
                 FunctionName: process.env.LAMBDA_CUSTOMIZATION_NAME,
                 Payload: JSON.stringify({
                     pathParameters: {
-                        protocol: `${stakingToken.protocol}`,
+                        protocol: `${protocol}`,
+                        chainId: chainId,
                     },
                 }),
             })
         )
+
         const ipfsdata = JSON.parse(
             JSON.parse(
                 new TextDecoder().decode(invokeCustomizationResponse.Payload)

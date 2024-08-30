@@ -11,7 +11,7 @@ export const useGetCustomization = (protocol: Address, chainId: number) => {
         const abortController = new AbortController()
         const signal = abortController.signal
 
-        if (loading || protocol == zeroAddress || !chainId) return
+        if (loading || !protocol || protocol == zeroAddress || !chainId) return
 
         setLoading(true)
 
@@ -39,7 +39,7 @@ export const useGetCustomization = (protocol: Address, chainId: number) => {
             })
 
         return () => abortController.abort()
-    }, [protocol, chainId, loading])
+    }, [protocol, chainId])
 
     useEffect(() => {
         load && load()

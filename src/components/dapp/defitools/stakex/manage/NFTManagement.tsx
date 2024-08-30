@@ -83,7 +83,7 @@ export const NFTManagement = () => {
                     (renderedNFTs ? (
                         <div className="grid grid-cols-3 gap-6">
                             {renderedNFTs.map((nft: string, i: number) => (
-                                <Image key={i} alt={`NFT`} src={nft} className="rounded-xl shadow-lg" />
+                                <img key={i} alt={`NFT`} src={nft} className="rounded-xl shadow-lg" />
                             ))}
                         </div>
                     ) : (
@@ -99,7 +99,7 @@ export const NFTManagement = () => {
                         </div>
                         <div className="flex">
                             <div className="relative w-1/3 overflow-auto rounded-xl">
-                                <Image src={previewImage} alt="Proposed NFT Image" />
+                                <img src={previewImage} alt="Proposed NFT Image" />
                                 <div className="pointer-events-none absolute inset-0 flex items-center justify-center bg-dapp-cyan-50/30  hover:bg-dapp-cyan-50/70">
                                     <Button
                                         onClick={() => onClickChooseRecommendedTemplate()}

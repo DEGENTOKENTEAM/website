@@ -53,10 +53,8 @@ export const Manage = () => {
     const { data: dataIsRunning } = useRunning(protocolAddress!, chain?.id!)
 
     useEffect(() => {
-        if (!data) return
-
         const _data: ManageStakeXContextDataType = {
-            ...data,
+            ...(data || {}),
             isLoading: !Boolean(dataStakingToken && dataMetrics && dataContractOwner),
         }
 
@@ -71,7 +69,7 @@ export const Manage = () => {
         if (!isUndefined(dataIsRunning)) _data.isRunning = dataIsRunning
 
         setData(_data)
-    }, [dataStakingToken, address, dataMetrics, dataContractOwner, dataIsActive, dataIsRunning, data])
+    }, [dataStakingToken, address, dataMetrics, dataContractOwner, dataIsActive, dataIsRunning])
 
     if (!protocolAddress) {
         toast.error('Invalid protocol address')
@@ -80,7 +78,7 @@ export const Manage = () => {
     }
 
     const reloadData = () => {
-        // TODO maybe to something to update protocol specific stuff
+        // TODO maybe do something to update protocol specific stuff
     }
 
     return (
