@@ -36,7 +36,7 @@ export const GeneralInformation = () => {
     const { data: dataIsActive, isLoading: isLoadingIsActive } = useActive(protocol, chain?.id!)
     const { data: dataIsInitialized, isLoading: isLoadingIsInitialized } = useInitialized(protocol, chain?.id!)
     const { data: dataIsRunning, isLoading: isLoadingIsRunning } = useRunning(protocol, chain?.id!)
-    const { data: dataStakingData } = useGetStakingData(protocol, chain?.id!)
+    const { data: dataStakingData, isLoading: isLoadingStakingData } = useGetStakingData(protocol, chain?.id!)
     const {
         data: dataStakingTokenBalance,
         isLoading: isLoadingStakingTokenBalance,
@@ -156,18 +156,18 @@ export const GeneralInformation = () => {
                 </StatsBoxTwoColumn.LeftColumn>
                 <StatsBoxTwoColumn.RightColumn>
                     <div className="flex justify-end">
-                        {!isLoadingStakingTokenBalance && !isUndefined(dataStakingTokenBalance) && dataStakingToken ? (
-                            `${dataStakingTokenBalance ? '~' : ''}${toReadableNumber(
-                                dataStakingTokenBalance,
-                                dataStakingToken.decimals,
+                        {!isLoadingStakingData &&
+                            !isUndefined(dataStakingData) &&
+                            dataStakingToken &&
+                            dataStakingData &&
+                            `~${toReadableNumber(
+                                dataStakingData.staked.amount,
+                                dataStakingData.staked.tokenInfo.decimals,
                                 {
                                     maximumFractionDigits: 2,
                                     minimumFractionDigits: 2,
                                 }
-                            )}`
-                        ) : (
-                            <Spinner className="mt-2 h-2 w-2" theme="dark" />
-                        )}
+                            )}`}
                     </div>
                 </StatsBoxTwoColumn.RightColumn>
 

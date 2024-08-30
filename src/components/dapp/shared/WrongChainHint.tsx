@@ -23,7 +23,7 @@ export const WrongChainHint = ({ chainIdProtocol, chainIdAccount, className }: W
         chainIdAccount && setChainAccount(getChainById(chainIdAccount))
     }, [chainIdAccount])
 
-    if (!chainProtocol || !chainProtocol) return <></>
+    if (!chainAccount || !chainProtocol || chainProtocol.id == chainAccount.id) return <></>
 
     return (
         <Tile className={clsx([`flex flex-col items-center gap-8 md:flex-row`, className])}>
