@@ -31,24 +31,24 @@ const defitools: DeFiToolType[] = [
         description:
             'Liquidity Backing is setting a foundational value for your project by establishing a growing pool of assets based on your total supply. This mechanism allows your holders to unlock their share of Liquidity Backing assets by choosing to burn their tokens. With this product, your project will earn more trust and security for the holders.',
     },
-    {
-        name: 'LOCKR',
-        logo: '/defitools/locker.svg',
-        to: null,
-        toLabel: 'Create a Locker',
-        toMore: null,
-        description:
-            "Time-Lock your tokens the smart way! LOCKR is more than just a token locker. It's the perfect solution for keeping your tokens secure and also releasing them gradually over time. Easy to use and ideal for vesting, rewards or locking liquidity. A smart way to protect your assets.",
-    },
-    {
-        name: 'DISBURSER',
-        logo: '/defitools/disburser.svg',
-        to: null,
-        toLabel: 'Create a Disburser',
-        toMore: null,
-        description:
-            'An innovative vesting protocol that pays out tokens based on the current amount of tokens held. It can be used to raise liquidity or to provide holding incentives.',
-    },
+    // {
+    //     name: 'LOCKR',
+    //     logo: '/defitools/locker.svg',
+    //     to: null,
+    //     toLabel: 'Create a Locker',
+    //     toMore: null,
+    //     description:
+    //         "Time-Lock your tokens the smart way! LOCKR is more than just a token locker. It's the perfect solution for keeping your tokens secure and also releasing them gradually over time. Easy to use and ideal for vesting, rewards or locking liquidity. A smart way to protect your assets.",
+    // },
+    // {
+    //     name: 'DISBURSER',
+    //     logo: '/defitools/disburser.svg',
+    //     to: null,
+    //     toLabel: 'Create a Disburser',
+    //     toMore: null,
+    //     description:
+    //         'An innovative vesting protocol that pays out tokens based on the current amount of tokens held. It can be used to raise liquidity or to provide holding incentives.',
+    // },
 ]
 
 type DeFiToolTileProps = {
