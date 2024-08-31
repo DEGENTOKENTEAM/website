@@ -73,6 +73,10 @@ export const Protocols = () => {
                     Create Your Staking Protocol
                 </Button>
             </div>
+            <Tile className="opacity-70">
+                <span className="font-bold">Notice</span> - after protocol creation, it&apos;ll take up to 5 minutes for
+                your protocol to be listed
+            </Tile>
             {isLoading && (
                 <div className="flex w-full items-center justify-center">
                     <Spinner theme="dark" />
