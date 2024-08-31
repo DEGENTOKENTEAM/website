@@ -13,7 +13,7 @@ export const StakingProgressChart = () => {
     const [chartData, setChartData] = useState<any>(null)
 
     useEffect(() => {
-        if (!metrics || !metrics.stakeLogs) return
+        if (!metrics || !metrics.stakeLogs || !metrics.stakeLogs.length) return
 
         const stakedOnDailyBasis = metrics.stakeLogs.reduce((acc, { timestamp, staked }) => {
             const dayFromTS = timestamp - (timestamp % 86400)

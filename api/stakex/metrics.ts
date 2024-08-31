@@ -69,7 +69,7 @@ export const handler = async (
 
     let annualPercentageData = {}
     for (const bucket of buckets) {
-        const bucketAprApyData = await db.query({
+        const { Count, Items } = await db.query({
             TableName: process.env.DB_TABLE_NAME_STAKEX_ANNUAL_PERCENTAGE_LOGS,
             KeyConditionExpression:
                 '#pkey = :pkey AND begins_with(#skey, :skey)',
@@ -84,8 +84,10 @@ export const handler = async (
             ScanIndexForward: false,
             Limit: 1,
         })
-        const { bucketId, apr, apy, fromBlock, toBlock } = bucketAprApyData
-            .Items?.[0] as any
+
+        if (!Count) continue
+
+        const { bucketId, apr, apy, fromBlock, toBlock } = Items?.[0] as any
 
         annualPercentageData = {
             ...annualPercentageData,

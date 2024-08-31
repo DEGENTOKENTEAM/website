@@ -10,20 +10,10 @@ import { useUpdateStakeBucketShares } from '@dapphooks/staking/useUpdateStakeBuc
 import { CaretDivider } from '@dappshared/CaretDivider'
 import { StatsBoxTwoColumn } from '@dappshared/StatsBoxTwoColumn'
 import { Tile } from '@dappshared/Tile'
-import {
-    AnnualPercentageDataType,
-    BucketParams,
-    StakeBucket,
-    StakeBucketUpdateShareParams,
-} from '@dapptypes'
+import { AnnualPercentageDataType, BucketParams, StakeBucket, StakeBucketUpdateShareParams } from '@dapptypes'
 import clsx from 'clsx'
 import { useCallback, useContext, useEffect, useState } from 'react'
-import {
-    FaPen,
-    FaPlus,
-    FaRegCheckCircle,
-    FaRegTimesCircle,
-} from 'react-icons/fa'
+import { FaPen, FaPlus, FaRegCheckCircle, FaRegTimesCircle } from 'react-icons/fa'
 import { Button } from 'src/components/Button'
 import { Spinner } from 'src/components/dapp/elements/Spinner'
 import { Address } from 'viem'
@@ -33,21 +23,11 @@ import { ChangeStateConfirmation } from './buckets/overlays/ChangeStateConfirmat
 
 export const Buckets = () => {
     const {
-        data: {
-            protocol,
-            stakingToken,
-            isLoading,
-            isOwner,
-            metrics,
-            chain,
-            owner,
-        },
+        data: { protocol, stakingToken, isLoading, isOwner, metrics, chain, owner },
     } = useContext(ManageStakeXContext)
 
-    const [multiplierPerStakingTokens, setMultiplierPerStakingTokens] =
-        useState<{ [key: string]: number }>({})
-    const [yieldPerBucket, setYieldPerBucket] =
-        useState<AnnualPercentageDataType>()
+    const [multiplierPerStakingTokens, setMultiplierPerStakingTokens] = useState<{ [key: string]: number }>({})
+    const [yieldPerBucket, setYieldPerBucket] = useState<AnnualPercentageDataType>()
     const [showAddBucketsForm, setShowAddBucketsForm] = useState(false)
     const [showChangeSharesForm, setShowChangeSharesForm] = useState(false)
     const [hasChanges, setHasChanges] = useState(false)
@@ -55,16 +35,12 @@ export const Buckets = () => {
         bucketAddParams: BucketParams[]
         bucketUpdateShareParams: StakeBucketUpdateShareParams[]
     }>()
-    const [isApplyChangesModalOpen, setIsApplyChangesModalOpen] =
-        useState(false)
+    const [isApplyChangesModalOpen, setIsApplyChangesModalOpen] = useState(false)
 
     const { data: dataStaking } = useGetStakingData(protocol, chain?.id!)
-    const { data: dataStakeBuckets, refetch: refetchStakeBuckets } =
-        useGetStakeBuckets(protocol, chain?.id!, true)
-    const {
-        data: dataMultipliersPerOneStakingToken,
-        isLoading: isLoadingMultipliersPerOneStakingToken,
-    } = useGetMultipliersPerOneStakingToken(protocol, chain?.id!)
+    const { data: dataStakeBuckets, refetch: refetchStakeBuckets } = useGetStakeBuckets(protocol, chain?.id!, true)
+    const { data: dataMultipliersPerOneStakingToken, isLoading: isLoadingMultipliersPerOneStakingToken } =
+        useGetMultipliersPerOneStakingToken(protocol, chain?.id!)
     const {
         isLoading: isLoadingAddStakeBuckets,
         isSuccess: isSuccessAddStakeBuckets,
@@ -122,11 +98,7 @@ export const Buckets = () => {
     }
 
     const onConfirmationModalOK = useCallback(() => {
-        if (
-            addBucketFormData &&
-            addBucketFormData?.bucketAddParams &&
-            addBucketFormData?.bucketAddParams.length > 0
-        ) {
+        if (addBucketFormData && addBucketFormData?.bucketAddParams && addBucketFormData?.bucketAddParams.length > 0) {
             writeAddStakeBuckets && writeAddStakeBuckets()
         } else {
             writeUpdateStakeBucketShares && writeUpdateStakeBucketShares()
@@ -151,9 +123,7 @@ export const Buckets = () => {
             dataMultipliersPerOneStakingToken.reduce(
                 (acc, multiplier) => ({
                     ...acc,
-                    [multiplier.bucketId]:
-                        Number(multiplier.multiplier) /
-                        Number(multiplier.divider),
+                    [multiplier.bucketId]: Number(multiplier.multiplier) / Number(multiplier.divider),
                 }),
                 {}
             )
@@ -172,9 +142,7 @@ export const Buckets = () => {
     // bucket state toggle
     //
     const [isStateToggleModalOpen, setIsStateToggleModalOpen] = useState(false)
-    const [bucketIdToToggle, setBucketIdToToggle] = useState<Address | null>(
-        null
-    )
+    const [bucketIdToToggle, setBucketIdToToggle] = useState<Address | null>(null)
     const [bucketIdToToggleState, setBucketIdToToggleState] = useState(false)
 
     const {
@@ -220,44 +188,29 @@ export const Buckets = () => {
     return (
         <>
             <Tile className="w-full">
-                <div className="flex flex-row items-center">
-                    <span className="flex-1 font-title text-xl font-bold">
+                <div className="flex flex-col items-center gap-8 sm:flex-row">
+                    <span className="w-full flex-1 items-start whitespace-nowrap font-title text-xl font-bold">
                         {isOwner ? `Staking Pool Management` : `Staking Pools`}
                     </span>
                     {isOwner && (
                         <>
                             {(showAddBucketsForm || showChangeSharesForm) && (
-                                <div className="flex gap-2">
-                                    <Button
-                                        onClick={onClickCancelButton}
-                                        variant="secondary"
-                                    >
+                                <div className="flex w-full justify-end gap-2">
+                                    <Button onClick={onClickCancelButton} variant="secondary">
                                         <span>Cancel</span>
                                     </Button>
-                                    <Button
-                                        disabled={!hasChanges}
-                                        onClick={onClickSaveButton}
-                                        variant="primary"
-                                    >
+                                    <Button disabled={!hasChanges} onClick={onClickSaveButton} variant="primary">
                                         <span>Apply Changes</span>
                                     </Button>
                                 </div>
                             )}
 
                             {!showAddBucketsForm && !showChangeSharesForm && (
-                                <div className="flex gap-2">
-                                    <Button
-                                        onClick={onClickAddButton}
-                                        variant="primary"
-                                        className="gap-3"
-                                    >
+                                <div className="flex w-full justify-end gap-2">
+                                    <Button onClick={onClickAddButton} variant="primary" className="gap-3">
                                         <FaPlus /> <span>Add</span>
                                     </Button>
-                                    <Button
-                                        onClick={onClickChangeSharesButton}
-                                        variant="primary"
-                                        className="gap-3"
-                                    >
+                                    <Button onClick={onClickChangeSharesButton} variant="primary" className="gap-3">
                                         <FaPen /> <span>Change Shares</span>
                                     </Button>
                                 </div>
@@ -273,54 +226,38 @@ export const Buckets = () => {
                     <div
                         className={clsx([
                             'mt-8 grid grid-cols-1 gap-8',
-                            dataStakeBuckets &&
-                                dataStakeBuckets.length > 1 &&
-                                'md:grid-cols-2',
+                            dataStakeBuckets && dataStakeBuckets.length > 1 && 'md:grid-cols-2',
                         ])}
                     >
-                        {isOwner &&
-                            (showAddBucketsForm || showChangeSharesForm) && (
-                                <div className="md:col-span-2">
-                                    <BucketsForm
-                                        editSharesOnly={Boolean(
-                                            showChangeSharesForm
-                                        )}
-                                        onChange={(
+                        {isOwner && (showAddBucketsForm || showChangeSharesForm) && (
+                            <div className="md:col-span-2">
+                                <BucketsForm
+                                    editSharesOnly={Boolean(showChangeSharesForm)}
+                                    onChange={(bucketAddParams, bucketUpdateShareParams) =>
+                                        setAddBucketFormData({
                                             bucketAddParams,
-                                            bucketUpdateShareParams
-                                        ) =>
-                                            setAddBucketFormData({
-                                                bucketAddParams,
-                                                bucketUpdateShareParams,
-                                            })
-                                        }
-                                        existingBuckets={dataStakeBuckets || []}
-                                    />
-                                </div>
-                            )}
+                                            bucketUpdateShareParams,
+                                        })
+                                    }
+                                    existingBuckets={dataStakeBuckets || []}
+                                />
+                            </div>
+                        )}
                         {dataStakeBuckets &&
                             dataStakeBuckets.map((bucket: StakeBucket) => (
-                                <div
-                                    key={bucket.id}
-                                    className="flex flex-col gap-4"
-                                >
+                                <div key={bucket.id} className="flex flex-col gap-4">
                                     <StatsBoxTwoColumn.Wrapper className="w-full rounded-lg bg-dapp-blue-800 px-5 py-2 text-sm">
                                         <StatsBoxTwoColumn.LeftColumn>
-                                            <span className="font-bold">
-                                                Lock duration
-                                            </span>
+                                            <span className="font-bold">Lock duration</span>
                                         </StatsBoxTwoColumn.LeftColumn>
                                         <StatsBoxTwoColumn.RightColumn>
                                             <span className="font-bold">
                                                 {bucket.burn
                                                     ? `burns ${stakingToken?.symbol}`
                                                     : bucket.duration > 0
-                                                    ? `${durationFromSeconds(
-                                                          bucket.duration,
-                                                          {
-                                                              long: true,
-                                                          }
-                                                      )}`
+                                                    ? `${durationFromSeconds(bucket.duration, {
+                                                          long: true,
+                                                      })}`
                                                     : 'No lock'}
                                             </span>
                                         </StatsBoxTwoColumn.RightColumn>
@@ -329,67 +266,39 @@ export const Buckets = () => {
                                             <CaretDivider />
                                         </div>
 
-                                        <StatsBoxTwoColumn.LeftColumn>
-                                            Multiplier
-                                        </StatsBoxTwoColumn.LeftColumn>
+                                        <StatsBoxTwoColumn.LeftColumn>Multiplier</StatsBoxTwoColumn.LeftColumn>
                                         <StatsBoxTwoColumn.RightColumn>
                                             {bucket.multiplier}x
                                         </StatsBoxTwoColumn.RightColumn>
 
                                         <StatsBoxTwoColumn.LeftColumn>
-                                            Multiplier per{' '}
-                                            {stakingToken?.symbol}
+                                            Multiplier per {stakingToken?.symbol}
                                         </StatsBoxTwoColumn.LeftColumn>
                                         <StatsBoxTwoColumn.RightColumn>
                                             {isLoadingMultipliersPerOneStakingToken ? (
-                                                <Spinner
-                                                    theme="dark"
-                                                    className="!h-4 !w-4"
-                                                />
-                                            ) : multiplierPerStakingTokens &&
-                                              multiplierPerStakingTokens[
-                                                  bucket.id
-                                              ] ? (
-                                                `${
-                                                    multiplierPerStakingTokens[
-                                                        bucket.id
-                                                    ]
-                                                }x`
+                                                <Spinner theme="dark" className="!h-4 !w-4" />
+                                            ) : multiplierPerStakingTokens && multiplierPerStakingTokens[bucket.id] ? (
+                                                `${multiplierPerStakingTokens[bucket.id]}x`
                                             ) : (
                                                 'n/a'
                                             )}
                                         </StatsBoxTwoColumn.RightColumn>
 
-                                        <StatsBoxTwoColumn.LeftColumn>
-                                            Reward share
-                                        </StatsBoxTwoColumn.LeftColumn>
+                                        <StatsBoxTwoColumn.LeftColumn>Reward share</StatsBoxTwoColumn.LeftColumn>
                                         <StatsBoxTwoColumn.RightColumn>
                                             {bucket.share / 100}%
                                         </StatsBoxTwoColumn.RightColumn>
 
-                                        <StatsBoxTwoColumn.LeftColumn>
-                                            APR / APY
-                                        </StatsBoxTwoColumn.LeftColumn>
+                                        <StatsBoxTwoColumn.LeftColumn>APR / APY</StatsBoxTwoColumn.LeftColumn>
                                         <StatsBoxTwoColumn.RightColumn>
-                                            {yieldPerBucket &&
-                                            yieldPerBucket[bucket.id]
-                                                ? `${toReadableNumber(
-                                                      yieldPerBucket[bucket.id]
-                                                          .apr,
-                                                      0,
-                                                      {
-                                                          maximumFractionDigits: 2,
-                                                          minimumFractionDigits: 2,
-                                                      }
-                                                  )}% / ${toReadableNumber(
-                                                      yieldPerBucket[bucket.id]
-                                                          .apy,
-                                                      0,
-                                                      {
-                                                          maximumFractionDigits: 2,
-                                                          minimumFractionDigits: 2,
-                                                      }
-                                                  )}%`
+                                            {yieldPerBucket && yieldPerBucket[bucket.id]
+                                                ? `${toReadableNumber(yieldPerBucket[bucket.id].apr, 0, {
+                                                      maximumFractionDigits: 2,
+                                                      minimumFractionDigits: 2,
+                                                  })}% / ${toReadableNumber(yieldPerBucket[bucket.id].apy, 0, {
+                                                      maximumFractionDigits: 2,
+                                                      minimumFractionDigits: 2,
+                                                  })}%`
                                                 : '0% / 0%'}
                                         </StatsBoxTwoColumn.RightColumn>
 
@@ -397,31 +306,16 @@ export const Buckets = () => {
                                             <CaretDivider />
                                         </div>
 
-                                        <StatsBoxTwoColumn.LeftColumn>
-                                            Staked
-                                        </StatsBoxTwoColumn.LeftColumn>
+                                        <StatsBoxTwoColumn.LeftColumn>Staked</StatsBoxTwoColumn.LeftColumn>
                                         <StatsBoxTwoColumn.RightColumn>
-                                            {stakingToken &&
-                                                toReadableNumber(
-                                                    bucket.staked,
-                                                    stakingToken?.decimals
-                                                )}
+                                            {stakingToken && toReadableNumber(bucket.staked, stakingToken?.decimals)}
                                         </StatsBoxTwoColumn.RightColumn>
 
-                                        <StatsBoxTwoColumn.LeftColumn>
-                                            Staked in %
-                                        </StatsBoxTwoColumn.LeftColumn>
+                                        <StatsBoxTwoColumn.LeftColumn>Staked in %</StatsBoxTwoColumn.LeftColumn>
                                         <StatsBoxTwoColumn.RightColumn>
-                                            {bucket.staked &&
-                                            dataStaking &&
-                                            stakingToken
+                                            {bucket.staked && dataStaking && stakingToken
                                                 ? `${toReadableNumber(
-                                                      (Number(bucket.staked) /
-                                                          Number(
-                                                              dataStaking.staked
-                                                                  .amount
-                                                          )) *
-                                                          100,
+                                                      (Number(bucket.staked) / Number(dataStaking.staked.amount)) * 100,
                                                       0
                                                   )}%`
                                                 : 'n/a'}
@@ -430,9 +324,7 @@ export const Buckets = () => {
                                             <CaretDivider />
                                         </div>
 
-                                        <StatsBoxTwoColumn.LeftColumn>
-                                            Is active?
-                                        </StatsBoxTwoColumn.LeftColumn>
+                                        <StatsBoxTwoColumn.LeftColumn>Is active?</StatsBoxTwoColumn.LeftColumn>
                                         <StatsBoxTwoColumn.RightColumn>
                                             <div className="flex items-center justify-end">
                                                 {bucket.active ? (
@@ -446,24 +338,12 @@ export const Buckets = () => {
 
                                     {isOwner && (
                                         <Button
-                                            variant={`${
-                                                bucket.active
-                                                    ? 'error'
-                                                    : 'primary'
-                                            }`}
+                                            variant={`${bucket.active ? 'error' : 'primary'}`}
                                             className="col-span-2"
-                                            disabled={
-                                                isLoadingEnableStakeBucket ||
-                                                isPendingEnableStakeBucket
-                                            }
-                                            onClick={() =>
-                                                onClickToggleActiveState(bucket)
-                                            }
+                                            disabled={isLoadingEnableStakeBucket || isPendingEnableStakeBucket}
+                                            onClick={() => onClickToggleActiveState(bucket)}
                                         >
-                                            Set{' '}
-                                            {bucket.active
-                                                ? 'Inactive'
-                                                : 'Active'}
+                                            Set {bucket.active ? 'Inactive' : 'Active'}
                                         </Button>
                                     )}
                                 </div>
@@ -472,18 +352,9 @@ export const Buckets = () => {
                 )}
             </Tile>
             <ApplyChangesConfirmation
-                isLoading={
-                    Boolean(isLoadingAddStakeBuckets) ||
-                    Boolean(isLoadingUpdateStakeBucketShares)
-                }
-                isSuccess={
-                    Boolean(isSuccessAddStakeBuckets) ||
-                    Boolean(isSuccessUpdateStakeBucketShares)
-                }
-                isPending={
-                    Boolean(isPendingAddStakeBuckets) ||
-                    Boolean(isPendingUpdateStakeBucketShares)
-                }
+                isLoading={Boolean(isLoadingAddStakeBuckets) || Boolean(isLoadingUpdateStakeBucketShares)}
+                isSuccess={Boolean(isSuccessAddStakeBuckets) || Boolean(isSuccessUpdateStakeBucketShares)}
+                isPending={Boolean(isPendingAddStakeBuckets) || Boolean(isPendingUpdateStakeBucketShares)}
                 isOpen={isApplyChangesModalOpen}
                 onClose={() => onConfirmationModalClose()}
                 onConfirm={() => onConfirmationModalOK()}
