@@ -50,7 +50,7 @@ export const GeneralInformation = () => {
         enabled: Boolean(dataStakingToken?.source),
         url: `${process.env.NEXT_PUBLIC_STAKEX_API_ENDPOINT}/latest/dex/tokens/${dataStakingToken?.source}`,
     })
-    const { response: responseTVLinUSD } = useGetTVLinUSD(protocol, chain?.id!)
+    const { response: responseTVLinUSD, isComplete: isCompleteTVLinUSD } = useGetTVLinUSD(protocol, chain?.id!)
 
     useEffect(() => {
         if (
@@ -171,7 +171,7 @@ export const GeneralInformation = () => {
                     </div>
                 </StatsBoxTwoColumn.RightColumn>
 
-                {!isLoadingStableToken && dataStableToken && tvlUsd && (
+                {Boolean(!isLoadingStableToken && dataStableToken && tvlUsd) && (
                     <>
                         <StatsBoxTwoColumn.LeftColumn>Total Value Locked</StatsBoxTwoColumn.LeftColumn>
                         <StatsBoxTwoColumn.RightColumn>
@@ -180,7 +180,8 @@ export const GeneralInformation = () => {
                                 {toReadableNumber(responseTVLinUSD, 0, {
                                     maximumFractionDigits: 2,
                                     minimumFractionDigits: 2,
-                                })}
+                                })}{' '}
+                                {!isCompleteTVLinUSD && <span className="text-xs">(incomplete)</span>}
                             </div>
                         </StatsBoxTwoColumn.RightColumn>
                     </>

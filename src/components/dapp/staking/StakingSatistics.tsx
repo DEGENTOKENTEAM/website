@@ -19,7 +19,11 @@ export const StakingStatistics = ({ protocol, chainId }: StakingStatisticsProps)
 
     const { data: stakingData, isLoading } = useGetStakingData(protocol, chainId)
 
-    const { response: responseTVLinUSD, loading: loadingTVLinUSD } = useGetTVLinUSD(protocol, chainId)
+    const {
+        response: responseTVLinUSD,
+        loading: loadingTVLinUSD,
+        isComplete: isCompleteTVLinUSD,
+    } = useGetTVLinUSD(protocol, chainId)
 
     return (
         <Tile className="w-full max-w-2xl text-lg leading-6">
@@ -59,6 +63,7 @@ export const StakingStatistics = ({ protocol, chainId }: StakingStatisticsProps)
                         ) : (
                             <span>{toReadableNumber(responseTVLinUSD)}</span>
                         )}
+                        {!isCompleteTVLinUSD && <span className="text-xs">(incomplete)</span>}
                     </div>
                     <div className="col-span-3 text-left sm:col-span-2 sm:text-right">
                         <span className="text-xs text-darkTextLowEmphasis">

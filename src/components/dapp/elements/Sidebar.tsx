@@ -215,12 +215,12 @@ export default function Sidebar(props: { mobile?: boolean }) {
                         return (
                             <Fragment key={i}>
                                 <SidebarItem item={item} current={isCurrent(item)} />
-                                {isCurrent(item) && item.children && (
+                                { /*isCurrent(item) && */ item.children && (
                                     <div className="flex flex-col gap-2  space-y-1 border-l-2 border-l-dapp-blue-400 pl-4">
                                         {item.children.map((child, j) => (
                                             <Fragment key={j}>
                                                 <SidebarItem item={child} current={isCurrent(child)} />
-                                                {isCurrent(child) &&
+                                                { /*isCurrent(child) &&*/
                                                     child.children &&
                                                     isArray(child.children) &&
                                                     child.children.length > 0 && (

@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react'
 import { Address } from 'viem'
 import { usePublicClient } from 'wagmi'
 import { useGetRewardTokens } from './useGetRewardTokens'
+import { isNaN } from 'lodash'
 
 export const useGetTVLinUSD = (protocolAddress: Address, chainId: number) => {
     const [response, setResponse] = useState<number>(0)
@@ -11,6 +12,7 @@ export const useGetTVLinUSD = (protocolAddress: Address, chainId: number) => {
 
     const [dataFetchesResults, setDataFetchesResult] = useState<any>()
     const [balanceFetchesResults, setBalanceFetchesResults] = useState<any>()
+    const [isComplete, setIsComplete] = useState(true)
 
     const { data: dataRewardTokens } = useGetRewardTokens(
         protocolAddress,
@@ -76,6 +78,12 @@ export const useGetTVLinUSD = (protocolAddress: Address, chainId: number) => {
                         10 ** Number(rewardToken.decimals)
 
                     const { pairs } = dataFetchesResults[idx]
+
+                    if (!pairs) {
+                        setIsComplete(false)
+                        return isNaN(acc) ? 0 : acc
+                    }
+
                     const filteredPairs = pairs?.filter(
                         ({ baseToken: { address } }) =>
                             rewardToken.source == address
@@ -84,14 +92,14 @@ export const useGetTVLinUSD = (protocolAddress: Address, chainId: number) => {
                         filteredPairs?.reduce((acc: number, { priceUsd }) => {
                             return acc + Number(priceUsd)
                         }, 0) / filteredPairs?.length
-
                     return acc + balance * avgUSD
                 }
-                return acc
+                setIsComplete(false)
+                return isNaN(acc) ? 0 : acc
             }, 0)
         )
         setLoading(false)
     }, [dataRewardTokens, balanceFetchesResults, dataFetchesResults])
 
-    return { response, loading }
+    return { response, loading, isComplete }
 }

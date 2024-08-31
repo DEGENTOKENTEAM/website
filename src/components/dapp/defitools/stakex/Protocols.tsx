@@ -57,11 +57,22 @@ export const Protocols = () => {
 
     return (
         <div className="mb-8 flex w-full max-w-5xl flex-col gap-8">
-            <h1 className="flex w-full max-w-2xl flex-row items-end px-8 font-title text-3xl font-bold tracking-wide sm:px-0">
-                <span className="text-techGreen">STAKE</span>
-                <span className="text-degenOrange">X</span>
-                <span className="ml-1 text-xl">Protocols</span>
-            </h1>
+            <div className="flex flex-col gap-8 px-8 sm:flex-row sm:px-0">
+                <h1 className="flex w-full flex-grow flex-row items-end font-title text-3xl font-bold tracking-wide sm:px-0">
+                    <span className="text-techGreen">STAKE</span>
+                    <span className="text-degenOrange">X</span>
+                    <span className="ml-1 text-xl">Protocols</span>
+                </h1>
+                <Button
+                    onClick={() => {
+                        navigate('./create/', { relative: 'route' })
+                    }}
+                    variant="primary"
+                    className="h-16 animate-pulse whitespace-nowrap text-xl sm:h-full sm:text-base"
+                >
+                    Create Your Staking Protocol
+                </Button>
+            </div>
             {isLoading && (
                 <div className="flex w-full items-center justify-center">
                     <Spinner theme="dark" />
