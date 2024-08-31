@@ -104,7 +104,7 @@ export const NFTManagement = () => {
                             </div>
                             <div className="flex">
                                 <div className="relative w-1/3 overflow-auto rounded-xl">
-                                    <img src={previewImage} alt="Proposed NFT Image" />
+                                    <Image src={previewImage} alt="Proposed NFT Image" />
                                     <div className="pointer-events-none absolute inset-0 flex items-center justify-center bg-dapp-cyan-50/30  hover:bg-dapp-cyan-50/70">
                                         <Button
                                             onClick={() => onClickChooseRecommendedTemplate()}
