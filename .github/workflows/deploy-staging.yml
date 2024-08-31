@@ -47,6 +47,7 @@ jobs:
           NEXT_PUBLIC_ENABLE_TESTNETS: ${{ vars.NEXT_PUBLIC_ENABLE_TESTNETS }}
           NEXT_PUBLIC_STAKEX_API_ENDPOINT: ${{ vars.NEXT_PUBLIC_STAKEX_API_ENDPOINT }}
           NEXT_PUBLIC_DEGENX_BACKEND_API_ENDPOINT: ${{ vars.NEXT_PUBLIC_DEGENX_BACKEND_API_ENDPOINT }}
+          NEXT_PUBLIC_SENTRY_DSN: ${{ vars.NEXT_PUBLIC_SENTRY_DSN }}
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v2
