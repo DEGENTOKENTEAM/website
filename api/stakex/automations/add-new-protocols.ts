@@ -1,7 +1,15 @@
 import { Handler } from 'aws-lambda'
 import { omit } from 'lodash'
 import { createPublicClient, http, parseEventLogs } from 'viem'
-import { avalanche, mainnet } from 'viem/chains'
+import {
+    arbitrum,
+    avalanche,
+    base,
+    bsc,
+    mainnet,
+    optimism,
+    polygon,
+} from 'viem/chains'
 import protocols from '../../../config/protocols'
 import { chains } from '../../../shared/supportedChains'
 import {
@@ -68,10 +76,20 @@ const abi = [
 const chainAPUpdateInterval: { [key: number]: number } = {
     [avalanche.id]: 43200, // daily
     [mainnet.id]: 7200, // daily
+    [base.id]: 43200, // daily
+    [polygon.id]: 39272, // daily
+    [arbitrum.id]: 288000, // daily
+    [bsc.id]: 28800, // daily
+    [optimism.id]: 43200, // daily
 }
 const chainAPPeriod: { [key: number]: number } = {
     [avalanche.id]: 907200, // 3 weeks
     [mainnet.id]: 151200, // 3 weeks
+    [base.id]: 907200, // 3 weeks
+    [polygon.id]: 816480, // 3 weeks
+    [arbitrum.id]: 6048000, // 3 weeks
+    [bsc.id]: 604800, // 3 weeks
+    [optimism.id]: 907200, // 3 weeks
 }
 
 export const handler: Handler = async (_, __, callback) => {
@@ -91,12 +109,14 @@ export const handler: Handler = async (_, __, callback) => {
         let item: Partial<StakeXChainSyncDTOResponse> | null =
             await chainSyncRepo.getByChainId(chain.id)
 
-        if (item?.running) continue
+        if (item?.running && item?.lastSucceed) continue
 
         const blockNumber = Number(await client.getBlockNumber())
 
         let fromBlock =
-            item && item.blockNumber ? item.blockNumber : blockNumber - 200
+            item && item.blockNumber
+                ? item.blockNumber
+                : blockNumber - Math.floor(blockNumber / 1000)
 
         if (!item) {
             item = {
@@ -118,16 +138,29 @@ export const handler: Handler = async (_, __, callback) => {
             omit(item, 'pkey', 'skey') as StakeXChainSyncDTO
         )
 
-        const logs = parseEventLogs({
+        const logRequest = {
+            address: deployer,
             abi,
-            logs: await client.getContractEvents({
-                address: deployer,
+            fromBlock: BigInt(fromBlock),
+            toBlock: BigInt(blockNumber),
+            eventName: 'StakeXProtocolDeployed',
+        }
+
+        let logs: any[] = []
+        let error = ''
+        let successful = true
+
+        try {
+            const logsRaw = await client.getContractEvents(logRequest)
+            logs = parseEventLogs({
                 abi,
-                fromBlock: BigInt(fromBlock),
-                toBlock: BigInt(blockNumber),
-                eventName: 'StakeXProtocolDeployed',
-            }),
-        })
+                logs: logsRaw,
+            })
+        } catch (e) {
+            successful = false
+            error = (e as Error).message
+            console.error(error)
+        }
 
         const protocolBatch: StakeXProtocolsDTO[] = []
         for (const log of logs as any[])
@@ -152,10 +185,11 @@ export const handler: Handler = async (_, __, callback) => {
             omit(
                 {
                     ...item,
+                    error,
                     running: false,
                     lastSucceed: Math.ceil(Date.now() / 1000),
                     blockNumber,
-                    successful: true,
+                    successful,
                 },
                 'pkey',
                 'skey'

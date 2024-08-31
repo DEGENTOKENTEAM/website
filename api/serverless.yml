@@ -256,14 +256,14 @@ functions:
     events:
       - schedule:
           rate: rate(5 minutes)
-          enabled: false
+          enabled: true
 
   stakexAutomationsUpdateEnabledProtocols:
     handler: stakex/automations/update-enabled-protocols.handler
     events:
       - schedule:
           rate: rate(5 minutes)
-          enabled: false
+          enabled: true
 
 resources:
   Resources:
