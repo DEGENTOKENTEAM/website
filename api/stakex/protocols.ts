@@ -26,6 +26,7 @@ export const handler = async (
             stakes: 0,
             source: zeroAddress,
             chainId: 0,
+            isRunning: false,
         },
         token: { decimals: 0, symbol: '' },
     }
@@ -88,6 +89,16 @@ export const handler = async (
             protocolResponse.protocol.apy.avg =
                 annuals.items.reduce((acc, item) => acc + item.apy, 0) /
                 annuals.items.length
+
+            if (protocolResponse.protocol.apy.high == Number.MIN_VALUE)
+                protocolResponse.protocol.apy.high = 0
+            if (protocolResponse.protocol.apy.low == Number.MAX_VALUE)
+                protocolResponse.protocol.apy.high = 0
+
+            if (protocolResponse.protocol.apr.high == Number.MIN_VALUE)
+                protocolResponse.protocol.apr.high = 0
+            if (protocolResponse.protocol.apr.low == Number.MAX_VALUE)
+                protocolResponse.protocol.apr.high = 0
         }
 
         // STAKE PROTOCOL DATA
@@ -109,12 +120,21 @@ export const handler = async (
                     abi,
                     functionName: 'getStakingToken',
                 },
+                {
+                    address: protocol,
+                    abi,
+                    functionName: 'isRunning',
+                },
             ],
         })
 
-        const [{ result: stakingData }, { result: stakingToken }] =
-            multicallData
+        const [
+            { result: stakingData },
+            { result: stakingToken },
+            { result: isRunning },
+        ] = multicallData
 
+        protocolResponse.protocol.isRunning = isRunning
         protocolResponse.protocol.stakedAbs = BigInt(
             stakingData.staked.amount
         ).toString()

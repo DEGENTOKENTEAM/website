@@ -18,6 +18,7 @@ export type ProtocolsResponse = {
         }
         source: string
         chainId: number
+        isRunning: boolean
     }
     token: {
         symbol: string

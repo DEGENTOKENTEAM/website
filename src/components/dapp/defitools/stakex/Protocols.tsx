@@ -72,7 +72,31 @@ export const Protocols = () => {
                     protocols &&
                     protocols.map(({ protocol, token }) => (
                         <Tile key={protocol.source} className="flex w-full flex-col gap-6">
-                            <StakingProjectLogo projectName={protocol.name} source={protocol.logo} isLite={true} />
+                            <div className="flex flex-row items-center">
+                                <StakingProjectLogo
+                                    projectName={protocol.name}
+                                    source={protocol.logo}
+                                    isLite={true}
+                                    className="flex-grow"
+                                />
+                                <span
+                                    className={`flex h-5 min-h-0 items-center gap-2 rounded-lg bg-opacity-30 px-2 py-1 font-display text-xs leading-3 ${
+                                        protocol.isRunning ? 'bg-success' : 'bg-error'
+                                    }`}
+                                >
+                                    <svg width={8} height={8} viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                                        <circle
+                                            className={protocol.isRunning ? 'fill-success' : 'fill-error'}
+                                            cx="50"
+                                            cy="50"
+                                            r="50"
+                                        />
+                                    </svg>
+                                    <span className="text-dapp-cyan-50 text-opacity-60">
+                                        {protocol.isRunning ? 'Online' : 'Offline'}
+                                    </span>
+                                </span>
+                            </div>
                             <CaretDivider color="cyan" />
                             <div className="mt-1 flex flex-col gap-2">
                                 <div>
@@ -138,7 +162,7 @@ export const Protocols = () => {
                                     }}
                                     variant="primary"
                                 >
-                                    Deposit
+                                    Stake {token.symbol}
                                 </Button>
                             </div>
                         </Tile>
