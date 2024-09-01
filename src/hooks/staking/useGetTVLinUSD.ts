@@ -94,7 +94,6 @@ export const useGetTVLinUSD = (protocolAddress: Address, chainId: number) => {
                         }, 0) / filteredPairs?.length
                     return acc + balance * avgUSD
                 }
-                setIsComplete(false)
                 return isNaN(acc) ? 0 : acc
             }, 0)
         )
