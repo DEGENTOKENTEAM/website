@@ -56,7 +56,12 @@ export const StakingProjectLogo = ({ source, projectName, className, isPending, 
                         className={`absolute left-0 top-0 flex h-full w-full items-center justify-center rounded-full`}
                         style={{ backgroundColor: bg }}
                     >
-                        <span className="text-center font-title text-4xl font-bold leading-4">
+                        <span
+                            className={clsx([
+                                'text-center font-title  font-bold leading-4',
+                                isLite ? 'text-xl' : 'text-4xl',
+                            ])}
+                        >
                             {projectName.substring(0, 1)}
                         </span>
                     </div>
