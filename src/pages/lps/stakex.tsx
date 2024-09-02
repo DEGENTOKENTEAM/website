@@ -7,9 +7,12 @@ import { Hero } from 'src/components/lps/stakex/Hero'
 import dummyImage from './../../images/lps/stakex/dummy-image-16-9.png'
 import Image from 'next/image'
 import { Footer } from 'src/components/lps/stakex/Footer'
+import { useTheme } from 'next-themes'
 
 export default function Home() {
     const { isReady } = useRouter()
+    const { setTheme } = useTheme()
+    setTheme('dark')
     return (
         isReady && (
             <>
@@ -39,9 +42,9 @@ export default function Home() {
                                     </h2>
                                     <p>
                                         STAKEX is an audited staking protocol providing a new staking methodology,
-                                        powered by the DEGENX Ecosystem. It&apos;s a deployable protocol for projects based
-                                        on EVM networks like Ethereum, Binance Smart Chain, Base, Arbitrum, Avalanche,
-                                        and more.
+                                        powered by the DEGENX Ecosystem. It&apos;s a deployable protocol for projects
+                                        based on EVM networks like Ethereum, Binance Smart Chain, Base, Arbitrum,
+                                        Avalanche, and more.
                                     </p>
                                 </div>
                                 <div>
