@@ -65,6 +65,9 @@ Resources:
           # FunctionAssociations:
           #   - EventType: viewer-request
           #     FunctionARN: !GetAtt DAPPWIPAuthFunc.FunctionMetadata.FunctionARN
+          FunctionAssociations:
+            - EventType: viewer-request
+              FunctionARN: !GetAtt DAPPWIPDeepLinkRedirectFunc.FunctionMetadata.FunctionARN
         PriceClass: PriceClass_100
   DAPPWIPOriginAccessControl:
     Type: "AWS::CloudFront::OriginAccessControl"
@@ -74,6 +77,27 @@ Resources:
         OriginAccessControlOriginType: s3
         SigningBehavior: always
         SigningProtocol: sigv4
+  DAPPWIPDeepLinkRedirectFunc:
+    Type: "AWS::CloudFront::Function"
+    Properties:
+      AutoPublish: true
+      FunctionCode: !Sub "
+        function handler(event, _, callback) {
+          const { request } = event.Records[0].cf; 
+            const uri = request.uri;
+            if (uri && (uri.match('lps/stakex') || uri.match('lps/stakex/'))) { 
+                request.uri = `lps/stakex/index.html`; 
+            } 
+            if (uri && (uri.match('dapp') || uri.match('dapp/'))) { 
+                request.uri = `dapp/index.html`; 
+            } 
+          return callback(null, request)};
+        }"
+      FunctionConfig:
+        Comment: "Deep Link Redirect to CloudFront"
+        Runtime: cloudfront-js-1.0
+      Name: !Sub 'DeepLinkRedirect-${CustomBucketName}'
+
   # DAPPWIPAuthFunc:
   #   Type: "AWS::CloudFront::Function"
   #   Properties:
