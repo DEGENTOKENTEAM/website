@@ -1,7 +1,7 @@
 ---
-AWSTemplateFormatVersion: "2010-09-09"
+AWSTemplateFormatVersion: '2010-09-09'
 
-Description: "Serve password protected development state of the DEGENX Ecosystem dapp through AWS"
+Description: 'Serve password protected development state of the DEGENX Ecosystem dapp through AWS'
 
 Parameters:
   Base64UserPass:
@@ -14,35 +14,35 @@ Parameters:
 Resources:
   DAPPWIPBucket:
     Type: AWS::S3::Bucket
-    Properties: 
+    Properties:
       BucketName: !Ref CustomBucketName
       AccessControl: Private
   DAPPWIPBucketPolicy:
-    Type: "AWS::S3::BucketPolicy"
+    Type: 'AWS::S3::BucketPolicy'
     Properties:
       Bucket: !Ref DAPPWIPBucket
       PolicyDocument:
-        Version: "2012-10-17"
+        Version: '2012-10-17'
         Statement:
           - Effect: Allow
             Principal:
-              Service: "cloudfront.amazonaws.com"
+              Service: 'cloudfront.amazonaws.com'
             Action: 's3:GetObject'
-            Resource: !Sub "${DAPPWIPBucket.Arn}/*"
+            Resource: !Sub '${DAPPWIPBucket.Arn}/*'
             # CF Distribution ARNs have to be manually constructed
             Condition:
               StringEquals:
-                AWS:SourceArn: !Sub "arn:aws:cloudfront::${AWS::AccountId}:distribution/${DAPPWIPDistribution}"
+                AWS:SourceArn: !Sub 'arn:aws:cloudfront::${AWS::AccountId}:distribution/${DAPPWIPDistribution}'
   DAPPWIPDistribution:
-    Type: "AWS::CloudFront::Distribution"
+    Type: 'AWS::CloudFront::Distribution'
     Properties:
       DistributionConfig:
         Origins:
           # Use regional, rather than global, domain for S3 bucket.
           - DomainName: !GetAtt DAPPWIPBucket.RegionalDomainName
-            Id: DAPPWIPBucketWebsite                    
+            Id: DAPPWIPBucketWebsite
             S3OriginConfig:
-              OriginAccessIdentity: "" # necessary
+              OriginAccessIdentity: '' # necessary
             OriginAccessControlId: !GetAtt DAPPWIPOriginAccessControl.Id
         Enabled: true
         DefaultRootObject: index.html
@@ -70,7 +70,7 @@ Resources:
               FunctionARN: !GetAtt DAPPWIPDeepLinkRedirectFunc.FunctionMetadata.FunctionARN
         PriceClass: PriceClass_100
   DAPPWIPOriginAccessControl:
-    Type: "AWS::CloudFront::OriginAccessControl"
+    Type: 'AWS::CloudFront::OriginAccessControl'
     Properties:
       OriginAccessControlConfig:
         Name: !Sub 'OAC-${CustomBucketName}'
@@ -78,19 +78,19 @@ Resources:
         SigningBehavior: always
         SigningProtocol: sigv4
   DAPPWIPDeepLinkRedirectFunc:
-    Type: "AWS::CloudFront::Function"
+    Type: 'AWS::CloudFront::Function'
     Properties:
       AutoPublish: true
       FunctionCode: !Sub "
         async function handler(event) {
-          const request = event.request; 
-          const uri = request.uri;
-          if (uri && (uri.match('lps/stakex') || uri.match('lps/stakex/'))) request.uri = `/lps/stakex/index.html`; 
-          if (uri && (uri.match('dapp') || uri.match('dapp/'))) request.uri = `/dapp/index.html`; 
-          return request;
+        const request = event.request;
+        const uri = request.uri;
+        if (uri && (uri.match(/lps\/stakex$/) || uri.match(/lps\/stakex\//))) request.uri = `/lps/stakex/index.html`;
+        if (uri && (uri.match(/dapp$/) || uri.match(/dapp\//))) request.uri = `/dapp/index.html`;
+        return request;
         }"
       FunctionConfig:
-        Comment: "Deep Link Redirect to CloudFront"
+        Comment: 'Deep Link Redirect to CloudFront'
         Runtime: cloudfront-js-2.0
       Name: !Sub 'DeepLinkRedirect-${CustomBucketName}'
 
