@@ -14,9 +14,9 @@ export const Hero = () => {
         <div>
             <div className="m-auto grid h-full max-w-7xl grid-cols-1 md:grid-cols-2 ">
                 <div className="order-last flex flex-col justify-center gap-4 py-10 md:-order-last">
-                    <span className="font-title text-2xl font-bold">
+                    <span className="font-title text-4xl font-bold tracking-wide">
                         <span className="text-techGreen">STAKE</span>
-                        <span className="text-degenOrange">X</span> Staking Protocol
+                        <span className="text-degenOrange">X</span><br />Staking Protocol
                     </span>
                     <span className="text-2xl">
                         Store value of your project and incentivize your project token holders and investors
