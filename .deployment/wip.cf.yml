@@ -82,16 +82,12 @@ Resources:
     Properties:
       AutoPublish: true
       FunctionCode: !Sub "
-        function handler(event, _, callback) {
-          const { request } = event.Records[0].cf; 
-            const uri = request.uri;
-            if (uri && (uri.match('lps/stakex') || uri.match('lps/stakex/'))) { 
-                request.uri = `lps/stakex/index.html`; 
-            } 
-            if (uri && (uri.match('dapp') || uri.match('dapp/'))) { 
-                request.uri = `dapp/index.html`; 
-            } 
-          return callback(null, request)};
+        async function handler(event) {
+          const request = event.request; 
+          const uri = request.uri;
+          if (uri && (uri.match('lps/stakex') || uri.match('lps/stakex/'))) request.uri = `/lps/stakex/index.html`; 
+          if (uri && (uri.match('dapp') || uri.match('dapp/'))) request.uri = `/dapp/index.html`; 
+          return request;
         }"
       FunctionConfig:
         Comment: "Deep Link Redirect to CloudFront"
