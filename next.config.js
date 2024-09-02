@@ -9,6 +9,10 @@ const nextConfig = {
         source: '/dapp/:path*',
         destination: '/dapp/',
       },
+      {
+        source: '/lps/:path*',
+        destination: '/lps/',
+      },
     ]
   },
   trailingSlash: true,
