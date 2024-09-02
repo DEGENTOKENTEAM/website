@@ -60,9 +60,21 @@ module.exports = {
         '4xl': '2rem',
       },
       fontFamily: {
-        sans: ['montserrat', ...defaultTheme.fontFamily.sans],
-        display: ['montserrat', ...defaultTheme.fontFamily.sans],
-        title: ['Orbitron', ...defaultTheme.fontFamily.sans],
+        sans: [
+          'montserrat',
+          ...defaultTheme.fontFamily.sans,
+          { fontFeatureSettings: '"ss01"' },
+        ],
+        display: [
+          'montserrat',
+          ...defaultTheme.fontFamily.sans,
+          { fontFeatureSettings: '"ss01"' },
+        ],
+        title: [
+          'Orbitron',
+          ...defaultTheme.fontFamily.sans,
+          { fontFeatureSettings: '"ss01"' },
+        ],
       },
       maxWidth: {
         '2xl': '40rem',
