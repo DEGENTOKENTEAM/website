@@ -39,7 +39,7 @@ export default function Home() {
                                     </h2>
                                     <p>
                                         STAKEX is an audited staking protocol providing a new staking methodology,
-                                        powered by the DEGENX Ecosystem. It's a deployable protocol for projects based
+                                        powered by the DEGENX Ecosystem. It&apos;s a deployable protocol for projects based
                                         on EVM networks like Ethereum, Binance Smart Chain, Base, Arbitrum, Avalanche,
                                         and more.
                                     </p>
