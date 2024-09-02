@@ -10,8 +10,12 @@ const nextConfig = {
         destination: '/dapp/',
       },
       {
-        source: '/lps/:path*',
-        destination: '/lps/',
+        source: '/lps/stakex',
+        destination: '/lps/stakex/',
+      },
+      {
+        source: '/lps/stakex/',
+        destination: '/lps/stakex/',
       },
     ]
   },
