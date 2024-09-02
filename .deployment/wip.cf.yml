@@ -85,7 +85,7 @@ Resources:
         async function handler(event) {
           const request = event.request; 
           const uri = request.uri;
-          if (uri && (uri.match(/lps\\/stakex$/) || uri.match(/lps\\/stakex\//))) request.uri = `/lps/stakex/index.html`; 
+          if (uri && (uri.match(/lps\\/stakex$/) || uri.match(/lps\\/stakex\\//))) request.uri = `/lps/stakex/index.html`; 
           if (uri && (uri.match(/dapp$/) || uri.match(/dapp\\//))) request.uri = `/dapp/index.html`; 
           return request;
         }"
