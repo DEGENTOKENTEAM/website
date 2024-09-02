@@ -134,7 +134,7 @@ function MobileSidebar() {
                         className="absolute inset-x-0 top-full mt-4 flex origin-top flex-col rounded-2xl bg-white p-4 text-lg tracking-tight text-slate-900 shadow-xl ring-1 ring-slate-900/5"
                     >
                         {navigation
-                            .filter(({ name, href }) => Boolean(name && href))
+                            .filter(({ name, href }) => Boolean(name))
                             .map((item) => (
                                 <Fragment key={item.name}>
                                     <MobileNavLink
@@ -215,29 +215,33 @@ export default function Sidebar(props: { mobile?: boolean }) {
                         return (
                             <Fragment key={i}>
                                 <SidebarItem item={item} current={isCurrent(item)} />
-                                { /*isCurrent(item) && */ item.children && (
-                                    <div className="flex flex-col gap-2  space-y-1 border-l-2 border-l-dapp-blue-400 pl-4">
-                                        {item.children.map((child, j) => (
-                                            <Fragment key={j}>
-                                                <SidebarItem item={child} current={isCurrent(child)} />
-                                                { /*isCurrent(child) &&*/
-                                                    child.children &&
-                                                    isArray(child.children) &&
-                                                    child.children.length > 0 && (
-                                                        <div className="flex flex-col gap-2  space-y-1 border-l-2 border-l-dapp-blue-400 pl-4">
-                                                            {child.children.map((grandchild, k) => (
-                                                                <SidebarItem
-                                                                    key={k}
-                                                                    item={grandchild}
-                                                                    current={isCurrent(grandchild)}
-                                                                />
-                                                            ))}
-                                                        </div>
-                                                    )}
-                                            </Fragment>
-                                        ))}
-                                    </div>
-                                )}
+                                {
+                                    /*isCurrent(item) && */ item.children && (
+                                        <div className="flex flex-col gap-2  space-y-1 border-l-2 border-l-dapp-blue-400 pl-4">
+                                            {item.children.map((child, j) => (
+                                                <Fragment key={j}>
+                                                    <SidebarItem item={child} current={isCurrent(child)} />
+                                                    {
+                                                        /*isCurrent(child) &&*/
+                                                        child.children &&
+                                                            isArray(child.children) &&
+                                                            child.children.length > 0 && (
+                                                                <div className="flex flex-col gap-2  space-y-1 border-l-2 border-l-dapp-blue-400 pl-4">
+                                                                    {child.children.map((grandchild, k) => (
+                                                                        <SidebarItem
+                                                                            key={k}
+                                                                            item={grandchild}
+                                                                            current={isCurrent(grandchild)}
+                                                                        />
+                                                                    ))}
+                                                                </div>
+                                                            )
+                                                    }
+                                                </Fragment>
+                                            ))}
+                                        </div>
+                                    )
+                                }
                             </Fragment>
                         )
                     })}

@@ -25,6 +25,7 @@
       "@dapptypes": ["src/types"],
       "@dappconstants": ["src/constants"],
       "@dappabis/*": ["src/abi/*"],
+      "@public/*": ["public/*"],
       "react": ["./node_modules/@types/react"]
     }
   },
