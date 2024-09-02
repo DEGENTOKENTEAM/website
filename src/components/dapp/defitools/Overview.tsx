@@ -4,6 +4,9 @@ import Image from 'next/image'
 import { useNavigate } from 'react-router-dom'
 import { Button } from '../../Button'
 
+import imageBacking from '@public/defitools/backing.svg'
+import imageSTAKEX from '@public/defitools/stakex.svg'
+
 type DeFiToolType = {
     name: string
     logo: any
@@ -12,11 +15,11 @@ type DeFiToolType = {
     toMore: string | null
     description: string | null
 }
-
+// TODO get images imported so you don't need to add width and height
 const defitools: DeFiToolType[] = [
     {
         name: 'STAKEX',
-        logo: '/defitools/stakex.svg',
+        logo: imageSTAKEX,
         to: './stakex/create/',
         toLabel: 'Create your own STAKEX',
         toMore: 'https://docs.dgnx.finance/degenx-ecosystem/Products/stakex/introduction',
@@ -24,7 +27,7 @@ const defitools: DeFiToolType[] = [
     },
     {
         name: 'LIQUIDITY BACKING',
-        logo: '/defitools/backing.svg',
+        logo: imageBacking,
         to: null,
         toLabel: 'Create your own Liquidity Backing',
         toMore: 'https://docs.dgnx.finance/degenx-ecosystem/Products/Liquidity_Backing/liquidity_backing',
@@ -53,39 +56,33 @@ const defitools: DeFiToolType[] = [
 
 type DeFiToolTileProps = {
     data: DeFiToolType
-    hero?: boolean
     className?: string
 }
 
-const DeFiToolTile = ({ data, hero, className }: DeFiToolTileProps) => {
+const DeFiToolTile = ({ data, className }: DeFiToolTileProps) => {
     const navigate = useNavigate()
     const { to, toLabel, toMore, description, logo, name } = data
     return (
         <Tile className={clsx(['flex flex-col gap-8', className])}>
-            <div className="flex flex-row gap-8">
-                <div className="flex-shrink-0 flex-grow-0">
-                    <Image
-                        alt={`Logo of ${name}`}
-                        width={hero ? 200 : 100}
-                        height={hero ? 200 : 100}
-                        src={logo}
-                        className={clsx([hero ? 'rounded-xl' : 'rounded-lg'])}
-                    />
+            <div className="flex flex-col gap-8 md:flex-row">
+                <div className="flex justify-center md:flex-grow-0">
+                    <Image alt={`Logo of ${name}`} src={logo} className="w-full md:h-48" />
                 </div>
-                <div>
+                <div className="text-justify md:w-3/4 md:self-stretch">
                     <h2 className="text-xl font-bold">{name}</h2>
                     <p className="pt-2">{description}</p>
                 </div>
             </div>
             <div>
                 {(to || toMore) && (
-                    <div className="flex flex-row justify-end gap-8">
+                    <div className="md:flex-grow-1 flex flex-col-reverse justify-end gap-8 md:flex-row">
                         {toMore && (
                             <Button
                                 onClick={() => {
                                     window.open(toMore, '_blank')
                                 }}
                                 variant="secondary"
+                                className="h-14"
                             >
                                 Read more
                             </Button>
@@ -96,7 +93,7 @@ const DeFiToolTile = ({ data, hero, className }: DeFiToolTileProps) => {
                                     navigate(to)
                                 }}
                                 variant="primary"
-                                className="animate-pulse"
+                                className="h-14 animate-pulse"
                             >
                                 {toLabel}
                             </Button>
@@ -117,7 +114,7 @@ export const DeFiToolsOverview = () => {
             </h1>
             <div className="grid grid-cols-2 gap-8">
                 {defitools.map((tool, i) => (
-                    <DeFiToolTile data={tool} hero={i == 0} key={i} className={clsx(['col-span-2'])} />
+                    <DeFiToolTile data={tool} key={i} className={clsx(['col-span-2'])} />
                 ))}
             </div>
         </div>
