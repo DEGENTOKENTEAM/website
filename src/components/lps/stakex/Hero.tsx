@@ -2,25 +2,72 @@ import { CallToActionButton } from './CallToAction'
 import heroImage from './../../../images/lps/stakex/hero.png'
 import Image from 'next/image'
 
+import imageEthereum from '@public/chains/1.svg'
+import imageAvalanche from '@public/chains/43114.svg'
+import imageBSC from '@public/chains/56.png'
+import imageArbitrum from '@public/chains/42161.svg'
+import imagePolygon from '@public/chains/137.svg'
+import imageBase from '@public/chains/8453.svg'
+
 export const Hero = () => {
     return (
-        <div className="h-[80vh] w-full bg-dapp-blue-800/70">
-            <div className="m-auto grid h-full max-w-7xl grid-cols-1 md:grid-cols-2">
-                <div className="flex flex-col justify-center gap-4 p-10">
+        <div>
+            <div className="m-auto grid h-full max-w-7xl grid-cols-1 md:grid-cols-2 ">
+                <div className="order-last flex flex-col justify-center gap-4 py-10 md:-order-last">
                     <span className="font-title text-2xl font-bold">
                         <span className="text-techGreen">STAKE</span>
                         <span className="text-degenOrange">X</span> Staking Protocol
                     </span>
-                    <span className="text-xl">
-                        Store the value of your project by animating and incentivizing your project token holders to
-                        stake and lock their tokens in an audited, secure, and innovative staking protocol.
+                    <span className="text-2xl">
+                        Store value of your project and incentivize your project token holders and investors
                     </span>
-                    <div>
+                    <span className="text-lg">Benefit from our audited, secure, and innovative staking protocol</span>
+                    <div className="py-2">
                         <CallToActionButton />
                     </div>
                 </div>
-                <div className="flex flex-col items-center justify-center ">
-                    <Image src={heroImage} alt="Hero Banner Image" className="w-3/4 rounded-lg" />
+                <div className="flex flex-col items-center justify-center md:items-end">
+                    <Image
+                        src={heroImage}
+                        alt="Hero Banner Image"
+                        className="rounded-lg md:max-h-[70%] md:max-w-[70%] md:rounded-lg md:object-cover"
+                    />
+                </div>
+            </div>
+
+            <div className="m-auto mt-10 flex flex-col gap-8 text-center text-darkTextLowEmphasis">
+                <div className="font-title text-2xl font-bold">Supported Networks</div>
+                <div className="flex flex-row justify-center gap-4 md:gap-12">
+                    <Image
+                        src={imageAvalanche}
+                        alt="Support Avalanche Network Image"
+                        className="h-12 w-12 md:h-16 md:w-16 md:grayscale md:hover:filter-none"
+                    />
+                    <Image
+                        src={imageEthereum}
+                        alt="Support Avalanche Network Image"
+                        className="h-12 w-12 md:h-16 md:w-16 md:grayscale md:hover:filter-none"
+                    />
+                    <Image
+                        src={imageBase}
+                        alt="Support Avalanche Network Image"
+                        className="h-12 w-12 md:h-16 md:w-16 md:grayscale md:hover:filter-none"
+                    />
+                    <Image
+                        src={imageBSC}
+                        alt="Support Avalanche Network Image"
+                        className="h-12 w-12 md:h-16 md:w-16 md:grayscale md:hover:filter-none"
+                    />
+                    <Image
+                        src={imageArbitrum}
+                        alt="Support Avalanche Network Image"
+                        className="h-12 w-12 md:h-16 md:w-16 md:grayscale md:hover:filter-none"
+                    />
+                    <Image
+                        src={imagePolygon}
+                        alt="Support Avalanche Network Image"
+                        className="h-12 w-12 md:h-16 md:w-16 md:grayscale md:hover:filter-none"
+                    />
                 </div>
             </div>
         </div>
