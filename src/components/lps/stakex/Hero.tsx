@@ -1,13 +1,12 @@
-import { CallToActionButton } from './CallToAction'
-import heroImage from './../../../images/lps/stakex/hero.png'
-import Image from 'next/image'
-
 import imageEthereum from '@public/chains/1.svg'
+import imagePolygon from '@public/chains/137.svg'
+import imageArbitrum from '@public/chains/42161.svg'
 import imageAvalanche from '@public/chains/43114.svg'
 import imageBSC from '@public/chains/56.png'
-import imageArbitrum from '@public/chains/42161.svg'
-import imagePolygon from '@public/chains/137.svg'
 import imageBase from '@public/chains/8453.svg'
+import Image from 'next/image'
+import heroImage from './../../../images/lps/stakex/hero.png'
+import { CallToActionButton } from './CallToAction'
 
 export const Hero = () => {
     return (
@@ -16,7 +15,9 @@ export const Hero = () => {
                 <div className="order-last flex flex-col justify-center gap-4 py-10 md:-order-last">
                     <span className="font-title text-4xl font-bold tracking-wide">
                         <span className="text-techGreen">STAKE</span>
-                        <span className="text-degenOrange">X</span><br />Staking Protocol
+                        <span className="text-degenOrange">X</span>
+                        <br />
+                        Staking Solution
                     </span>
                     <span className="text-2xl">
                         Store value of your project and incentivize your project token holders and investors
