@@ -19,6 +19,7 @@ import { StakeX } from '../components/dapp/StakeX'
 import { DappHeader } from '../components/dapp/elements/DappHeader'
 import Sidebar from '../components/dapp/elements/Sidebar'
 import { DAppContext, DAppContextDataType } from '@dapphelpers/dapp'
+import { GoogleTagManager } from '@next/third-parties/google'
 
 TimeAgo.addDefaultLocale(en)
 
@@ -61,6 +62,7 @@ export default function Dapp() {
     return (
         <DAppContext.Provider value={{ data, setData, setTitle }}>
             <BrowserRouter>
+                <GoogleTagManager gtmId="GTM-P9D58C2G" />
                 <Head>
                     <title>{data.title}</title>
                     <meta

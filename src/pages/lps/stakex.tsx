@@ -1,3 +1,4 @@
+import { GoogleTagManager } from '@next/third-parties/google'
 import { useTheme } from 'next-themes'
 import Head from 'next/head'
 import Image from 'next/image'
@@ -44,7 +45,13 @@ export default function Home() {
                                 </p>
                             </div>
                             <div>
-                                <Image src={dummyImage} alt="Dummy Image" width={524} height={294} className="w-full rounded-lg" />
+                                <Image
+                                    src={dummyImage}
+                                    alt="Dummy Image"
+                                    width={524}
+                                    height={294}
+                                    className="w-full rounded-lg"
+                                />
                             </div>
                         </InnerContainer>
                     </OuterContainer>
@@ -54,7 +61,13 @@ export default function Home() {
                     <OuterContainer className="bg-dapp-blue-800/30">
                         <InnerContainer className="flex flex-col gap-8 py-16 md:flex-row">
                             <div>
-                                <Image src={dummyImage} alt="Dummy Image" width={524} height={294} className="w-full rounded-lg" />
+                                <Image
+                                    src={dummyImage}
+                                    alt="Dummy Image"
+                                    width={524}
+                                    height={294}
+                                    className="w-full rounded-lg"
+                                />
                             </div>
                             <div className="flex flex-col gap-8">
                                 <h2 className="font-title text-2xl font-bold">
@@ -90,7 +103,13 @@ export default function Home() {
                                 </p>
                             </div>
                             <div>
-                                <Image src={dummyImage} alt="Dummy Image" width={524} height={294} className="w-full rounded-lg" />
+                                <Image
+                                    src={dummyImage}
+                                    alt="Dummy Image"
+                                    width={524}
+                                    height={294}
+                                    className="w-full rounded-lg"
+                                />
                             </div>
                         </InnerContainer>
                     </OuterContainer>
@@ -100,7 +119,13 @@ export default function Home() {
                     <OuterContainer className="bg-dapp-blue-800/30">
                         <InnerContainer className="flex flex-col gap-8 py-16 md:flex-row">
                             <div>
-                                <Image src={dummyImage} alt="Dummy Image" width={524} height={294} className="w-full rounded-lg" />
+                                <Image
+                                    src={dummyImage}
+                                    alt="Dummy Image"
+                                    width={524}
+                                    height={294}
+                                    className="w-full rounded-lg"
+                                />
                             </div>
                             <div className="flex flex-col gap-8">
                                 <h2 className="font-title text-2xl font-bold">
@@ -168,6 +193,7 @@ export default function Home() {
                     <Footer />
                 </div>
             </div>
+            <GoogleTagManager gtmId="GTM-P9D58C2G" />
         </>
     )
 }

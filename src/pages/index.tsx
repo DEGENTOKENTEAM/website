@@ -1,5 +1,6 @@
 import Head from 'next/head'
 
+import { GoogleTagManager } from '@next/third-parties/google'
 import { CallToAction } from '../components/CallToAction'
 import { Discover } from '../components/Discover'
 import { Empower } from '../components/Empower'
@@ -31,6 +32,7 @@ export default function Home() {
                 <Team />
             </main>
             <Footer />
+            <GoogleTagManager gtmId="GTM-P9D58C2G" />
         </>
     )
 }
