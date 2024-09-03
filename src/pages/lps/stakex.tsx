@@ -1,13 +1,13 @@
+import { useTheme } from 'next-themes'
 import Head from 'next/head'
+import Image from 'next/image'
 import { useRouter } from 'next/router'
 import { CallToAction } from 'src/components/lps/stakex/CallToAction'
 import { InnerContainer, OuterContainer } from 'src/components/lps/stakex/Container'
+import { Footer } from 'src/components/lps/stakex/Footer'
 import { Header } from 'src/components/lps/stakex/Header'
 import { Hero } from 'src/components/lps/stakex/Hero'
 import dummyImage from './../../images/lps/stakex/dummy-image-16-9.png'
-import Image from 'next/image'
-import { Footer } from 'src/components/lps/stakex/Footer'
-import { useTheme } from 'next-themes'
 
 export default function Home() {
     const { isReady } = useRouter()
@@ -17,10 +17,10 @@ export default function Home() {
         isReady && (
             <>
                 <Head>
-                    <title>DEGENX Ecosystem</title>
+                    <title>STAKEX - Audited and Secure Staking Solution</title>
                     <meta
                         name="description"
-                        content="DEGENX is multichain ecosystem that offers a suite of decentralized applications (dApps) and services to provide solutions for projects and individuals in the DeFi space. $DGNX is a multichain token with liquidity backing."
+                        content="STAKEX is a staking protocol developed by the DEGENX Ecosystem. It's available on chains like Ethereum, Avalanche, BNB Smart Chain, Arbitrum, Polygon, and Base. Take the opportunity to incentivize your token holders and store additional value of your project with an audited and secure staking contract"
                     />
                 </Head>
                 <div className="w-full">
