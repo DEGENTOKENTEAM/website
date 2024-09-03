@@ -66,11 +66,12 @@ jobs:
 
       - name: Deploy Cloud Formation
         # if: github.event_name == 'workflow_dispatch' && github.event.inputs.BEARER_TOKEN != ''
-        run: aws cloudformation deploy --template-file "${TEMPLATE_FILE}" --stack-name "${STACK_NAME}" --parameter-overrides Base64UserPass="${BEARER_TOKEN}" CustomBucketName="${CUSTOM_BUCKET_NAME}"
+        # run: aws cloudformation deploy --template-file "${TEMPLATE_FILE}" --stack-name "${STACK_NAME}" --parameter-overrides Base64UserPass="${BEARER_TOKEN}" CustomBucketName="${CUSTOM_BUCKET_NAME}"
+        run: aws cloudformation deploy --template-file "${TEMPLATE_FILE}" --stack-name "${STACK_NAME}" --parameter-overrides CustomBucketName="${CUSTOM_BUCKET_NAME}"
         env:
           STACK_NAME: degenx-dapp-${{github.ref_name}}
           TEMPLATE_FILE: ${{github.workspace}}/.deployment/wip.cf.yml
-          BEARER_TOKEN: ZGdueDp3YWdtaTIwMjQ=
+          # BEARER_TOKEN: ZGdueDp3YWdtaTIwMjQ=
           CUSTOM_BUCKET_NAME: s3-${{github.ref_name}}
 
       # - name: Validate Cloud Formation Template

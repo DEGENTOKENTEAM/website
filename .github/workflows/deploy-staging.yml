@@ -56,6 +56,13 @@ jobs:
           aws-secret-access-key: ${{ secrets.DGNX_WEBSITE_AWS_ACCOUNT_KEY }}
           aws-region: eu-west-1
 
+      - name: Deploy Cloud Formation
+        run: aws cloudformation deploy --template-file "${TEMPLATE_FILE}" --stack-name "${STACK_NAME}" --parameter-overrides CustomBucketName="${CUSTOM_BUCKET_NAME}"
+        env:
+          STACK_NAME: degenx-dapp-staging
+          TEMPLATE_FILE: ${{github.workspace}}/.deployment/staging.cf.yml
+          CUSTOM_BUCKET_NAME: staging.dgnx.finance
+
       # - name: Deploy API to staging
       #   run: |
       #     ./node_modules/serverless/bin/serverless.js config credentials --provider aws --key ${{ secrets.DGNX_WEBSITE_AWS_ACCOUNT_ID }} --secret ${{ secrets.DGNX_WEBSITE_AWS_ACCOUNT_KEY }} --profile dgnx
