@@ -74,7 +74,7 @@ export const Customization = () => {
         const msg: CreateSiweMessageParameters = {
             address,
             chainId,
-            domain: `${window.location.protocol}//${window.location.host}`,
+            domain: `${window.location.host}`,
             uri: `${window.location.href}`,
             nonce: generateSiweNonce(),
             version: '1',
