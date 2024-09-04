@@ -97,10 +97,13 @@ export const NFTManagement = () => {
                     ) : (
                         <>
                             <div>
-                                Your STAKEX protocols needs to have NFTs configured. After this you&apos;re able to set
-                                a starting condition or enable the protocol without a starting condition <br />
+                                Stakers will receive an NFT for each of their stake. In order to start with the staking,
+                                you need to choose an NFT template. It will be a basic NFT setup for your staking
+                                solution. A configured NFT is required in order to enable your staking protocol.
                                 <br />
-                                We propose the following default template to use:
+                                <br />
+                                Soon there will be other templates to choose from. For now please choose the following
+                                template:
                             </div>
                             <div className="flex">
                                 <div className="relative w-1/3 overflow-auto rounded-xl">

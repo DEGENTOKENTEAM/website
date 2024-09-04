@@ -80,7 +80,7 @@ export const Customization = () => {
             version: '1',
             statement: `I'm the owner of ${protocol} and I want to update my STAKEX customization`,
         }
-        console.log({ msg })
+
         const siweMessage = createSiweMessage(msg)
 
         setChallengeMessage(siweMessage)
