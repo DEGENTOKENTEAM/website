@@ -82,5 +82,10 @@ jobs:
       - name: Deploy Static Site To S3 Bucket
         run: aws s3 sync ./out/ s3://s3-${{github.ref_name}}/ --delete
 
+      - name: Deploy wip.stkx.io Static Site To S3 Bucket
+        run: |
+          aws s3 sync ./out/ s3://wip.stkx.io/ --delete
+          aws s3 website s3://wip.stkx.io/ --index-document lps/stakex/index.html --error-document lps/stakex/index.html
+
       - name: Provide URL
         run: aws cloudformation describe-stacks --stack-name "degenx-dapp-${{github.ref_name}}" --query "Stacks[0].Outputs[?OutputKey=='StaticWebsiteHostname'].OutputValue" --output text
