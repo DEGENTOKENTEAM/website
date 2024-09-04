@@ -69,8 +69,6 @@ Resources:
             - EventType: viewer-request
               FunctionARN: !GetAtt DAPPWIPDeepLinkRedirectFunc.FunctionMetadata.FunctionARN
         PriceClass: PriceClass_100
-        Aliases:
-          - wip.stkx.io
   DAPPWIPOriginAccessControl:
     Type: "AWS::CloudFront::OriginAccessControl"
     Properties:
