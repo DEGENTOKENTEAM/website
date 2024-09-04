@@ -69,6 +69,8 @@ Resources:
             - EventType: viewer-request
               FunctionARN: !GetAtt DAPPWIPDeepLinkRedirectFunc.FunctionMetadata.FunctionARN
         PriceClass: PriceClass_100
+        Aliases:
+          - wip.stkx.io
   DAPPWIPOriginAccessControl:
     Type: "AWS::CloudFront::OriginAccessControl"
     Properties:
@@ -85,7 +87,7 @@ Resources:
         async function handler(event) {
           const request = event.request; 
           const uri = request.uri;
-          if (uri && (uri.match(/lps\\/stakex$/) || uri.match(/lps\\/stakex\\//))) request.uri = `/lps/stakex/index.html`; 
+          if (uri && (uri.match(/lps\\/stakex$/) || uri.match(/stkx\\.io\\/$/) || uri.match(/stkx\\.io$/) || uri.match(/lps\\/stakex\\//))) request.uri = `/lps/stakex/index.html`; 
           if (uri && (uri.match(/dapp$/) || uri.match(/dapp\\//))) request.uri = `/dapp/index.html`; 
           return request;
         }"
