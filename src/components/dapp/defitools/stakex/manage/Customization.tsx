@@ -10,7 +10,7 @@ import { Button } from 'src/components/Button'
 import { Spinner } from 'src/components/dapp/elements/Spinner'
 import { StakingProjectLogo } from 'src/components/dapp/staking/StakingProjectLogo'
 import { useInterval } from 'usehooks-ts'
-import { createSiweMessage, generateSiweNonce } from 'viem/siwe'
+import { createSiweMessage, CreateSiweMessageParameters, generateSiweNonce } from 'viem/siwe'
 import { useAccount, useSignMessage } from 'wagmi'
 
 export const Customization = () => {
@@ -71,7 +71,7 @@ export const Customization = () => {
 
         setIsLoadingLogoUpload(true)
 
-        const message = createSiweMessage({
+        const msg: CreateSiweMessageParameters = {
             address,
             chainId,
             domain: window.location.host,
@@ -79,11 +79,13 @@ export const Customization = () => {
             nonce: generateSiweNonce(),
             version: '1',
             statement: `I'm the owner of ${protocol} and I want to update my STAKEX customization`,
-        })
+        }
+        console.log({ msg })
+        const siweMessage = createSiweMessage(msg)
 
-        setChallengeMessage(message)
+        setChallengeMessage(siweMessage)
 
-        signMessage({ account: address, message })
+        signMessage({ account: address, message: siweMessage })
     }
 
     const onClickCancel = () => {
