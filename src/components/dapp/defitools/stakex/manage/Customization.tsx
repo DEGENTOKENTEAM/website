@@ -75,7 +75,7 @@ export const Customization = () => {
             address,
             chainId,
             domain: window.location.host,
-            uri: window.location.host,
+            uri: `${window.location.protocol}//${window.location.host}`,
             nonce: generateSiweNonce(),
             version: '1',
             statement: `I'm the owner of ${protocol} and I want to update my STAKEX customization`,
