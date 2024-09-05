@@ -210,9 +210,11 @@ export const Buckets = () => {
                                     <Button onClick={onClickAddButton} variant="primary" className="gap-3">
                                         <FaPlus /> <span>Add</span>
                                     </Button>
-                                    <Button onClick={onClickChangeSharesButton} variant="primary" className="gap-3">
-                                        <FaPen /> <span>Change Shares</span>
-                                    </Button>
+                                    {dataStakeBuckets && dataStakeBuckets.length > 1 && (
+                                        <Button onClick={onClickChangeSharesButton} variant="primary" className="gap-3">
+                                            <FaPen /> <span>Change Shares</span>
+                                        </Button>
+                                    )}
                                 </div>
                             )}
                         </>
@@ -336,7 +338,7 @@ export const Buckets = () => {
                                         </StatsBoxTwoColumn.RightColumn>
                                     </StatsBoxTwoColumn.Wrapper>
 
-                                    {isOwner && (
+                                    {isOwner && dataStakeBuckets.length > 1 && (
                                         <Button
                                             variant={`${bucket.active ? 'error' : 'primary'}`}
                                             className="col-span-2"

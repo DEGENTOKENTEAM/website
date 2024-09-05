@@ -307,7 +307,7 @@ export const TokenManagement = () => {
                                             {toReadableNumber(targetToken.injected, targetToken.decimals)}
                                         </StatsBoxTwoColumn.RightColumn>
                                     </StatsBoxTwoColumn.Wrapper>
-                                    {isOwner && (
+                                    {isOwner && dataTargetTokens.length > 1 && (
                                         <div className="flex flex-row gap-4">
                                             <Button
                                                 disabled={togglePayoutTokenAddress === targetToken.source}
