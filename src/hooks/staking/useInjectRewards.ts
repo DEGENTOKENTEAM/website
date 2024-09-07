@@ -55,7 +55,7 @@ export const useInjectRewards = (
     useEffect(() => {
         if (!publicClient || !hash || !address) return
         publicClient
-            .getTransactionReceipt({ hash })
+            .waitForTransactionReceipt({ hash })
             .then((receipt) => setLogs(receipt.logs))
             .catch((reason) => console.log('[ERROR]', { reason }))
     }, [publicClient, hash, address])

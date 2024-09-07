@@ -23,6 +23,7 @@ import { NFTManagement } from './manage/NFTManagement'
 import { StakingProgressChart } from './manage/StakingProgressChart'
 import { TokenManagement } from './manage/TokenManagement'
 import { Checklist } from './manage/Checklist'
+import { UpdateAvailability } from './manage/UpdateAvailability'
 
 export const Manage = () => {
     const { protocolAddress, chainId } = useParams<{
@@ -90,6 +91,7 @@ export const Manage = () => {
                         <span className="text-degenOrange">X</span>
                         <span className="ml-1 text-xl">Management</span>
                     </h1>
+                    {data.isOwner && <UpdateAvailability />}
                     {isConnected && chainAccount && chain && chain.id !== chainAccount.id && (
                         <WrongChainHint chainIdProtocol={chain.id} chainIdAccount={chainAccount.id!} />
                     )}

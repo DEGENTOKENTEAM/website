@@ -73,13 +73,13 @@ export const useExecuteFunction = ({
     useEffect(() => {
         if (!publicClient || !hash || !address) return
         publicClient
-            .getTransactionReceipt({ hash })
+            .waitForTransactionReceipt({ hash })
             .then((receipt) => setLogs(receipt.logs))
             .catch((reason) => console.log('[ERROR]', { reason }))
     }, [publicClient, hash, address])
 
     useEffect(() => {
-        if (eventNames && logs && logs.length > 0) {
+        if (eventNames && eventNames.length && logs && logs.length) {
             logs.filter(
                 (log) => toLower(address) === toLower(log.address)
             ).forEach((log) => {
@@ -94,6 +94,9 @@ export const useExecuteFunction = ({
                     // resetWriteContract()
                 }
             })
+        } else if (!eventNames.length && logs && logs.length > 0) {
+            setIsLoading(false)
+            setIsSuccess(true)
         }
     }, [logs, eventNames, abi, address])
 

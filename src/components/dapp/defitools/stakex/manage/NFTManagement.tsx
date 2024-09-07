@@ -8,9 +8,9 @@ import Image from 'next/image'
 import { useContext, useEffect, useState } from 'react'
 import { Button } from 'src/components/Button'
 import { usePublicClient } from 'wagmi'
+import previewImageBlank from '../../../../../../public/stakex/nft.blank.preview.svg'
 import previewImage from '../../../../../../public/stakex/nft.default.preview.svg'
 import previewImageSlim from '../../../../../../public/stakex/nft.slim.preview.svg'
-import previewImageBlank from '../../../../../../public/stakex/nft.blank.preview.svg'
 import { AddFirstConfigConfirmation } from './nft/overlays/AddFirstConfigConfirmation'
 
 export const NFTManagement = () => {
@@ -36,6 +36,7 @@ export const NFTManagement = () => {
     } = useNFTAddConfig(protocol, chain?.id!, nftConfig)
 
     const onClickChooseRecommendedTemplate = async (nftIndex: number) => {
+        resetAddNFTConfig()
         if (nftIndex === 0) {
             setNftConfig((await import('../../../../../../public/stakex/nft.default.json')).default)
         } else if (nftIndex === 1) {
@@ -64,17 +65,18 @@ export const NFTManagement = () => {
             if (client) {
                 const reqs: Promise<any>[] = []
                 dataNFTConfigs?.forEach((config) => {
-                    reqs.push(
-                        client.readContract({
-                            address: protocol,
-                            abi,
-                            functionName: 'renderByConfig',
-                            args: [config],
-                        })
-                    )
+                    const rendered = client.readContract({
+                        address: protocol,
+                        abi,
+                        functionName: 'renderByConfig',
+                        args: [config, true],
+                    })
+                    reqs.push(rendered)
                 })
 
-                Promise.all(reqs).then((configs) => setRenderedNTFs(configs))
+                Promise.all(reqs)
+                    .then((configs) => setRenderedNTFs(configs))
+                    .catch(console.error)
             }
         }
     }, [dataNFTConfigs, client, protocol])
@@ -91,7 +93,12 @@ export const NFTManagement = () => {
                     (renderedNFTs ? (
                         <div className="grid grid-cols-3 gap-6">
                             {renderedNFTs.map((nft: string, i: number) => (
-                                <img key={i} alt={`NFT`} src={nft} className="rounded-xl shadow-lg" />
+                                <span
+                                    key={i}
+                                    dangerouslySetInnerHTML={{ __html: nft }}
+                                    className="[&>svg]:!h-auto [&>svg]:!w-full [&>svg]:rounded-xl [&>svg]:shadow-lg"
+                                ></span>
+                                // <img key={i} alt={`NFT`} src={nft} className="rounded-xl shadow-lg" />
                             ))}
                         </div>
                     ) : (
@@ -110,8 +117,8 @@ export const NFTManagement = () => {
                                 solution. A configured NFT is required in order to enable your staking protocol.
                                 <br />
                                 <br />
-                                Soon there will be other templates to choose from. For now please choose one of the following
-                                templates:
+                                Soon there will be other templates to choose from. For now please choose one of the
+                                following templates:
                             </div>
                             <div className="grid grid-cols-3 gap-6">
                                 <div className="relative overflow-auto rounded-xl">

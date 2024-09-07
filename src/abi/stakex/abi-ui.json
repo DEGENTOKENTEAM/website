@@ -1,5 +1,61 @@
 [
   {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_initializationContractAddress",
+        "type": "address"
+      },
+      {
+        "internalType": "bytes",
+        "name": "_calldata",
+        "type": "bytes"
+      }
+    ],
+    "name": "InitializationFunctionReverted",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      {
+        "components": [
+          {
+            "internalType": "address",
+            "name": "facetAddress",
+            "type": "address"
+          },
+          {
+            "internalType": "enum IDiamondCut.FacetCutAction",
+            "name": "action",
+            "type": "uint8"
+          },
+          {
+            "internalType": "bytes4[]",
+            "name": "functionSelectors",
+            "type": "bytes4[]"
+          }
+        ],
+        "internalType": "struct IDiamondCut.FacetCut[]",
+        "name": "_diamondCut",
+        "type": "tuple[]"
+      },
+      {
+        "internalType": "address",
+        "name": "_init",
+        "type": "address"
+      },
+      {
+        "internalType": "bytes",
+        "name": "_calldata",
+        "type": "bytes"
+      }
+    ],
+    "name": "diamondCut",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
     "inputs": [],
     "name": "AddressZero",
     "type": "error"
@@ -2743,6 +2799,11 @@
         "internalType": "struct LibStakeXNFTStorage.SVGConfig",
         "name": "_config",
         "type": "tuple"
+      },
+      {
+        "internalType": "bool",
+        "name": "_asSVG",
+        "type": "bool"
       }
     ],
     "name": "renderByConfig",

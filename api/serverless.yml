@@ -222,6 +222,15 @@ functions:
     environment:
       LAMBDA_CUSTOMIZATION_NAME: ${self:custom.serviceName}-ipfsStakexCustomizationFetch
 
+  stakexUpdateCheck:
+    name: ${self:custom.serviceName}-stakexUpdateCheck
+    handler: stakex/update/check.handler
+    events:
+      - http:
+          path: /stakex/update-check/{chainId}/{protocol}
+          method: get
+          cors: true
+
   # STAKEX Tasks
   stakexCalculateApr:
     name: ${self:custom.serviceName}-stakexCalculateApr
