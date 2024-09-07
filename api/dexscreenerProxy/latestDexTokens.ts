@@ -31,6 +31,7 @@ export const handler = async (
             result = _dbResult.Items[0].result
         }
     } else if (result.pairs) {
+        console.log(result.pairs)
         // write to cache
         await db.batchWrite({
             RequestItems: {
@@ -43,16 +44,26 @@ export const handler = async (
                                     ...result,
                                     pairs: result.pairs.map((pair: any) => ({
                                         ...pair,
-                                        liquidity: {
-                                            ...pair.liquidity,
-                                            base: Number.isSafeInteger(
-                                                pair.liquidity.base
-                                            )
-                                                ? pair.liquidity.base
-                                                : pair.liquidity.base % 1 != 0
-                                                ? pair.liquidity.base
-                                                : BigInt(pair.liquidity.base),
-                                        },
+                                        liquidity: pair.liquidity
+                                            ? {
+                                                  ...pair.liquidity,
+                                                  base: pair.liquidity.base
+                                                      ? Number.isSafeInteger(
+                                                            pair.liquidity.base
+                                                        )
+                                                          ? pair.liquidity.base
+                                                          : pair.liquidity
+                                                                .base %
+                                                                1 !=
+                                                            0
+                                                          ? pair.liquidity.base
+                                                          : BigInt(
+                                                                pair.liquidity
+                                                                    .base
+                                                            )
+                                                      : 0,
+                                              }
+                                            : {},
                                     })),
                                 },
                                 ttl: 86400,
