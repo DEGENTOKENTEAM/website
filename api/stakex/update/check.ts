@@ -125,8 +125,8 @@ export const handler = async (
     }[] = []
 
     for (const facet of facetToAddOrUpdate) {
-        const addSelectors = []
-        const replaceSelectors = []
+        const addSelectors: string[] = []
+        const replaceSelectors: string[] = []
 
         for (const selector of facet.functionSelectors) {
             const currentFacetAddress = (await publicClient.readContract({
