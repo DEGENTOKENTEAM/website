@@ -6,7 +6,9 @@ export const useHasERC20Allowance = (
     token: Address,
     owner: Address,
     spender: Address,
-    chainId: number
+    chainId: number,
+    refetch?: boolean,
+    refetchIntervalInMS?: number
 ) =>
     useReadContract({
         address: token,
@@ -16,7 +18,8 @@ export const useHasERC20Allowance = (
         args: [owner, spender],
         query: {
             select: (data: bigint) => data,
-            refetchInterval: 2000,
+            refetchInterval:
+                refetch === true ? refetchIntervalInMS || 2000 : false,
             enabled: Boolean(token && owner && spender && chainId),
         },
     })

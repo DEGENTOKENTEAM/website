@@ -72,12 +72,13 @@ export const handler: Handler = async (_, __, callback) => {
 
                 Promise.all(promises)
                     .then((invokeResults) => {
-                        callback(null, { invokeResults })
+                        console.log({ invokeResults })
                     })
                     .catch((reason) => {
-                        callback(reason, false)
+                        console.log({ reason })
                     })
             }
         }
     }
+    callback(null, true)
 }

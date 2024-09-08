@@ -178,7 +178,7 @@ export class StakeXProtocolsRepository {
                 '#pkey = :pkey AND begins_with(#skey, :skeyBegin)',
             ExpressionAttributeNames: {
                 '#pkey': 'pkey',
-                '#skey': 'sakey',
+                '#skey': 'skey',
             },
             ExpressionAttributeValues: {
                 ':pkey': pkey,

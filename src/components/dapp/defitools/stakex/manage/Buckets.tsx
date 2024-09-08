@@ -23,7 +23,7 @@ import { ChangeStateConfirmation } from './buckets/overlays/ChangeStateConfirmat
 
 export const Buckets = () => {
     const {
-        data: { protocol, stakingToken, isLoading, isOwner, metrics, chain, owner },
+        data: { protocol, stakingToken, isLoading, isOwner, metrics, chain },
     } = useContext(ManageStakeXContext)
 
     const [multiplierPerStakingTokens, setMultiplierPerStakingTokens] = useState<{ [key: string]: number }>({})
@@ -32,6 +32,10 @@ export const Buckets = () => {
     const [showChangeSharesForm, setShowChangeSharesForm] = useState(false)
     const [hasChanges, setHasChanges] = useState(false)
     const [addBucketFormData, setAddBucketFormData] = useState<{
+        bucketAddParams: BucketParams[]
+        bucketUpdateShareParams: StakeBucketUpdateShareParams[]
+    }>()
+    const [addBucketFormDataDraft, setAddBucketFormDataDraft] = useState<{
         bucketAddParams: BucketParams[]
         bucketUpdateShareParams: StakeBucketUpdateShareParams[]
     }>()
@@ -49,18 +53,8 @@ export const Buckets = () => {
         reset: resetAddStakeBuckets,
         isPending: isPendingAddStakeBuckets,
     } = useAddStakeBuckets(
-        Boolean(
-            addBucketFormData &&
-                // enable this when bucket add params are available
-                addBucketFormData.bucketAddParams &&
-                addBucketFormData.bucketAddParams.length > 0 &&
-                addBucketFormData.bucketUpdateShareParams &&
-                chain &&
-                owner
-        ),
         chain?.id!,
         protocol,
-        owner,
         addBucketFormData?.bucketAddParams!,
         addBucketFormData?.bucketUpdateShareParams!
     )
@@ -71,31 +65,26 @@ export const Buckets = () => {
         write: writeUpdateStakeBucketShares,
         reset: resetUpdateStakeBucketShares,
         isPending: isPendingUpdateStakeBucketShares,
-    } = useUpdateStakeBucketShares(
-        Boolean(
-            addBucketFormData &&
-                addBucketFormData.bucketAddParams.length == 0 &&
-                addBucketFormData.bucketUpdateShareParams.length > 0 &&
-                chain &&
-                owner
-        ),
-        chain?.id!,
-        protocol,
-        owner,
-        addBucketFormData?.bucketUpdateShareParams!
-    )
+    } = useUpdateStakeBucketShares(chain?.id!, protocol, addBucketFormData?.bucketUpdateShareParams!)
 
-    const onClickAddButton = () => setShowAddBucketsForm(true)
-    const onClickChangeSharesButton = () => setShowChangeSharesForm(true)
+    const onClickAddButton = () => {
+        resetAddStakeBuckets()
+        resetUpdateStakeBucketShares()
+        setShowAddBucketsForm(true)
+    }
+    const onClickChangeSharesButton = () => {
+        resetAddStakeBuckets()
+        resetUpdateStakeBucketShares()
+        setShowChangeSharesForm(true)
+    }
     const onClickCancelButton = () => {
         setShowAddBucketsForm(false)
         setShowChangeSharesForm(false)
     }
-    const onClickSaveButton = () => {
-        resetAddStakeBuckets()
-        resetUpdateStakeBucketShares()
+    const onClickSaveButton = useCallback(() => {
+        setAddBucketFormData(addBucketFormDataDraft)
         setIsApplyChangesModalOpen(true)
-    }
+    }, [addBucketFormDataDraft])
 
     const onConfirmationModalOK = useCallback(() => {
         if (addBucketFormData && addBucketFormData?.bucketAddParams && addBucketFormData?.bucketAddParams.length > 0) {
@@ -135,8 +124,8 @@ export const Buckets = () => {
     }, [metrics])
 
     useEffect(() => {
-        addBucketFormData && setHasChanges(true)
-    }, [addBucketFormData])
+        addBucketFormDataDraft && setHasChanges(true)
+    }, [addBucketFormDataDraft])
 
     //
     // bucket state toggle
@@ -152,14 +141,7 @@ export const Buckets = () => {
         write: writeEnableStakeBucket,
         reset: resetEnableStakeBucket,
         isPending: isPendingEnableStakeBucket,
-    } = useEnableStakeBucket(
-        Boolean(bucketIdToToggle && chain && owner),
-        chain?.id!,
-        protocol,
-        owner,
-        bucketIdToToggle!,
-        bucketIdToToggleState
-    )
+    } = useEnableStakeBucket(chain?.id!, protocol, bucketIdToToggle!, bucketIdToToggleState)
 
     const onClickToggleActiveState = (bucket: StakeBucket) => {
         resetEnableStakeBucket()
@@ -232,15 +214,15 @@ export const Buckets = () => {
                         ])}
                     >
                         {isOwner && (showAddBucketsForm || showChangeSharesForm) && (
-                            <div className="md:col-span-2">
+                            <div className={clsx(dataStakeBuckets && dataStakeBuckets.length > 1 && 'md:col-span-2')}>
                                 <BucketsForm
                                     editSharesOnly={Boolean(showChangeSharesForm)}
-                                    onChange={(bucketAddParams, bucketUpdateShareParams) =>
-                                        setAddBucketFormData({
+                                    onChange={(bucketAddParams, bucketUpdateShareParams) => {
+                                        setAddBucketFormDataDraft({
                                             bucketAddParams,
                                             bucketUpdateShareParams,
                                         })
-                                    }
+                                    }}
                                     existingBuckets={dataStakeBuckets || []}
                                 />
                             </div>

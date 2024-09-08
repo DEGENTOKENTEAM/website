@@ -5,6 +5,7 @@ import { useReadContract } from 'wagmi'
 export const useActive = (
     address: Address,
     chainId: number,
+    refetch?: boolean,
     refetchIntervalInMs?: number
 ) =>
     useReadContract({
@@ -14,7 +15,8 @@ export const useActive = (
         functionName: `isActive`,
         query: {
             select: (data: boolean) => data,
-            refetchInterval: refetchIntervalInMs || 5000,
+            refetchInterval:
+                refetch === true ? refetchIntervalInMs || 5000 : false,
             enabled: Boolean(address && chainId),
         },
     })

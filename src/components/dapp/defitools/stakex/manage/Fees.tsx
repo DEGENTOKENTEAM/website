@@ -17,7 +17,6 @@ export const Fees = () => {
 
     const [isEditMode, setIsEditMode] = useState(false)
     const [hasChanges, setHasChanges] = useState(false)
-    const [isLoading, setIsLoading] = useState(false)
     const [isApplyChangesModalOpen, setIsApplyChangesModalOpen] = useState(false)
 
     const [stakingFee, setStakingFee] = useState(0n)
@@ -49,7 +48,6 @@ export const Fees = () => {
     const {
         write: writeUpdateFeesForStaking,
         error: errorUpdateFeesForStaking,
-        isError: isErrorUpdateFeesForStaking,
         isSuccess: isSuccessUpdateFeesForStaking,
         isLoading: isLoadingUpdateFeesForStaking,
         isPending: isPendingUpdateFeesForStaking,
@@ -58,6 +56,7 @@ export const Fees = () => {
 
     const onClickChangeFees = () => {
         setIsEditMode(true)
+        resetUpdateFeesForStaking()
     }
 
     const onClickCancel = () => {
@@ -66,12 +65,10 @@ export const Fees = () => {
         setWithdrawFee(withdrawFeeOrig)
         setHasChanges(false)
         setIsEditMode(false)
+        resetUpdateFeesForStaking()
     }
 
-    const onClickApplyChanges = () => {
-        resetUpdateFeesForStaking()
-        setIsApplyChangesModalOpen(true)
-    }
+    const onClickApplyChanges = () => setIsApplyChangesModalOpen(true)
 
     const steps = 5n
     const onChangeStakingFee = (value: bigint) => setStakingFee(value)

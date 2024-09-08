@@ -4,6 +4,8 @@ import { useERC20Approve } from '@dapphooks/shared/useERC20Approve'
 import { useGetERC20BalanceOf } from '@dapphooks/shared/useGetERC20BalanceOf'
 import { useHasERC20Allowance } from '@dapphooks/shared/useHasERC20Allowance'
 import { useGetRewardTokens } from '@dapphooks/staking/useGetRewardTokens'
+import { useGetStakingData } from '@dapphooks/staking/useGetStakingData'
+import { useGetStakingToken } from '@dapphooks/staking/useGetStakingToken'
 import { useHasDepositRestriction } from '@dapphooks/staking/useHasDepositRestriction'
 import { useInjectRewards } from '@dapphooks/staking/useInjectRewards'
 import { Tile } from '@dappshared/Tile'
@@ -36,7 +38,8 @@ export const InjectRewards = () => {
     const [allowance, setAllowance] = useState(0n)
     const [hasAllowance, setHasAllowance] = useState(false)
 
-    const { data: dataHasAllowance } = useHasERC20Allowance(
+    const { data: dataStaking } = useGetStakingData(protocol, chain?.id!)
+    const { data: dataHasAllowance, refetch: refetchHasAllowance } = useHasERC20Allowance(
         selectedRewardToken?.source!,
         address!,
         protocol,
@@ -47,7 +50,6 @@ export const InjectRewards = () => {
         isSuccess: isSuccessApproval,
         write: writeApproval,
     } = useERC20Approve(selectedRewardToken?.source!, protocol, rewardAmount, chain?.id!)
-
     const { data: dataHasDepositRestriction } = useHasDepositRestriction(chain?.id!, protocol)
     const { data: dataGetRewardTokens } = useGetRewardTokens(protocol, chain?.id!)
     const {
@@ -55,7 +57,6 @@ export const InjectRewards = () => {
         isLoading: isLoadingBalanceOf,
         refetch: refetchBalanceOf,
     } = useGetERC20BalanceOf(selectedRewardToken?.source!, address!, chain?.id!)
-
     const {
         error: errorInjectRewards,
         isLoading: isLoadingInjectRewards,
@@ -102,12 +103,11 @@ export const InjectRewards = () => {
     }
 
     useEffect(() => {
-        !isPendingApproval &&
-            isSuccessApproval &&
-            allowance >= rewardAmount &&
-            writeInjectRewards &&
-            writeInjectRewards()
-    }, [isPendingApproval, isSuccessApproval, allowance, rewardAmount, writeInjectRewards])
+        if (!isPendingApproval && isSuccessApproval) {
+            if (allowance >= rewardAmount) writeInjectRewards && writeInjectRewards()
+            else refetchHasAllowance && refetchHasAllowance()
+        }
+    }, [isPendingApproval, isSuccessApproval, allowance, rewardAmount, writeInjectRewards, refetchHasAllowance])
 
     useEffect(() => {
         typeof dataHasDepositRestriction === 'boolean' && setIsRestricted(dataHasDepositRestriction)
@@ -181,7 +181,12 @@ export const InjectRewards = () => {
                 <span className="flex-1 font-title text-xl font-bold">Inject Rewards</span>
             </div>
             {!isRunning && <div>The protocol needs to run in order to inject rewards</div>}
-            {isRunning && dataGetRewardTokens && (
+            {isRunning && dataStaking && dataStaking.stakes === 0n && (
+                <div>
+                    The protocol does not have stakes yet. You can only inject rewards when there is at least one stake
+                </div>
+            )}
+            {isRunning && dataGetRewardTokens && dataStaking && dataStaking.stakes > 0n && (
                 <>
                     <div className="flex flex-col gap-8">
                         <Field>

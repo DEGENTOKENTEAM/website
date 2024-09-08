@@ -61,7 +61,8 @@ export const BurnForBacking = (props: BurnForBackingProps) => {
         baseTokenAddress,
         address!,
         process.env.NEXT_PUBLIC_CONTROLLER_ADDRESS! as Address,
-        chainId
+        chainId,
+        true
     )
     const {
         write: writeERC20Approve,
