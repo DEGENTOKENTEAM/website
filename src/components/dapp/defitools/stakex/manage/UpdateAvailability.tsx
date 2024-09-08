@@ -12,7 +12,7 @@ export const UpdateAvailability = () => {
     } = useContext(ManageStakeXContext)
 
     const [isApplyChangesModalOpen, setIsApplyChangesModalOpen] = useState(false)
-    const { loading, response } = useHasUpdateAvailable({
+    const { loading, response, refetch } = useHasUpdateAvailable({
         protocol,
         chainId: chain?.id!,
         enabled: Boolean(chain && chain.id && protocol),
@@ -32,9 +32,10 @@ export const UpdateAvailability = () => {
         setIsApplyChangesModalOpen(true)
     }
 
-    const onConfirmationModalClose = () => {
+    const onConfirmationModalClose = useCallback(() => {
+        refetch && refetch()
         setIsApplyChangesModalOpen(false)
-    }
+    }, [refetch])
 
     const onConfirmationModalOK = useCallback(() => {
         write && write()

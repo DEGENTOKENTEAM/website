@@ -170,6 +170,7 @@ export const Protocols = () => {
                                 </Button>
                                 <Button
                                     className="w-full"
+                                    disabled={!protocol.isRunning}
                                     onClick={() => {
                                         navigate(`/dapp/staking/${protocol.chainId}/${protocol.source}`, {
                                             relative: 'path',
