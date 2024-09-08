@@ -32,7 +32,7 @@ export const useDeployProtocolSTAKEX = (
     useEffect(() => {
         if (!address || !publicClient || !exec || !exec.hash) return
         publicClient
-            ?.getTransactionReceipt({ hash: exec.hash })
+            .waitForTransactionReceipt({ hash: exec.hash })
             .then((receipt) => {
                 receipt.logs
                     .filter((log) => toLower(address) === toLower(log.address))

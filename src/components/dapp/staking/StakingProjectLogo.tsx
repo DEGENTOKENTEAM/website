@@ -29,7 +29,7 @@ export const StakingProjectLogo = ({ source, projectName, className, isPending, 
                         : 'h-[100px] min-h-[100px] w-[100px] min-w-[100px]',
                 ])}
             >
-                {!source && isPending && (
+                {isPending && (
                     <div
                         className={`absolute left-0 top-0 flex h-[100px] w-[100px] flex-col items-center justify-center gap-2 rounded-full bg-dapp-blue-200`}
                     >

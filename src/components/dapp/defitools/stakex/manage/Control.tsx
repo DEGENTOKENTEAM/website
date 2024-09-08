@@ -37,12 +37,6 @@ export const Control = () => {
     const [activationBlock, setActivationBlock] = useState<bigint>()
     const [activationTime, setActivationTime] = useState<bigint>()
 
-    const { data: currentBlock } = useBlock({
-        query: { enabled: Boolean(chain?.id) },
-        chainId: chain?.id,
-        watch: true,
-    })
-
     const { data: dataNFTConfigs, refetch: refetchNFTConfigs } = useNFTGetConfigs(protocol, chain?.id!)
     const { data: dataIsActive, refetch: refetchIsActive } = useActive(protocol, chain?.id!)
     const { data: currentActivationBlock, refetch: refetchActivationBlock } = useGetActivationBlock(
@@ -50,6 +44,11 @@ export const Control = () => {
         chain?.id!
     )
     const { data: currentActivationTime, refetch: refetchActivationTime } = useGetActivationTime(protocol, chain?.id!)
+    const { data: currentBlock } = useBlock({
+        query: { enabled: Boolean(chain?.id) },
+        chainId: chain?.id,
+        watch: Boolean(currentActivationBlock && currentActivationBlock > 0n),
+    })
 
     const { error, isLoading, isPending, isSuccess, reset, write } = useEnableProtocol(
         protocol,

@@ -8,7 +8,9 @@ import Image from 'next/image'
 import { useContext, useEffect, useState } from 'react'
 import { Button } from 'src/components/Button'
 import { usePublicClient } from 'wagmi'
+import previewImageBlank from '../../../../../../public/stakex/nft.blank.preview.svg'
 import previewImage from '../../../../../../public/stakex/nft.default.preview.svg'
+import previewImageSlim from '../../../../../../public/stakex/nft.slim.preview.svg'
 import { AddFirstConfigConfirmation } from './nft/overlays/AddFirstConfigConfirmation'
 
 export const NFTManagement = () => {
@@ -33,8 +35,15 @@ export const NFTManagement = () => {
         write: writeAddNFTConfig,
     } = useNFTAddConfig(protocol, chain?.id!, nftConfig)
 
-    const onClickChooseRecommendedTemplate = async () => {
-        setNftConfig((await import('../../../../../../public/stakex/nft.default.json')).default)
+    const onClickChooseRecommendedTemplate = async (nftIndex: number) => {
+        resetAddNFTConfig()
+        if (nftIndex === 0) {
+            setNftConfig((await import('../../../../../../public/stakex/nft.default.json')).default)
+        } else if (nftIndex === 1) {
+            setNftConfig((await import('../../../../../../public/stakex/nft.slim.json')).default)
+        } else {
+            setNftConfig((await import('../../../../../../public/stakex/nft.blank.json')).default)
+        }
         setIsConfirmationModalOpen(true)
     }
 
@@ -56,17 +65,18 @@ export const NFTManagement = () => {
             if (client) {
                 const reqs: Promise<any>[] = []
                 dataNFTConfigs?.forEach((config) => {
-                    reqs.push(
-                        client.readContract({
-                            address: protocol,
-                            abi,
-                            functionName: 'renderByConfig',
-                            args: [config],
-                        })
-                    )
+                    const rendered = client.readContract({
+                        address: protocol,
+                        abi,
+                        functionName: 'renderByConfig',
+                        args: [config, true],
+                    })
+                    reqs.push(rendered)
                 })
 
-                Promise.all(reqs).then((configs) => setRenderedNTFs(configs))
+                Promise.all(reqs)
+                    .then((configs) => setRenderedNTFs(configs))
+                    .catch(console.error)
             }
         }
     }, [dataNFTConfigs, client, protocol])
@@ -83,7 +93,12 @@ export const NFTManagement = () => {
                     (renderedNFTs ? (
                         <div className="grid grid-cols-3 gap-6">
                             {renderedNFTs.map((nft: string, i: number) => (
-                                <img key={i} alt={`NFT`} src={nft} className="rounded-xl shadow-lg" />
+                                <span
+                                    key={i}
+                                    dangerouslySetInnerHTML={{ __html: nft }}
+                                    className="[&>svg]:!h-auto [&>svg]:!w-full [&>svg]:rounded-xl [&>svg]:shadow-lg"
+                                ></span>
+                                // <img key={i} alt={`NFT`} src={nft} className="rounded-xl shadow-lg" />
                             ))}
                         </div>
                     ) : (
@@ -97,17 +112,44 @@ export const NFTManagement = () => {
                     ) : (
                         <>
                             <div>
-                                Your STAKEX protocols needs to have NFTs configured. After this you&apos;re able to set
-                                a starting condition or enable the protocol without a starting condition <br />
+                                Stakers will receive an NFT for each of their stake. In order to start with the staking,
+                                you need to choose an NFT template. It will be a basic NFT setup for your staking
+                                solution. A configured NFT is required in order to enable your staking protocol.
                                 <br />
-                                We propose the following default template to use:
+                                <br />
+                                Soon there will be other templates to choose from. For now please choose one of the
+                                following templates:
                             </div>
-                            <div className="flex">
-                                <div className="relative w-1/3 overflow-auto rounded-xl">
+                            <div className="grid grid-cols-3 gap-6">
+                                <div className="relative overflow-auto rounded-xl">
                                     <Image src={previewImage} alt="Proposed NFT Image" />
                                     <div className="pointer-events-none absolute inset-0 flex items-center justify-center bg-dapp-cyan-50/30  hover:bg-dapp-cyan-50/70">
                                         <Button
-                                            onClick={() => onClickChooseRecommendedTemplate()}
+                                            onClick={() => onClickChooseRecommendedTemplate(0)}
+                                            variant="primary"
+                                            className="pointer-events-auto !opacity-80 hover:!opacity-100"
+                                        >
+                                            Choose template
+                                        </Button>
+                                    </div>
+                                </div>
+                                <div className="relative overflow-auto rounded-xl">
+                                    <Image src={previewImageSlim} alt="Proposed NFT Image" />
+                                    <div className="pointer-events-none absolute inset-0 flex items-center justify-center bg-dapp-cyan-50/30  hover:bg-dapp-cyan-50/70">
+                                        <Button
+                                            onClick={() => onClickChooseRecommendedTemplate(1)}
+                                            variant="primary"
+                                            className="pointer-events-auto !opacity-80 hover:!opacity-100"
+                                        >
+                                            Choose template
+                                        </Button>
+                                    </div>
+                                </div>
+                                <div className="relative overflow-auto rounded-xl">
+                                    <Image src={previewImageBlank} alt="Proposed NFT Image" />
+                                    <div className="pointer-events-none absolute inset-0 flex items-center justify-center bg-dapp-cyan-50/30  hover:bg-dapp-cyan-50/70">
+                                        <Button
+                                            onClick={() => onClickChooseRecommendedTemplate(2)}
                                             variant="primary"
                                             className="pointer-events-auto !opacity-80 hover:!opacity-100"
                                         >

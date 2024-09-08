@@ -2,15 +2,15 @@ import { ManageStakeXContext } from '@dapphelpers/defitools'
 import { useGetCustomization } from '@dapphooks/staking/useGetCustomization'
 import { useUpdateCustomization } from '@dapphooks/staking/useUpdateCustomization'
 import { Tile } from '@dappshared/Tile'
-import { ChangeEvent, useContext, useEffect, useRef, useState } from 'react'
+import { ChangeEvent, useCallback, useContext, useEffect, useRef, useState } from 'react'
 import { CircleStencil, Cropper, CropperRef } from 'react-advanced-cropper'
 import 'react-advanced-cropper/dist/style.css'
-import { toast } from 'react-toastify'
+import { Id, toast } from 'react-toastify'
 import { Button } from 'src/components/Button'
 import { Spinner } from 'src/components/dapp/elements/Spinner'
 import { StakingProjectLogo } from 'src/components/dapp/staking/StakingProjectLogo'
 import { useInterval } from 'usehooks-ts'
-import { createSiweMessage, generateSiweNonce } from 'viem/siwe'
+import { createSiweMessage, CreateSiweMessageParameters, generateSiweNonce } from 'viem/siwe'
 import { useAccount, useSignMessage } from 'wagmi'
 
 export const Customization = () => {
@@ -31,6 +31,7 @@ export const Customization = () => {
     const [baseImage, setBaseImage] = useState<string | null>(null)
     const [previewImage, setPreviewImage] = useState<string | null>(null)
     const [challengeMessage, setChallengeMessage] = useState<string | null>(null)
+    const [toastId, setToastId] = useState<Id>()
 
     const [checkForNewImageInterval, setCheckForNewImageInterval] = useState<number | null>(null)
 
@@ -43,8 +44,8 @@ export const Customization = () => {
         signMessage,
         data: signature,
         isPending: isPendingSignMessage,
-        isSuccess: isSuccessSignMessage,
-        reset: resetSignMessage,
+        isError: isErrorSignMessage,
+        error: errorSignMessage,
     } = useSignMessage()
 
     useInterval(() => {
@@ -52,6 +53,13 @@ export const Customization = () => {
             setCheckForNewImageInterval(null)
         } else load()
     }, checkForNewImageInterval)
+
+    const resetToastIdCallback = useCallback(
+        ({ id, status }) => {
+            if (status == 'removed' && toastId == id) setToastId(undefined)
+        },
+        [toastId]
+    )
 
     const onClickUploadLogo = () => {
         inputFile && inputFile.current && inputFile.current?.click()
@@ -71,19 +79,21 @@ export const Customization = () => {
 
         setIsLoadingLogoUpload(true)
 
-        const message = createSiweMessage({
+        const msg: CreateSiweMessageParameters = {
             address,
             chainId,
-            domain: window.location.host,
-            uri: window.location.host,
+            domain: `${window.location.host}`,
+            uri: `${window.location.href}`,
             nonce: generateSiweNonce(),
             version: '1',
             statement: `I'm the owner of ${protocol} and I want to update my STAKEX customization`,
-        })
+        }
 
-        setChallengeMessage(message)
+        const siweMessage = createSiweMessage(msg)
 
-        signMessage({ account: address, message })
+        setChallengeMessage(siweMessage)
+
+        signMessage({ account: address, message: siweMessage })
     }
 
     const onClickCancel = () => {
@@ -122,11 +132,12 @@ export const Customization = () => {
                 setCropImage(null)
                 setPreviewImage(null)
                 setIsLoadingLogoUpload(false)
-                toast.success('Updated project logo', { autoClose: 2000 })
+                !toastId &&
+                    setToastId(toast.success('Updated project logo. It will be available soon.', { autoClose: 2000 }))
             }
             if (errorUpdate) {
                 setIsLoadingLogoUpload(false)
-                toast.error(errorUpdate, { autoClose: 5000 })
+                !toastId && setToastId(toast.error(errorUpdate, { autoClose: 5000 }))
             }
         }
     }, [responseUpdate, loadingUpdate, errorUpdate, load])
@@ -134,6 +145,17 @@ export const Customization = () => {
     useEffect(() => {
         stakingToken && stakingToken.symbol && setProjectName(`${stakingToken.symbol} staking`)
     }, [stakingToken])
+
+    useEffect(() => {
+        if (isErrorSignMessage && errorSignMessage) {
+            setIsLoadingLogoUpload(false)
+            toast.error((errorSignMessage as any).shortMessage, { autoClose: 5000 })
+        }
+    }, [isErrorSignMessage, errorSignMessage])
+
+    useEffect(() => {
+        toast.onChange(resetToastIdCallback)
+    })
 
     return (
         <>

@@ -3,7 +3,6 @@ import { ManageStakeXContext } from '@dapphelpers/defitools'
 import { toReadableNumber } from '@dapphelpers/number'
 import { useFetch } from '@dapphooks/shared/useFetch'
 import { useGetChainExplorer } from '@dapphooks/shared/useGetChainExplorer'
-import { useGetERC20BalanceOf } from '@dapphooks/shared/useGetERC20BalanceOf'
 import { useActive } from '@dapphooks/staking/useActive'
 import { useGetStableToken } from '@dapphooks/staking/useGetStableToken'
 import { useGetStakingData } from '@dapphooks/staking/useGetStakingData'
@@ -27,21 +26,23 @@ export const GeneralInformation = () => {
 
     const [tvlUsd, setTvlUsd] = useState(0)
 
-    const {
-        data: dataStakingToken,
-        isLoading: isLoadingStakingToken,
-        error: errorStakingtoken,
-    } = useGetStakingToken(protocol, chain?.id!)
+    // let dataStakingToken = undefined;
+    const { data: dataStakingToken } = useGetStakingToken(protocol, chain?.id!)
+    // let dataStableToken = undefined;
+    // let isLoadingStableToken = false;
     const { data: dataStableToken, isLoading: isLoadingStableToken } = useGetStableToken(protocol, chain?.id!)
+    // let dataIsActive = undefined;
+    // let isLoadingIsActive = false;
     const { data: dataIsActive, isLoading: isLoadingIsActive } = useActive(protocol, chain?.id!)
+    // let dataIsInitialized = undefined;
+    // let isLoadingIsInitialized = false;
     const { data: dataIsInitialized, isLoading: isLoadingIsInitialized } = useInitialized(protocol, chain?.id!)
+    // let dataIsRunning = undefined;
+    // let isLoadingIsRunning = false;
     const { data: dataIsRunning, isLoading: isLoadingIsRunning } = useRunning(protocol, chain?.id!)
+    // let dataStakingData = undefined;
+    // let isLoadingStakingData = false;
     const { data: dataStakingData, isLoading: isLoadingStakingData } = useGetStakingData(protocol, chain?.id!)
-    const {
-        data: dataStakingTokenBalance,
-        isLoading: isLoadingStakingTokenBalance,
-        error: errorStakingTokenBalance,
-    } = useGetERC20BalanceOf(dataStakingToken?.source!, protocol, chain?.id!)
 
     const chainExplorer = useGetChainExplorer(chain!)
 
@@ -72,17 +73,6 @@ export const GeneralInformation = () => {
             )
         }
     }, [responseStakingTokenInfo, dataStakingData, dataStakingToken])
-
-    useEffect(() => {
-        if (dataStakingData) {
-            const fetches: any[] = []
-            for (const reward of dataStakingData.rewarded) {
-                fetches.push({
-                    url: `${process.env.NEXT_PUBLIC_STAKEX_API_ENDPOINT}/latest/dex/tokens/${reward.tokenInfo.source}`,
-                })
-            }
-        }
-    }, [dataStakingData])
 
     return (
         <Tile className="flex w-full flex-col gap-8">
@@ -236,17 +226,6 @@ export const GeneralInformation = () => {
                     </div>
                 </StatsBoxTwoColumn.RightColumn>
             </StatsBoxTwoColumn.Wrapper>
-
-            {/* 
-            <p>APY (Token and Reward assets)</p>
-            <p>
-                If it's not started yet and no option set, provide start
-                functions (Instant, By Block, By Time)
-            </p>
-            <p>
-                Deposit function Link (extra area which is also reachable from
-                STAKEX protocol)
-            </p> */}
         </Tile>
     )
 }

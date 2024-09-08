@@ -302,7 +302,7 @@ export const handler: Handler<CalculateAprEventType> = async (event, _, cb) => {
 
             cumulativePayouts += await getSwapAmount(
                 amount,
-                swapsFromTo[rewardToken][stakingToken.source],
+                swapsFromTo[stakingToken.source][rewardToken],
                 log.blockNumber
             )
         }
@@ -326,11 +326,10 @@ export const handler: Handler<CalculateAprEventType> = async (event, _, cb) => {
                         10000n /
                         10n ** BigInt(stakingToken.decimals)
                 ) / Number(bucket.staked / 10n ** BigInt(stakingToken.decimals))
-
             return {
                 bucketId: bucket.id,
-                apr: apr * 100,
-                apy: ((1 + apr / 52) ** 52 - 1) * 100,
+                apr: !isNaN(apr) ? apr * 100 : 0,
+                apy: !isNaN(apr) ? ((1 + apr / 52) ** 52 - 1) * 100 : 0,
             }
         })
 

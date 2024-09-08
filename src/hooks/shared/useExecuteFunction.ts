@@ -1,4 +1,4 @@
-import { toLower } from 'lodash'
+import { isUndefined, toLower } from 'lodash'
 import { useCallback, useEffect, useState } from 'react'
 import { Address, decodeEventLog } from 'viem'
 import { usePublicClient, useSimulateContract, useWriteContract } from 'wagmi'
@@ -30,6 +30,8 @@ export const useExecuteFunction = ({
     const [isLoading, setIsLoading] = useState(false)
     const [isSuccess, setIsSuccess] = useState(false)
 
+    const _enabled = !isUndefined(enabled) ? enabled : true
+
     const {
         data,
         isError: isErrorSimulate,
@@ -44,7 +46,7 @@ export const useExecuteFunction = ({
         value: value || undefined,
         query: {
             enabled: Boolean(
-                address && chainId && abi && functionName && enabled
+                address && chainId && abi && functionName && _enabled
             ),
         },
     })
@@ -64,6 +66,7 @@ export const useExecuteFunction = ({
     }, [data, writeContract])
 
     const reset = useCallback(() => {
+        setLogs([])
         setIsSuccess(false)
         resetWriteContract && resetWriteContract()
     }, [resetWriteContract])
@@ -73,13 +76,13 @@ export const useExecuteFunction = ({
     useEffect(() => {
         if (!publicClient || !hash || !address) return
         publicClient
-            .getTransactionReceipt({ hash })
+            .waitForTransactionReceipt({ hash })
             .then((receipt) => setLogs(receipt.logs))
             .catch((reason) => console.log('[ERROR]', { reason }))
     }, [publicClient, hash, address])
 
     useEffect(() => {
-        if (eventNames && logs && logs.length > 0) {
+        if (eventNames && eventNames.length && logs && logs.length) {
             logs.filter(
                 (log) => toLower(address) === toLower(log.address)
             ).forEach((log) => {
@@ -94,6 +97,9 @@ export const useExecuteFunction = ({
                     // resetWriteContract()
                 }
             })
+        } else if (!eventNames.length && logs && logs.length > 0) {
+            setIsLoading(false)
+            setIsSuccess(true)
         }
     }, [logs, eventNames, abi, address])
 

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 
 type useFetchType = {
     url: string
@@ -14,7 +14,8 @@ export const useFetch = <T = any>({
 }: useFetchType) => {
     const [response, setResponse] = useState<T>()
     const [loading, setLoading] = useState(true)
-    useEffect(() => {
+
+    const _fetch = useCallback(() => {
         if (!enabled) return
 
         const abortController = new AbortController()
@@ -40,5 +41,9 @@ export const useFetch = <T = any>({
         return () => abortController.abort()
     }, [url, method, body, enabled])
 
-    return { response, loading }
+    useEffect(() => {
+        _fetch && _fetch()
+    }, [url, method, body, enabled, _fetch])
+
+    return { response, loading, refetch: _fetch }
 }

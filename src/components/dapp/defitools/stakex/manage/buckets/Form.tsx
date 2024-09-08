@@ -123,7 +123,7 @@ export const BucketsForm = ({ existingBuckets, onChange, editSharesOnly }: Bucke
     }
 
     useEffect(() => {
-        if (!onChange || !currentBuckets || !currentBuckets.length) return
+        if (!currentBuckets || !currentBuckets.length) return
 
         const unlockedShares = currentBuckets.filter((bucket) => !bucket.shareLock).length
 
@@ -134,17 +134,18 @@ export const BucketsForm = ({ existingBuckets, onChange, editSharesOnly }: Bucke
         )
 
         // trigger on change event for parent component
-        onChange(
-            currentBuckets
-                .filter((b) => !b.id)
-                .map((bucket) => ({
-                    burn: bucket.burn,
-                    lock: bucket.lock && !bucket.burn ? bucket.lockPeriod * LockUnits[bucket.lockUnit] : 0,
-                    share: bucket.share * 100,
-                })),
-            currentBuckets.filter((b) => b.id).map(({ id, share }) => ({ id: id!, share: share * 100 }))
-        )
-    }, [currentBuckets, onChange])
+        onChange &&
+            onChange(
+                currentBuckets
+                    .filter((b) => !b.id)
+                    .map((bucket) => ({
+                        burn: bucket.burn,
+                        lock: bucket.lock && !bucket.burn ? bucket.lockPeriod * LockUnits[bucket.lockUnit] : 0,
+                        share: bucket.share * 100,
+                    })),
+                currentBuckets.filter((b) => b.id).map(({ id, share }) => ({ id: id!, share: share * 100 }))
+            )
+    }, [currentBuckets])
 
     const onChangeLockUnit = (bucketIndex: number, lockUnit: keyof typeof LockUnits) => {
         const updateBuckets = cloneDeep(currentBuckets)
@@ -173,7 +174,11 @@ export const BucketsForm = ({ existingBuckets, onChange, editSharesOnly }: Bucke
 
     const onShareChange = (event: ChangeEvent<HTMLInputElement>, bucketIndex: number) => {
         const updateBuckets = cloneDeep(currentBuckets)
-        if (!!event.target.value && Number(event.target.value) <= updateBuckets[bucketIndex].shareMax) {
+        if (
+            !!event.target.value &&
+            Number(event.target.value) <= updateBuckets[bucketIndex].shareMax &&
+            Number(event.target.value) >= 1
+        ) {
             updateBuckets[bucketIndex].share = Number(event.target.value)
             setCurrentBuckets(balanceShares(updateBuckets, bucketIndex))
         }

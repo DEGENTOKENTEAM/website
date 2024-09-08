@@ -1,7 +1,7 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
 import fetch from 'node-fetch'
-import { createReturn } from '../helpers/return'
 import { DynamoDBHelper } from '../helpers/ddb/dynamodb'
+import { createReturn } from '../helpers/return'
 
 export const handler = async (
     event: APIGatewayProxyEvent
@@ -30,8 +30,8 @@ export const handler = async (
         if (_dbResult.Items && _dbResult.Items.length >= 1) {
             result = _dbResult.Items[0].result
         }
-    }
-    if (result.pairs) {
+    } else if (result.pairs) {
+        console.log(result.pairs)
         // write to cache
         await db.batchWrite({
             RequestItems: {
@@ -40,8 +40,33 @@ export const handler = async (
                         PutRequest: {
                             Item: {
                                 TokenKey: tokenAddress,
-                                result,
-                                ttl: 86400
+                                result: {
+                                    ...result,
+                                    pairs: result.pairs.map((pair: any) => ({
+                                        ...pair,
+                                        liquidity: pair.liquidity
+                                            ? {
+                                                  ...pair.liquidity,
+                                                  base: pair.liquidity.base
+                                                      ? Number.isSafeInteger(
+                                                            pair.liquidity.base
+                                                        )
+                                                          ? pair.liquidity.base
+                                                          : pair.liquidity
+                                                                .base %
+                                                                1 !=
+                                                            0
+                                                          ? pair.liquidity.base
+                                                          : BigInt(
+                                                                pair.liquidity
+                                                                    .base
+                                                            )
+                                                      : 0,
+                                              }
+                                            : {},
+                                    })),
+                                },
+                                ttl: 86400,
                             },
                         },
                     },
@@ -49,5 +74,6 @@ export const handler = async (
             },
         })
     }
+
     return createReturn(200, JSON.stringify(result))
 }
