@@ -17,7 +17,7 @@ export const CallToActionButton = ({ className }: { className?: string }) => {
     return (
         <Button
             onClick={onClick}
-            className={clsx(['w-auto rounded-lg bg-dapp-cyan-500 p-4 font-title text-xl font-bold', className])}
+            className={clsx(['w-auto rounded-lg bg-dapp-cyan-500 p-4 font-title text-xl font-bold hover:bg-dapp-cyan-500/40', className])}
         >
             Create Protocol Now
         </Button>

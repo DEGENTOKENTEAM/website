@@ -1,3 +1,4 @@
+import imageSolidproof from '@public/audits/solidproof_white.svg'
 import imageEthereum from '@public/chains/1.svg'
 import imagePolygon from '@public/chains/137.svg'
 import imageArbitrum from '@public/chains/42161.svg'
@@ -5,6 +6,7 @@ import imageAvalanche from '@public/chains/43114.svg'
 import imageBSC from '@public/chains/56.png'
 import imageBase from '@public/chains/8453.svg'
 import Image from 'next/image'
+import Link from 'next/link'
 import heroImage from './../../../images/lps/stakex/hero.png'
 import { CallToActionButton } from './CallToAction'
 
@@ -36,7 +38,7 @@ export const Hero = () => {
                 </div>
             </div>
 
-            <div className="m-auto mt-10 flex flex-col gap-8 text-center text-darkTextLowEmphasis">
+            <div className="m-auto mt-10 flex flex-col gap-8 text-center">
                 <div className="font-title text-2xl font-bold">Supported Networks</div>
                 <div className="flex flex-row justify-center gap-4 md:gap-12">
                     <Image
@@ -69,6 +71,23 @@ export const Hero = () => {
                         alt="Support Avalanche Network Image"
                         className="h-12 w-12 md:h-16 md:w-16 md:grayscale md:hover:filter-none"
                     />
+                </div>
+            </div>
+            <div className="m-auto mt-10 flex flex-col items-center justify-center gap-4 text-center sm:flex-row ">
+                <div className="font-title text-2xl font-bold">
+                    <Link
+                        href="/audits/20240522_STAKEX.pdf"
+                        target="_blank"
+                        className="text-dapp-cyan-500 underline hover:text-dapp-cyan-50"
+                    >
+                        <span className="!text-dapp-cyan-50">Smart Contract Security Audit</span>
+                    </Link>{' '}
+                    by
+                </div>
+                <div>
+                    <Link href="https://solidproof.io/" target="_blank">
+                        <Image src={imageSolidproof} alt="Solidproof Logo White" />
+                    </Link>
                 </div>
             </div>
         </div>

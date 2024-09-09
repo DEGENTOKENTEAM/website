@@ -8,10 +8,11 @@ import { Footer } from 'src/components/lps/stakex/Footer'
 import { Header } from 'src/components/lps/stakex/Header'
 import { Hero } from 'src/components/lps/stakex/Hero'
 import dummyImage from './../../images/lps/stakex/dummy-image-16-9.png'
+import { useEffect } from 'react'
 
 export default function Home() {
     const { setTheme } = useTheme()
-    setTheme('dark')
+    useEffect(() => setTheme('dark'))
     return (
         <>
             <Head>
@@ -21,7 +22,7 @@ export default function Home() {
                     content="STAKEX is a staking protocol developed by the DEGENX Ecosystem. It's available on chains like Ethereum, Avalanche, BNB Smart Chain, Arbitrum, Polygon, and Base. Take the opportunity to incentivize your token holders and store additional value of your project with an audited and secure staking contract"
                 />
             </Head>
-            <div className="w-full">
+            <div className="w-full text-dapp-cyan-50">
                 <div className="mx-auto max-w-7xl">
                     <Header />
                 </div>
