@@ -12,6 +12,7 @@ import { TokenInfoResponse } from '@dapptypes'
 import { Description, Field, Input, Label, Select } from '@headlessui/react'
 import clsx from 'clsx'
 import { ChangeEvent, useContext, useEffect, useRef, useState } from 'react'
+import { MdLockOutline } from 'react-icons/md'
 import { toast } from 'react-toastify'
 import { Button } from 'src/components/Button'
 import { Spinner } from 'src/components/dapp/elements/Spinner'
@@ -175,17 +176,11 @@ export const InjectRewards = () => {
     }, [dataHasAllowance, rewardAmount])
 
     return (
-        <Tile className="flex w-full flex-col gap-8">
+        <Tile className="relative flex w-full flex-col gap-8">
             <div className="flex flex-row items-center">
                 <span className="flex-1 font-title text-xl font-bold">Inject Rewards</span>
             </div>
-            {!isRunning && <div>The protocol needs to run in order to inject rewards</div>}
-            {isRunning && dataStaking && dataStaking.stakes === 0n && (
-                <div>
-                    The protocol does not have stakes yet. You can only inject rewards when there is at least one stake
-                </div>
-            )}
-            {isRunning && dataGetRewardTokens && dataStaking && dataStaking.stakes > 0n && (
+            {dataGetRewardTokens && (
                 <>
                     <div className="flex flex-col gap-8">
                         <Field>
@@ -261,6 +256,15 @@ export const InjectRewards = () => {
                         </Button>
                     </div>
                 </>
+            )}
+            {dataStaking && dataStaking.stakes === 0n && (
+                <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 border-b border-t border-dapp-blue-100 bg-dapp-blue-800/90 md:rounded-lg md:border">
+                    <MdLockOutline className="h-32 w-32" />
+                    <span className="text-center">
+                        The protocol does not have any {dataStaking.staked.tokenInfo.symbol} staked yet. <br />
+                        You can only inject rewards when there is at least one stake available.
+                    </span>
+                </div>
             )}
         </Tile>
     )

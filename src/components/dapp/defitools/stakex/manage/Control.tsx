@@ -20,6 +20,7 @@ import { BlockNumberDeactivationConfirmation } from './control/overlays/BlockNum
 import { BlockTimeActivation } from './control/overlays/BlockTimeActivation'
 import { BlockTimeDeactivationConfirmation } from './control/overlays/BlockTimeDeactivationConfirmation'
 import { DisableProtocolConfirmation } from './control/overlays/DisableProtocolConfirmation'
+import { MdLockOutline } from 'react-icons/md'
 
 export const Control = () => {
     const {
@@ -29,6 +30,7 @@ export const Control = () => {
     const timeAgo = new TimeAgo(navigator.language)
 
     const [isActive, setIsActive] = useState<boolean | null>(null)
+    const [canActivate, setCanActivate] = useState(false)
     const [isApplyChangesModalOpen, setIsApplyChangesModalOpen] = useState(false)
     const [isBlockNumberActivationModalOpen, setIsBlockNumberActivationModalOpen] = useState(false)
     const [isBlockNumberDeactivationModalOpen, setIsBlockNumberDeactivationModalOpen] = useState(false)
@@ -54,7 +56,7 @@ export const Control = () => {
         protocol,
         chain?.id!,
         !isActive!,
-        Boolean(dataNFTConfigs && dataNFTConfigs.length > 0)
+        canActivate
     )
 
     const onClickToggleProtocolStatus = () => {
@@ -80,7 +82,7 @@ export const Control = () => {
         isSuccess: isSuccessEnableByBlock,
         reset: resetEnableByBlock,
         write: writeEnableByBlock,
-    } = useEnableProtocolByBlock(protocol, chain?.id!, activationBlock!)
+    } = useEnableProtocolByBlock(protocol, chain?.id!, activationBlock!, canActivate)
 
     const onClickBlockNumberActivation = () => {
         resetEnableByBlock()
@@ -112,7 +114,7 @@ export const Control = () => {
         isSuccess: isSuccessEnableByTime,
         reset: resetEnableByTime,
         write: writeEnableByTime,
-    } = useEnableProtocolByTime(protocol, chain?.id!, activationTime!)
+    } = useEnableProtocolByTime(protocol, chain?.id!, activationTime!, canActivate)
 
     const onClickBlockTimeActivation = () => {
         resetEnableByTime()
@@ -141,9 +143,13 @@ export const Control = () => {
         if (dataIsActive && refetchNFTConfigs) refetchNFTConfigs()
     }, [refetchNFTConfigs, dataIsActive])
 
+    useEffect(() => {
+        setCanActivate(Boolean(dataNFTConfigs && dataNFTConfigs.length > 0))
+    }, [dataNFTConfigs])
+
     return (
         <>
-            <Tile className="w-full ">
+            <Tile className="relative w-full">
                 <div className="flex flex-row items-center">
                     <span className="flex-1 font-title text-xl font-bold">Access Management</span>
                 </div>
@@ -179,7 +185,7 @@ export const Control = () => {
                         {isOwner &&
                             (!Boolean(currentActivationBlock) ? (
                                 <Button
-                                    disabled={Boolean(isActive) || Boolean(currentActivationTime)}
+                                    disabled={Boolean(isActive) || Boolean(currentActivationTime) || !canActivate}
                                     className="w-full md:w-auto"
                                     onClick={onClickBlockNumberActivation}
                                     variant={'primary'}
@@ -252,7 +258,7 @@ export const Control = () => {
                         {isOwner &&
                             (!Boolean(currentActivationTime) ? (
                                 <Button
-                                    disabled={Boolean(isActive) || Boolean(currentActivationBlock)}
+                                    disabled={Boolean(isActive) || Boolean(currentActivationBlock) || !canActivate}
                                     onClick={onClickBlockTimeActivation}
                                     className="w-full md:w-auto"
                                     variant={'primary'}
@@ -283,7 +289,7 @@ export const Control = () => {
 
                         {isOwner && (
                             <Button
-                                disabled={!dataNFTConfigs || !dataNFTConfigs?.length}
+                                disabled={!canActivate}
                                 onClick={onClickToggleProtocolStatus}
                                 className="w-full whitespace-nowrap md:w-auto"
                                 variant={isActive ? 'error' : 'primary'}
@@ -293,6 +299,15 @@ export const Control = () => {
                         )}
                     </div>
                 </div>
+                {!canActivate && (
+                    <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 border-b border-t border-dapp-blue-100 bg-dapp-blue-800/90 md:rounded-lg md:border">
+                        <MdLockOutline className="h-32 w-32" />
+                        <span>
+                            Please choose an NFT template <br />
+                            in order to enable your protocol
+                        </span>
+                    </div>
+                )}
             </Tile>
             <DisableProtocolConfirmation
                 isLoading={isLoading}
