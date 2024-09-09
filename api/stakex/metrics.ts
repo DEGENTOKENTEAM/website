@@ -30,7 +30,7 @@ export const handler = async (
     })
 
     if (!protocols.Count || !protocols.Items?.length)
-        return createReturn(400, JSON.stringify({}))
+        return createReturn(404, JSON.stringify({}))
 
     const {
         blockNumberAPUpdate,

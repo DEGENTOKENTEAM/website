@@ -104,7 +104,9 @@ export const StakingStatistics = ({ protocol, chainId }: StakingStatisticsProps)
                                       long: true,
                                       format: 'in-days',
                                   })
-                                : 'only infinite'
+                                : stakingData.stakedBurned.amount > 0n
+                                ? 'only infinite'
+                                : 'no locks'
                             : 'no stakes'}
                     </div>
                 </div>

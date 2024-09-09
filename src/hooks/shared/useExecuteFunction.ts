@@ -13,6 +13,8 @@ type useExecuteFunctionProps = {
     account?: Address
     value?: bigint
     enabled?: boolean
+    onEvent?: (event: any) => void
+    onEventMatch?: (event: any) => void
 }
 
 export const useExecuteFunction = ({
@@ -25,6 +27,8 @@ export const useExecuteFunction = ({
     account,
     value,
     enabled,
+    onEvent,
+    onEventMatch,
 }: useExecuteFunctionProps) => {
     const [logs, setLogs] = useState<any[]>()
     const [isLoading, setIsLoading] = useState(false)
@@ -91,7 +95,10 @@ export const useExecuteFunction = ({
                     data: log.data,
                     topics: log.topics,
                 }) as any
+                // event callback
+                onEvent && onEvent(event)
                 if (eventNames.indexOf(`${event.eventName}`) > -1) {
+                    onEventMatch && onEventMatch(event)
                     setIsLoading(false)
                     setIsSuccess(true)
                     // resetWriteContract()
@@ -117,5 +124,6 @@ export const useExecuteFunction = ({
         isPending,
         isEnabled: enabled,
         hash,
+        logs,
     }
 }

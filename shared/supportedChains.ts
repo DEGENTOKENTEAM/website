@@ -97,15 +97,29 @@ const arbitrum = defineChain({
         },
     },
 })
-const optimism = defineChain({
-    ...optimismOriginal,
+// const optimism = defineChain({
+//     ...optimismOriginal,
+//     rpcUrls: {
+//         ...optimismOriginal.rpcUrls,
+//         default: {
+//             ...optimismOriginal.rpcUrls.default,
+//             http: [
+//                 `https://optimism-mainnet.infura.io/v3/${
+//                     process.env.NEXT_PUBLIC_INFURA_ID || process.env.INFURA_ID
+//                 }`,
+//             ],
+//         },
+//     },
+// })
+const base = defineChain({
+    ...baseOriginal,
     rpcUrls: {
-        ...optimismOriginal.rpcUrls,
+        ...baseOriginal.rpcUrls,
         default: {
-            ...optimismOriginal.rpcUrls.default,
+            ...baseOriginal.rpcUrls.default,
             http: [
-                `https://optimism-mainnet.infura.io/v3/${
-                    process.env.NEXT_PUBLIC_INFURA_ID || process.env.INFURA_ID
+                `https://base-mainnet.g.alchemy.com/v2/${
+                    process.env.NEXT_PUBLIC_ALCHEMY_API_KEY || process.env.ALCHEMY_API_KEY
                 }`,
             ],
         },
@@ -116,11 +130,14 @@ export const chains: Chain[] = [
     avalanche,
     mainnet,
     bsc,
-    polygon,
+    base,
     arbitrum,
-    baseOriginal,
-    optimism,
-    process.env.NODE_ENV != 'production' ? localhost : null,
+    polygon,
+    // optimism,
+    Boolean(process.env.NEXT_PUBLIC_ENABLE_LOCALFORK) ||
+    process.env.NODE_ENV != 'production'
+        ? localhost
+        : null,
     ...(Boolean(process.env.NEXT_PUBLIC_ENABLE_TESTNETS)
         ? [avalancheFuji, goerli]
         : []),

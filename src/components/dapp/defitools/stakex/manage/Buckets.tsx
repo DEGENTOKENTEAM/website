@@ -178,11 +178,11 @@ export const Buckets = () => {
                         <>
                             {(showAddBucketsForm || showChangeSharesForm) && (
                                 <div className="flex w-full justify-end gap-2">
-                                    <Button onClick={onClickCancelButton} variant="secondary">
-                                        <span>Cancel</span>
-                                    </Button>
                                     <Button disabled={!hasChanges} onClick={onClickSaveButton} variant="primary">
                                         <span>Apply Changes</span>
+                                    </Button>
+                                    <Button onClick={onClickCancelButton} variant="secondary">
+                                        <span>Cancel</span>
                                     </Button>
                                 </div>
                             )}

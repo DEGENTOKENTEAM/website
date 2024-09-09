@@ -118,21 +118,12 @@ export const handler = async (
                 {
                     address: protocol,
                     abi,
-                    functionName: 'getStakingToken',
-                },
-                {
-                    address: protocol,
-                    abi,
                     functionName: 'isRunning',
                 },
             ],
         })
 
-        const [
-            { result: stakingData },
-            { result: stakingToken },
-            { result: isRunning },
-        ] = multicallData
+        const [{ result: stakingData }, { result: isRunning }] = multicallData
 
         protocolResponse.protocol.isRunning = isRunning
         protocolResponse.protocol.stakedAbs = BigInt(

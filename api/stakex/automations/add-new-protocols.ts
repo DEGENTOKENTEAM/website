@@ -93,6 +93,7 @@ const chainAPPeriod: { [key: number]: number } = {
 }
 
 export const handler: Handler = async (_, __, callback) => {
+    let success = true
     for (const chain of chains) {
         const chainId = chain.id
         const client = createPublicClient({
@@ -195,7 +196,9 @@ export const handler: Handler = async (_, __, callback) => {
                 'skey'
             ) as StakeXChainSyncDTO
         )
+
+        if (!successful) success = successful
     }
 
-    return callback()
+    return callback(!success ? 'Execution Error' : null, { success })
 }

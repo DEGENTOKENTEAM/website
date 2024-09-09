@@ -182,26 +182,27 @@ export const TokenManagement = () => {
     return (
         <>
             <Tile className="w-full">
-                <div className="flex flex-row items-center">
-                    <span className="flex-1 font-title text-xl font-bold">
+                <div className="flex flex-col gap-4 md:flex-row md:gap-0">
+                    <span className="flex-1 font-title text-xl font-bold md:flex-grow">
                         {isOwner ? `Token Management` : `Tokens`}
                     </span>
                     {isOwner &&
                         (showForm ? (
-                            <div className="flex gap-2">
-                                <Button onClick={onClickCancelButton} variant="secondary">
-                                    <span>Cancel</span>
-                                </Button>
+                            <div className="flex w-full gap-2 md:w-auto">
                                 <Button
                                     disabled={!Boolean(payoutTokenData)}
                                     onClick={onClickSaveButton}
+                                    className="flex-grow md:flex-grow-0"
                                     variant="primary"
                                 >
                                     <span>Apply Changes</span>
                                 </Button>
+                                <Button onClick={onClickCancelButton} variant="secondary">
+                                    <span>Cancel</span>
+                                </Button>
                             </div>
                         ) : (
-                            <Button onClick={onClickAddButton} variant="primary" className="gap-3">
+                            <Button onClick={onClickAddButton} variant="primary" className="w-full gap-3 md:w-auto">
                                 <FaPlus /> <span>Add</span>
                             </Button>
                         ))}
