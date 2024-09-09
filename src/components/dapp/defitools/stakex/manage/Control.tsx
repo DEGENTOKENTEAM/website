@@ -81,15 +81,6 @@ export const Control = () => {
         reset: resetEnableByBlock,
         write: writeEnableByBlock,
     } = useEnableProtocolByBlock(protocol, chain?.id!, activationBlock!)
-    console.log('useEnableProtocolByBlock', {
-        error: errorEnableByBlock,
-        isError: isErrorEnableByBlock,
-        isLoading: isLoadingEnableByBlock,
-        isPending: isPendingEnableByBlock,
-        isSuccess: isSuccessEnableByBlock,
-        reset: resetEnableByBlock,
-        write: writeEnableByBlock,
-    })
 
     const onClickBlockNumberActivation = () => {
         resetEnableByBlock()
@@ -123,15 +114,6 @@ export const Control = () => {
         write: writeEnableByTime,
     } = useEnableProtocolByTime(protocol, chain?.id!, activationTime!)
 
-    console.log('useEnableProtocolByTime', {
-        error: errorEnableByTime,
-        isError: isErrorEnableByTime,
-        isLoading: isLoadingEnableByTime,
-        isPending: isPendingEnableByTime,
-        isSuccess: isSuccessEnableByTime,
-        reset: resetEnableByTime,
-        write: writeEnableByTime,
-    })
     const onClickBlockTimeActivation = () => {
         resetEnableByTime()
         setIsBlockTimeActivationModalOpen(true)
@@ -165,32 +147,35 @@ export const Control = () => {
                 <div className="flex flex-row items-center">
                     <span className="flex-1 font-title text-xl font-bold">Access Management</span>
                 </div>
-                <div className="mt-4 flex flex-col gap-4">
+                <div className="mt-8 flex flex-col gap-8">
                     <div
                         className={clsx([
-                            `flex flex-row items-center gap-8`,
+                            `flex flex-col gap-4 md:flex-row md:gap-8`,
                             Boolean(currentActivationTime || isActive) && 'opacity-30',
                         ])}
                     >
-                        <FaCubes className="h-8 w-8" />{' '}
-                        {Boolean(currentBlock) &&
-                            (!Boolean(currentActivationBlock) ? (
-                                <span className="flex-grow">Set a block number when the protocol should start</span>
-                            ) : (
-                                <span className="flex-grow">
-                                    Your protocol is about to start on block{' '}
-                                    <span className="font-bold">{currentActivationBlock?.toString()}</span>
-                                    <br />
-                                    Blocks left for start:{' '}
-                                    {(currentActivationBlock! - currentBlock?.number!).toString()}
-                                    . <br />
-                                    The current block is {currentBlock?.number.toString()}.
-                                </span>
-                            ))}
+                        <div className="flex flex-row items-center gap-8 md:flex-grow">
+                            <FaCubes className="h-8 w-8" />{' '}
+                            {Boolean(currentBlock) &&
+                                (!Boolean(currentActivationBlock) ? (
+                                    <span>Set a block number when the protocol should start</span>
+                                ) : (
+                                    <span>
+                                        Your protocol is about to start on block{' '}
+                                        <span className="font-bold">{currentActivationBlock?.toString()}</span>
+                                        <br />
+                                        Blocks left for start:{' '}
+                                        {(currentActivationBlock! - currentBlock?.number!).toString()}
+                                        . <br />
+                                        The current block is {currentBlock?.number.toString()}.
+                                    </span>
+                                ))}
+                        </div>
                         {isOwner &&
                             (!Boolean(currentActivationBlock) ? (
                                 <Button
                                     disabled={Boolean(isActive) || Boolean(currentActivationTime)}
+                                    className="w-full md:w-auto"
                                     onClick={onClickBlockNumberActivation}
                                     variant={'primary'}
                                 >
@@ -199,6 +184,7 @@ export const Control = () => {
                             ) : (
                                 <Button
                                     disabled={Boolean(isActive)}
+                                    className="w-full md:w-auto"
                                     onClick={onClickBlockNumberRemoveActivation}
                                     variant={'error'}
                                 >
@@ -208,26 +194,42 @@ export const Control = () => {
                     </div>
                     <div
                         className={clsx([
-                            `flex flex-row items-center gap-8`,
+                            `flex flex-col gap-4 md:flex-row md:gap-8`,
                             Boolean(currentActivationTime || isActive) && 'opacity-30',
                         ])}
                     >
-                        <FaRegClock className="h-8 w-8" />
-                        {Boolean(currentBlock) &&
-                            (!Boolean(currentActivationTime) ? (
-                                <span className="flex-grow">Set a time when the protocol should start</span>
-                            ) : (
-                                <span className="flex-grow">
-                                    Your protocol is about to start{' '}
-                                    {timeAgo.format(Number(currentActivationTime) * 1000, {
-                                        future: true,
-                                        round: 'round',
-                                        now: Number(currentBlock?.timestamp) * 1000,
-                                    })}{' '}
-                                    at{' '}
-                                    <span className="font-bold">
-                                        {Boolean(currentActivationTime) &&
-                                            new Date(Number(currentActivationTime) * 1000).toLocaleString(
+                        <div className="flex flex-row items-center gap-8 md:flex-grow">
+                            <FaRegClock className="h-8 w-8" />
+                            {Boolean(currentBlock) &&
+                                (!Boolean(currentActivationTime) ? (
+                                    <span>Set a time when the protocol should start</span>
+                                ) : (
+                                    <span>
+                                        Your protocol is about to start{' '}
+                                        {timeAgo.format(Number(currentActivationTime) * 1000, {
+                                            future: true,
+                                            round: 'round',
+                                            now: Number(currentBlock?.timestamp) * 1000,
+                                        })}{' '}
+                                        at{' '}
+                                        <span className="font-bold">
+                                            {Boolean(currentActivationTime) &&
+                                                new Date(Number(currentActivationTime) * 1000).toLocaleString(
+                                                    navigator.language,
+                                                    {
+                                                        day: '2-digit',
+                                                        month: '2-digit',
+                                                        year: 'numeric',
+                                                        hour: 'numeric',
+                                                        minute: 'numeric',
+                                                        second: 'numeric',
+                                                    }
+                                                )}
+                                        </span>
+                                        <br />
+                                        The current blocks time is{' '}
+                                        {Boolean(currentBlock?.timestamp) &&
+                                            new Date(Number(currentBlock?.timestamp) * 1000).toLocaleString(
                                                 navigator.language,
                                                 {
                                                     day: '2-digit',
@@ -238,29 +240,16 @@ export const Control = () => {
                                                     second: 'numeric',
                                                 }
                                             )}
+                                        .
                                     </span>
-                                    <br />
-                                    The current blocks time is{' '}
-                                    {Boolean(currentBlock?.timestamp) &&
-                                        new Date(Number(currentBlock?.timestamp) * 1000).toLocaleString(
-                                            navigator.language,
-                                            {
-                                                day: '2-digit',
-                                                month: '2-digit',
-                                                year: 'numeric',
-                                                hour: 'numeric',
-                                                minute: 'numeric',
-                                                second: 'numeric',
-                                            }
-                                        )}
-                                    .
-                                </span>
-                            ))}
+                                ))}
+                        </div>
                         {isOwner &&
                             (!Boolean(currentActivationTime) ? (
                                 <Button
                                     disabled={Boolean(isActive) || Boolean(currentActivationBlock)}
                                     onClick={onClickBlockTimeActivation}
+                                    className="w-full md:w-auto"
                                     variant={'primary'}
                                 >
                                     Set Activation Time
@@ -269,6 +258,7 @@ export const Control = () => {
                                 <Button
                                     disabled={Boolean(isActive)}
                                     onClick={onClickBlockTimeRemoveActivation}
+                                    className="w-full md:w-auto"
                                     variant={'error'}
                                 >
                                     Reset
@@ -276,21 +266,21 @@ export const Control = () => {
                             ))}
                     </div>
                     <CaretDivider />
-                    <div className="flex flex-row items-center gap-8">
-                        <FaCheckDouble className={clsx([`h-8 w-8`, isActive && 'text-dapp-cyan-500'])} />
-                        {isActive ? (
-                            <span className="flex-grow">Your protocol is enabled</span>
-                        ) : (
-                            <span className="flex-grow">
-                                Enable the protocol, no matter of setting start time or start block
-                            </span>
-                        )}
+                    <div className="flex flex-col gap-4 md:flex-row md:gap-8">
+                        <div className="flex flex-row items-center gap-8 md:flex-grow">
+                            <FaCheckDouble className={clsx([`h-8 w-8`, isActive && 'text-dapp-cyan-500'])} />
+                            {isActive ? (
+                                <span>Your protocol is enabled</span>
+                            ) : (
+                                <span>Enable the protocol, no matter of setting start time or start block</span>
+                            )}
+                        </div>
 
                         {isOwner && (
                             <Button
                                 disabled={!dataNFTConfigs || !dataNFTConfigs?.length}
                                 onClick={onClickToggleProtocolStatus}
-                                className="whitespace-nowrap"
+                                className="w-full whitespace-nowrap md:w-auto"
                                 variant={isActive ? 'error' : 'primary'}
                             >
                                 {isActive ? 'Disable' : 'Enable'} Protocol

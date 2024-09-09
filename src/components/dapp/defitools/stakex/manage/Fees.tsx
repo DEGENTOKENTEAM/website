@@ -121,22 +121,25 @@ export const Fees = () => {
     return (
         <>
             <Tile className="w-full">
-                <div className="flex flex-row items-center gap-4">
+                <div className="flex flex-col md:items-center gap-4 md:flex-row">
                     <span className="flex-1 font-title text-xl font-bold">
                         {isOwner ? `Protocol Fee Management` : `Protocol Fees`}
                     </span>
                     {isOwner &&
                         (isEditMode ? (
-                            <>
-                                {hasChanges && (
-                                    <Button variant="primary" onClick={onClickApplyChanges} className="gap-3">
-                                        <span>Apply Changes</span>
-                                    </Button>
-                                )}
+                            <div className="flex flex-row w-full md:w-auto gap-4">
+                                <Button
+                                    variant="primary"
+                                    disabled={!hasChanges}
+                                    onClick={onClickApplyChanges}
+                                    className="flex-grow gap-3"
+                                >
+                                    <span>Apply Changes</span>
+                                </Button>
                                 <Button variant="secondary" onClick={onClickCancel} className="gap-3">
                                     <span>Cancel</span>
                                 </Button>
-                            </>
+                            </div>
                         ) : (
                             <Button variant="primary" onClick={onClickChangeFees} className="gap-3">
                                 <FaPen /> <span>Change Fees</span>
