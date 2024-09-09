@@ -6,7 +6,8 @@ import { Address } from 'viem'
 export const useEnableProtocolByTime = (
     address: Address,
     chainId: number,
-    timestamp: bigint
+    timestamp: bigint,
+    enabled: boolean
 ) =>
     useExecuteFunction({
         address,
@@ -15,5 +16,7 @@ export const useEnableProtocolByTime = (
         functionName: 'stakeXEnableProtocolByTime',
         args: [timestamp],
         eventNames: ['UpdatedActiveTime'],
-        enabled: Boolean(address && chainId && !isUndefined(timestamp)),
+        enabled: Boolean(
+            address && chainId && !isUndefined(timestamp) && enabled
+        ),
     })

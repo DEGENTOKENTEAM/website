@@ -6,7 +6,8 @@ import { Address } from 'viem'
 export const useEnableProtocolByBlock = (
     address: Address,
     chainId: number,
-    blockNumber: bigint
+    blockNumber: bigint,
+    enable: boolean
 ) =>
     useExecuteFunction({
         address,
@@ -15,5 +16,7 @@ export const useEnableProtocolByBlock = (
         functionName: 'stakeXEnableProtocolByBlock',
         args: [blockNumber],
         eventNames: ['UpdatedActiveBlock'],
-        enabled: Boolean(address && chainId && !isUndefined(blockNumber)),
+        enabled: Boolean(
+            address && chainId && !isUndefined(blockNumber) && enable
+        ),
     })
