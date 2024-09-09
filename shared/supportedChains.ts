@@ -111,12 +111,22 @@ const arbitrum = defineChain({
 //         },
 //     },
 // })
+const base = defineChain({
+    ...baseOriginal,
+    rpcUrls: {
+        ...baseOriginal.rpcUrls,
+        default: {
+            ...baseOriginal.rpcUrls.default,
+            http: ['https://base.gateway.tenderly.co'],
+        },
+    },
+})
 
 export const chains: Chain[] = [
     avalanche,
     mainnet,
     bsc,
-    baseOriginal,
+    base,
     arbitrum,
     polygon,
     // optimism,

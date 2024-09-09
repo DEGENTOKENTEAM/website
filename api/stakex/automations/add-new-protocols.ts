@@ -200,5 +200,5 @@ export const handler: Handler = async (_, __, callback) => {
         if (!successful) success = successful
     }
 
-    return callback(null, { success })
+    return callback(!success ? 'Execution Error' : null, { success })
 }
