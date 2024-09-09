@@ -117,7 +117,11 @@ const base = defineChain({
         ...baseOriginal.rpcUrls,
         default: {
             ...baseOriginal.rpcUrls.default,
-            http: ['https://base.gateway.tenderly.co'],
+            http: [
+                `https://base-mainnet.g.alchemy.com/v2/${
+                    process.env.NEXT_PUBLIC_ALCHEMY_API_KEY || process.env.ALCHEMY_API_KEY
+                }`,
+            ],
         },
     },
 })
