@@ -12,6 +12,8 @@ import abi from './../../src/abi/stakex/abi-ui.json'
 export const handler = async (
     event: APIGatewayProxyEvent
 ): Promise<APIGatewayProxyResult> => {
+    const start = Date.now()
+    console.log({ start })
     const { chainId } = event.pathParameters || {}
 
     const protocolResponseBlank: ProtocolsResponse = {
@@ -41,6 +43,40 @@ export const handler = async (
             : await protocolsRepository.getAll(100) // show first 100 entries
 
     if (!protocols.count) return createReturn(200, JSON.stringify({}))
+
+    const chainIdAndContracts: { [key: number]: any[] } = {}
+    for (const item of protocols.items) {
+        const { protocol, chainId } = item
+        if (!chainIdAndContracts[chainId]) chainIdAndContracts[chainId] = []
+        chainIdAndContracts[chainId].push(
+            ...[
+                {
+                    address: protocol,
+                    abi,
+                    functionName: 'getStakingData',
+                },
+                {
+                    address: protocol,
+                    abi,
+                    functionName: 'isRunning',
+                },
+            ]
+        )
+    }
+
+    const dataToChainAndProtocol: {
+        [key: number]: any[]
+    } = {}
+    for (const chainId of Object.keys(chainIdAndContracts)) {
+        const chain = getChainById(Number(chainId))
+        const publicClient = createPublicClient({
+            chain,
+            transport: http(),
+        })
+        dataToChainAndProtocol[Number(chainId)] = await publicClient.multicall({
+            contracts: [...chainIdAndContracts[chain.id]],
+        })
+    }
 
     const ret: ProtocolsResponse[] = []
     for (const item of protocols.items) {
@@ -101,29 +137,8 @@ export const handler = async (
                 protocolResponse.protocol.apr.high = 0
         }
 
-        // STAKE PROTOCOL DATA
-        const chain = getChainById(Number(chainId))
-        const publicClient = createPublicClient({
-            chain,
-            transport: http(),
-        })
-
-        const multicallData: any = await publicClient.multicall({
-            contracts: [
-                {
-                    address: protocol,
-                    abi,
-                    functionName: 'getStakingData',
-                },
-                {
-                    address: protocol,
-                    abi,
-                    functionName: 'isRunning',
-                },
-            ],
-        })
-
-        const [{ result: stakingData }, { result: isRunning }] = multicallData
+        const [{ result: stakingData }, { result: isRunning }] =
+            dataToChainAndProtocol[Number(chainId)].splice(0, 2)
 
         protocolResponse.protocol.isRunning = isRunning
         protocolResponse.protocol.stakedAbs = BigInt(
@@ -166,6 +181,8 @@ export const handler = async (
 
         ret.push(protocolResponse)
     }
+    const finish = Date.now()
+    console.log({ finish, delta: (finish - start) / 1000 })
 
     return createReturn(200, JSON.stringify(ret), 300) // 5m cache
 }

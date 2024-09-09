@@ -61,7 +61,7 @@ export const Protocols = () => {
                 <h1 className="flex w-full flex-grow flex-row items-end font-title text-3xl font-bold tracking-wide sm:px-0">
                     <span className="text-techGreen">STAKE</span>
                     <span className="text-degenOrange">X</span>
-                    <span className="ml-1 text-xl">Protocols</span>
+                    <span className="ml-1 text-xl">Overview</span>
                 </h1>
                 <Button
                     onClick={() => {
@@ -70,13 +70,9 @@ export const Protocols = () => {
                     variant="primary"
                     className="h-16 animate-pulse whitespace-nowrap text-xl sm:h-full sm:text-base"
                 >
-                    Create Your Staking Protocol
+                    Create Your Staking Solution
                 </Button>
             </div>
-            <Tile className="opacity-70">
-                <span className="font-bold">Notice</span> - after protocol creation, it&apos;ll take up to 5 minutes for
-                your protocol to be listed
-            </Tile>
             {isLoading && (
                 <div className="flex w-full items-center justify-center">
                     <Spinner theme="dark" />
