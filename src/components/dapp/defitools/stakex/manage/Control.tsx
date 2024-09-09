@@ -159,6 +159,11 @@ export const Control = () => {
                             {Boolean(currentBlock) &&
                                 (!Boolean(currentActivationBlock) ? (
                                     <span>Set a block number when the protocol should start</span>
+                                ) : currentActivationBlock! < currentBlock?.number! ? (
+                                    <span>
+                                        Your protocol started on block{' '}
+                                        <span className="font-bold">{currentActivationBlock?.toString()}</span>
+                                    </span>
                                 ) : (
                                     <span>
                                         Your protocol is about to start on block{' '}

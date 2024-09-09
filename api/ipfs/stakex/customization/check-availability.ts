@@ -18,6 +18,7 @@ export const handler: Handler = async (_, __, cb) => {
 
     if (data.Count === 0) return
 
+    const puts: any[] = []
     for (const item of data.Items!) {
         const timeoutId = setTimeout(() => abortCtrl.abort(), timeout)
         const logoUrl = `https://ipfs.io/ipfs/${item.logoIpfsNew}`
@@ -31,17 +32,19 @@ export const handler: Handler = async (_, __, cb) => {
         }
 
         if (response.status === 200) {
-            await new DynamoDBHelper({ region: 'eu-west-1' }).batchWrite({
-                RequestItems: {
-                    [process.env.DB_TABLE_NAME_STAKEX_CUSTOMIZATION!]: [
-                        {
-                            PutRequest: {
-                                Item: newItem,
-                            },
-                        },
-                    ],
+            puts.push({
+                PutRequest: {
+                    Item: newItem,
                 },
             })
         }
+    }
+
+    if (puts.length) {
+        await new DynamoDBHelper({ region: 'eu-west-1' }).batchWrite({
+            RequestItems: {
+                [process.env.DB_TABLE_NAME_STAKEX_CUSTOMIZATION!]: [...puts],
+            },
+        })
     }
 }

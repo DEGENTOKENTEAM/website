@@ -79,6 +79,7 @@ export const StakingForm = ({ stakingTokenInfo, onDepositSuccessHandler }: Staki
     // interactive hooks
     const {
         isPending: isLoadingERC20Approve,
+        isSuccess: isSuccessERC20Approve,
         write: writeERC20Approve,
         reset: resetERC20Approve,
         isError: isErrorERC20Approve,
@@ -94,8 +95,6 @@ export const StakingForm = ({ stakingTokenInfo, onDepositSuccessHandler }: Staki
         error: errorDepositStake,
         feeAmount: feeAmountDepositStake,
         stakeAmount: stakeAmountDepositStake,
-        isPendingSimulation: isPendingSimulationDepositStake,
-        isSuccessSimulation: isSuccessSimulationDepositStake,
         hash: hashDepositStake,
     } = useDepositStake(protocol, chain?.id!, stakeBucketId, stakeAmount, Boolean(hasAllowance && startDeposit))
 
@@ -118,10 +117,13 @@ export const StakingForm = ({ stakingTokenInfo, onDepositSuccessHandler }: Staki
     }
 
     // deposit button has been clicked
-    const onClickHandler = () => {
+    const onClickHandler = useCallback(() => {
+        resetDepositStake()
+        resetERC20Approve()
         setStartDeposit(true)
-        if (!hasAllowance) writeERC20Approve()
-    }
+        if (hasAllowance) writeDepositStake && writeDepositStake()
+        else writeERC20Approve && writeERC20Approve()
+    }, [resetERC20Approve, resetDepositStake, writeERC20Approve, writeDepositStake, hasAllowance])
 
     const onStaticOverlayCloseHandler = () => {
         resetAfterDeposit()
@@ -188,26 +190,17 @@ export const StakingForm = ({ stakingTokenInfo, onDepositSuccessHandler }: Staki
 
     // initiate deposit when conditions are met
     useEffect(() => {
-        if (
-            startDeposit &&
-            hasAllowance &&
-            !isSuccessDepositStake &&
-            !isLoadingDepositStake &&
-            !isPendingSimulationDepositStake &&
-            !isErrorDepositStake &&
-            isSuccessSimulationDepositStake &&
-            writeDepositStake
-        )
-            writeDepositStake()
+        if (startDeposit && !isLoadingERC20Approve && isSuccessERC20Approve) {
+            if (hasAllowance) writeDepositStake && writeDepositStake()
+            else refetchERC20Allowance && refetchERC20Allowance()
+        }
     }, [
         startDeposit,
         hasAllowance,
-        isSuccessDepositStake,
-        isLoadingDepositStake,
-        isPendingSimulationDepositStake,
-        isErrorDepositStake,
-        isSuccessSimulationDepositStake,
+        isLoadingERC20Approve,
+        isSuccessERC20Approve,
         writeDepositStake,
+        refetchERC20Allowance,
     ])
 
     useEffect(() => {

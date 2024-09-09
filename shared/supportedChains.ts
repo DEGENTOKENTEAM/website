@@ -97,30 +97,33 @@ const arbitrum = defineChain({
         },
     },
 })
-const optimism = defineChain({
-    ...optimismOriginal,
-    rpcUrls: {
-        ...optimismOriginal.rpcUrls,
-        default: {
-            ...optimismOriginal.rpcUrls.default,
-            http: [
-                `https://optimism-mainnet.infura.io/v3/${
-                    process.env.NEXT_PUBLIC_INFURA_ID || process.env.INFURA_ID
-                }`,
-            ],
-        },
-    },
-})
+// const optimism = defineChain({
+//     ...optimismOriginal,
+//     rpcUrls: {
+//         ...optimismOriginal.rpcUrls,
+//         default: {
+//             ...optimismOriginal.rpcUrls.default,
+//             http: [
+//                 `https://optimism-mainnet.infura.io/v3/${
+//                     process.env.NEXT_PUBLIC_INFURA_ID || process.env.INFURA_ID
+//                 }`,
+//             ],
+//         },
+//     },
+// })
 
 export const chains: Chain[] = [
     avalanche,
     mainnet,
     bsc,
-    polygon,
-    arbitrum,
     baseOriginal,
-    optimism,
-    process.env.NODE_ENV != 'production' ? localhost : null,
+    arbitrum,
+    polygon,
+    // optimism,
+    Boolean(process.env.NEXT_PUBLIC_ENABLE_LOCALFORK) ||
+    process.env.NODE_ENV != 'production'
+        ? localhost
+        : null,
     ...(Boolean(process.env.NEXT_PUBLIC_ENABLE_TESTNETS)
         ? [avalancheFuji, goerli]
         : []),

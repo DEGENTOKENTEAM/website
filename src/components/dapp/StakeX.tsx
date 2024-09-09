@@ -15,7 +15,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { FaGear } from 'react-icons/fa6'
 import { MdClose } from 'react-icons/md'
 import { useParams } from 'react-router-dom'
-import { getChainById } from 'shared/supportedChains'
+import { chains, getChainById } from 'shared/supportedChains'
 import { Address, Chain } from 'viem'
 import { useAccount, useSwitchChain } from 'wagmi'
 import { Button } from '../Button'
@@ -78,13 +78,10 @@ export const StakeX = () => {
         [hasStakes, activeTabIndex]
     )
 
-    const availableNetworks = useMemo(() => {
-        const _networks = [{ name: 'Avalanche Mainnet', chainId: 43114 }]
-        if (Boolean(process.env.NEXT_PUBLIC_ENABLE_TESTNETS))
-            _networks.push({ name: 'Avalanche Testnet', chainId: 43113 })
-        if (Boolean(process.env.NEXT_PUBLIC_ENABLE_LOCALFORK)) _networks.push({ name: 'Localfork', chainId: 1337 })
-        return _networks
-    }, [])
+    const availableNetworks = useMemo<{ name: string; chainId: number }[]>(
+        () => chains.map(({ name, id }) => ({ name, chainId: id })),
+        undefined
+    )
 
     const {
         data: dataActive,
