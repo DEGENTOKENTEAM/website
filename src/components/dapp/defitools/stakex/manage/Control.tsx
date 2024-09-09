@@ -74,12 +74,23 @@ export const Control = () => {
 
     const {
         error: errorEnableByBlock,
+        isError: isErrorEnableByBlock,
         isLoading: isLoadingEnableByBlock,
         isPending: isPendingEnableByBlock,
         isSuccess: isSuccessEnableByBlock,
         reset: resetEnableByBlock,
         write: writeEnableByBlock,
     } = useEnableProtocolByBlock(protocol, chain?.id!, activationBlock!)
+    console.log('useEnableProtocolByBlock', {
+        error: errorEnableByBlock,
+        isError: isErrorEnableByBlock,
+        isLoading: isLoadingEnableByBlock,
+        isPending: isPendingEnableByBlock,
+        isSuccess: isSuccessEnableByBlock,
+        reset: resetEnableByBlock,
+        write: writeEnableByBlock,
+    })
+
     const onClickBlockNumberActivation = () => {
         resetEnableByBlock()
         setIsBlockNumberActivationModalOpen(true)
@@ -104,12 +115,23 @@ export const Control = () => {
 
     const {
         error: errorEnableByTime,
+        isError: isErrorEnableByTime,
         isLoading: isLoadingEnableByTime,
         isPending: isPendingEnableByTime,
         isSuccess: isSuccessEnableByTime,
         reset: resetEnableByTime,
         write: writeEnableByTime,
     } = useEnableProtocolByTime(protocol, chain?.id!, activationTime!)
+
+    console.log('useEnableProtocolByTime', {
+        error: errorEnableByTime,
+        isError: isErrorEnableByTime,
+        isLoading: isLoadingEnableByTime,
+        isPending: isPendingEnableByTime,
+        isSuccess: isSuccessEnableByTime,
+        reset: resetEnableByTime,
+        write: writeEnableByTime,
+    })
     const onClickBlockTimeActivation = () => {
         resetEnableByTime()
         setIsBlockTimeActivationModalOpen(true)
