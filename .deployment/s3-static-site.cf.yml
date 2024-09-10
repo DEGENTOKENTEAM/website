@@ -20,7 +20,7 @@ Resources:
         RestrictPublicBuckets: false
       WebsiteConfiguration:
         IndexDocument: index.html
-        ErrorDocument: 404.html
+        ErrorDocument: index.html
   WWWBucket:
     Type: AWS::S3::Bucket
     Properties:
