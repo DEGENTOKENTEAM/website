@@ -184,5 +184,5 @@ export const handler = async (
     const finish = Date.now()
     console.log({ finish, delta: (finish - start) / 1000 })
 
-    return createReturn(200, JSON.stringify(ret), 300) // 5m cache
+    return createReturn(200, JSON.stringify(ret), 60) // 5m cache
 }
