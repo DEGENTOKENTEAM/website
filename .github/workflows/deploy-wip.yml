@@ -88,13 +88,13 @@ jobs:
         env:
           STACK_NAME: stkx-review-${{github.ref_name}}
           TEMPLATE_FILE: ${{github.workspace}}/.deployment/s3-static-site.cf.yml
-          ROOT_DOMAIN_NAME: review.${{github.ref_name}}.stkx.io
+          ROOT_DOMAIN_NAME: review-${{github.ref_name}}.stkx.io
 
       - name: Update CloudFlare DNS records for review env stkx.io
         uses: rez0n/create-dns-record@v2.1
         with:
           type: 'CNAME'
-          name: 'review.${{github.ref_name}}.stkx.io'
+          name: 'review-${{github.ref_name}}.stkx.io'
           content: ${{ steps.deploy-stkx-bucket.outputs.WEBSITE_URL_WITHOUT_PROTOCOL }}
           ttl: 1
           proxied: true
@@ -104,7 +104,7 @@ jobs:
       - name: URLs
         run: |
           echo "dgnx.finance Review URL: ${URL_DGNX_FINANCE}"
-          echo "stkx.io Review URL: ${URL_STAKEX_LP}"
+          echo "stkx.io Review URL: ${URL_STKX_IO}"
         env:
           URL_DGNX_FINANCE: ${{ steps.deploy-website-bucket.outputs.WEBSITE_URL }}
-          URL_STKX_IO: ${{ steps.deploy-stkx-bucket.outputs.WEBSITE_URL }}
+          URL_STKX_IO: https://review-${{github.ref_name}}.stkx.io
