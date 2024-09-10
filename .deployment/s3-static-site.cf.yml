@@ -39,13 +39,13 @@ Resources:
         Version: '2012-10-17'
         Statement:
           # - Effect: Allow
-          - Effect: Deny
+          - Effect: Allow
             Principal: '*'
             Action: 's3:GetObject'
             Resource: !Sub '${RootBucket.Arn}/*'
             # CF Distribution ARNs have to be manually constructed
             Condition:
-              NotIpAddress:
+              IpAddress:
                 AWS:SourceIp:
                   - 173.245.48.0/20
                   - 103.21.244.0/22
