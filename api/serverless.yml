@@ -210,6 +210,7 @@ functions:
   stakexProtocolsGet:
     name: ${self:custom.serviceName}-stakexProtocolsGet
     handler: stakex/protocols.handler
+    timeout: 29
     events:
       - http:
           path: /stakex/protocols

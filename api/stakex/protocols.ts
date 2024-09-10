@@ -1,10 +1,10 @@
-import { InvokeCommand, LambdaClient } from '@aws-sdk/client-lambda'
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
 import { cloneDeep, isNumber } from 'lodash'
 import { createPublicClient, http, zeroAddress } from 'viem'
 import { getChainById } from '../../shared/supportedChains'
 import { ProtocolsResponse } from '../../shared/types'
 import { createReturn } from '../helpers/return'
+import { fetchIpfsData } from '../ipfs/stakex/customization/fetch'
 import { StakeXAnnualsRepository } from '../services/annuals'
 import { StakeXProtocolsRepository } from '../services/protocols'
 import abi from './../../src/abi/stakex/abi-ui.json'
@@ -33,7 +33,6 @@ export const handler = async (
         token: { decimals: 0, symbol: '' },
     }
 
-    const lambdaClient = new LambdaClient()
     const annualsRepository = new StakeXAnnualsRepository({})
     const protocolsRepository = new StakeXProtocolsRepository({})
 
@@ -153,29 +152,12 @@ export const handler = async (
         protocolResponse.protocol.name = `${stakingData.staked.tokenInfo.symbol} staking`
         protocolResponse.protocol.stakes = Number(stakingData.stakes)
 
-        // get logo from ipfs
-        const invokeCustomizationResponse = await lambdaClient.send(
-            new InvokeCommand({
-                FunctionName: process.env.LAMBDA_CUSTOMIZATION_NAME,
-                Payload: JSON.stringify({
-                    pathParameters: {
-                        protocol: `${protocol}`,
-                        chainId: chainId,
-                    },
-                }),
-            })
-        )
-
-        const ipfsdata = JSON.parse(
-            JSON.parse(
-                new TextDecoder().decode(invokeCustomizationResponse.Payload)
-            ).body
-        )
+        const ipfsdata: any = await fetchIpfsData(`${protocol}`, chainId)
+        protocolResponse.protocol.logo = ipfsdata.data.logoUrl
 
         //
         // Token Info
         //
-        protocolResponse.protocol.logo = ipfsdata.data.logoUrl
         protocolResponse.token.symbol = stakingData.staked.tokenInfo.symbol
         protocolResponse.token.decimals = stakingData.staked.tokenInfo.decimals
 
