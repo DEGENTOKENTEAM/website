@@ -57,3 +57,6 @@ Outputs:
   WebsiteURL:
     Value: !GetAtt RootBucket.WebsiteURL
     Description: URL for website hosted on S3
+  WebsiteURLWithoutProtocol:
+    Value: !Join ['', !Split ['http://', !GetAtt RootBucket.WebsiteURL]]
+    Description: URL without protocol for website hosted on S3

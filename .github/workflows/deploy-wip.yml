@@ -81,7 +81,7 @@ jobs:
         id: deploy-stkx-bucket
         run: |
           aws cloudformation deploy --template-file "${TEMPLATE_FILE}" --stack-name "${STACK_NAME}" --parameter-overrides RootDomainName="${ROOT_DOMAIN_NAME}"
-          echo "WEBSITE_URL=$(aws cloudformation describe-stacks --stack-name "${STACK_NAME}" --query "Stacks[0].Outputs[?OutputKey=='WebsiteURL'].OutputValue" --output text)"
+          echo "WEBSITE_URL_WITHOUT_PROTOCOL=$(aws cloudformation describe-stacks --stack-name "${STACK_NAME}" --query "Stacks[0].Outputs[?OutputKey=='WebsiteURLWithoutProtocol'].OutputValue" --output text)" >> "$GITHUB_OUTPUT"
           echo "WEBSITE_URL=$(aws cloudformation describe-stacks --stack-name "${STACK_NAME}" --query "Stacks[0].Outputs[?OutputKey=='WebsiteURL'].OutputValue" --output text)" >> "$GITHUB_OUTPUT"
           aws s3 sync ./out/ s3://${ROOT_DOMAIN_NAME}/ --delete
           aws s3 sync ./out/lps/stakex/ s3://${ROOT_DOMAIN_NAME}/
@@ -95,7 +95,7 @@ jobs:
         with:
           type: 'CNAME'
           name: 'review.${{github.ref_name}}.stkx.io'
-          content: ${{ steps.deploy-stkx-bucket.outputs.WEBSITE_URL }}
+          content: ${{ steps.deploy-stkx-bucket.outputs.WEBSITE_URL_WITHOUT_PROTOCOL }}
           ttl: 1
           proxied: true
           token: ${{ secrets.CLOUDFLARE_TOKEN }}
