@@ -47,10 +47,10 @@ Resources:
               StringLike:
                 AWS:Referer:
                   - !Sub
-                    - ${Domain}/*
+                    - https://${Domain}/*
                     - Domain: !Ref RootDomainName
                   - !Sub
-                    - www.${Domain}/*
+                    - https://www.${Domain}/*
                     - Domain: !Ref RootDomainName
 
 Outputs:
