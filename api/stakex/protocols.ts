@@ -33,8 +33,8 @@ export const handler = async (
         token: { decimals: 0, symbol: '' },
     }
 
-    const annualsRepository = new StakeXAnnualsRepository({})
-    const protocolsRepository = new StakeXProtocolsRepository({})
+    const annualsRepository = new StakeXAnnualsRepository()
+    const protocolsRepository = new StakeXProtocolsRepository()
 
     const protocols =
         isNumber(chainId) && chainId > 0
@@ -152,7 +152,10 @@ export const handler = async (
         protocolResponse.protocol.name = `${stakingData.staked.tokenInfo.symbol} staking`
         protocolResponse.protocol.stakes = Number(stakingData.stakes)
 
-        const ipfsdata: any = await fetchIpfsData(`${protocol}`, chainId)
+        const ipfsdata: any = await fetchIpfsData(`${protocol}`, chainId, {
+            source: stakingData.staked.tokenInfo.source,
+            symbol: stakingData.staked.tokenInfo.symbol,
+        })
         protocolResponse.protocol.logo = ipfsdata.data.logoUrl
 
         //

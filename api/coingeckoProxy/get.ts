@@ -1,8 +1,8 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
+import { toLower } from 'lodash'
 import fetch from 'node-fetch'
 import { createReturn } from '../helpers/return'
 import { CoingeckoApiCacheRepository } from '../services/coingeckoApiCache'
-import { toLower } from 'lodash'
 
 export const handler = async (
     event: APIGatewayProxyEvent

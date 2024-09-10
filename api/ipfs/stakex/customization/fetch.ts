@@ -7,7 +7,6 @@ import { DynamoDBHelper } from '../../../helpers/ddb/dynamodb'
 import { createReturn } from '../../../helpers/return'
 import abi from './../../../../src/abi/stakex/abi-ui.json'
 import { StakeXCustomizationResponseType } from './../../../../types/stakex'
-import { toLower } from 'lodash'
 
 export const handler = async (
     event: APIGatewayProxyEvent
@@ -29,7 +28,11 @@ export const handler = async (
     return createReturn(403, JSON.stringify({ message: 'INVALID_PARAMETERS' }))
 }
 
-export const fetchIpfsData = async (protocol: string, chainId: number) => {
+export const fetchIpfsData = async (
+    protocol: string,
+    chainId: number,
+    tokenInfo?: { symbol: string; source: string }
+) => {
     const db = new DynamoDBHelper({ region: 'eu-west-1' })
 
     let response: StakeXCustomizationResponseType = {
@@ -87,15 +90,17 @@ export const fetchIpfsData = async (protocol: string, chainId: number) => {
 
         const client = createPublicClient({ chain, transport: http() })
 
-        let stakingTokenData: TokenInfoResponse | null = null
-
-        try {
-            stakingTokenData = (await client.readContract({
-                abi,
-                address: protocol as Address,
-                functionName: 'getStakingToken',
-            })) as TokenInfoResponse
-        } catch (e) {}
+        let stakingTokenData = tokenInfo
+        if (!stakingTokenData) {
+            try {
+                const { symbol, source } = (await client.readContract({
+                    abi,
+                    address: protocol as Address,
+                    functionName: 'getStakingToken',
+                })) as TokenInfoResponse
+                stakingTokenData = { symbol, source }
+            } catch (e) {}
+        }
 
         if (!stakingTokenData) throw Error('PROTOCOL_NOT_AVAILABLE')
 
