@@ -58,8 +58,12 @@ jobs:
           aws-secret-access-key: ${{ secrets.DGNX_WEBSITE_AWS_ACCOUNT_KEY }}
           aws-region: eu-west-1
 
-      - name: Deploy Cloud Formation
-        run: aws cloudformation deploy --template-file "${TEMPLATE_FILE}" --stack-name "${STACK_NAME}" --parameter-overrides CustomBucketName="${CUSTOM_BUCKET_NAME}"
+      - name: Deploy Cloud Formation & Static Website
+        id: deploy-website-bucket
+        run: |
+          aws cloudformation deploy --template-file "${TEMPLATE_FILE}" --stack-name "${STACK_NAME}" --parameter-overrides CustomBucketName="${CUSTOM_BUCKET_NAME}"
+          echo "WEBSITE_URL=$(aws cloudformation describe-stacks --stack-name "${STACK_NAME}" --query "Stacks[0].Outputs[?OutputKey=='StaticWebsiteHostname'].OutputValue" --output text)" >> "$GITHUB_OUTPUT"
+          aws s3 sync ./out/ s3://${CUSTOM_BUCKET_NAME}/ --delete
         env:
           STACK_NAME: degenx-dapp-${{github.ref_name}}
           TEMPLATE_FILE: ${{github.workspace}}/.deployment/wip.cf.yml
@@ -70,28 +74,19 @@ jobs:
       #   env:
       #     Base64UserPass: 'ZGdueDp3YWdtaTIwMjQ='
 
-      - name: Deploy Static Site To S3 Bucket
-        run: aws s3 sync ./out/ s3://s3-${{github.ref_name}}/ --delete
-
-      - name: Provide Website URL
-        run: aws cloudformation describe-stacks --stack-name "degenx-dapp-${{github.ref_name}}" --query "Stacks[0].Outputs[?OutputKey=='StaticWebsiteHostname'].OutputValue" --output text
-
       ### DEPLOY LANDINGPAGES
       ## STKX.IO
-      - name: Deploy stkx.io bucket config
+      - name: Deploy stkx.io Cloud Formation & Static Website
         id: deploy-stkx-bucket
         run: |
           aws cloudformation deploy --template-file "${TEMPLATE_FILE}" --stack-name "${STACK_NAME}" --parameter-overrides RootDomainName="${ROOT_DOMAIN_NAME}"
           echo "WEBSITE_URL=$(aws cloudformation describe-stacks --stack-name \"${STACK_NAME}\" --query \"Stacks[0].Outputs[?OutputKey=='WebsiteURL'].OutputValue\" --output text)" >> "$GITHUB_OUTPUT"
+          aws s3 sync ./out/ s3://${ROOT_DOMAIN_NAME}/ --delete
+          aws s3 sync ./out/lps/stakex/ s3://${ROOT_DOMAIN_NAME}/
         env:
           STACK_NAME: stkx-review-${{github.ref_name}}
           TEMPLATE_FILE: ${{github.workspace}}/.deployment/s3-static-site.cf.yml
           ROOT_DOMAIN_NAME: review.${{github.ref_name}}.stkx.io
-
-      - name: Deploy stkx.io landing page to s3
-        run: |
-          aws s3 sync ./out/ s3://review.${{github.ref_name}}.stkx.io/ --delete
-          aws s3 sync ./out/lps/stakex/index.html s3://review.${{github.ref_name}}.stkx.io/
 
       - name: Update CloudFlare DNS records for review env stkx.io
         uses: rez0n/create-dns-record@v2.1
@@ -103,3 +98,11 @@ jobs:
           proxied: true
           token: ${{ secrets.CLOUDFLARE_TOKEN }}
           zone: ${{ secrets.CLOUDFLARE_ZONE }}
+
+      - name: URLs
+        run: |
+          echo "dgnx.finance Review URL: ${URL_DGNX_FINANCE}"
+          echo "stkx.io Review URL: ${URL_STAKEX_LP}"
+        env:
+          URL_DGNX_FINANCE: ${{ steps.deploy-website-bucket.outputs.WEBSITE_URL }}
+          URL_STKX_IO: ${{ steps.deploy-stkx-bucket.outputs.WEBSITE_URL }}
