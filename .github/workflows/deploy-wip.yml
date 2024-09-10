@@ -4,13 +4,6 @@ on:
     branches:
       - '*'
       - '!main'
-  workflow_dispatch:
-    inputs:
-      BEARER_TOKEN:
-        description: 'Credentials'
-        required: true
-        default: 'ZGdueDp3YWdtaTIwMjQ='
-        type: string
 
 jobs:
   deploy:
@@ -66,13 +59,10 @@ jobs:
           aws-region: eu-west-1
 
       - name: Deploy Cloud Formation
-        # if: github.event_name == 'workflow_dispatch' && github.event.inputs.BEARER_TOKEN != ''
-        # run: aws cloudformation deploy --template-file "${TEMPLATE_FILE}" --stack-name "${STACK_NAME}" --parameter-overrides Base64UserPass="${BEARER_TOKEN}" CustomBucketName="${CUSTOM_BUCKET_NAME}"
         run: aws cloudformation deploy --template-file "${TEMPLATE_FILE}" --stack-name "${STACK_NAME}" --parameter-overrides CustomBucketName="${CUSTOM_BUCKET_NAME}"
         env:
           STACK_NAME: degenx-dapp-${{github.ref_name}}
           TEMPLATE_FILE: ${{github.workspace}}/.deployment/wip.cf.yml
-          # BEARER_TOKEN: ZGdueDp3YWdtaTIwMjQ=
           CUSTOM_BUCKET_NAME: s3-${{github.ref_name}}
 
       # - name: Validate Cloud Formation Template
@@ -88,12 +78,15 @@ jobs:
 
       ### DEPLOY LANDINGPAGES
       ## STKX.IO
-      - name: Deploy stkx.io landing page
+      - name: Deploy stkx.io bucket config
         run: aws cloudformation deploy --template-file "${TEMPLATE_FILE}" --stack-name "${STACK_NAME}" --parameter-overrides RootDomainName="${ROOT_DOMAIN_NAME}"
         env:
           STACK_NAME: stkx-review-${{github.ref_name}}
           TEMPLATE_FILE: ${{github.workspace}}/.deployment/s3-static-site.cf.yml
           ROOT_DOMAIN_NAME: review.${{github.ref_name}}.stkx.io
+
+      - name: Deploy stkx.io landing page to s3
+        run: aws s3 sync ./out/ s3://review.${{github.ref_name}}.stkx.io/ --delete
 
       # - name: Update DNS records
       #   uses: rez0n/create-dns-record@v2.1
