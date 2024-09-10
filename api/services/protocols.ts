@@ -39,7 +39,7 @@ export class StakeXProtocolsRepository {
                 params: { TableName },
                 region,
             },
-            ..._options,
+            ...(_options || {}),
         }
         this._db = new DynamoDBHelper(this.options.dynamoDBConfig)
     }

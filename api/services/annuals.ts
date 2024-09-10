@@ -46,13 +46,13 @@ export class StakeXAnnualsRepository {
     options: RepositoryContructorOptions
     _db: DynamoDBHelper
 
-    constructor(_options: RepositoryContructorOptions) {
+    constructor(_options?: RepositoryContructorOptions) {
         this.options = {
             dynamoDBConfig: {
                 params: { TableName },
                 region,
             },
-            ..._options,
+            ...(_options || {}),
         }
         this._db = new DynamoDBHelper(this.options.dynamoDBConfig)
     }

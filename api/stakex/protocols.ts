@@ -1,10 +1,10 @@
-import { InvokeCommand, LambdaClient } from '@aws-sdk/client-lambda'
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
 import { cloneDeep, isNumber } from 'lodash'
 import { createPublicClient, http, zeroAddress } from 'viem'
 import { getChainById } from '../../shared/supportedChains'
 import { ProtocolsResponse } from '../../shared/types'
 import { createReturn } from '../helpers/return'
+import { fetchIpfsData } from '../ipfs/stakex/customization/fetch'
 import { StakeXAnnualsRepository } from '../services/annuals'
 import { StakeXProtocolsRepository } from '../services/protocols'
 import abi from './../../src/abi/stakex/abi-ui.json'
@@ -12,6 +12,8 @@ import abi from './../../src/abi/stakex/abi-ui.json'
 export const handler = async (
     event: APIGatewayProxyEvent
 ): Promise<APIGatewayProxyResult> => {
+    const start = Date.now()
+    console.log({ start })
     const { chainId } = event.pathParameters || {}
 
     const protocolResponseBlank: ProtocolsResponse = {
@@ -31,9 +33,8 @@ export const handler = async (
         token: { decimals: 0, symbol: '' },
     }
 
-    const lambdaClient = new LambdaClient()
-    const annualsRepository = new StakeXAnnualsRepository({})
-    const protocolsRepository = new StakeXProtocolsRepository({})
+    const annualsRepository = new StakeXAnnualsRepository()
+    const protocolsRepository = new StakeXProtocolsRepository()
 
     const protocols =
         isNumber(chainId) && chainId > 0
@@ -41,6 +42,40 @@ export const handler = async (
             : await protocolsRepository.getAll(100) // show first 100 entries
 
     if (!protocols.count) return createReturn(200, JSON.stringify({}))
+
+    const chainIdAndContracts: { [key: number]: any[] } = {}
+    for (const item of protocols.items) {
+        const { protocol, chainId } = item
+        if (!chainIdAndContracts[chainId]) chainIdAndContracts[chainId] = []
+        chainIdAndContracts[chainId].push(
+            ...[
+                {
+                    address: protocol,
+                    abi,
+                    functionName: 'getStakingData',
+                },
+                {
+                    address: protocol,
+                    abi,
+                    functionName: 'isRunning',
+                },
+            ]
+        )
+    }
+
+    const dataToChainAndProtocol: {
+        [key: number]: any[]
+    } = {}
+    for (const chainId of Object.keys(chainIdAndContracts)) {
+        const chain = getChainById(Number(chainId))
+        const publicClient = createPublicClient({
+            chain,
+            transport: http(),
+        })
+        dataToChainAndProtocol[Number(chainId)] = await publicClient.multicall({
+            contracts: [...chainIdAndContracts[chain.id]],
+        })
+    }
 
     const ret: ProtocolsResponse[] = []
     for (const item of protocols.items) {
@@ -101,29 +136,8 @@ export const handler = async (
                 protocolResponse.protocol.apr.high = 0
         }
 
-        // STAKE PROTOCOL DATA
-        const chain = getChainById(Number(chainId))
-        const publicClient = createPublicClient({
-            chain,
-            transport: http(),
-        })
-
-        const multicallData: any = await publicClient.multicall({
-            contracts: [
-                {
-                    address: protocol,
-                    abi,
-                    functionName: 'getStakingData',
-                },
-                {
-                    address: protocol,
-                    abi,
-                    functionName: 'isRunning',
-                },
-            ],
-        })
-
-        const [{ result: stakingData }, { result: isRunning }] = multicallData
+        const [{ result: stakingData }, { result: isRunning }] =
+            dataToChainAndProtocol[Number(chainId)].splice(0, 2)
 
         protocolResponse.protocol.isRunning = isRunning
         protocolResponse.protocol.stakedAbs = BigInt(
@@ -138,34 +152,22 @@ export const handler = async (
         protocolResponse.protocol.name = `${stakingData.staked.tokenInfo.symbol} staking`
         protocolResponse.protocol.stakes = Number(stakingData.stakes)
 
-        // get logo from ipfs
-        const invokeCustomizationResponse = await lambdaClient.send(
-            new InvokeCommand({
-                FunctionName: process.env.LAMBDA_CUSTOMIZATION_NAME,
-                Payload: JSON.stringify({
-                    pathParameters: {
-                        protocol: `${protocol}`,
-                        chainId: chainId,
-                    },
-                }),
-            })
-        )
-
-        const ipfsdata = JSON.parse(
-            JSON.parse(
-                new TextDecoder().decode(invokeCustomizationResponse.Payload)
-            ).body
-        )
+        const ipfsdata: any = await fetchIpfsData(`${protocol}`, chainId, {
+            source: stakingData.staked.tokenInfo.source,
+            symbol: stakingData.staked.tokenInfo.symbol,
+        })
+        protocolResponse.protocol.logo = ipfsdata.data.logoUrl
 
         //
         // Token Info
         //
-        protocolResponse.protocol.logo = ipfsdata.data.logoUrl
         protocolResponse.token.symbol = stakingData.staked.tokenInfo.symbol
         protocolResponse.token.decimals = stakingData.staked.tokenInfo.decimals
 
         ret.push(protocolResponse)
     }
+    const finish = Date.now()
+    console.log({ finish, delta: (finish - start) / 1000 })
 
-    return createReturn(200, JSON.stringify(ret), 300) // 5m cache
+    return createReturn(200, JSON.stringify(ret), 60) // 5m cache
 }

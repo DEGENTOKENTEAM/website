@@ -1,4 +1,5 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
+import { toLower } from 'lodash'
 import fetch from 'node-fetch'
 import { createReturn } from '../helpers/return'
 import { CoingeckoApiCacheRepository } from '../services/coingeckoApiCache'
@@ -9,9 +10,18 @@ export const handler = async (
     const path = event.pathParameters || {}
 
     if (!path || !path.proxyPath) return createReturn(404, JSON.stringify(null))
+
     const requestPath = path.proxyPath
 
+    return createReturn(
+        200,
+        JSON.stringify(await getCoingeckoDataViaProxy(requestPath))
+    )
+}
+
+export const getCoingeckoDataViaProxy = async (path: string): Promise<any> => {
     // check cache
+    const requestPath = toLower(path)
     const cacheDB = new CoingeckoApiCacheRepository()
     let responseData = await cacheDB.get(requestPath)
     if (!responseData) {
@@ -24,6 +34,5 @@ export const handler = async (
             responseData,
         })
     }
-
-    return createReturn(200, JSON.stringify(responseData))
+    return responseData
 }

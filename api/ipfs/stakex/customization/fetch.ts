@@ -1,8 +1,8 @@
-import { InvokeCommand, LambdaClient } from '@aws-sdk/client-lambda'
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
 import { Address, createPublicClient, http } from 'viem'
 import { getChainById } from '../../../../shared/supportedChains'
 import { TokenInfoResponse } from '../../../../src/types'
+import { getCoingeckoDataViaProxy } from '../../../coingeckoProxy/get'
 import { DynamoDBHelper } from '../../../helpers/ddb/dynamodb'
 import { createReturn } from '../../../helpers/return'
 import abi from './../../../../src/abi/stakex/abi-ui.json'
@@ -11,8 +11,28 @@ import { StakeXCustomizationResponseType } from './../../../../types/stakex'
 export const handler = async (
     event: APIGatewayProxyEvent
 ): Promise<APIGatewayProxyResult> => {
-    const { protocol, chainId: chainIdOrig } = event.pathParameters || {}
-    const chainId = Number(chainIdOrig)
+    const { protocol, chainId } = event.pathParameters || {}
+    if (protocol && chainId) {
+        try {
+            return createReturn(
+                200,
+                JSON.stringify(await fetchIpfsData(protocol, Number(chainId)))
+            )
+        } catch (e) {
+            return createReturn(
+                403,
+                JSON.stringify({ message: (e as Error).message })
+            )
+        }
+    }
+    return createReturn(403, JSON.stringify({ message: 'INVALID_PARAMETERS' }))
+}
+
+export const fetchIpfsData = async (
+    protocol: string,
+    chainId: number,
+    tokenInfo?: { symbol: string; source: string }
+) => {
     const db = new DynamoDBHelper({ region: 'eu-west-1' })
 
     let response: StakeXCustomizationResponseType = {
@@ -37,6 +57,7 @@ export const handler = async (
         ConsistentRead: true,
     })
 
+    // check customized ipfs data first
     if (data.Items && data.Items.length > 0) {
         const projectName = data.Items.at(0)!.projectName
             ? data.Items.at(0)!.projectName
@@ -61,57 +82,38 @@ export const handler = async (
         }
     }
 
+    // check coingecko if there is no ipfs available
     if (!response.data.logoUrl || !response.data.projectName) {
         const chain = getChainById(chainId)
 
-        if (!chain)
-            return createReturn(
-                403,
-                JSON.stringify({ message: 'chain not supported' })
-            )
+        if (!chain) throw Error('CHAIN_NOT_SUPPORTED')
 
         const client = createPublicClient({ chain, transport: http() })
 
-        let stakingTokenData: TokenInfoResponse | null = null
+        let stakingTokenData = tokenInfo
+        if (!stakingTokenData) {
+            try {
+                const { symbol, source } = (await client.readContract({
+                    abi,
+                    address: protocol as Address,
+                    functionName: 'getStakingToken',
+                })) as TokenInfoResponse
+                stakingTokenData = { symbol, source }
+            } catch (e) {}
+        }
 
-        try {
-            stakingTokenData = (await client.readContract({
-                abi,
-                address: protocol as Address,
-                functionName: 'getStakingToken',
-            })) as TokenInfoResponse
-        } catch (e) {}
-
-        if (!stakingTokenData)
-            return createReturn(
-                404,
-                JSON.stringify({ message: 'protocol not available' })
-            )
+        if (!stakingTokenData) throw Error('PROTOCOL_NOT_AVAILABLE')
 
         if (!response.data.projectName)
             response.data.projectName = `${stakingTokenData.symbol} staking`
 
         if (!response.data.logoUrl) {
-            const lambdaClient = new LambdaClient()
-            const invokeCoingeckoResponse = await lambdaClient.send(
-                new InvokeCommand({
-                    FunctionName: process.env.LAMBDA_COINGECKO_NAME,
-                    Payload: JSON.stringify({
-                        pathParameters: {
-                            proxyPath: `api/v3/coins/id/contract/${stakingTokenData.source}`,
-                        },
-                    }),
-                })
-            )
-            const cgdata = JSON.parse(
-                JSON.parse(
-                    new TextDecoder().decode(invokeCoingeckoResponse.Payload)
-                ).body
+            const cgdata = await getCoingeckoDataViaProxy(
+                `api/v3/coins/id/contract/${stakingTokenData.source}`
             )
             if (cgdata && cgdata.image && cgdata.image.large)
                 response.data.logoUrl = cgdata.image.large
         }
     }
-
-    return createReturn(200, JSON.stringify(response))
+    return response
 }

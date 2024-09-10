@@ -206,6 +206,8 @@ export const StakeX = () => {
         Number(chainId) && (!chain || chain?.id !== Number(chainId)) && setChain(getChainById(Number(chainId)))
     }, [protocolAddress, chainId, loadCustomization])
 
+    if (isLoading) return <></>
+
     return (
         <StakeXContext.Provider
             value={{
@@ -266,45 +268,37 @@ export const StakeX = () => {
                         )}
                         <StakingStatistics protocol={stakingData.protocol} chainId={stakingData.chain?.id!} />
                         <Tile className="w-full max-w-2xl text-lg leading-6">
-                            {isLoading ? (
-                                <div className="flex flex-col items-center gap-4">
-                                    <Spinner className="!h-10 !w-10" theme="dark" />
-                                </div>
-                            ) : (
-                                <>
-                                    <h1 className="mb-5 flex flex-row px-1 font-title text-xl font-bold">
-                                        <span>{headline}</span>
-                                        {activeTabIndex == 1 && (
-                                            <span className="flex flex-grow flex-row justify-end">
-                                                <button type="button" onClick={onClickHandler}>
-                                                    <FaGear className="h-5 w-5" />
-                                                </button>
-                                            </span>
-                                        )}
-                                    </h1>
-                                    <StakingTabber tabs={tabs} setActiveTab={setActiveTabIndex} />
-                                    <div className="mt-8">
-                                        {stakingTokenInfo && activeTabIndex == 0 && (
-                                            <StakingForm
-                                                onDepositSuccessHandler={onDepositSuccessHandler}
-                                                stakingTokenInfo={stakingTokenInfo}
-                                            />
-                                        )}
-                                        {stakingTokenInfo &&
-                                            selectedPayoutToken &&
-                                            selectedShowToken &&
-                                            stakes &&
-                                            activeTabIndex == 1 && (
-                                                <StakingDetails
-                                                    stakingTokenInfo={stakingTokenInfo}
-                                                    defaultPayoutToken={selectedPayoutToken}
-                                                    defaultShowToken={selectedShowToken}
-                                                    stakes={stakes}
-                                                />
-                                            )}
-                                    </div>
-                                </>
-                            )}
+                            <h1 className="mb-5 flex flex-row px-1 font-title text-xl font-bold">
+                                <span>{headline}</span>
+                                {activeTabIndex == 1 && (
+                                    <span className="flex flex-grow flex-row justify-end">
+                                        <button type="button" onClick={onClickHandler}>
+                                            <FaGear className="h-5 w-5" />
+                                        </button>
+                                    </span>
+                                )}
+                            </h1>
+                            <StakingTabber tabs={tabs} setActiveTab={setActiveTabIndex} />
+                            <div className="mt-8">
+                                {stakingTokenInfo && activeTabIndex == 0 && (
+                                    <StakingForm
+                                        onDepositSuccessHandler={onDepositSuccessHandler}
+                                        stakingTokenInfo={stakingTokenInfo}
+                                    />
+                                )}
+                                {stakingTokenInfo &&
+                                    selectedPayoutToken &&
+                                    selectedShowToken &&
+                                    stakes &&
+                                    activeTabIndex == 1 && (
+                                        <StakingDetails
+                                            stakingTokenInfo={stakingTokenInfo}
+                                            defaultPayoutToken={selectedPayoutToken}
+                                            defaultShowToken={selectedShowToken}
+                                            stakes={stakes}
+                                        />
+                                    )}
+                            </div>
                         </Tile>
                         <BaseOverlay isOpen={showSettings} closeOnBackdropClick={true} onClose={onCloseHandler}>
                             {isLoadingSettings ? (

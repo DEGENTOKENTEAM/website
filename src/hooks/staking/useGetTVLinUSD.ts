@@ -67,7 +67,20 @@ export const useGetTVLinUSD = (protocolAddress: Address, chainId: number) => {
     }, [client, dataRewardTokens, protocolAddress])
 
     useEffect(() => {
-        if (!dataRewardTokens || !balanceFetchesResults || !dataFetchesResults)
+        console.log({
+            dataRewardTokens,
+            balanceFetchesResults,
+            dataFetchesResults,
+        })
+        if (
+            !dataRewardTokens ||
+            !balanceFetchesResults ||
+            !dataFetchesResults ||
+            dataRewardTokens.length +
+                balanceFetchesResults.length +
+                dataFetchesResults.length !==
+                dataRewardTokens.length * 3
+        )
             return
 
         setResponse(
@@ -76,6 +89,11 @@ export const useGetTVLinUSD = (protocolAddress: Address, chainId: number) => {
                     const balance =
                         Number(balanceFetchesResults[idx]) /
                         10 ** Number(rewardToken.decimals)
+
+                    if (!dataFetchesResults[idx]) {
+                        setIsComplete(false)
+                        return isNaN(acc) ? 0 : acc
+                    }
 
                     const { pairs } = dataFetchesResults[idx]
 

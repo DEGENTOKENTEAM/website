@@ -194,7 +194,9 @@ export default function Sidebar(props: { mobile?: boolean }) {
     const location = useLocation()
     const isCurrent = useCallback(
         (item: any) => {
+            console.log(item.href, location.pathname)
             return (
+                ((item.href as string).includes('staking/') && location.pathname.includes('/dapp/staking')) ||
                 (item.href && location.pathname.includes(item.href)) ||
                 (`/dapp` === location.pathname && item.href === '') ||
                 (`/dapp/` === location.pathname && item.href === '')
