@@ -83,5 +83,30 @@ jobs:
       - name: Deploy Static Site To S3 Bucket
         run: aws s3 sync ./out/ s3://s3-${{github.ref_name}}/ --delete
 
-      - name: Provide URL
+      - name: Provide Website URL
         run: aws cloudformation describe-stacks --stack-name "degenx-dapp-${{github.ref_name}}" --query "Stacks[0].Outputs[?OutputKey=='StaticWebsiteHostname'].OutputValue" --output text
+
+      ### DEPLOY LANDINGPAGES
+      ## STKX.IO
+      - name: Deploy stkx.io landing page
+        run: aws cloudformation deploy --template-file "${TEMPLATE_FILE}" --stack-name "${STACK_NAME}" --parameter-overrides RootDomainName="${ROOT_DOMAIN_NAME}"
+        env:
+          STACK_NAME: stkx-review-${{github.ref_name}}
+          TEMPLATE_FILE: ${{github.workspace}}/.deployment/s3-static-site.cf.yml
+          ROOT_DOMAIN_NAME: review.${{github.ref_name}}.stkx.io
+
+      # - name: Update DNS records
+      #   uses: rez0n/create-dns-record@v2.1
+      #   with:
+      #     type: "A"
+      #     name: "review.${{github.ref_name}}.stkx.io"
+      #     content: "8.8.8.8"
+      #     ttl: 1
+      #     proxied: true
+      #     token: ${{ secrets.CLOUDFLARE_TOKEN }}
+      #     zone: ${{ secrets.CLOUDFLARE_ZONE }}
+
+      - name: Provide stkx.io review landing page URL
+        run: aws cloudformation describe-stacks --stack-name "${STACK_NAME}" --query "Stacks[0].Outputs[?OutputKey=='WebsiteURL'].OutputValue" --output text
+        env:
+          STACK_NAME: stkx-review-${{github.ref_name}}
