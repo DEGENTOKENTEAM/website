@@ -67,11 +67,6 @@ export const useGetTVLinUSD = (protocolAddress: Address, chainId: number) => {
     }, [client, dataRewardTokens, protocolAddress])
 
     useEffect(() => {
-        console.log({
-            dataRewardTokens,
-            balanceFetchesResults,
-            dataFetchesResults,
-        })
         if (
             !dataRewardTokens ||
             !balanceFetchesResults ||

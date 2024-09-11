@@ -147,28 +147,25 @@ export const TokensForm = ({ onChange, error: _error }: TokensFormProps) => {
             Promise.all(tokenRequests)
                 .then(async (responsesRaw) => {
                     const _tokenThumbnails: typeof tokenThumbnails = {}
-                    let _tokenCache = tokenCache
-                    for (const response of responsesRaw) {
-                        const res = await response.json()
-                        if (!res.error) {
-                            _tokenCache = _tokenCache.filter(
-                                (token) => token.toLowerCase() != res.contract_address.toLowerCase()
-                            )
-                            _tokenThumbnails[res.contract_address.toLowerCase()] = res.image.large
+
+                    while (tokenCache.length) {
+                        const [tokenAddress] = tokenCache.splice(0, 1)
+                        const [tokenDataRaw] = responsesRaw.splice(0, 1)
+                        const tokenData = await tokenDataRaw.json()
+                        if (!tokenData.error && !tokenData.image.large.includes('missing')) {
+                            _tokenThumbnails[tokenAddress.toLowerCase()] = tokenData.image.large
+                        } else {
+                            _tokenThumbnails[
+                                tokenAddress.toLowerCase()
+                            ] = `https://tokens-data.1inch.io/images/${tokenAddress.toLowerCase()}.png`
                         }
                     }
-
-                    if (_tokenCache.length > 0)
-                        for (const token of _tokenCache)
-                            _tokenThumbnails[
-                                token.toLowerCase()
-                            ] = `https://tokens-data.1inch.io/images/${token.toLowerCase()}.png`
 
                     return _tokenThumbnails
                 })
                 .then(setTokenThumbnails)
         }
-    }, [routings, isReward, onChange])
+    }, [routings, isReward])
 
     return (
         <div className="flex w-full flex-col gap-8">
