@@ -9,6 +9,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import heroImage from './../../../images/lps/stakex/hero.png'
 import { CallToActionButton } from './CallToAction'
+import { FaExternalLinkAlt } from 'react-icons/fa'
 
 export const Hero = () => {
     return (
@@ -19,12 +20,15 @@ export const Hero = () => {
                         <span className="text-techGreen">STAKE</span>
                         <span className="text-degenOrange">X</span>
                         <br />
-                        Staking Solution
+                        Staking Solutions
                     </span>
                     <span className="text-2xl">
                         Store value of your project and incentivize your project token holders and investors
                     </span>
-                    <span className="text-lg">Benefit from our audited, secure, and innovative staking protocol</span>
+                    <span className="text-lg">
+                        Benefit from our audited, secure, innovative,
+                        <br className="hidden lg:inline" /> and out-of-the-box staking protocol
+                    </span>
                     <div className="py-2">
                         <CallToActionButton />
                     </div>
@@ -73,15 +77,14 @@ export const Hero = () => {
                     />
                 </div>
             </div>
-            <div className="m-auto mt-10 flex flex-col items-center justify-center gap-4 text-center sm:flex-row ">
+            <div className="m-auto mt-10 flex flex-col items-center justify-center gap-6 text-center sm:flex-row ">
                 <div className="font-title text-2xl font-bold">
-                    <Link
-                        href="/audits/20240522_STAKEX.pdf"
-                        target="_blank"
-                        className="text-dapp-cyan-500 underline hover:text-dapp-cyan-50"
-                    >
-                        <span className="!text-dapp-cyan-50">Smart Contract Security Audit</span>
-                    </Link>{' '}
+                    <span className="sm:whitespace-nowrap">
+                        <Link href="/audits/20240522_STAKEX.pdf" target="_blank" className="hover:underline">
+                            Smart Contract Security Audit
+                        </Link>{' '}
+                        <FaExternalLinkAlt className="relative -top-[2px] inline-block text-xl" />
+                    </span>{' '}
                     by
                 </div>
                 <div>
