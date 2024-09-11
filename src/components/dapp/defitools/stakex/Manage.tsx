@@ -6,7 +6,7 @@ import { useGetStakingToken } from '@dapphooks/staking/useGetStakingToken'
 import { useRunning } from '@dapphooks/staking/useRunning'
 import { NotConnectedHint } from '@dappshared/NotConnectedHint'
 import { WrongChainHint } from '@dappshared/WrongChainHint'
-import _, { isUndefined } from 'lodash'
+import { isUndefined, toLower } from 'lodash'
 import { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { toast } from 'react-toastify'
@@ -45,6 +45,7 @@ export const Manage = () => {
         isActive: false,
         isRunning: false,
         isLoading: false,
+        canEdit: false,
     })
 
     const { data: dataStakingToken } = useGetStakingToken(protocolAddress!, chain?.id!)
@@ -59,18 +60,17 @@ export const Manage = () => {
             isLoading: !Boolean(dataStakingToken && dataMetrics && dataContractOwner),
         }
 
-        if (dataContractOwner) {
-            _data.owner = dataContractOwner
-            _data.isOwner = Boolean(address && _.toLower(address) === _.toLower(dataContractOwner))
-        }
+        _data.isOwner = Boolean(address && dataContractOwner && toLower(address) === toLower(dataContractOwner))
+        _data.canEdit = Boolean(chain && chainAccount && chain.id === chainAccount.id && _data.isOwner)
 
+        if (dataContractOwner) _data.owner = dataContractOwner
         if (dataMetrics) _data.metrics = dataMetrics
         if (dataStakingToken) _data.stakingToken = dataStakingToken
         if (!isUndefined(dataIsActive)) _data.isActive = dataIsActive
         if (!isUndefined(dataIsRunning)) _data.isRunning = dataIsRunning
 
         setData(_data)
-    }, [dataStakingToken, address, dataMetrics, dataContractOwner, dataIsActive, dataIsRunning])
+    }, [dataStakingToken, address, dataMetrics, dataContractOwner, dataIsActive, dataIsRunning, chain, chainAccount])
 
     if (!protocolAddress) {
         toast.error('Invalid protocol address')

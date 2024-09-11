@@ -15,7 +15,7 @@ import { AddFirstConfigConfirmation } from './nft/overlays/AddFirstConfigConfirm
 
 export const NFTManagement = () => {
     const {
-        data: { protocol, chain, isOwner },
+        data: { protocol, chain, canEdit },
     } = useContext(ManageStakeXContext)
 
     const client = usePublicClient({ chainId: chain?.id })
@@ -86,7 +86,7 @@ export const NFTManagement = () => {
             <Tile className="flex w-full flex-col gap-6">
                 <div className="flex flex-row items-center">
                     <span className="flex-1 font-title text-xl font-bold">
-                        {isOwner ? `NFT Management` : `Available NFTs`}
+                        {canEdit ? `NFT Management` : `Available NFTs`}
                     </span>
                 </div>
                 {hasConfigs &&
@@ -105,7 +105,7 @@ export const NFTManagement = () => {
                         <Spinner theme="dark" />
                     ))}
                 {!hasConfigs &&
-                    (!isOwner ? (
+                    (!canEdit ? (
                         <div>
                             This protocol is being configured. Once there is an NFT configured, you will see it here!
                         </div>

@@ -13,6 +13,7 @@ import TimeAgo from 'javascript-time-ago'
 import { isBoolean, isUndefined } from 'lodash'
 import { useContext, useEffect, useState } from 'react'
 import { FaCheckDouble, FaCubes, FaRegClock } from 'react-icons/fa'
+import { MdLockOutline } from 'react-icons/md'
 import { Button } from 'src/components/Button'
 import { useBlock } from 'wagmi'
 import { BlockNumberActivation } from './control/overlays/BlockNumberActivation'
@@ -20,11 +21,10 @@ import { BlockNumberDeactivationConfirmation } from './control/overlays/BlockNum
 import { BlockTimeActivation } from './control/overlays/BlockTimeActivation'
 import { BlockTimeDeactivationConfirmation } from './control/overlays/BlockTimeDeactivationConfirmation'
 import { DisableProtocolConfirmation } from './control/overlays/DisableProtocolConfirmation'
-import { MdLockOutline } from 'react-icons/md'
 
 export const Control = () => {
     const {
-        data: { protocol, chain, isOwner },
+        data: { protocol, chain, canEdit },
     } = useContext(ManageStakeXContext)
 
     const timeAgo = new TimeAgo(navigator.language)
@@ -147,6 +147,8 @@ export const Control = () => {
         setCanActivate(Boolean(dataNFTConfigs && dataNFTConfigs.length > 0))
     }, [dataNFTConfigs])
 
+    if (!canEdit) return <></>
+
     return (
         <>
             <Tile className="relative w-full">
@@ -182,26 +184,25 @@ export const Control = () => {
                                     </span>
                                 ))}
                         </div>
-                        {isOwner &&
-                            (!Boolean(currentActivationBlock) ? (
-                                <Button
-                                    disabled={Boolean(isActive) || Boolean(currentActivationTime) || !canActivate}
-                                    className="w-full md:w-auto"
-                                    onClick={onClickBlockNumberActivation}
-                                    variant={'primary'}
-                                >
-                                    Set Activation Block
-                                </Button>
-                            ) : (
-                                <Button
-                                    disabled={Boolean(isActive)}
-                                    className="w-full md:w-auto"
-                                    onClick={onClickBlockNumberRemoveActivation}
-                                    variant={'error'}
-                                >
-                                    Reset
-                                </Button>
-                            ))}
+                        {!Boolean(currentActivationBlock) ? (
+                            <Button
+                                disabled={Boolean(isActive) || Boolean(currentActivationTime) || !canActivate}
+                                className="w-full md:w-auto"
+                                onClick={onClickBlockNumberActivation}
+                                variant={'primary'}
+                            >
+                                Set Activation Block
+                            </Button>
+                        ) : (
+                            <Button
+                                disabled={Boolean(isActive)}
+                                className="w-full md:w-auto"
+                                onClick={onClickBlockNumberRemoveActivation}
+                                variant={'error'}
+                            >
+                                Reset
+                            </Button>
+                        )}
                     </div>
                     <div
                         className={clsx([
@@ -255,26 +256,25 @@ export const Control = () => {
                                     </span>
                                 ))}
                         </div>
-                        {isOwner &&
-                            (!Boolean(currentActivationTime) ? (
-                                <Button
-                                    disabled={Boolean(isActive) || Boolean(currentActivationBlock) || !canActivate}
-                                    onClick={onClickBlockTimeActivation}
-                                    className="w-full md:w-auto"
-                                    variant={'primary'}
-                                >
-                                    Set Activation Time
-                                </Button>
-                            ) : (
-                                <Button
-                                    disabled={Boolean(isActive)}
-                                    onClick={onClickBlockTimeRemoveActivation}
-                                    className="w-full md:w-auto"
-                                    variant={'error'}
-                                >
-                                    Reset
-                                </Button>
-                            ))}
+                        {!Boolean(currentActivationTime) ? (
+                            <Button
+                                disabled={Boolean(isActive) || Boolean(currentActivationBlock) || !canActivate}
+                                onClick={onClickBlockTimeActivation}
+                                className="w-full md:w-auto"
+                                variant={'primary'}
+                            >
+                                Set Activation Time
+                            </Button>
+                        ) : (
+                            <Button
+                                disabled={Boolean(isActive)}
+                                onClick={onClickBlockTimeRemoveActivation}
+                                className="w-full md:w-auto"
+                                variant={'error'}
+                            >
+                                Reset
+                            </Button>
+                        )}
                     </div>
                     <CaretDivider />
                     <div className="flex flex-col gap-4 md:flex-row md:gap-8">
@@ -287,16 +287,14 @@ export const Control = () => {
                             )}
                         </div>
 
-                        {isOwner && (
-                            <Button
-                                disabled={!canActivate}
-                                onClick={onClickToggleProtocolStatus}
-                                className="w-full whitespace-nowrap md:w-auto"
-                                variant={isActive ? 'error' : 'primary'}
-                            >
-                                {isActive ? 'Disable' : 'Enable'} Protocol
-                            </Button>
-                        )}
+                        <Button
+                            disabled={!canActivate}
+                            onClick={onClickToggleProtocolStatus}
+                            className="w-full whitespace-nowrap md:w-auto"
+                            variant={isActive ? 'error' : 'primary'}
+                        >
+                            {isActive ? 'Disable' : 'Enable'} Protocol
+                        </Button>
                     </div>
                 </div>
                 {!canActivate && (

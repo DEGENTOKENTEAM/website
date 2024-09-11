@@ -21,7 +21,7 @@ import { useAccount } from 'wagmi'
 
 export const InjectRewards = () => {
     const {
-        data: { chain, protocol, isRunning },
+        data: { chain, protocol },
     } = useContext(ManageStakeXContext)
 
     const { address } = useAccount()

@@ -23,7 +23,7 @@ import { ChangeStateConfirmation } from './buckets/overlays/ChangeStateConfirmat
 
 export const Buckets = () => {
     const {
-        data: { protocol, stakingToken, isLoading, isOwner, metrics, chain },
+        data: { protocol, stakingToken, isLoading, metrics, chain, canEdit },
     } = useContext(ManageStakeXContext)
 
     const [multiplierPerStakingTokens, setMultiplierPerStakingTokens] = useState<{ [key: string]: number }>({})
@@ -172,9 +172,9 @@ export const Buckets = () => {
             <Tile className="w-full">
                 <div className="flex flex-col items-center gap-8 sm:flex-row">
                     <span className="w-full flex-1 items-start whitespace-nowrap font-title text-xl font-bold">
-                        {isOwner ? `Staking Pool Management` : `Staking Pools`}
+                        {canEdit ? `Staking Pool Management` : `Staking Pools`}
                     </span>
-                    {isOwner && (
+                    {canEdit && (
                         <>
                             {(showAddBucketsForm || showChangeSharesForm) && (
                                 <div className="flex w-full justify-end gap-2">
@@ -213,7 +213,7 @@ export const Buckets = () => {
                             dataStakeBuckets && dataStakeBuckets.length > 1 && 'md:grid-cols-2',
                         ])}
                     >
-                        {isOwner && (showAddBucketsForm || showChangeSharesForm) && (
+                        {canEdit && (showAddBucketsForm || showChangeSharesForm) && (
                             <div className={clsx(dataStakeBuckets && dataStakeBuckets.length > 1 && 'md:col-span-2')}>
                                 <BucketsForm
                                     editSharesOnly={Boolean(showChangeSharesForm)}
@@ -320,7 +320,7 @@ export const Buckets = () => {
                                         </StatsBoxTwoColumn.RightColumn>
                                     </StatsBoxTwoColumn.Wrapper>
 
-                                    {isOwner && dataStakeBuckets.length > 1 && (
+                                    {canEdit && dataStakeBuckets.length > 1 && (
                                         <Button
                                             variant={`${bucket.active ? 'error' : 'primary'}`}
                                             className="col-span-2"

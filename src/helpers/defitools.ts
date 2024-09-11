@@ -28,6 +28,7 @@ export type ManageStakeXContextDataType = {
     isOwner: boolean
     isActive: boolean
     isRunning: boolean
+    canEdit: boolean
     chain?: Chain
     stakingToken?: TokenInfoResponse
     metrics?: StakingMetrics
@@ -46,6 +47,7 @@ export const ManageStakeXContextInitialData = {
     isActive: false,
     isRunning: false,
     isLoading: true,
+    canEdit: false,
 }
 
 export const ManageStakeXContext = createContext<ManageStakeXContextType>({

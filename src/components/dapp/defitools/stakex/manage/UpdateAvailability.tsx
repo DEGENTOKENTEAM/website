@@ -8,7 +8,7 @@ import { ApplyChangesConfirmation } from './update/overlays/ApplyChangesConfirma
 
 export const UpdateAvailability = () => {
     const {
-        data: { protocol, chain },
+        data: { protocol, chain, canEdit },
     } = useContext(ManageStakeXContext)
 
     const [isApplyChangesModalOpen, setIsApplyChangesModalOpen] = useState(false)
@@ -45,7 +45,7 @@ export const UpdateAvailability = () => {
         setIsApplyChangesModalOpen(false)
     }
 
-    if (!isEnabled) return <></>
+    if (!isEnabled || !canEdit) return <></>
 
     return (
         <>

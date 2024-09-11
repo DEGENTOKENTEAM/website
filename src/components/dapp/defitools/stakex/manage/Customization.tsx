@@ -15,7 +15,7 @@ import { useAccount, useSignMessage } from 'wagmi'
 
 export const Customization = () => {
     const {
-        data: { protocol, isOwner, chain, stakingToken },
+        data: { protocol, chain, stakingToken, canEdit },
     } = useContext(ManageStakeXContext)
 
     const CHECK_INTERVAL = 30000
@@ -167,7 +167,7 @@ export const Customization = () => {
                 />
             </Tile>
 
-            {isOwner && (
+            {canEdit && (
                 <>
                     <Tile className="w-full">
                         <span className="flex-1 font-title text-xl font-bold">Project Logo</span>
