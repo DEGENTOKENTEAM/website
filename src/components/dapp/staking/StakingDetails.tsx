@@ -2,19 +2,11 @@ import { toReadableNumber } from '@dapphelpers/number'
 import { StakeXContext, durationFromSeconds } from '@dapphelpers/staking'
 import { useGetRewardEstimationForTokens } from '@dapphooks/staking/useGetRewardEstimationForTokens'
 import { useGetStakeBuckets } from '@dapphooks/staking/useGetStakeBuckets'
-import {
-    BucketStakedShare,
-    useGetStakedSharesByStaker,
-} from '@dapphooks/staking/useGetStakedSharesByStaker'
+import { BucketStakedShare, useGetStakedSharesByStaker } from '@dapphooks/staking/useGetStakedSharesByStaker'
 import { useGetTargetTokens } from '@dapphooks/staking/useGetTargetTokens'
 import { CaretDivider } from '@dappshared/CaretDivider'
 import { StatsBoxTwoColumn } from '@dappshared/StatsBoxTwoColumn'
-import {
-    StakeBucket,
-    StakeResponse,
-    StakingBaseProps,
-    TokenInfoResponse,
-} from '@dapptypes'
+import { StakeBucket, StakeResponse, StakingBaseProps, TokenInfoResponse } from '@dapptypes'
 import { Fragment, useContext, useEffect, useMemo, useState } from 'react'
 import { useAccount } from 'wagmi'
 import { Button } from '../../Button'
@@ -35,12 +27,7 @@ type BucketStakedShareInfo = Partial<BucketStakedShare & StakeBucket>
 
 type ComponentProps = StakingBaseProps & StakingDetailsProps
 
-export const StakingDetails = ({
-    stakingTokenInfo,
-    defaultShowToken,
-    defaultPayoutToken,
-    stakes,
-}: ComponentProps) => {
+export const StakingDetails = ({ stakingTokenInfo, defaultShowToken, defaultPayoutToken, stakes }: ComponentProps) => {
     const {
         data: { protocol, chain },
     } = useContext(StakeXContext)
@@ -112,23 +99,15 @@ export const StakingDetails = ({
     const { refetchStakes } = useContext(StakeXContext)
     const { address } = useAccount()
 
-    const { data: rewardEstimations, refetch: refetchRewardEstimations } =
-        useGetRewardEstimationForTokens(
-            protocol,
-            chain?.id!,
-            tokenIds!,
-            defaultShowToken?.source
-        )
-    const { data: targetTokens } = useGetTargetTokens(protocol, chain?.id!)
-    const { data: dataGetStakedSharesByStaker } = useGetStakedSharesByStaker(
+    const { data: rewardEstimations, refetch: refetchRewardEstimations } = useGetRewardEstimationForTokens(
         protocol,
         chain?.id!,
-        address!
+        tokenIds!,
+        defaultShowToken?.source
     )
-    const { data: dataGetStakeBuckets } = useGetStakeBuckets(
-        protocol,
-        chain?.id!
-    )
+    const { data: targetTokens } = useGetTargetTokens(protocol, chain?.id!)
+    const { data: dataGetStakedSharesByStaker } = useGetStakedSharesByStaker(protocol, chain?.id!, address!)
+    const { data: dataGetStakeBuckets } = useGetStakeBuckets(protocol, chain?.id!)
 
     //
     // handlers
@@ -179,27 +158,15 @@ export const StakingDetails = ({
     //
 
     useEffect(() => {
-        setIsInProgess(
-            isInProgessClaimAll ||
-                isInProgessClaim ||
-                isInProgessRestake ||
-                isInProgessWithdraw
-        )
-    }, [
-        isInProgessClaimAll,
-        isInProgessClaim,
-        isInProgessRestake,
-        isInProgessWithdraw,
-    ])
+        setIsInProgess(isInProgessClaimAll || isInProgessClaim || isInProgessRestake || isInProgessWithdraw)
+    }, [isInProgessClaimAll, isInProgessClaim, isInProgessRestake, isInProgessWithdraw])
 
     useEffect(() => {
         dataGetStakedSharesByStaker &&
             dataGetStakeBuckets &&
             setStakeShareInfo(
                 dataGetStakedSharesByStaker.map((share) => {
-                    const bucketData = dataGetStakeBuckets.find(
-                        (bucket) => share.bucketId == bucket.id
-                    )
+                    const bucketData = dataGetStakeBuckets.find((bucket) => share.bucketId == bucket.id)
                     return {
                         burn: bucketData?.burn!,
                         divider: BigInt(share.divider),
@@ -212,28 +179,18 @@ export const StakingDetails = ({
     }, [dataGetStakedSharesByStaker, dataGetStakeBuckets])
 
     useEffect(() => {
-        if (
-            tokenIds &&
-            rewardEstimations &&
-            tokenIds.length > 0 &&
-            tokenIds.length == rewardEstimations.length
-        ) {
+        if (tokenIds && rewardEstimations && tokenIds.length > 0 && tokenIds.length == rewardEstimations.length) {
             setTokenIdRewards(
                 tokenIds.reduce(
                     (acc, tokenId, i) => ({
                         ...acc,
-                        [parseInt(tokenId.toString())]:
-                            rewardEstimations[i]?.amount,
+                        [parseInt(tokenId.toString())]: rewardEstimations[i]?.amount,
                     }),
                     {}
                 )
             )
 
-            const rewards = tokenIds.reduce(
-                (acc, _, i) =>
-                    acc + BigInt(rewardEstimations[i]?.amount.toString()),
-                0n
-            )
+            const rewards = tokenIds.reduce((acc, _, i) => acc + BigInt(rewardEstimations[i]?.amount.toString()), 0n)
 
             setCanClaimAll(rewards > 0n)
             setUnclaimedRewards(rewards)
@@ -245,12 +202,7 @@ export const StakingDetails = ({
 
         if (stakes && stakes.length > 0) {
             setTokenIds(stakes.map((stake) => stake.tokenId))
-            setTotalStakedAmount(
-                stakes.reduce(
-                    (acc, { amount }) => acc + BigInt(amount.toString()),
-                    0n
-                )
-            )
+            setTotalStakedAmount(stakes.reduce((acc, { amount }) => acc + BigInt(amount.toString()), 0n))
             setActiveStakeCount(stakes.length)
 
             // order stakes
@@ -258,12 +210,9 @@ export const StakingDetails = ({
             setStakesOrdered([
                 ...stakes.filter((stake) => by == 'burned' && stake.burned),
                 ...stakes
-                    .filter((stake) =>
-                        by == 'burned' || by == 'release' ? !stake.burned : true
-                    )
+                    .filter((stake) => (by == 'burned' || by == 'release' ? !stake.burned : true))
                     .sort((curr, prev) => {
-                        return parseInt(curr[by].toString()) >
-                            parseInt(prev[by].toString())
+                        return parseInt(curr[by].toString()) > parseInt(prev[by].toString())
                             ? sort == 'ASC'
                                 ? 1
                                 : -1
@@ -283,11 +232,7 @@ export const StakingDetails = ({
     useEffect(() => {
         setIsLoading(
             !Boolean(
-                rewardEstimations &&
-                    rewardEstimations.length &&
-                    targetTokens &&
-                    targetTokens.length &&
-                    defaultShowToken
+                rewardEstimations && rewardEstimations.length && targetTokens && targetTokens.length && defaultShowToken
             )
         )
     }, [rewardEstimations, targetTokens, defaultShowToken])
@@ -302,28 +247,20 @@ export const StakingDetails = ({
             <div className="flex flex-col gap-8">
                 <StatsBoxTwoColumn.Wrapper className="rounded-lg bg-dapp-blue-800 px-5 py-2 text-base">
                     <StatsBoxTwoColumn.LeftColumn>
-                        <span className="text-darkTextLowEmphasis">
-                            Staked {stakingTokenInfo?.symbol}
-                        </span>
+                        <span className="text-darkTextLowEmphasis">Staked {stakingTokenInfo?.symbol}</span>
                     </StatsBoxTwoColumn.LeftColumn>
                     <StatsBoxTwoColumn.RightColumn>
-                        {toReadableNumber(
-                            totalStakedAmount,
-                            stakingTokenInfo?.decimals
-                        )}
+                        {toReadableNumber(totalStakedAmount, stakingTokenInfo?.decimals)}
                     </StatsBoxTwoColumn.RightColumn>
 
                     {stakeShareInfo && stakeShareInfo.length == 1 && (
                         <>
                             <StatsBoxTwoColumn.LeftColumn>
-                                <span className="text-darkTextLowEmphasis">
-                                    Your Share
-                                </span>
+                                <span className="text-darkTextLowEmphasis">Your Share</span>
                             </StatsBoxTwoColumn.LeftColumn>
                             <StatsBoxTwoColumn.RightColumn>
                                 {`${toReadableNumber(
-                                    Number(stakeShareInfo[0].share) /
-                                        Number(stakeShareInfo[0].divider),
+                                    Number(stakeShareInfo[0].share) / Number(stakeShareInfo[0].divider),
                                     0,
                                     { maximumFractionDigits: 2 }
                                 )}%`}
@@ -332,16 +269,11 @@ export const StakingDetails = ({
                     )}
 
                     <StatsBoxTwoColumn.LeftColumn>
-                        <span className="text-darkTextLowEmphasis">
-                            Unclaimed Rewards
-                        </span>
+                        <span className="text-darkTextLowEmphasis">Unclaimed Rewards</span>
                     </StatsBoxTwoColumn.LeftColumn>
                     <StatsBoxTwoColumn.RightColumn>
                         <span className="mr-2">{defaultShowToken?.symbol}</span>
-                        {toReadableNumber(
-                            unclaimedRewards,
-                            defaultShowToken?.decimals
-                        )}
+                        {toReadableNumber(unclaimedRewards, defaultShowToken?.decimals)}
                     </StatsBoxTwoColumn.RightColumn>
 
                     {stakeShareInfo && stakeShareInfo.length > 1 && (
@@ -350,14 +282,11 @@ export const StakingDetails = ({
                                 <CaretDivider />
                             </div>
                             <StatsBoxTwoColumn.LeftColumn>
-                                <span className="font-bold text-darkTextLowEmphasis">
-                                    Locking Period
-                                </span>
+                                <span className="font-bold text-darkTextLowEmphasis">Pool</span>
                             </StatsBoxTwoColumn.LeftColumn>
                             <StatsBoxTwoColumn.RightColumn>
-                                <div className="flex flex-row font-bold text-darkTextLowEmphasis">
-                                    <div className="w-2/4">Total staked</div>
-                                    <div className="w-2/4">Total share</div>
+                                <div className="flex flex-row items-center justify-end gap-1 font-bold text-darkTextLowEmphasis">
+                                    Staked <span className="text-xs">(%)</span>
                                 </div>
                             </StatsBoxTwoColumn.RightColumn>
 
@@ -365,36 +294,35 @@ export const StakingDetails = ({
                                 <Fragment key={i}>
                                     <StatsBoxTwoColumn.LeftColumn>
                                         <span className="text-darkTextLowEmphasis">
-                                            {share.burn && (
-                                                <span className="font-bold text-degenOrange opacity-60">
-                                                    BURNED
-                                                </span>
+                                            {share.burn ? (
+                                                <span className="font-bold text-degenOrange opacity-60">BURNED</span>
+                                            ) : Boolean(share.duration) ? (
+                                                durationFromSeconds(Number(share.duration), {
+                                                    long: true,
+                                                })
+                                            ) : (
+                                                'Standard'
                                             )}
-                                            {Boolean(share.duration) &&
-                                                durationFromSeconds(
-                                                    Number(share.duration),
-                                                    {
-                                                        long: true,
-                                                    }
-                                                )}
                                         </span>
                                     </StatsBoxTwoColumn.LeftColumn>
                                     <StatsBoxTwoColumn.RightColumn>
-                                        <div className="flex flex-row">
-                                            <div className="w-2/4">
-                                                {toReadableNumber(
-                                                    Number(share.staked),
-                                                    stakingTokenInfo.decimals
-                                                )}
-                                            </div>
-                                            <div className="w-2/4">
-                                                {`${toReadableNumber(
-                                                    Number(share.share) /
-                                                        Number(share.divider),
-                                                    0,
-                                                    { maximumFractionDigits: 2 }
-                                                )}%`}
-                                            </div>
+                                        <div className="flex flex-row items-center justify-end gap-1">
+                                            {toReadableNumber(Number(share.staked), stakingTokenInfo.decimals, {
+                                                maximumFractionDigits: 2,
+                                            })}
+                                            <span className="text-xs">
+                                                {`(${
+                                                    Number(share.share) / Number(share.divider) < 0.01
+                                                        ? '<0.01'
+                                                        : toReadableNumber(
+                                                              Number(share.share) / Number(share.divider),
+                                                              0,
+                                                              {
+                                                                  maximumFractionDigits: 2,
+                                                              }
+                                                          )
+                                                }%)`}
+                                            </span>
                                         </div>
                                     </StatsBoxTwoColumn.RightColumn>
                                 </Fragment>
@@ -421,8 +349,7 @@ export const StakingDetails = ({
                 >
                     {isInProgessClaimAll ? (
                         <>
-                            <Spinner theme="dark" className="!h-4 !w-4" />{' '}
-                            <span>processing...</span>
+                            <Spinner theme="dark" className="!h-4 !w-4" /> <span>processing...</span>
                         </>
                     ) : (
                         <span>Claim All Rewards</span>
@@ -433,9 +360,7 @@ export const StakingDetails = ({
                     <div className="flex flex-row px-2">
                         <div className="grow text-base text-dapp-cyan-50">
                             Your Active Stakes
-                            <span className="ml-4 text-xs text-darkTextLowEmphasis">
-                                ({activeStakesCount})
-                            </span>
+                            <span className="ml-4 text-xs text-darkTextLowEmphasis">({activeStakesCount})</span>
                         </div>
                         <div>
                             <StakingSortOptions
@@ -454,33 +379,18 @@ export const StakingDetails = ({
                                     protocolAddress={protocol}
                                     chainId={chain?.id!}
                                     rewardAmount={toReadableNumber(
-                                        tokenIdRewards[
-                                            parseInt('' + stake.tokenId)
-                                        ],
+                                        tokenIdRewards[parseInt('' + stake.tokenId)],
                                         defaultShowToken?.decimals
                                     )}
                                     rewardSymbol={defaultShowToken?.symbol}
-                                    stakedTokenAmount={toReadableNumber(
-                                        stake.amount,
-                                        stakingTokenInfo.decimals
-                                    )}
+                                    stakedTokenAmount={toReadableNumber(stake.amount, stakingTokenInfo.decimals)}
                                     stakedTokenSymbol={stakingTokenInfo?.symbol}
                                     tokenId={stake.tokenId}
                                     withdrawDate={parseInt('' + stake.release)}
-                                    lockStartDate={parseInt(
-                                        '' + stake.lockStart
-                                    )}
+                                    lockStartDate={parseInt('' + stake.lockStart)}
                                     isBurned={stake.burned}
-                                    canClaim={Boolean(
-                                        tokenIdRewards[
-                                            parseInt('' + stake.tokenId)
-                                        ] > 0n
-                                    )}
-                                    canRestake={Boolean(
-                                        tokenIdRewards[
-                                            parseInt('' + stake.tokenId)
-                                        ] > 0n
-                                    )}
+                                    canClaim={Boolean(tokenIdRewards[parseInt('' + stake.tokenId)] > 0n)}
+                                    canRestake={Boolean(tokenIdRewards[parseInt('' + stake.tokenId)] > 0n)}
                                     canWithdraw={!stake.locked}
                                     onClaim={onClaimHandler}
                                     onRestake={onRestakeHandler}
