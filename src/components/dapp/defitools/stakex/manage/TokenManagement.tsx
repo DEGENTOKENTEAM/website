@@ -10,6 +10,8 @@ import { CaretDivider } from '@dappshared/CaretDivider'
 import { StatsBoxTwoColumn } from '@dappshared/StatsBoxTwoColumn'
 import { Tile } from '@dappshared/Tile'
 import { SetTargetTokenParams } from '@dapptypes'
+import clsx from 'clsx'
+import { cloneDeep, isBoolean } from 'lodash'
 import { useCallback, useContext, useEffect, useState } from 'react'
 import { FaPlus, FaRegCheckCircle, FaRegTimesCircle } from 'react-icons/fa'
 import { IoMdOpen } from 'react-icons/io'
@@ -19,8 +21,6 @@ import { Spinner } from 'src/components/dapp/elements/Spinner'
 import { Address } from 'viem'
 import { TokensForm } from './tokens/Form'
 import { ApplyChangesConfirmation } from './tokens/overlays/ApplyChangesConfirmation'
-import clsx from 'clsx'
-import { cloneDeep, isBoolean } from 'lodash'
 
 export const TokenManagement = () => {
     const {
@@ -62,7 +62,7 @@ export const TokenManagement = () => {
         isError: isErrorTogglePayoutToken,
         isSuccess: isSuccessTogglePayoutToken,
         reset: resetTogglePayoutToken,
-    } = useTogglePayoutTokenStatus(chain?.id!, protocol, owner)
+    } = useTogglePayoutTokenStatus(protocol, chain?.id!)
     const {
         write: toggleRewardToken,
         token: toggleRewardTokenAddress,
@@ -70,7 +70,7 @@ export const TokenManagement = () => {
         isError: isErrorToggleRewardToken,
         isSuccess: isSuccessToggleRewardToken,
         reset: resetToggleRewardToken,
-    } = useToggleRewardTokenStatus(chain?.id!, protocol, owner)
+    } = useToggleRewardTokenStatus(protocol, chain?.id!)
 
     const chainExplorer = useGetChainExplorer(chain!)
 

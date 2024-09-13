@@ -1,10 +1,9 @@
 import abi from '@dappabis/deployer/abi-ui.json'
 import { useExecuteFunction } from '@dapphooks/shared/useExecuteFunction'
 import { STAKEXDeployArgs } from '@dapptypes'
-import { isUndefined, toLower } from 'lodash'
-import { useEffect, useState } from 'react'
-import { Address, decodeEventLog } from 'viem'
-import { usePublicClient, useTransaction } from 'wagmi'
+import { isUndefined } from 'lodash'
+import { useState } from 'react'
+import { Address } from 'viem'
 
 export const useDeployProtocolSTAKEX = (
     address: Address,
@@ -15,7 +14,10 @@ export const useDeployProtocolSTAKEX = (
 ) => {
     const [deployedProtocol, setDeployedProtocol] = useState<Address>()
 
-    const execParams = {
+    const onEventMatch = (event: any) =>
+        event && event.args && setDeployedProtocol(event.args.protocol)
+
+    const execProps = useExecuteFunction({
         address,
         chainId,
         abi,
@@ -23,30 +25,9 @@ export const useDeployProtocolSTAKEX = (
         args: [deployArgs],
         eventNames: ['StakeXProtocolDeployed'],
         value,
-        enabled: Boolean(address && chainId && !isUndefined(value) && enabled),
-    }
-    const exec = useExecuteFunction(execParams)
+        enabled: Boolean(!isUndefined(value) && enabled),
+        onEventMatch,
+    })
 
-    const publicClient = usePublicClient({ chainId })
-
-    useEffect(() => {
-        if (!address || !publicClient || !exec || !exec.hash) return
-        publicClient
-            .waitForTransactionReceipt({ hash: exec.hash })
-            .then((receipt) => {
-                receipt.logs
-                    .filter((log) => toLower(address) === toLower(log.address))
-                    .forEach((log) => {
-                        const event = decodeEventLog({
-                            abi,
-                            data: log.data,
-                            topics: log.topics,
-                        }) as any
-                        if (event.eventName === 'StakeXProtocolDeployed')
-                            setDeployedProtocol(event.args.protocol)
-                    })
-            })
-    }, [publicClient, exec, address])
-
-    return { ...exec, deployedProtocol }
+    return { ...execProps, deployedProtocol }
 }

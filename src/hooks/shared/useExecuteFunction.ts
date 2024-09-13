@@ -15,6 +15,7 @@ type useExecuteFunctionProps = {
     enabled?: boolean
     onEvent?: (event: any) => void
     onEventMatch?: (event: any) => void
+    onError?: (error: any) => void
 }
 
 export const useExecuteFunction = ({
@@ -29,6 +30,7 @@ export const useExecuteFunction = ({
     enabled,
     onEvent,
     onEventMatch,
+    onError,
 }: useExecuteFunctionProps) => {
     const [logs, setLogs] = useState<any[]>()
     const [isLoading, setIsLoading] = useState(false)
@@ -65,6 +67,7 @@ export const useExecuteFunction = ({
     } = useWriteContract()
 
     const write = useCallback(() => {
+        console.log('useExecuteFunction', { data, writeContract })
         setIsLoading(true)
         data && writeContract && writeContract(data.request)
     }, [data, writeContract])
@@ -111,8 +114,11 @@ export const useExecuteFunction = ({
     }, [logs, eventNames, abi, address])
 
     useEffect(() => {
-        if (isErrorWrite) setIsLoading(false)
-    }, [isErrorWrite])
+        if (isErrorWrite && errorWrite) {
+            setIsLoading(false)
+            onError && onError(errorWrite)
+        }
+    }, [isErrorWrite, errorWrite])
 
     return {
         write,

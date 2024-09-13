@@ -29,13 +29,10 @@ export const StakingDurationSelection = ({
     onDurationSelection,
     onCheckbox,
 }: StakingDurationSelectionProps) => {
-    const isBurnBucketSelected = Boolean(
-        durations?.find((duration) => duration.burn && duration.selected)
-    )
+    const isBurnBucketSelected = Boolean(durations?.find(({ burn, selected }) => burn && selected))
+    const isLockBucketSelected = Boolean(durations?.find(({ duration, selected }) => duration && selected))
 
-    const [selectedDuration, setSelectedDuration] =
-        useState<StakeBucketButton>()
-
+    const [selectedDuration, setSelectedDuration] = useState<StakeBucketButton>()
     const confirmHandler = (e: BaseSyntheticEvent) => {
         onCheckbox(e.target.checked)
     }
@@ -46,8 +43,7 @@ export const StakingDurationSelection = ({
     }
 
     useEffect(() => {
-        if (!selectedDuration && durations)
-            setSelectedDuration(durations.find(({ selected }) => selected))
+        if (!selectedDuration && durations) setSelectedDuration(durations.find(({ selected }) => selected))
     }, [selectedDuration, durations])
 
     useEffect(() => {
@@ -66,9 +62,7 @@ export const StakingDurationSelection = ({
                 {description && (
                     <>
                         <br />
-                        <span className="text-xs leading-3 text-darkTextLowEmphasis">
-                            {description}
-                        </span>
+                        <span className="text-xs leading-3 text-darkTextLowEmphasis">{description}</span>
                     </>
                 )}
             </div>
@@ -76,15 +70,11 @@ export const StakingDurationSelection = ({
             <div
                 className={clsx([
                     'grid gap-x-3 gap-y-2',
-                    durations && durations.length <= 1
-                        ? 'grid-cols-1'
-                        : 'grid-cols-2',
+                    durations && durations.length <= 1 ? 'grid-cols-1' : 'grid-cols-2',
                 ])}
             >
                 {durations && durations.length == 0 && (
-                    <div className="col-span-2 rounded-lg bg-dapp-blue-800 px-5 py-2 text-sm">
-                        No options available
-                    </div>
+                    <div className="col-span-2 rounded-lg bg-dapp-blue-800 px-5 py-2 text-sm">No options available</div>
                 )}
                 {durations &&
                     durations.length > 0 &&
@@ -95,10 +85,8 @@ export const StakingDurationSelection = ({
                                 'flex flex-col items-center rounded-lg border border-solid bg-dapp-blue-400 p-1 leading-4',
                                 {
                                     'border-dapp-blue-400': !duration.selected,
-                                    'border-dapp-cyan-500':
-                                        duration.selected && !duration.burn,
-                                    'border-degenOrange':
-                                        duration.selected && duration.burn,
+                                    'border-dapp-cyan-500': duration.selected && !duration.burn,
+                                    'border-degenOrange': duration.selected && duration.burn,
                                 }
                             )}
                             onClick={() => itemSelectHandler(duration)}
@@ -108,19 +96,16 @@ export const StakingDurationSelection = ({
                                 {duration.burn
                                     ? `Burn ${tokenSymbol}`
                                     : duration.duration > 0
-                                    ? `${durationFromSeconds(
-                                          duration.duration,
-                                          {
-                                              long: true,
-                                          }
-                                      )}`
+                                    ? `${durationFromSeconds(duration.duration, {
+                                          long: true,
+                                      })}`
                                     : 'No lock'}
                             </span>
                         </button>
                     ))}
             </div>
             {/* if an active stake is selected, show this message as a confirmation that the user takes notice */}
-            {selectedDuration && (
+            {selectedDuration && (isLockBucketSelected || isBurnBucketSelected) && (
                 <div className="mt-3 flex flex-row gap-2 px-2 text-xs">
                     <div className="flex flex-col justify-start">
                         <input
@@ -135,15 +120,13 @@ export const StakingDurationSelection = ({
                         <label htmlFor="confirmation">
                             {isBurnBucketSelected ? (
                                 <span>
-                                    I understand that my {tokenSymbol} will be
-                                    burned and can NEVER be withdrawn or
+                                    I understand that my {tokenSymbol} will be burned and can NEVER be withdrawn or
                                     retreived.{' '}
                                 </span>
                             ) : (
                                 <span>
-                                    I understand that my {tokenSymbol} will be
-                                    locked for the stake duration and can not be
-                                    withdrawn during this period.{' '}
+                                    I understand that my {tokenSymbol} will be locked for the stake duration and can not
+                                    be withdrawn during this period.{' '}
                                 </span>
                             )}
                         </label>
