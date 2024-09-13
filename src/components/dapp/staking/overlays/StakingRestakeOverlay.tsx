@@ -16,10 +16,7 @@ import { Button } from 'src/components/Button'
 import { Address } from 'viem'
 import { useAccount } from 'wagmi'
 import { Spinner } from '../../elements/Spinner'
-import {
-    StakeBucketButton,
-    StakingDurationSelection,
-} from '../StakingDurationSelection'
+import { StakeBucketButton, StakingDurationSelection } from '../StakingDurationSelection'
 
 type StakingRestakeOverlayProps = {
     protocolAddress: Address
@@ -43,32 +40,21 @@ export const StakingRestakeOverlay = ({
     const [isCheckboxSelected, setIsCheckboxSelected] = useState(false)
     const [stakeBucketId, setStakeBucketId] = useState<Address>()
     const [selectedStake, setSelectedStake] = useState<StakeBucket>()
-    const [durationButtons, setDurationButtons] =
-        useState<StakeBucketButton[]>()
+    const [durationButtons, setDurationButtons] = useState<StakeBucketButton[]>()
 
     //
     // Data Hooks
     //
-    const { data: stakeBucketsData, isLoading: isLoadingGetStakeBuckets } =
-        useGetStakeBuckets(protocolAddress, chainId)
-    const { data: claimEstimationNFT, isLoading: isLoadingClaimEstimationNFT } =
-        useGetClaimEstimation(
-            true,
-            protocolAddress,
-            payoutTokenInfo.source,
-            address!,
-            tokenId
-        )
-    const {
-        data: claimEstimationStakingToken,
-        isLoading: isLoadingClaimEstimationStakingToken,
-    } = useGetClaimEstimation(
+    const { data: stakeBucketsData, isLoading: isLoadingGetStakeBuckets } = useGetStakeBuckets(protocolAddress, chainId)
+    const { data: claimEstimationNFT, isLoading: isLoadingClaimEstimationNFT } = useGetClaimEstimation(
         true,
         protocolAddress,
-        stakingTokenInfo.source,
+        payoutTokenInfo.source,
         address!,
         tokenId
     )
+    const { data: claimEstimationStakingToken, isLoading: isLoadingClaimEstimationStakingToken } =
+        useGetClaimEstimation(true, protocolAddress, stakingTokenInfo.source, address!, tokenId)
     const {
         write,
         isLoading: isLoadingRestake,
@@ -79,12 +65,7 @@ export const StakingRestakeOverlay = ({
         restakeAmount,
         feeAmount,
         hash: hashRestake,
-    } = useRestake(
-        Boolean(isCheckboxSelected && stakeBucketId),
-        protocolAddress,
-        tokenId,
-        stakeBucketId!
-    )
+    } = useRestake(Boolean(isCheckboxSelected && stakeBucketId), protocolAddress, chainId, tokenId, stakeBucketId!)
 
     //
     // Handlers
@@ -98,11 +79,9 @@ export const StakingRestakeOverlay = ({
         onClose && onClose()
     }
 
-    const onCheckboxHandler = (checked: boolean) =>
-        setIsCheckboxSelected(checked)
+    const onCheckboxHandler = (checked: boolean) => checked != isCheckboxSelected && setIsCheckboxSelected(checked)
 
-    const onDurationSelectionHandler = (duration: StakeBucketButton) =>
-        setStakeBucketId(duration?.id)
+    const onDurationSelectionHandler = (duration: StakeBucketButton) => setStakeBucketId(duration?.id)
 
     const onClickTryAgainButtonHandler = () => {
         reset()
@@ -124,16 +103,8 @@ export const StakingRestakeOverlay = ({
     //
 
     useEffect(() => {
-        setIsLoading(
-            isLoadingGetStakeBuckets ||
-                isLoadingClaimEstimationNFT ||
-                isLoadingClaimEstimationStakingToken
-        )
-    }, [
-        isLoadingGetStakeBuckets,
-        isLoadingClaimEstimationNFT,
-        isLoadingClaimEstimationStakingToken,
-    ])
+        setIsLoading(isLoadingGetStakeBuckets || isLoadingClaimEstimationNFT || isLoadingClaimEstimationStakingToken)
+    }, [isLoadingGetStakeBuckets, isLoadingClaimEstimationNFT, isLoadingClaimEstimationStakingToken])
 
     useEffect(() => {
         if (stakeBucketsData) {
@@ -145,25 +116,23 @@ export const StakingRestakeOverlay = ({
                             multiplier,
                             duration,
                             burn,
-                            selected: id === stakeBucketId,
+                            selected: id === stakeBucketId || stakeBucketsData.length === 1,
                         } as StakeBucketButton)
                 )
             )
 
             if (stakeBucketId) {
                 setSelectedStake(
-                    stakeBucketsData.find(({ id }) => id === stakeBucketId)
+                    stakeBucketsData.find(({ id }) => id === stakeBucketId || stakeBucketsData.length === 1)
                 )
             } else setSelectedStake(undefined)
+
+            if (stakeBucketsData.length === 1) setIsCheckboxSelected(true)
         }
     }, [stakeBucketsData, stakeBucketId])
 
     return (
-        <BaseOverlay
-            isOpen={isOpen}
-            closeOnBackdropClick={false}
-            onClose={onCloseHandler}
-        >
+        <BaseOverlay isOpen={isOpen} closeOnBackdropClick={false} onClose={onCloseHandler}>
             {isLoading && (
                 <div className="item-center flex flex-row justify-center">
                     <Spinner theme="dark" className="m-20 !h-24 !w-24" />
@@ -210,10 +179,7 @@ export const StakingRestakeOverlay = ({
                             <StatsBoxTwoColumn.RightColumn>
                                 <span className="text-darkTextLowEmphasis">
                                     {payoutTokenInfo.symbol}{' '}
-                                    {toReadableNumber(
-                                        claimEstimationNFT,
-                                        payoutTokenInfo.decimals
-                                    )}
+                                    {toReadableNumber(claimEstimationNFT, payoutTokenInfo.decimals)}
                                 </span>
                             </StatsBoxTwoColumn.RightColumn>
 
@@ -225,38 +191,25 @@ export const StakingRestakeOverlay = ({
                                 Approx. {stakingTokenInfo.symbol}{' '}
                             </StatsBoxTwoColumn.LeftColumn>
                             <StatsBoxTwoColumn.RightColumn>
-                                {`~ ${toReadableNumber(
-                                    claimEstimationStakingToken,
-                                    stakingTokenInfo.decimals
-                                )}`}
+                                {`~ ${toReadableNumber(claimEstimationStakingToken, stakingTokenInfo.decimals)}`}
                             </StatsBoxTwoColumn.RightColumn>
 
-                            <StatsBoxTwoColumn.LeftColumn>
-                                Est. Unlock Date
-                            </StatsBoxTwoColumn.LeftColumn>
+                            <StatsBoxTwoColumn.LeftColumn>Est. Unlock Date</StatsBoxTwoColumn.LeftColumn>
                             <StatsBoxTwoColumn.RightColumn>
                                 {selectedStake ? (
                                     !selectedStake.burn ? (
-                                        `${new Date(
-                                            Date.now() +
-                                                selectedStake.duration * 1000
-                                        ).toLocaleDateString(
+                                        `${new Date(Date.now() + selectedStake.duration * 1000).toLocaleDateString(
                                             navigator.language,
                                             {
                                                 year: 'numeric',
                                                 month: '2-digit',
                                                 day: '2-digit',
                                             }
-                                        )}, ${new Date(
-                                            Date.now() +
-                                                selectedStake.duration * 1000
-                                        ).toLocaleTimeString(
+                                        )}, ${new Date(Date.now() + selectedStake.duration * 1000).toLocaleTimeString(
                                             navigator.language
                                         )}`
                                     ) : (
-                                        <span className="font-bold text-degenOrange">
-                                            BURNED
-                                        </span>
+                                        <span className="font-bold text-degenOrange">BURNED</span>
                                     )
                                 ) : (
                                     '-'
@@ -272,8 +225,7 @@ export const StakingRestakeOverlay = ({
                     >
                         {isLoadingRestake ? (
                             <>
-                                <Spinner theme="dark" className="!h-4 !w-4" />{' '}
-                                <span>processing...</span>
+                                <Spinner theme="dark" className="!h-4 !w-4" /> <span>processing...</span>
                             </>
                         ) : (
                             <span>Re-Stake Rewards</span>
@@ -284,32 +236,20 @@ export const StakingRestakeOverlay = ({
 
             {isLoadingRestake && (
                 <div className="flex flex-col items-center gap-6 p-6 text-base">
-                    <SpinnerCircular
-                        size={100}
-                        thickness={200}
-                        speed={50}
-                        color="#0F978E"
-                        secondaryColor="#DBEAE8"
-                    />
+                    <SpinnerCircular size={100} thickness={200} speed={50} color="#0F978E" secondaryColor="#DBEAE8" />
                     {!hashRestake ? (
                         <div className="text-center">
                             Your wallet is prompting you <br />
                             to confirm a re-stake of
                             <br />
                             <span className="text-xl font-bold">
-                                ~{' '}
-                                {toReadableNumber(
-                                    claimEstimationStakingToken,
-                                    stakingTokenInfo.decimals
-                                )}{' '}
+                                ~ {toReadableNumber(claimEstimationStakingToken, stakingTokenInfo.decimals)}{' '}
                                 {stakingTokenInfo.symbol}
                             </span>
                             <br />
                         </div>
                     ) : (
-                        <div className="text-center">
-                            Waiting for transaction to be processed...
-                        </div>
+                        <div className="text-center">Waiting for transaction to be processed...</div>
                     )}
                 </div>
             )}
@@ -348,22 +288,13 @@ export const StakingRestakeOverlay = ({
                         <span>
                             Successfully re-staked <br />
                             <span className="text-xl font-bold">
-                                {toReadableNumber(
-                                    restakeAmount,
-                                    stakingTokenInfo?.decimals
-                                )}{' '}
-                                {stakingTokenInfo?.symbol}
+                                {toReadableNumber(restakeAmount, stakingTokenInfo?.decimals)} {stakingTokenInfo?.symbol}
                             </span>
                             {typeof feeAmount === 'bigint' && feeAmount > 0n && (
                                 <>
                                     <br />
-                                    <br />A fee of{' '}
-                                    {toReadableNumber(
-                                        feeAmount,
-                                        stakingTokenInfo?.decimals
-                                    )}{' '}
-                                    {stakingTokenInfo?.symbol} has been charged
-                                    from your re-staking amount
+                                    <br />A fee of {toReadableNumber(feeAmount, stakingTokenInfo?.decimals)}{' '}
+                                    {stakingTokenInfo?.symbol} has been charged from your re-staking amount
                                 </>
                             )}
                         </span>

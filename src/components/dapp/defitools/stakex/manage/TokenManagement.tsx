@@ -10,6 +10,8 @@ import { CaretDivider } from '@dappshared/CaretDivider'
 import { StatsBoxTwoColumn } from '@dappshared/StatsBoxTwoColumn'
 import { Tile } from '@dappshared/Tile'
 import { SetTargetTokenParams } from '@dapptypes'
+import clsx from 'clsx'
+import { cloneDeep, isBoolean } from 'lodash'
 import { useCallback, useContext, useEffect, useState } from 'react'
 import { FaPlus, FaRegCheckCircle, FaRegTimesCircle } from 'react-icons/fa'
 import { IoMdOpen } from 'react-icons/io'
@@ -19,12 +21,10 @@ import { Spinner } from 'src/components/dapp/elements/Spinner'
 import { Address } from 'viem'
 import { TokensForm } from './tokens/Form'
 import { ApplyChangesConfirmation } from './tokens/overlays/ApplyChangesConfirmation'
-import clsx from 'clsx'
-import { cloneDeep } from 'lodash'
 
 export const TokenManagement = () => {
     const {
-        data: { protocol, chain, isOwner, owner },
+        data: { protocol, chain, owner, canEdit },
     } = useContext(ManageStakeXContext)
 
     const [error, setError] = useState<string | null>(null)
@@ -43,18 +43,16 @@ export const TokenManagement = () => {
     const {
         isLoading: isLoadingSetTokens,
         isPending: isPendingSetTokens,
-        isError: isErrorSetTokens,
         error: errorSetTokens,
         isSuccess: isSuccessSetTokens,
         reset: resetSetTokens,
         write: writeSetTokens,
     } = useSetTokens(
-        Boolean(payoutTokenData && chain && owner && isReward !== null),
+        Boolean(payoutTokenData && chain && isBoolean(isReward)),
         chain?.id!,
         protocol,
-        owner,
         payoutTokenData!,
-        Boolean(isReward)
+        isReward!
     )
 
     const {
@@ -64,7 +62,7 @@ export const TokenManagement = () => {
         isError: isErrorTogglePayoutToken,
         isSuccess: isSuccessTogglePayoutToken,
         reset: resetTogglePayoutToken,
-    } = useTogglePayoutTokenStatus(chain?.id!, protocol, owner)
+    } = useTogglePayoutTokenStatus(protocol, chain?.id!)
     const {
         write: toggleRewardToken,
         token: toggleRewardTokenAddress,
@@ -72,7 +70,7 @@ export const TokenManagement = () => {
         isError: isErrorToggleRewardToken,
         isSuccess: isSuccessToggleRewardToken,
         reset: resetToggleRewardToken,
-    } = useToggleRewardTokenStatus(chain?.id!, protocol, owner)
+    } = useToggleRewardTokenStatus(protocol, chain?.id!)
 
     const chainExplorer = useGetChainExplorer(chain!)
 
@@ -184,9 +182,9 @@ export const TokenManagement = () => {
             <Tile className="w-full">
                 <div className="flex flex-col gap-4 md:flex-row md:gap-0">
                     <span className="flex-1 font-title text-xl font-bold md:flex-grow">
-                        {isOwner ? `Token Management` : `Tokens`}
+                        {canEdit ? `Token Management` : `Tokens`}
                     </span>
-                    {isOwner &&
+                    {canEdit &&
                         (showForm ? (
                             <div className="flex w-full gap-2 md:w-auto">
                                 <Button
@@ -308,7 +306,7 @@ export const TokenManagement = () => {
                                             {toReadableNumber(targetToken.injected, targetToken.decimals)}
                                         </StatsBoxTwoColumn.RightColumn>
                                     </StatsBoxTwoColumn.Wrapper>
-                                    {isOwner && dataTargetTokens.length > 1 && (
+                                    {canEdit && dataTargetTokens.length > 1 && (
                                         <div className="flex flex-row gap-4">
                                             <Button
                                                 disabled={togglePayoutTokenAddress === targetToken.source}

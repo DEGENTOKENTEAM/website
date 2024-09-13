@@ -1,111 +1,40 @@
 import abi from '@dappabis/stakex/abi-ui.json'
+import { useExecuteFunction } from '@dapphooks/shared/useExecuteFunction'
 import { isBoolean } from 'lodash'
-import { useCallback, useEffect, useState } from 'react'
-import { Address, decodeEventLog } from 'viem'
-import { usePublicClient, useSimulateContract, useWriteContract } from 'wagmi'
+import { useEffect, useState } from 'react'
+import { Address } from 'viem'
 
 export const useTogglePayoutTokenStatus = (
-    chainId: number,
     address: Address,
-    manager: Address
+    chainId: number
 ) => {
-    const [logs, setLogs] = useState<any[]>()
-    const [isLoading, setIsLoading] = useState(false)
-    const [isSuccess, setIsSuccess] = useState(false)
-
     const [token, setToken] = useState<Address | null>(null)
     const [status, setStatus] = useState<boolean | null>(null)
 
-    const {
-        data,
-        isError: isErrorSimulate,
-        error: errorSimulate,
-    } = useSimulateContract({
-        address,
+    const execProps = useExecuteFunction({
         abi,
-        functionName: 'stakeXEnableTargetToken',
+        address,
         args: [token, status],
-        query: {
-            enabled: Boolean(token) && isBoolean(status),
+        functionName: 'stakeXEnableTargetToken',
+        chainId,
+        eventNames: ['EnabledTargetToken', 'DisabledTargetToken'],
+        enabled: Boolean(token) && isBoolean(status),
+        onEventMatch: (_: any) => {
+            setToken(null)
+            setStatus(null)
         },
     })
 
-    const {
-        writeContract,
-        data: hash,
-        reset: resetWriteContract,
-        isPending,
-        error: errorWrite,
-        isError: isErrorWrite,
-    } = useWriteContract()
+    const { write } = execProps
 
-    const write = (_token: Address, _status: boolean) => {
-        setIsLoading(true)
+    const writeWrapper = (_token: Address, _status: boolean) => {
         setToken(_token)
         setStatus(_status)
     }
 
-    const reset = useCallback(() => {
-        if (!resetWriteContract) return
-        setIsSuccess(false)
-        resetWriteContract()
-    }, [resetWriteContract])
-
-    const publicClient = usePublicClient({ chainId })
-
     useEffect(() => {
-        isBoolean(status) &&
-            token &&
-            data &&
-            writeContract &&
-            writeContract(data.request)
-    }, [data, writeContract, token, status])
+        isBoolean(status) && token && write && write()
+    }, [write, token, status])
 
-    useEffect(() => {
-        if (!publicClient || !hash || !manager || !address) return
-        publicClient
-            .waitForTransactionReceipt({ hash })
-            .then((receipt) => setLogs(receipt.logs))
-            .catch((reason) => console.log('[ERROR]', { reason }))
-    }, [publicClient, hash, address, manager])
-
-    useEffect(() => {
-        if (resetWriteContract && logs && logs.length > 0) {
-            logs.forEach((log) => {
-                const { data, topics } = log
-                const event = decodeEventLog({ abi, data, topics })
-                if (
-                    event.eventName == 'EnabledTargetToken' ||
-                    event.eventName == 'DisabledTargetToken'
-                ) {
-                    setIsLoading(false)
-                    setIsSuccess(true)
-                    setToken(null)
-                    setStatus(null)
-                    resetWriteContract()
-                }
-            })
-        }
-    }, [logs, resetWriteContract])
-
-    useEffect(() => {
-        if (isErrorSimulate || isErrorWrite) {
-            setIsLoading(false)
-            setToken(null)
-            setStatus(null)
-        }
-    }, [isErrorSimulate, isErrorWrite])
-
-    return {
-        token,
-        write,
-        reset,
-        error: errorSimulate || errorWrite,
-        isError: isErrorSimulate || isErrorWrite,
-        isLoading,
-        isSuccess,
-        isPending,
-        isEnabled: Boolean(token),
-        hash,
-    }
+    return { ...execProps, write: writeWrapper, token }
 }

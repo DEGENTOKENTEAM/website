@@ -204,22 +204,27 @@ export const StakingForm = ({ stakingTokenInfo, onDepositSuccessHandler }: Staki
     ])
 
     useEffect(() => {
-        if (multiplierPerToken)
-            setDurationButtons(
-                dataStakeBuckets
-                    ?.map(({ id, duration, burn, multiplier }) => ({
-                        id,
-                        multiplier,
-                        duration,
-                        burn,
-                        selected: id === stakeBucketId,
-                        multiplierPerToken: multiplierPerToken[id],
-                    }))
-                    .sort((a, b) => (a.multiplier < b.multiplier ? -1 : 1))
-            )
+        if (dataStakeBuckets) {
+            if (multiplierPerToken)
+                setDurationButtons(
+                    dataStakeBuckets
+                        .map(({ id, duration, burn, multiplier }) => ({
+                            id,
+                            multiplier,
+                            duration,
+                            burn,
+                            selected: id === stakeBucketId || dataStakeBuckets.length === 1,
+                            multiplierPerToken: multiplierPerToken[id],
+                        }))
+                        .sort((a, b) => (a.multiplier < b.multiplier ? -1 : 1))
+                )
 
-        if (dataStakeBuckets && stakeBucketId) {
-            setSelectedStake(dataStakeBuckets.find(({ id }) => id === stakeBucketId))
+            if (stakeBucketId)
+                setSelectedStake(
+                    dataStakeBuckets.find(({ id }) => id === stakeBucketId || dataStakeBuckets.length === 1)
+                )
+
+            if (dataStakeBuckets.length === 1) setStakeBucketChecked(true)
         }
     }, [dataStakeBuckets, stakeBucketId, multiplierPerToken])
 

@@ -55,9 +55,7 @@ export const StakingStatistics = ({ protocol, chainId }: StakingStatisticsProps)
                         {toReadableNumber(stakingData.staked.amount, stakingData.staked.tokenInfo.decimals)}
                     </div>
                     <div className="col-span-3 flex flex-col justify-center gap-y-1 text-right sm:col-span-2 sm:text-center">
-                        <span className="text-xs text-darkTextLowEmphasis">
-                            Locked {stakingData.staked.tokenInfo.symbol} in $
-                        </span>
+                        <span className="text-xs text-darkTextLowEmphasis">Total Value Locked $</span>
                         {loadingTVLinUSD ? (
                             <Spinner theme="dark" className="!h-4 !w-4" />
                         ) : (

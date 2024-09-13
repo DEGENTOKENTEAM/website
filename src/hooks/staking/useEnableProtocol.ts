@@ -1,95 +1,19 @@
 import abi from '@dappabis/stakex/abi-ui.json'
-import { isBoolean } from 'lodash'
-import { useCallback, useEffect, useState } from 'react'
-import { Address, decodeEventLog } from 'viem'
-import { usePublicClient, useSimulateContract, useWriteContract } from 'wagmi'
+import { useExecuteFunction } from '@dapphooks/shared/useExecuteFunction'
+import { Address } from 'viem'
 
 export const useEnableProtocol = (
     address: Address,
     chainId: number,
     status: boolean,
     enabled: boolean
-) => {
-    const [logs, setLogs] = useState<any[]>()
-    const [isLoading, setIsLoading] = useState(false)
-    const [isSuccess, setIsSuccess] = useState(false)
-
-    const {
-        data,
-        isError: isErrorSimulate,
-        error: errorSimulate,
-    } = useSimulateContract({
-        address,
+) =>
+    useExecuteFunction({
         abi,
-        functionName: 'stakeXEnableProtocol',
+        address,
+        chainId,
         args: [status],
-        query: {
-            enabled: Boolean(
-                address && chainId && isBoolean(status) && enabled
-            ),
-        },
+        enabled,
+        functionName: 'stakeXEnableProtocol',
+        eventNames: ['Enabled', 'Disabled'],
     })
-
-    const {
-        writeContract,
-        data: hash,
-        reset: resetWriteContract,
-        isPending,
-        error: errorWrite,
-        isError: isErrorWrite,
-    } = useWriteContract()
-
-    const write = useCallback(() => {
-        setIsLoading(true)
-        data && writeContract && writeContract(data.request)
-    }, [data, writeContract])
-
-    const reset = useCallback(() => {
-        if (!resetWriteContract) return
-        setIsSuccess(false)
-        resetWriteContract()
-    }, [resetWriteContract])
-
-    const publicClient = usePublicClient({ chainId })
-
-    useEffect(() => {
-        if (!publicClient || !hash || !address) return
-        publicClient
-            .waitForTransactionReceipt({ hash })
-            .then((receipt) => setLogs(receipt.logs))
-            .catch((reason) => console.log('[ERROR]', { reason }))
-    }, [publicClient, hash, address])
-
-    useEffect(() => {
-        if (resetWriteContract && logs && logs.length > 0) {
-            logs.forEach((log) => {
-                const { data, topics } = log
-                const event = decodeEventLog({ abi, data, topics })
-                if (
-                    event.eventName == 'Enabled' ||
-                    event.eventName == 'Disabled'
-                ) {
-                    setIsLoading(false)
-                    setIsSuccess(true)
-                    resetWriteContract()
-                }
-            })
-        }
-    }, [logs, resetWriteContract])
-
-    useEffect(() => {
-        if (isErrorWrite) setIsLoading(false)
-    }, [isErrorWrite])
-
-    return {
-        write,
-        reset,
-        error: errorSimulate || errorWrite,
-        isError: isErrorSimulate || isErrorWrite,
-        isLoading,
-        isSuccess,
-        isPending,
-        isEnabled: enabled,
-        hash,
-    }
-}

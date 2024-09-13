@@ -8,7 +8,7 @@ import { MdCheckBoxOutlineBlank, MdOutlineCheckBox } from 'react-icons/md'
 
 export const Checklist = () => {
     const {
-        data: { isActive, isOwner, protocol, chain },
+        data: { isActive, protocol, chain, canEdit },
     } = useContext(ManageStakeXContext)
 
     const [hasNFTConfiguration, setHasNFTConfiguration] = useState(false)
@@ -25,7 +25,9 @@ export const Checklist = () => {
         setHasNFTConfiguration(Boolean(dataNFTConfigs && dataNFTConfigs.length > 0))
     }, [dataNFTConfigs])
 
-    return isOwner ? (
+    if (!canEdit) return <></>
+
+    return (
         <Tile>
             <div className="flex flex-col font-title text-lg font-bold">
                 <span className="mb-4 flex-1 text-xl">Checklist</span>
@@ -55,7 +57,5 @@ export const Checklist = () => {
                 </div>
             </div>
         </Tile>
-    ) : (
-        <></>
     )
 }

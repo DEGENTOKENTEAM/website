@@ -12,7 +12,7 @@ import { ApplyChangesConfirmation } from './fees/overlays/ApplyChangesConfirmati
 
 export const Fees = () => {
     const {
-        data: { protocol, isOwner, chain },
+        data: { protocol, chain, canEdit },
     } = useContext(ManageStakeXContext)
 
     const [isEditMode, setIsEditMode] = useState(false)
@@ -121,13 +121,13 @@ export const Fees = () => {
     return (
         <>
             <Tile className="w-full">
-                <div className="flex flex-col md:items-center gap-4 md:flex-row">
+                <div className="flex flex-col gap-4 md:flex-row md:items-center">
                     <span className="flex-1 font-title text-xl font-bold">
-                        {isOwner ? `Protocol Fee Management` : `Protocol Fees`}
+                        {canEdit ? `Protocol Fee Management` : `Protocol Fees`}
                     </span>
-                    {isOwner &&
+                    {canEdit &&
                         (isEditMode ? (
-                            <div className="flex flex-row w-full md:w-auto gap-4">
+                            <div className="flex w-full flex-row gap-4 md:w-auto">
                                 <Button
                                     variant="primary"
                                     disabled={!hasChanges}
