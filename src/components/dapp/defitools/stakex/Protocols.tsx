@@ -41,7 +41,8 @@ export const Protocols = () => {
                                 stakedAbs: BigInt(p.protocol.stakedAbs),
                             },
                         }))
-                        .sort((p: any) => (topProtocols.includes(toLower(p.source) as Address) ? -1 : 1))
+                        .sort((left: any, right: any) => (left.protocol.apy.high > right.protocol.apy.high ? -1 : 1))
+                        .sort((p: any) => (topProtocols.includes(toLower(p.protocol.source) as Address) ? -1 : 1))
                 )
             })
     }, [selectedChain, topProtocols])
