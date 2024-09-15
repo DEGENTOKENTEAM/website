@@ -32,7 +32,7 @@ export const StakingForm = ({ stakingTokenInfo, onDepositSuccessHandler }: Staki
         data: { protocol, chain },
     } = useContext(StakeXContext)
 
-    const { address, isConnected, isDisconnected, chainId } = useAccount()
+    const { address, isConnected, isDisconnected } = useAccount()
 
     // informative data (permanent)
     const [tokenSymbol, setTokenSymbol] = useState<string>()
@@ -103,11 +103,18 @@ export const StakingForm = ({ stakingTokenInfo, onDepositSuccessHandler }: Staki
     //
 
     // duration is selected
-    const onDurationSelectionHandler = (duration: StakeBucketButton | null) =>
+    const onDurationSelectionHandler = (duration: StakeBucketButton | null) => {
+        console.log(duration)
         setStakeBucketId((duration?.id as Address) || defaultBucketId)
+    }
 
     // checkbox is checked
-    const onCheckboxHandler = (checked: boolean) => setStakeBucketChecked(checked)
+    const onCheckboxHandler = useCallback(
+        (checked: boolean) => {
+            if (dataStakeBuckets && dataStakeBuckets.length > 1) setStakeBucketChecked(checked)
+        },
+        [dataStakeBuckets]
+    )
 
     // amount is entered
     const onChangeHandler = (_event: ChangeEvent<HTMLInputElement>) => {
@@ -186,6 +193,14 @@ export const StakingForm = ({ stakingTokenInfo, onDepositSuccessHandler }: Staki
                 stakeBucketId !== defaultBucketId &&
                 !isLoadingERC20Allowance
         )
+        console.log('aaa', {
+            defaultBucketId,
+            stakeAmount,
+            stakeBucketId,
+            stakeBucketChecked,
+            isConnected,
+            isLoadingERC20Allowance,
+        })
     }, [defaultBucketId, stakeAmount, stakeBucketId, stakeBucketChecked, isConnected, isLoadingERC20Allowance])
 
     // initiate deposit when conditions are met
@@ -224,7 +239,8 @@ export const StakingForm = ({ stakingTokenInfo, onDepositSuccessHandler }: Staki
                     dataStakeBuckets.find(({ id }) => id === stakeBucketId || dataStakeBuckets.length === 1)
                 )
 
-            if (dataStakeBuckets.length === 1) setStakeBucketChecked(true)
+            if (dataStakeBuckets.length === 1 && dataStakeBuckets.find(({ duration, burn }) => !duration && !burn))
+                setStakeBucketChecked(true)
         }
     }, [dataStakeBuckets, stakeBucketId, multiplierPerToken])
 
@@ -431,8 +447,8 @@ export const StakingForm = ({ stakingTokenInfo, onDepositSuccessHandler }: Staki
                             <div className="flex flex-col items-center gap-6 p-6 text-center text-base">
                                 <MdError className="h-[100px] w-[100px] text-error " />
                                 There was an error: <br />
-                                {errorDepositStake && (errorDepositStake as any).details}
-                                {errorERC20Approve && (errorERC20Approve as any).details}
+                                {errorDepositStake && (errorDepositStake as any).reason}
+                                {errorERC20Approve && (errorERC20Approve as any).reason}
                             </div>
                         )}
 
