@@ -9,7 +9,7 @@ import { useContext, useEffect, useState } from 'react'
 import { Button } from 'src/components/Button'
 import { usePublicClient } from 'wagmi'
 import previewImageBlank from '../../../../../../public/stakex/nft.blank.preview.svg'
-import previewImage from '../../../../../../public/stakex/nft.default.preview.svg'
+// import previewImage from '../../../../../../public/stakex/nft.default.preview.svg'
 import previewImageSlim from '../../../../../../public/stakex/nft.slim.preview.svg'
 import { AddFirstConfigConfirmation } from './nft/overlays/AddFirstConfigConfirmation'
 
@@ -38,11 +38,11 @@ export const NFTManagement = () => {
     const onClickChooseRecommendedTemplate = async (nftIndex: number) => {
         resetAddNFTConfig()
         if (nftIndex === 0) {
-            setNftConfig((await import('../../../../../../public/stakex/nft.default.json')).default)
-        } else if (nftIndex === 1) {
             setNftConfig((await import('../../../../../../public/stakex/nft.slim.json')).default)
-        } else {
+        } else if (nftIndex === 1) {
             setNftConfig((await import('../../../../../../public/stakex/nft.blank.json')).default)
+        } else {
+            // setNftConfig((await import('../../../../../../public/stakex/nft.default.json')).default)
         }
         setIsConfirmationModalOpen(true)
     }
@@ -122,7 +122,7 @@ export const NFTManagement = () => {
                             </div>
                             <div className="grid grid-cols-3 gap-6">
                                 <div className="relative overflow-auto rounded-xl">
-                                    <Image src={previewImage} alt="Proposed NFT Image" />
+                                    <Image src={previewImageSlim} alt="Proposed NFT Image" />
                                     <div className="pointer-events-none absolute inset-0 flex items-center justify-center bg-dapp-cyan-50/30  hover:bg-dapp-cyan-50/70">
                                         <Button
                                             onClick={() => onClickChooseRecommendedTemplate(0)}
@@ -134,7 +134,7 @@ export const NFTManagement = () => {
                                     </div>
                                 </div>
                                 <div className="relative overflow-auto rounded-xl">
-                                    <Image src={previewImageSlim} alt="Proposed NFT Image" />
+                                    <Image src={previewImageBlank} alt="Proposed NFT Image" />
                                     <div className="pointer-events-none absolute inset-0 flex items-center justify-center bg-dapp-cyan-50/30  hover:bg-dapp-cyan-50/70">
                                         <Button
                                             onClick={() => onClickChooseRecommendedTemplate(1)}
@@ -145,8 +145,8 @@ export const NFTManagement = () => {
                                         </Button>
                                     </div>
                                 </div>
-                                <div className="relative overflow-auto rounded-xl">
-                                    <Image src={previewImageBlank} alt="Proposed NFT Image" />
+                                {/* <div className="relative overflow-auto rounded-xl">
+                                    <Image src={previewImage} alt="Proposed NFT Image" />
                                     <div className="pointer-events-none absolute inset-0 flex items-center justify-center bg-dapp-cyan-50/30  hover:bg-dapp-cyan-50/70">
                                         <Button
                                             onClick={() => onClickChooseRecommendedTemplate(2)}
@@ -156,7 +156,7 @@ export const NFTManagement = () => {
                                             Choose template
                                         </Button>
                                     </div>
-                                </div>
+                                </div> */}
                             </div>
                         </>
                     ))}
