@@ -237,25 +237,18 @@ functions:
     name: ${self:custom.serviceName}-stakexCalculateApr
     handler: stakex/calculate-apr.handler
     timeout: 120
-    destinations:
-      onSuccess: stakexTriggerCalculationsFinish
 
   stakexCalculateStakes:
     name: ${self:custom.serviceName}-stakexCalculateStakes
     handler: stakex/calculate-stakes.handler
     timeout: 120
-    destinations:
-      onSuccess: stakexTriggerCalculationsFinish
-
-  stakexTriggerCalculationsFinish:
-    handler: stakex/trigger-calculations-finish.handler
 
   # STAKEX Automations
   stakexAutomationsTriggerCalculations:
     handler: stakex/automations/trigger-calculations.handler
     events:
       - schedule:
-          rate: rate(12 hours)
+          rate: rate(1 hour)
           enabled: true
     environment:
       LAMBDA_APR_NAME: ${self:custom.serviceName}-stakexCalculateApr
@@ -268,12 +261,12 @@ functions:
           rate: rate(5 minutes)
           enabled: true
 
-  # TODO is this even needed if we switch to live running check?  
+  # TODO is this even needed if we switch to live running check?
   stakexAutomationsUpdateEnabledProtocols:
     handler: stakex/automations/update-enabled-protocols.handler
     events:
       - schedule:
-          rate: rate(1 hour)
+          rate: rate(5 minutes)
           enabled: true
 
 resources:

@@ -153,10 +153,12 @@ export const handler: Handler = async (_, __, callback) => {
 
         try {
             const logsRaw = await client.getContractEvents(logRequest)
-            logs = parseEventLogs({
-                abi,
-                logs: logsRaw,
-            })
+            if (logsRaw.length) {
+                logs = parseEventLogs({
+                    abi,
+                    logs: logsRaw,
+                })
+            }
         } catch (e) {
             successful = false
             error = (e as Error).message
