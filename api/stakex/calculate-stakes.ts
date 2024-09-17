@@ -7,12 +7,16 @@ import { Address, createPublicClient, http } from 'viem'
 import { getChainById } from '../../shared/supportedChains'
 import abi from '../../src/abi/stakex/abi-ui.json'
 import { DynamoDBHelper } from '../helpers/ddb/dynamodb'
+import { calculationsFinish } from './trigger-calculations-finish'
 
-type CalculateStakesEventType = {
+type CalculateStakesSingleEventType = {
     fromBlock: number
     toBlock?: number
     chainId: number
     protocol: Address
+}
+type CalculateStakesBatchEventType = {
+    batch: CalculateStakesSingleEventType[]
 }
 
 const events = [
@@ -212,21 +216,42 @@ const events = [
 const GATHER_LIMIT = 25
 
 // - Staking token is the only reward token
-export const handler: Handler<CalculateStakesEventType> = async (
-    event,
-    _,
-    cb
-) => {
-    const { chainId, protocol: address, fromBlock } = event
-    if (!chainId) return cb('MISSING_CHAIN_ID')
-    if (!fromBlock) return cb('MISSING_FROM_BLOCK')
-    if (!address) return cb('MISSING_PROTOCOL_ADDRESS')
+export const handler: Handler<
+    CalculateStakesSingleEventType | CalculateStakesBatchEventType
+> = async (event, _, cb) => {
+    let batch: CalculateStakesSingleEventType[] = []
+
+    if ((event as CalculateStakesBatchEventType).batch) {
+        batch.push(...(event as CalculateStakesBatchEventType).batch)
+    } else {
+        batch.push(event as CalculateStakesSingleEventType)
+    }
+
+    for (const item of batch) {
+        const { chainId, protocol: address, fromBlock } = item
+        const result = await calculateStakes(chainId, address, fromBlock)
+        if (result.status === 'error') {
+            console.log('BATCH ERROR', result.data)
+            return cb(result.data)
+        }
+    }
+    return cb(null, true)
+}
+
+const calculateStakes = async (
+    chainId: number,
+    address: Address,
+    fromBlock: number
+): Promise<{ status: 'success' | 'error'; data: any }> => {
+    if (!chainId) return { status: 'error', data: 'MISSING_CHAIN_ID' }
+    if (!fromBlock) return { status: 'error', data: 'MISSING_FROM_BLOCK' }
+    if (!address) return { status: 'error', data: 'MISSING_PROTOCOL_ADDRESS' }
 
     const chain = getChainById(Number(chainId))
-    if (!chain) return cb('UNSUPPORTED_CHAIN')
+    if (!chain) return { status: 'error', data: 'UNSUPPORTED_CHAIN' }
 
     const TableName = process.env.DB_TABLE_NAME_STAKEX_LOGS!
-    if (!TableName) return cb('TABLE_NAME_NOT_SET')
+    if (!TableName) return { status: 'error', data: 'TABLE_NAME_NOT_SET' }
 
     const PARTITION_VERSION = 'v_1'
 
@@ -321,11 +346,12 @@ export const handler: Handler<CalculateStakesEventType> = async (
 
     if (data.length > 0) await batchWriteData(data)
 
-    if (error) return cb(error.message, false)
+    if (error) return { status: 'error', data: error.message }
 
-    return cb(null, {
+    return await calculationsFinish(
         chainId,
-        protocol: address,
-        blockNumberStakesUpdate: Number(latestBlockNumber),
-    })
+        address,
+        null,
+        Number(latestBlockNumber)
+    )
 }

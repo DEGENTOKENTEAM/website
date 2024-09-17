@@ -3,13 +3,17 @@ import { Address, createPublicClient, http } from 'viem'
 import { getChainById } from '../../shared/supportedChains'
 import abi from '../../src/abi/stakex/abi-ui.json'
 import { DynamoDBHelper } from '../helpers/ddb/dynamodb'
+import { calculationsFinish } from './trigger-calculations-finish'
 // TODO maybe rename it in log APR
 
-type CalculateAprEventType = {
+type CalculateAprSingleEventType = {
     fromBlock: number
     toBlock?: number
     chainId: number
     protocol: Address
+}
+type CalculateAprBatchEventType = {
+    batch: CalculateAprSingleEventType[]
 }
 
 const abiEvents = [
@@ -179,17 +183,42 @@ const dexRouterAbi = [
 // On-chain APR calculation is possible when
 // - Staking tokens and reward tokens are exchangeable to the same currency (like USDC, or the staking token itself)
 // - Staking token is the only reward token
-export const handler: Handler<CalculateAprEventType> = async (event, _, cb) => {
-    const { chainId, protocol: address, fromBlock, toBlock } = event
+export const handler: Handler<
+    CalculateAprSingleEventType | CalculateAprBatchEventType
+> = async (event, _, cb) => {
+    let batch: CalculateAprSingleEventType[] = []
 
-    if (!chainId) return cb('MISSING_CHAIN_ID')
-    if (!fromBlock) return cb('MISSING_FROM_BLOCK')
-    if (!address) return cb('MISSING_PROTOCOL_ADDRESS')
+    if ((event as CalculateAprBatchEventType).batch) {
+        batch.push(...(event as CalculateAprBatchEventType).batch)
+    } else {
+        batch.push(event as CalculateAprSingleEventType)
+    }
+
+    for (const item of batch) {
+        const { chainId, protocol: address, fromBlock, toBlock } = item
+        const result = await calculateAPR(chainId, address, fromBlock, toBlock)
+        if (result.status === 'error') {
+            console.log('BATCH ERROR', result.data)
+            return cb(result.data)
+        }
+    }
+    return cb(null, true)
+}
+
+const calculateAPR = async (
+    chainId: number,
+    address: Address,
+    fromBlock: number,
+    toBlock?: number
+): Promise<{ status: 'success' | 'error'; data: any }> => {
+    if (!chainId) return { status: 'error', data: 'MISSING_CHAIN_ID' }
+    if (!fromBlock) return { status: 'error', data: 'MISSING_FROM_BLOCK' }
+    if (!address) return { status: 'error', data: 'MISSING_PROTOCOL_ADDRESS' }
 
     const chain = getChainById(Number(chainId))
     const PARTITION_VERSION = 'v_1'
 
-    if (!chain) return cb('UNSUPPORTED_CHAIN')
+    if (!chain) return { status: 'error', data: 'UNSUPPORTED_CHAIN' }
 
     const client = createPublicClient({
         chain,
@@ -203,9 +232,9 @@ export const handler: Handler<CalculateAprEventType> = async (event, _, cb) => {
             address,
             functionName: 'isRunning',
         })) as boolean
-        if (!isRunningContract) return cb('NOT_RUNNING')
+        if (!isRunningContract) return { status: 'error', data: 'NOT_RUNNING' }
     } catch (e) {
-        return cb((e as Error).message)
+        return { status: 'error', data: (e as Error).message }
     }
 
     const startBlock = await client.getBlock({ blockNumber: BigInt(fromBlock) })
@@ -232,6 +261,10 @@ export const handler: Handler<CalculateAprEventType> = async (event, _, cb) => {
     if (!stakingToken.isReward) {
         // TODO Staking token is the only reward token
         // maybe we can use the same algo that goes for non-only reward token for both
+        return {
+            status: 'error',
+            data: 'NO_GMX_SUPPORT_YET',
+        }
     } else {
         const swaps = (await client.readContract({
             abi,
@@ -297,14 +330,19 @@ export const handler: Handler<CalculateAprEventType> = async (event, _, cb) => {
         }
 
         let cumulativePayouts = 0n
+
         for (const log of depositLogs) {
             const { rewardToken, amount } = (log as any).args
 
-            cumulativePayouts += await getSwapAmount(
-                amount,
-                swapsFromTo[stakingToken.source][rewardToken],
-                log.blockNumber
-            )
+            // when the reward token isn't the staking token
+            cumulativePayouts +=
+                stakingToken.source !== rewardToken
+                    ? await getSwapAmount(
+                          amount,
+                          swapsFromTo[stakingToken.source][rewardToken],
+                          log.blockNumber
+                      )
+                    : amount
         }
 
         const yearlyPayout = BigInt(
@@ -364,10 +402,11 @@ export const handler: Handler<CalculateAprEventType> = async (event, _, cb) => {
             })
         }
 
-        return cb(null, {
+        return await calculationsFinish(
             chainId,
-            protocol: address,
-            blockNumberAPUpdate: Number(blockNumber),
-        })
+            address,
+            Number(blockNumber),
+            null
+        )
     }
 }

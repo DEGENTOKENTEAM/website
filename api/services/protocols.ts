@@ -16,10 +16,21 @@ export type StakeXProtocolsDTO = {
     blockNumberAPUpdateIntervall: number
     blockNumberAPPeriod: number
 }
+export type StakeXProtocolsUpdateDTO = {
+    chainId: number
+    protocol: string
+    timestamp?: number
+    blockNumberCreated?: number
+    blockNumberEnabled?: number
+    blockNumberAPUpdate?: number
+    blockNumberStakesUpdate?: number
+    blockNumberAPUpdateIntervall?: number
+    blockNumberAPPeriod?: number
+}
 export type StakeXProtocolsResponse = {
     pkey: string
     skey: string
-} & StakeXProtocolsDTO
+} & (StakeXProtocolsDTO | StakeXProtocolsUpdateDTO)
 
 type RepositoryContructorOptions = {
     dynamoDBConfig: DynamoDBClientConfig
@@ -65,7 +76,7 @@ export class StakeXProtocolsRepository {
         return items
     }
 
-    update = async (data: StakeXProtocolsDTO) => {
+    update = async (data: StakeXProtocolsUpdateDTO) => {
         const itemKeys = Object.keys(data)
         const Key = {
             pkey,

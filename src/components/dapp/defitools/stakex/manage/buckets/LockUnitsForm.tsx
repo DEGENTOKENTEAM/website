@@ -25,7 +25,7 @@ export const LockUnitsForm = ({
     onChangeLockUnit,
 }: LockUnitsFormProps) => {
     return (
-        <div className={clsx([disabled && 'opacity-50'])}>
+        <div className={clsx(['flex', disabled && 'opacity-50'])}>
             <Input
                 type="number"
                 onFocus={(event) => event.target.select()}
@@ -42,7 +42,7 @@ export const LockUnitsForm = ({
                     onClick={() => onChangeLockUnit(bucketIndex, val as keyof typeof LockUnits)}
                     disabled={disabled}
                     className={clsx([
-                        'w-1/5 border-0 border-l border-dapp-blue-200 bg-dapp-blue-800 text-center text-sm/10 last:rounded-r-lg focus:ring-0 focus:ring-offset-0',
+                        'flex-grow border-0 border-l border-dapp-blue-200 bg-dapp-blue-800 px-2 text-center text-sm/10 last:rounded-r-lg focus:ring-0 focus:ring-offset-0',
                         val === bucket.lockUnit && '!bg-dapp-blue-100',
                     ])}
                 >

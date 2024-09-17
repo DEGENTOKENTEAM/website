@@ -10,6 +10,9 @@ export const handler: Handler = async (_, __, callback) => {
 
     const protocolsRepo = new StakeXProtocolsRepository()
 
+    const promises: Promise<any>[] = []
+    const aprBatch: any[] = []
+    const stakesBatch: any[] = []
     for (const chain of chains) {
         const protocols = await protocolsRepo.getAllByChainId(chain.id, 1000)
 
@@ -31,8 +34,12 @@ export const handler: Handler = async (_, __, callback) => {
                     blockNumberEnabled,
                 } = item
 
-                const promises: Promise<any>[] = []
-                if (blockNumberEnabled > 0) {
+                if (
+                    blockNumberAPPeriod &&
+                    blockNumberAPUpdateIntervall &&
+                    blockNumberEnabled &&
+                    blockNumberEnabled > 0
+                ) {
                     if (
                         toBlock -
                             (!blockNumberAPUpdate
@@ -40,45 +47,57 @@ export const handler: Handler = async (_, __, callback) => {
                                 : blockNumberAPUpdate) >
                         blockNumberAPUpdateIntervall
                     ) {
-                        promises.push(
-                            lambdaClient.send(
-                                new InvokeAsyncCommand({
-                                    FunctionName: LAMBDA_APR_NAME,
-                                    InvokeArgs: JSON.stringify({
-                                        chainId: Number(chainId),
-                                        protocol,
-                                        fromBlock:
-                                            toBlock - blockNumberAPPeriod,
-                                        toBlock,
-                                    }),
-                                })
-                            )
-                        )
+                        aprBatch.push({
+                            chainId: Number(chainId),
+                            protocol,
+                            fromBlock: toBlock - blockNumberAPPeriod,
+                            toBlock,
+                        })
                     }
 
-                    promises.push(
-                        lambdaClient.send(
-                            new InvokeAsyncCommand({
-                                FunctionName: LAMBDA_STAKES_NAME,
-                                InvokeArgs: JSON.stringify({
-                                    chainId: Number(chainId),
-                                    protocol,
-                                    fromBlock: blockNumberEnabled, // always start from enabled block
-                                }),
-                            })
-                        )
-                    )
+                    stakesBatch.push({
+                        chainId: Number(chainId),
+                        protocol,
+                        fromBlock: blockNumberEnabled, // always start from enabled block
+                    })
                 }
-
-                Promise.all(promises)
-                    .then((invokeResults) => {
-                        console.log({ invokeResults })
-                    })
-                    .catch((reason) => {
-                        console.log({ reason })
-                    })
             }
         }
     }
+
+    if (aprBatch.length) {
+        promises.push(
+            lambdaClient.send(
+                new InvokeAsyncCommand({
+                    FunctionName: LAMBDA_APR_NAME,
+                    InvokeArgs: JSON.stringify({
+                        batch: aprBatch,
+                    }),
+                })
+            )
+        )
+    }
+
+    if (stakesBatch.length) {
+        promises.push(
+            lambdaClient.send(
+                new InvokeAsyncCommand({
+                    FunctionName: LAMBDA_STAKES_NAME,
+                    InvokeArgs: JSON.stringify({
+                        batch: stakesBatch,
+                    }),
+                })
+            )
+        )
+    }
+
+    if (promises.length)
+        Promise.all(promises)
+            .then((invokeResults) => {
+                console.log({ invokeResults })
+            })
+            .catch((reason) => {
+                console.log({ reason })
+            })
     callback(null, true)
 }

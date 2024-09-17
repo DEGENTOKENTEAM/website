@@ -62,6 +62,21 @@ export const handler = async (
                                                                     .base
                                                             )
                                                       : 0,
+                                                  quote: pair.liquidity.quote
+                                                      ? Number.isSafeInteger(
+                                                            pair.liquidity.quote
+                                                        )
+                                                          ? pair.liquidity.quote
+                                                          : pair.liquidity
+                                                                .quote %
+                                                                1 !=
+                                                            0
+                                                          ? pair.liquidity.quote
+                                                          : BigInt(
+                                                                pair.liquidity
+                                                                    .quote
+                                                            )
+                                                      : 0,
                                               }
                                             : {},
                                     })),

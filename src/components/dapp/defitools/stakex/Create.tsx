@@ -59,7 +59,7 @@ export const Create = () => {
     const { setTitle } = useContext(DAppContext)
     const navigate = useNavigate()
     const { isConnected, chainId, address: addressConnected } = useAccount()
-    const [searchParams, setSearchParams] = useSearchParams()
+    const [searchParams] = useSearchParams()
     const chainIds = Object.keys(protocols).map((v) => +v)
     const networks = chainIds.map((id) => getChainById(id))
 
@@ -110,11 +110,10 @@ export const Create = () => {
         token: rewardTokenAddress!,
         chainId: selectedChain?.id!,
     })
-    const {
-        data: dataFeeEstimation,
-        refetch: refetchFeeEstimation,
-        error,
-    } = useGetFeeEstimationDeployerSTAKEX(deployerAddress!, selectedChain?.id!)
+    const { data: dataFeeEstimation, refetch: refetchFeeEstimation } = useGetFeeEstimationDeployerSTAKEX(
+        deployerAddress!,
+        selectedChain?.id!
+    )
 
     const { data: dataNetworkFeeEstimation } = useGetNetworkFeeEstimationDeployerSTAKEX(
         deployerAddress!,
@@ -325,7 +324,7 @@ export const Create = () => {
                 </h1>
                 {!isLoading && (
                     <Tile className="flex flex-col gap-8">
-                        <div className="flex flex-col">
+                        <div className="flex flex-col gap-4">
                             <span className="text-lg font-bold">Choose network</span>
                             {selectedChain && (
                                 <NetworkSelectorForm
@@ -395,9 +394,9 @@ export const Create = () => {
                                 <div className="flex flex-1 flex-col">
                                     <span className="text-lg font-bold">Enable stake lock</span>
                                     <span className="text-xs">
-                                        You&apos;re about to configure a period of time for a staker to lock up staked
-                                        tokens. After this period a staker can withdraw the staked tokens. This setting
-                                        only effects the withdrawal ability. A staker still receives rewards.
+                                        Set a period of time for a staker to lock up staked tokens. A staker can
+                                        withdraw the staked tokens after this period. This setting only effects the
+                                        withdrawal ability. A staker still receives rewards after the lock is lifted.
                                     </span>
                                 </div>
                                 <span>
