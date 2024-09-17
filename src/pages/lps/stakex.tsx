@@ -9,6 +9,8 @@ import { Header } from 'src/components/lps/stakex/Header'
 import { Hero } from 'src/components/lps/stakex/Hero'
 import dummyImage from './../../images/lps/stakex/dummy-image-16-9.png'
 import { useEffect } from 'react'
+import { ForHolders } from 'src/components/lps/stakex/ForHolders'
+import { ForDevelopers } from 'src/components/lps/stakex/ForDevelopers'
 
 export default function Home() {
     const { setTheme } = useTheme()
@@ -143,6 +145,8 @@ export default function Home() {
                         </InnerContainer>
                     </OuterContainer>
 
+                    <ForHolders />
+
                     <div className="flex flex-row justify-center border-b border-t border-dapp-blue-400 bg-dapp-cyan-50/5 p-16">
                         <CallToAction />
                     </div>
@@ -150,7 +154,7 @@ export default function Home() {
                     <OuterContainer className="bg-dapp-blue-800/30">
                         <InnerContainer className="flex flex-col gap-8 py-16">
                             <h2 className="font-title text-2xl font-bold">
-                                Additional <span className="text-techGreen">STAKE</span>
+                                <span className="text-techGreen">STAKE</span>
                                 <span className="text-degenOrange">X</span> Features
                             </h2>
                             <div className="grid grid-cols-1 gap-8 sm:grid-cols-3">
@@ -186,6 +190,7 @@ export default function Home() {
                             </div>
                         </InnerContainer>
                     </OuterContainer>
+                    <ForDevelopers />
                     <div className="flex flex-row justify-center border-b border-t border-dapp-blue-400 bg-dapp-cyan-50/5 p-16">
                         <CallToAction />
                     </div>
