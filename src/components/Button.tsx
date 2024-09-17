@@ -3,11 +3,8 @@ import Link from 'next/link'
 
 const baseStyles = {
     solid: 'group inline-flex items-center justify-center rounded-full py-2 px-4  font-semibold focus:outline-none focus-visible:outline-2 focus-visible:outline-offset-2',
-    outline:
-        'group inline-flex items-center justify-center rounded-full py-2 px-4  focus:outline-none',
-    slick: clsx(
-        'group inline-flex items-center justify-center rounded-lg py-2 px-4 focus:outline-none leading-5'
-    ),
+    outline: 'group inline-flex items-center justify-center rounded-full py-2 px-4  focus:outline-none',
+    slick: clsx('group inline-flex items-center justify-center rounded-lg py-2 px-4 focus:outline-none leading-5'),
 }
 
 const variantStyles = {
@@ -41,14 +38,9 @@ export function Button({
     ...props
 }) {
     if (variant != 'primary' && variant != 'secondary' && variant != 'error') {
-        className = clsx(
-            baseStyles[variant],
-            variantStyles[variant][color],
-            className
-        )
+        className = clsx(baseStyles[variant], variantStyles[variant][color], className)
     }
 
-    // TODO new buttons
     const baseStyle = clsx(
         'group inline-flex items-center justify-center font-semibold rounded-lg py-2 px-4 focus:outline-none leading-5 border hover:opacity-70 disabled:opacity-40 disabled:hover:opacity-40'
     )
@@ -77,11 +69,6 @@ export function Button({
     return href ? (
         <Link href={href} className={className} {...props} />
     ) : (
-        <button
-            disabled={disabled}
-            onClick={onClick}
-            className={className}
-            {...props}
-        />
+        <button disabled={disabled} onClick={onClick} className={className} {...props} />
     )
 }

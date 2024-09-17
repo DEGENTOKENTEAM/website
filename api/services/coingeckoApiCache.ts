@@ -17,7 +17,7 @@ type RepositoryContructorOptions = {
 } & any
 
 const pkey = 'v_1'
-const region = 'eu-west-1' // TODO update this little shit here
+const region = 'eu-west-1'
 const ttl = parseInt(process.env.DB_TABLE_NAME_COINGECKO_API_CACHE_TTL!)
 const TableName = process.env.DB_TABLE_NAME_COINGECKO_API_CACHE!
 

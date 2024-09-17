@@ -1,11 +1,10 @@
 import { Tile } from '@dappshared/Tile'
+import imageBacking from '@public/defitools/backing.svg'
+import imageSTAKEX from '@public/defitools/stakex.svg'
 import clsx from 'clsx'
 import Image from 'next/image'
 import { useNavigate } from 'react-router-dom'
 import { Button } from '../../Button'
-
-import imageBacking from '@public/defitools/backing.svg'
-import imageSTAKEX from '@public/defitools/stakex.svg'
 
 type DeFiToolType = {
     name: string
@@ -15,7 +14,7 @@ type DeFiToolType = {
     toMore: string | null
     description: string | null
 }
-// TODO get images imported so you don't need to add width and height
+
 const defitools: DeFiToolType[] = [
     {
         name: 'STAKEX',

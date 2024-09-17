@@ -200,8 +200,7 @@ export const Create = () => {
         resetDeployProtocol && resetDeployProtocol()
     }, [resetDeployProtocol])
 
-    // TODO respect referral
-    // TODO respect discounts
+    // TODO respect discounts and show in UI
 
     useEffect(() => {
         const _chainId = Number(chainId || process.env.NEXT_PUBLIC_CHAIN_ID)
