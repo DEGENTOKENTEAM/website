@@ -67,7 +67,6 @@ export const useExecuteFunction = ({
     } = useWriteContract()
 
     const write = useCallback(() => {
-        console.log('useExecuteFunction', { data, writeContract })
         setIsLoading(true)
         data && writeContract && writeContract(data.request)
     }, [data, writeContract])

@@ -16,6 +16,7 @@ import { ChangeEvent, useCallback, useContext, useEffect, useState } from 'react
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { getChainById } from 'shared/supportedChains'
 import { Button } from 'src/components/Button'
+import { useLocalStorage } from 'usehooks-ts'
 import { Address, Chain, encodeFunctionData, parseAbi, zeroAddress } from 'viem'
 import { useAccount } from 'wagmi'
 import protocols from './../../../../../config/protocols'
@@ -60,6 +61,7 @@ export const Create = () => {
     const navigate = useNavigate()
     const { isConnected, chainId, address: addressConnected } = useAccount()
     const [searchParams] = useSearchParams()
+    const [storedRef, saveStoredRef] = useLocalStorage<Address>('stakexRef', zeroAddress)
     const chainIds = Object.keys(protocols).map((v) => +v)
     const networks = chainIds.map((id) => getChainById(id))
 
@@ -136,11 +138,7 @@ export const Create = () => {
         deploymentParams!,
         isValid && isConnected
     )
-    const { data: dataReferrer } = useGetReferrerById(
-        deployerAddress!,
-        selectedChain?.id!,
-        searchParams.get('ref') as Address
-    )
+    const { data: dataReferrer } = useGetReferrerById(deployerAddress!, selectedChain?.id!, storedRef!)
 
     const onChangeSelectedNetwork = (chain: Chain) => {
         if (!selectedChain || chain.id !== selectedChain?.id) setSelectedChain(chain)
@@ -309,6 +307,12 @@ export const Create = () => {
     useEffect(() => {
         setDeployerAddress(selectedChain ? protocols[selectedChain.id].deployer : undefined)
     }, [selectedChain, refetchRewardTokenInfo, refetchStakingTokenInfo])
+
+    useEffect(() => {
+        const ref = searchParams.get('ref') as Address
+        saveStoredRef(ref)
+        searchParams.delete('ref')
+    }, [searchParams])
 
     useEffect(() => {
         setTitle('STAKEX Creator')
