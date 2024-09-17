@@ -20,7 +20,7 @@ export const handler: Handler = async (_, __, callback) => {
                 logs: await client.getContractEvents({
                     address: address as Address,
                     abi,
-                    fromBlock: BigInt(blockNumberCreated),
+                    fromBlock: BigInt(blockNumberCreated!),
                     eventName: 'Enabled',
                 }),
             })
