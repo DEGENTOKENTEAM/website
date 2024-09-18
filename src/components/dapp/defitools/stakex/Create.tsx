@@ -23,6 +23,10 @@ import protocols from './../../../../../config/protocols'
 import { CreateProtocolConfirmation } from './create/overlays/CreateProtocolConfirmation'
 import { BucketFormParams } from './manage/buckets/Form'
 import { LockUnits, LockUnitsForm } from './manage/buckets/LockUnitsForm'
+import { useDeployerHasDiscount } from '@dapphooks/deployer/useDeployerHasDiscount'
+import { useDeployerGetFeeIdSTAKEX } from '@dapphooks/deployer/useDeployerGetFeeIdSTAKEX'
+import { DiscountType, useDeployerGetDiscount } from '@dapphooks/deployer/useDeployerGetDiscount'
+import { useGetFeeByFeeId } from '@dapphooks/deployer/useGetFeeByFeeId'
 
 const initParams: STAKEXCreatorDataInitParams = {
     stakingToken: null,
@@ -91,6 +95,10 @@ export const Create = () => {
     // deployment parameter
     const [deploymentParams, setDeploymentParams] = useState<STAKEXDeployArgs | null>(null)
 
+    const { data: dataReferrer } = useGetReferrerById(deployerAddress!, selectedChain?.id!, storedRef!)
+    const { data: dataFeeId } = useDeployerGetFeeIdSTAKEX(deployerAddress!, selectedChain?.id!)
+    const { data: dataFeeAmount } = useGetFeeByFeeId(deployerAddress!, selectedChain?.id!, dataFeeId!)
+
     const {
         error: errorStakingTokenInfo,
         isLoading: isLoadingStakingTokenInfo,
@@ -114,13 +122,14 @@ export const Create = () => {
     })
     const { data: dataFeeEstimation, refetch: refetchFeeEstimation } = useGetFeeEstimationDeployerSTAKEX(
         deployerAddress!,
-        selectedChain?.id!
+        selectedChain?.id!,
+        addressConnected ? addressConnected : zeroAddress
     )
 
     const { data: dataNetworkFeeEstimation } = useGetNetworkFeeEstimationDeployerSTAKEX(
         deployerAddress!,
         selectedChain?.id!,
-        dataFeeEstimation!,
+        dataFeeAmount?.fee!,
         deploymentParams
     )
     const {
@@ -134,12 +143,26 @@ export const Create = () => {
     } = useDeployProtocolSTAKEX(
         deployerAddress!,
         selectedChain?.id!,
-        deployFee!,
+        dataFeeEstimation!,
         deploymentParams!,
         isValid && isConnected
     )
-    const { data: dataReferrer } = useGetReferrerById(deployerAddress!, selectedChain?.id!, storedRef!)
 
+    const { data: dataHasDiscount } = useDeployerHasDiscount(
+        deployerAddress!,
+        selectedChain?.id!,
+        dataFeeId!,
+        addressConnected!
+    )
+    const { data: dataGetDiscount } = useDeployerGetDiscount(
+        deployerAddress!,
+        selectedChain?.id!,
+        dataFeeId!,
+        addressConnected!,
+        dataHasDiscount!
+    )
+
+    console.log({ dataGetDiscount })
     const onChangeSelectedNetwork = (chain: Chain) => {
         if (!selectedChain || chain.id !== selectedChain?.id) setSelectedChain(chain)
     }
@@ -282,12 +305,12 @@ export const Create = () => {
     }, [data])
 
     useEffect(() => {
-        setDeployFee(dataFeeEstimation ? dataFeeEstimation : 0n)
+        setDeployFee(dataFeeAmount && dataFeeAmount.fee ? dataFeeAmount.fee : 0n)
         setNetworkFee(dataNetworkFeeEstimation ? dataNetworkFeeEstimation : 0n)
         setTotalFeeEstimation(
             dataFeeEstimation && dataNetworkFeeEstimation ? dataFeeEstimation + dataNetworkFeeEstimation : 0n
         )
-    }, [dataFeeEstimation, dataNetworkFeeEstimation])
+    }, [dataFeeAmount, dataFeeEstimation, dataNetworkFeeEstimation])
 
     useEffect(() => {
         if (!useDifferentRewardToken) setRewardTokenAddress(null)
@@ -485,6 +508,36 @@ export const Create = () => {
                                                 <span>--</span>
                                             )}
                                         </div>
+
+                                        {dataHasDiscount && dataGetDiscount && (
+                                            <>
+                                                <div className="col-span-4">
+                                                    Your Discount{' '}
+                                                    {dataGetDiscount.discountType == DiscountType.PERCENTAGE && (
+                                                        <span>
+                                                            (&minus;
+                                                            {toReadableNumber(dataGetDiscount.discountValue, 2)}
+                                                            %)
+                                                        </span>
+                                                    )}
+                                                </div>
+                                                <div className="flex justify-end">
+                                                    {deployFee ? (
+                                                        <span>
+                                                            &minus;
+                                                            {dataGetDiscount.discountType == DiscountType.PERCENTAGE
+                                                                ? `${toReadableNumber(
+                                                                      deployFee * dataGetDiscount.discountValue,
+                                                                      22
+                                                                  )} `
+                                                                : toReadableNumber(dataGetDiscount.discountValue, 18)}
+                                                        </span>
+                                                    ) : (
+                                                        <Spinner theme="dark" />
+                                                    )}
+                                                </div>
+                                            </>
+                                        )}
 
                                         <div className="col-span-5">
                                             <CaretDivider />

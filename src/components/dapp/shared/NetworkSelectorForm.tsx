@@ -29,7 +29,7 @@ export const NetworkSelectorForm = ({ chains, selectedChain, onChange }: Network
     return (
         <RadioGroup value={selected} onChange={setSelected} className="grid grid-cols-1 gap-4 md:grid-cols-2">
             {isConnected && connectedChain && connectedChain.id != selected && (
-                <div className="col-span-2 text-error/50">
+                <div className="md:col-span-2 text-error/50">
                     The network you&apos;ve selected differs the one you&apos;re connected with.{' '}
                     <button
                         onClick={() => {
