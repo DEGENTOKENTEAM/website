@@ -1,7 +1,11 @@
 import { Spinner } from '@dappelements/Spinner'
 import { DAppContext } from '@dapphelpers/dapp'
 import { toReadableNumber } from '@dapphelpers/number'
+import { DiscountType, useDeployerGetDiscount } from '@dapphooks/deployer/useDeployerGetDiscount'
+import { useDeployerGetFeeIdSTAKEX } from '@dapphooks/deployer/useDeployerGetFeeIdSTAKEX'
+import { useDeployerHasDiscount } from '@dapphooks/deployer/useDeployerHasDiscount'
 import { useDeployProtocolSTAKEX } from '@dapphooks/deployer/useDeployProtocolSTAKEX'
+import { useGetFeeByFeeId } from '@dapphooks/deployer/useGetFeeByFeeId'
 import { useGetFeeEstimationDeployerSTAKEX } from '@dapphooks/deployer/useGetFeeEstimationDeployerSTAKEX'
 import { useGetNetworkFeeEstimationDeployerSTAKEX } from '@dapphooks/deployer/useGetNetworkFeeEstimationDeployerSTAKEX'
 import { useGetReferrerById } from '@dapphooks/deployer/useGetReferrerById'
@@ -23,10 +27,6 @@ import protocols from './../../../../../config/protocols'
 import { CreateProtocolConfirmation } from './create/overlays/CreateProtocolConfirmation'
 import { BucketFormParams } from './manage/buckets/Form'
 import { LockUnits, LockUnitsForm } from './manage/buckets/LockUnitsForm'
-import { useDeployerHasDiscount } from '@dapphooks/deployer/useDeployerHasDiscount'
-import { useDeployerGetFeeIdSTAKEX } from '@dapphooks/deployer/useDeployerGetFeeIdSTAKEX'
-import { DiscountType, useDeployerGetDiscount } from '@dapphooks/deployer/useDeployerGetDiscount'
-import { useGetFeeByFeeId } from '@dapphooks/deployer/useGetFeeByFeeId'
 
 const initParams: STAKEXCreatorDataInitParams = {
     stakingToken: null,
@@ -162,7 +162,6 @@ export const Create = () => {
         dataHasDiscount!
     )
 
-    console.log({ dataGetDiscount })
     const onChangeSelectedNetwork = (chain: Chain) => {
         if (!selectedChain || chain.id !== selectedChain?.id) setSelectedChain(chain)
     }
