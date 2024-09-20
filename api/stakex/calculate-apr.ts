@@ -221,7 +221,7 @@ const calculateAPR = async (
 
     const client = createPublicClient({
         chain,
-        transport: http(),
+        transport: http(chain.rpcUrls.default.http[0], { timeout: 60_000 }),
     })
 
     let isRunningContract = false

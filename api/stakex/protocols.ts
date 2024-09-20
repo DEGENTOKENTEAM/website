@@ -1,5 +1,5 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
-import { cloneDeep, isNumber } from 'lodash'
+import { cloneDeep, isNull, isNumber } from 'lodash'
 import { createPublicClient, http, zeroAddress } from 'viem'
 import { getChainById } from '../../shared/supportedChains'
 import { ProtocolsResponse } from '../../shared/types'
@@ -12,9 +12,10 @@ import abi from './../../src/abi/stakex/abi-ui.json'
 export const handler = async (
     event: APIGatewayProxyEvent
 ): Promise<APIGatewayProxyResult> => {
-    const start = Date.now()
-    console.log({ start })
-    const { chainId } = event.pathParameters || {}
+    // const start = Date.now()
+    // console.log({ start })
+    const { chainId: _chainIdOrig } = event.pathParameters || {}
+    const chainId = Number(_chainIdOrig)
 
     const protocolResponseBlank: ProtocolsResponse = {
         protocol: {
@@ -35,11 +36,17 @@ export const handler = async (
 
     const annualsRepository = new StakeXAnnualsRepository()
     const protocolsRepository = new StakeXProtocolsRepository()
+    // let step = Date.now()
+    // console.log('a', { step, delta: (step - start) / 1000 })
 
     const protocols =
         isNumber(chainId) && chainId > 0
             ? await protocolsRepository.getAllByChainId(chainId, 100) // show first 100 entries
             : await protocolsRepository.getAll(100) // show first 100 entries
+
+    // console.log(protocols.count)
+    // step = Date.now()
+    // console.log('b', { step, delta: (step - start) / 1000 })
 
     if (!protocols.count) return createReturn(200, JSON.stringify({}))
 
@@ -66,6 +73,9 @@ export const handler = async (
     const dataToChainAndProtocol: {
         [key: number]: any[]
     } = {}
+
+    // step = Date.now()
+    // console.log('c', { step, delta: (step - start) / 1000 })
     for (const chainId of Object.keys(chainIdAndContracts)) {
         const chain = getChainById(Number(chainId))
         const publicClient = createPublicClient({
@@ -76,6 +86,8 @@ export const handler = async (
             contracts: [...chainIdAndContracts[chain.id]],
         })
     }
+    // step = Date.now()
+    // console.log('d', { step, delta: (step - start) / 1000 })
 
     const ret: ProtocolsResponse[] = []
     for (const item of protocols.items) {
@@ -89,52 +101,68 @@ export const handler = async (
         //
         // APR & APY
         //
-        const annuals = await annualsRepository.getByProtocolAndBlockNumber(
-            protocol,
-            blockNumberAPUpdate
-        )
+        // step = Date.now()
+        // console.log('annuals1', { step, delta: (step - start) / 1000 })
 
-        if (protocols.count) {
-            for (const annual of annuals.items) {
-                protocolResponse.protocol.apr.high =
-                    annual.apr > protocolResponse.protocol.apr.high
-                        ? annual.apr
-                        : protocolResponse.protocol.apr.high
+        if (blockNumberAPUpdate) {
+            const annuals = await annualsRepository.getByProtocolAndBlockNumber(
+                protocol,
+                blockNumberAPUpdate
+            )
 
-                protocolResponse.protocol.apr.low =
-                    annual.apr < protocolResponse.protocol.apr.low
-                        ? annual.apr
-                        : protocolResponse.protocol.apr.low
+            // step = Date.now()
+            // console.log('annuals2', { step, delta: (step - start) / 1000 })
 
-                protocolResponse.protocol.apy.high =
-                    annual.apy > protocolResponse.protocol.apy.high
-                        ? annual.apy
-                        : protocolResponse.protocol.apy.high
+            if (annuals.count) {
+                for (const annual of annuals.items) {
+                    protocolResponse.protocol.apr.high =
+                        annual.apr > protocolResponse.protocol.apr.high
+                            ? annual.apr
+                            : protocolResponse.protocol.apr.high
 
-                protocolResponse.protocol.apy.low =
-                    annual.apy < protocolResponse.protocol.apy.low
-                        ? annual.apy
-                        : protocolResponse.protocol.apy.low
+                    protocolResponse.protocol.apr.low =
+                        annual.apr < protocolResponse.protocol.apr.low
+                            ? annual.apr
+                            : protocolResponse.protocol.apr.low
+
+                    protocolResponse.protocol.apy.high =
+                        annual.apy > protocolResponse.protocol.apy.high
+                            ? annual.apy
+                            : protocolResponse.protocol.apy.high
+
+                    protocolResponse.protocol.apy.low =
+                        annual.apy < protocolResponse.protocol.apy.low
+                            ? annual.apy
+                            : protocolResponse.protocol.apy.low
+                }
+
+                protocolResponse.protocol.apr.avg =
+                    annuals.items.reduce((acc, item) => acc + item.apr, 0) /
+                    annuals.items.length
+
+                protocolResponse.protocol.apy.avg =
+                    annuals.items.reduce((acc, item) => acc + item.apy, 0) /
+                    annuals.items.length
             }
-
-            protocolResponse.protocol.apr.avg =
-                annuals.items.reduce((acc, item) => acc + item.apr, 0) /
-                annuals.items.length
-
-            protocolResponse.protocol.apy.avg =
-                annuals.items.reduce((acc, item) => acc + item.apy, 0) /
-                annuals.items.length
-
-            if (protocolResponse.protocol.apy.high == Number.MIN_VALUE)
-                protocolResponse.protocol.apy.high = 0
-            if (protocolResponse.protocol.apy.low == Number.MAX_VALUE)
-                protocolResponse.protocol.apy.high = 0
-
-            if (protocolResponse.protocol.apr.high == Number.MIN_VALUE)
-                protocolResponse.protocol.apr.high = 0
-            if (protocolResponse.protocol.apr.low == Number.MAX_VALUE)
-                protocolResponse.protocol.apr.high = 0
         }
+
+        if (isNull(protocolResponse.protocol.apr.avg))
+            protocolResponse.protocol.apr.avg = 0
+
+        if (isNull(protocolResponse.protocol.apy.avg))
+            protocolResponse.protocol.apy.avg = 0
+
+        if (protocolResponse.protocol.apy.high == Number.MIN_VALUE)
+            protocolResponse.protocol.apy.high = 0
+
+        if (protocolResponse.protocol.apy.low == Number.MAX_VALUE)
+            protocolResponse.protocol.apy.high = 0
+
+        if (protocolResponse.protocol.apr.high == Number.MIN_VALUE)
+            protocolResponse.protocol.apr.high = 0
+
+        if (protocolResponse.protocol.apr.low == Number.MAX_VALUE)
+            protocolResponse.protocol.apr.high = 0
 
         const [{ result: stakingData }, { result: isRunning }] =
             dataToChainAndProtocol[Number(chainId)].splice(0, 2)
@@ -166,8 +194,8 @@ export const handler = async (
 
         ret.push(protocolResponse)
     }
-    const finish = Date.now()
-    console.log({ finish, delta: (finish - start) / 1000 })
+    // const finish = Date.now()
+    // console.log({ finish, delta: (finish - start) / 1000 })
 
-    return createReturn(200, JSON.stringify(ret), 60) // 5m cache
+    return createReturn(200, JSON.stringify(ret), 60) // 1m cache
 }

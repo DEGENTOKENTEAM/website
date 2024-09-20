@@ -162,6 +162,7 @@ export const Customization = () => {
             <Tile className="flex w-full flex-col gap-8">
                 <StakingProjectLogo
                     source={previewImage || baseImage}
+                    chain={chain!}
                     isPending={isPendingNewLogo}
                     projectName={projectName ?? ''}
                 />

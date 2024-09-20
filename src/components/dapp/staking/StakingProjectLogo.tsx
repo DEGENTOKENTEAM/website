@@ -2,16 +2,27 @@ import clsx from 'clsx'
 import Image from 'next/image'
 import { PropsWithChildren } from 'react'
 import { Spinner } from '../elements/Spinner'
+import { Chain } from 'viem'
 
 export type StakingProjectLogoProps = PropsWithChildren & {
     projectName: string
     source: string | null
+    chain: Chain
     className?: string
     isPending?: boolean
     isLite?: boolean
+    hideChain?: boolean
 }
 
-export const StakingProjectLogo = ({ source, projectName, className, isPending, isLite }: StakingProjectLogoProps) => {
+export const StakingProjectLogo = ({
+    source,
+    projectName,
+    className,
+    isPending,
+    isLite,
+    hideChain,
+    chain,
+}: StakingProjectLogoProps) => {
     const bg = !source
         ? `#${projectName
               .split('')
@@ -40,6 +51,15 @@ export const StakingProjectLogo = ({ source, projectName, className, isPending, 
                             soon
                         </span>
                     </div>
+                )}
+                {!hideChain && (
+                    <Image
+                        className="absolute -bottom-1 -right-1"
+                        width={isLite ? 24 : 40}
+                        height={isLite ? 24 : 40}
+                        src={chain.id == 56 ? `/chains/${chain.id}.png` : `/chains/${chain.id}.svg`}
+                        alt={`Logo ${chain.nativeCurrency.symbol}`}
+                    />
                 )}
                 {source ? (
                     <Image
