@@ -219,6 +219,7 @@ export const StakeX = () => {
                 <h1 className="flex w-full max-w-2xl flex-row gap-1 px-8 font-title text-3xl font-bold tracking-wide sm:px-0">
                     {stakingTokenInfo && stakingData.protocol && responseCustomization && (
                         <StakingProjectLogo
+                            chain={chain!}
                             projectName={responseCustomization.data.projectName || ''}
                             source={responseCustomization.data.logoUrl}
                         />
