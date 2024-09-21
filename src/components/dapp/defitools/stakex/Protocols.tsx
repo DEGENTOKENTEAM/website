@@ -50,7 +50,7 @@ export const Protocols = () => {
 
     useEffect(() => {
         setTitle && setTitle('Overview STAKEX protocols')
-        if ((!protocols || protocols.length == 0) && loadProtocols) loadProtocols()
+        if (!protocols && loadProtocols) loadProtocols()
     }, [setTitle, loadProtocols, protocols])
 
     useEffect(() => {

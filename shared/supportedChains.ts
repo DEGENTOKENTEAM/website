@@ -2,16 +2,15 @@ import { get } from 'lodash'
 import { Address, defineChain } from 'viem'
 import {
     Chain,
+    arbitrum as arbitrumOriginal,
     avalancheFuji,
     avalanche as avalancheOriginal,
+    base as baseOriginal,
+    bsc as bscOriginal,
     goerli,
     localhost,
     mainnet as mainnetOriginal,
     polygon as polygonOriginal,
-    arbitrum as arbitrumOriginal,
-    bsc as bscOriginal,
-    base as baseOriginal,
-    optimism as optimismOriginal,
 } from 'viem/chains'
 
 const avalanche = defineChain({
@@ -76,8 +75,12 @@ const bsc = defineChain({
         default: {
             ...bscOriginal.rpcUrls.default,
             http: [
-                `https://bsc-mainnet.infura.io/v3/${
-                    process.env.NEXT_PUBLIC_INFURA_ID || process.env.INFURA_ID
+                // `https://bsc-mainnet.infura.io/v3/${
+                //     process.env.NEXT_PUBLIC_INFURA_ID || process.env.INFURA_ID
+                // }`,
+                `https://rpc.ankr.com/bsc/${
+                    process.env.NEXT_PUBLIC_ANKR_API_KEY ||
+                    process.env.ANKR_API_KEY
                 }`,
             ],
         },
@@ -119,7 +122,8 @@ const base = defineChain({
             ...baseOriginal.rpcUrls.default,
             http: [
                 `https://base-mainnet.g.alchemy.com/v2/${
-                    process.env.NEXT_PUBLIC_ALCHEMY_API_KEY || process.env.ALCHEMY_API_KEY
+                    process.env.NEXT_PUBLIC_ALCHEMY_API_KEY ||
+                    process.env.ALCHEMY_API_KEY
                 }`,
             ],
         },

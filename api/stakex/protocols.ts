@@ -48,7 +48,7 @@ export const handler = async (
     // step = Date.now()
     // console.log('b', { step, delta: (step - start) / 1000 })
 
-    if (!protocols.count) return createReturn(200, JSON.stringify({}))
+    if (!protocols.count) return createReturn(200, JSON.stringify([]))
 
     const chainIdAndContracts: { [key: number]: any[] } = {}
     for (const item of protocols.items) {
@@ -103,7 +103,6 @@ export const handler = async (
         //
         // step = Date.now()
         // console.log('annuals1', { step, delta: (step - start) / 1000 })
-
         if (blockNumberAPUpdate) {
             const annuals = await annualsRepository.getByProtocolAndBlockNumber(
                 protocol,

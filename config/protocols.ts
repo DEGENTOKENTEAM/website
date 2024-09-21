@@ -26,7 +26,7 @@ type ProtocolConfigs = {
 
 const mainnets: ProtocolConfigs = {
     [avalanche.id]: {
-        deployer: '0x2C83471eCa78cafB977Ee2759f00Dd04905F3883',
+        deployer: '0xCEF87204D51632A0f1212D26F507c99376D199A1',
         nativeWrapper: '0xB31f66AA3C1e785363F0875A1B74E27b85FD66c7',
         stakex: {
             genesis: '0x00000000004545cB8440FDD6095a97DEBd1F3814',
@@ -34,7 +34,7 @@ const mainnets: ProtocolConfigs = {
         },
     },
     [mainnet.id]: {
-        deployer: '0xb7964c7f39A1147e331ce737AEEFAE24D9Ee2B51',
+        deployer: '0x6C049Bd2EBdCE571245EA61c41d78DC34a60D3b5',
         nativeWrapper: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
         stakex: {
             genesis: '0x00000000004545cB8440FDD6095a97DEBd1F3814',
@@ -42,7 +42,7 @@ const mainnets: ProtocolConfigs = {
         },
     },
     [bsc.id]: {
-        deployer: '0x1f6EF0b5713a5650448cf92704335435615B800b',
+        deployer: '0x6a6D338Af79e35CD7D5919F029705B7a33bBd67d',
         nativeWrapper: '0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c',
         stakex: {
             genesis: '0x00000000004545cB8440FDD6095a97DEBd1F3814',
@@ -50,7 +50,7 @@ const mainnets: ProtocolConfigs = {
         },
     },
     [arbitrum.id]: {
-        deployer: '0xe6450dB1226A2bdb8432E129a68E9ed18f4561AE',
+        deployer: '0x97836fCc3C291320bb8eeB02398845a5733D255B',
         nativeWrapper: '0x82aF49447D8a07e3bd95BD0d56f35241523fBab1',
         stakex: {
             genesis: '0x00000000004545cB8440FDD6095a97DEBd1F3814',
@@ -58,7 +58,7 @@ const mainnets: ProtocolConfigs = {
         },
     },
     [polygon.id]: {
-        deployer: '0xe6450dB1226A2bdb8432E129a68E9ed18f4561AE',
+        deployer: '0x7921afd2d52A66AA19415BFe389745e042C00e26',
         nativeWrapper: '0x0d500B1d8E8eF31E21C99d1Db9A6444d3ADf1270',
         stakex: {
             genesis: '0x00000000004545cB8440FDD6095a97DEBd1F3814',
@@ -66,7 +66,7 @@ const mainnets: ProtocolConfigs = {
         },
     },
     // [optimism.id]: {
-    //     deployer: '0xe6450dB1226A2bdb8432E129a68E9ed18f4561AE',
+    //     deployer: '0xbE0EE98EBA0EcE437829cDe232209ea6361626cF',
     //     nativeWrapper: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
     //     stakex: {
     //         genesis: '0x00000000004545cB8440FDD6095a97DEBd1F3814',
@@ -74,7 +74,7 @@ const mainnets: ProtocolConfigs = {
     //     },
     // },
     [base.id]: {
-        deployer: '0xe6450dB1226A2bdb8432E129a68E9ed18f4561AE',
+        deployer: '0x25041970C1dE80C236A3F79EF43c17e0E680dF36',
         nativeWrapper: '0x4200000000000000000000000000000000000006',
         stakex: {
             genesis: '0x00000000004545cB8440FDD6095a97DEBd1F3814',

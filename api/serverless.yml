@@ -41,7 +41,8 @@ custom:
   corsAllowedOrigin:
     dev: '*'
     staging: https://staging.dgnx.finance
-    production: https://dgnx.finance
+    # production: https://dgnx.finance
+    production: '*'
   webpack:
     isLocal: false
     # isLocal: true
@@ -96,7 +97,7 @@ provider:
     SNOWTRACE_API_KEY: ${env:SNOWTRACE_API_KEY}
     PINATA_API_KEY: ${env:PINATA_API_KEY}
     INFURA_ID: ${env:INFURA_ID}
-    CLOUDFRONT_URL: https://${cf:${self:custom.serviceName}.ApiDistribution}
+    ANKR_API_KEY: ${env:ANKR_API_KEY}
 
 functions:
   # coingecko proxy
@@ -115,6 +116,7 @@ functions:
           method: get
 
   # snowtrace proxy
+  # TODO remove?
   snowtraceProxy:
     handler: snowtraceProxy/get.handler
     memorySize: 512
