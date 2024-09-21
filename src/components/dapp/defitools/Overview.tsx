@@ -12,6 +12,8 @@ type DeFiToolType = {
     to: string | null
     toLabel: string | null
     toMore: string | null
+    toOverview?: string | null
+    toOverviewLabel?: string | null
     description: string | null
 }
 
@@ -22,6 +24,8 @@ const defitools: DeFiToolType[] = [
         to: './stakex/create/',
         toLabel: 'Create your own STAKEX',
         toMore: 'https://docs.dgnx.finance/degenx-ecosystem/Products/stakex/introduction',
+        toOverview: './stakex/',
+        toOverviewLabel: 'Overview STAKEX',
         description: `STAKEX is an audited staking protocol providing a new staking methodology, powered by the DEGENX Ecosystem. It's a deployable protocol for projects based on EVM networks like Ethereum, Binance Smart Chain, and Avalanche.`,
     },
     {
@@ -60,7 +64,7 @@ type DeFiToolTileProps = {
 
 const DeFiToolTile = ({ data, className }: DeFiToolTileProps) => {
     const navigate = useNavigate()
-    const { to, toLabel, toMore, description, logo, name } = data
+    const { to, toLabel, toMore, description, logo, name, toOverview, toOverviewLabel } = data
     return (
         <Tile className={clsx(['flex flex-col gap-8', className])}>
             <div className="flex flex-col gap-8 md:flex-row">
@@ -84,6 +88,17 @@ const DeFiToolTile = ({ data, className }: DeFiToolTileProps) => {
                                 className="h-14"
                             >
                                 Read more
+                            </Button>
+                        )}
+                        {toOverview && (
+                            <Button
+                                onClick={() => {
+                                    navigate(toOverview)
+                                }}
+                                variant="secondary"
+                                className="h-14"
+                            >
+                                {toOverviewLabel ? toOverviewLabel : 'Show more'}
                             </Button>
                         )}
                         {to && (
