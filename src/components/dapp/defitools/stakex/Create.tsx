@@ -1,7 +1,11 @@
 import { Spinner } from '@dappelements/Spinner'
 import { DAppContext } from '@dapphelpers/dapp'
 import { toReadableNumber } from '@dapphelpers/number'
+import { DiscountType, useDeployerGetDiscount } from '@dapphooks/deployer/useDeployerGetDiscount'
+import { useDeployerGetFeeIdSTAKEX } from '@dapphooks/deployer/useDeployerGetFeeIdSTAKEX'
+import { useDeployerHasDiscount } from '@dapphooks/deployer/useDeployerHasDiscount'
 import { useDeployProtocolSTAKEX } from '@dapphooks/deployer/useDeployProtocolSTAKEX'
+import { useGetFeeByFeeId } from '@dapphooks/deployer/useGetFeeByFeeId'
 import { useGetFeeEstimationDeployerSTAKEX } from '@dapphooks/deployer/useGetFeeEstimationDeployerSTAKEX'
 import { useGetNetworkFeeEstimationDeployerSTAKEX } from '@dapphooks/deployer/useGetNetworkFeeEstimationDeployerSTAKEX'
 import { useGetReferrerById } from '@dapphooks/deployer/useGetReferrerById'
@@ -16,6 +20,7 @@ import { ChangeEvent, useCallback, useContext, useEffect, useState } from 'react
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { getChainById } from 'shared/supportedChains'
 import { Button } from 'src/components/Button'
+import { useLocalStorage } from 'usehooks-ts'
 import { Address, Chain, encodeFunctionData, parseAbi, zeroAddress } from 'viem'
 import { useAccount } from 'wagmi'
 import protocols from './../../../../../config/protocols'
@@ -60,6 +65,7 @@ export const Create = () => {
     const navigate = useNavigate()
     const { isConnected, chainId, address: addressConnected } = useAccount()
     const [searchParams] = useSearchParams()
+    const [storedRef, saveStoredRef] = useLocalStorage<Address>('stakexRef', zeroAddress)
     const chainIds = Object.keys(protocols).map((v) => +v)
     const networks = chainIds.map((id) => getChainById(id))
 
@@ -89,6 +95,10 @@ export const Create = () => {
     // deployment parameter
     const [deploymentParams, setDeploymentParams] = useState<STAKEXDeployArgs | null>(null)
 
+    const { data: dataReferrer } = useGetReferrerById(deployerAddress!, selectedChain?.id!, storedRef!)
+    const { data: dataFeeId } = useDeployerGetFeeIdSTAKEX(deployerAddress!, selectedChain?.id!)
+    const { data: dataFeeAmount } = useGetFeeByFeeId(deployerAddress!, selectedChain?.id!, dataFeeId!)
+
     const {
         error: errorStakingTokenInfo,
         isLoading: isLoadingStakingTokenInfo,
@@ -112,13 +122,14 @@ export const Create = () => {
     })
     const { data: dataFeeEstimation, refetch: refetchFeeEstimation } = useGetFeeEstimationDeployerSTAKEX(
         deployerAddress!,
-        selectedChain?.id!
+        selectedChain?.id!,
+        addressConnected ? addressConnected : zeroAddress
     )
 
     const { data: dataNetworkFeeEstimation } = useGetNetworkFeeEstimationDeployerSTAKEX(
         deployerAddress!,
         selectedChain?.id!,
-        dataFeeEstimation!,
+        dataFeeAmount?.fee!,
         deploymentParams
     )
     const {
@@ -132,14 +143,23 @@ export const Create = () => {
     } = useDeployProtocolSTAKEX(
         deployerAddress!,
         selectedChain?.id!,
-        deployFee!,
+        dataFeeEstimation!,
         deploymentParams!,
         isValid && isConnected
     )
-    const { data: dataReferrer } = useGetReferrerById(
+
+    const { data: dataHasDiscount } = useDeployerHasDiscount(
         deployerAddress!,
         selectedChain?.id!,
-        searchParams.get('ref') as Address
+        dataFeeId!,
+        addressConnected!
+    )
+    const { data: dataGetDiscount } = useDeployerGetDiscount(
+        deployerAddress!,
+        selectedChain?.id!,
+        dataFeeId!,
+        addressConnected!,
+        dataHasDiscount!
     )
 
     const onChangeSelectedNetwork = (chain: Chain) => {
@@ -202,8 +222,7 @@ export const Create = () => {
         resetDeployProtocol && resetDeployProtocol()
     }, [resetDeployProtocol])
 
-    // TODO respect referral
-    // TODO respect discounts
+    // TODO respect discounts and show in UI
 
     useEffect(() => {
         const _chainId = Number(chainId || process.env.NEXT_PUBLIC_CHAIN_ID)
@@ -215,7 +234,7 @@ export const Create = () => {
     useEffect(() => {
         if (!selectedChain || !protocols) return
 
-        setData({
+        const _data = {
             chainId: selectedChain.id,
             deployArgs: {
                 referral: dataReferrer && dataReferrer.active ? dataReferrer.account : zeroAddress,
@@ -248,7 +267,8 @@ export const Create = () => {
                     excludeStakingTokenFromRewards: useDifferentRewardToken,
                 },
             },
-        })
+        }
+        setData(_data)
     }, [
         selectedChain,
         dataReferrer,
@@ -285,19 +305,19 @@ export const Create = () => {
     }, [data])
 
     useEffect(() => {
-        setDeployFee(dataFeeEstimation ? dataFeeEstimation : 0n)
+        setDeployFee(dataFeeAmount && dataFeeAmount.fee ? dataFeeAmount.fee : 0n)
         setNetworkFee(dataNetworkFeeEstimation ? dataNetworkFeeEstimation : 0n)
         setTotalFeeEstimation(
             dataFeeEstimation && dataNetworkFeeEstimation ? dataFeeEstimation + dataNetworkFeeEstimation : 0n
         )
-    }, [dataFeeEstimation, dataNetworkFeeEstimation])
+    }, [dataFeeAmount, dataFeeEstimation, dataNetworkFeeEstimation])
 
     useEffect(() => {
         if (!useDifferentRewardToken) setRewardTokenAddress(null)
     }, [useDifferentRewardToken])
 
     useEffect(() => {
-        if (!enableStakeLock) setBucketFormData(initBucketData)
+        setBucketFormData({ ...initBucketData, lock: enableStakeLock })
     }, [enableStakeLock])
 
     useEffect(() => {
@@ -309,6 +329,12 @@ export const Create = () => {
     useEffect(() => {
         setDeployerAddress(selectedChain ? protocols[selectedChain.id].deployer : undefined)
     }, [selectedChain, refetchRewardTokenInfo, refetchStakingTokenInfo])
+
+    useEffect(() => {
+        const ref = searchParams.get('ref') as Address
+        saveStoredRef(ref)
+        searchParams.delete('ref')
+    }, [searchParams])
 
     useEffect(() => {
         setTitle('STAKEX Creator')
@@ -482,6 +508,36 @@ export const Create = () => {
                                                 <span>--</span>
                                             )}
                                         </div>
+
+                                        {dataHasDiscount && dataGetDiscount && (
+                                            <>
+                                                <div className="col-span-4">
+                                                    Your Discount{' '}
+                                                    {dataGetDiscount.discountType == DiscountType.PERCENTAGE && (
+                                                        <span>
+                                                            (&minus;
+                                                            {toReadableNumber(dataGetDiscount.discountValue, 2)}
+                                                            %)
+                                                        </span>
+                                                    )}
+                                                </div>
+                                                <div className="flex justify-end">
+                                                    {deployFee ? (
+                                                        <span>
+                                                            &minus;
+                                                            {dataGetDiscount.discountType == DiscountType.PERCENTAGE
+                                                                ? `${toReadableNumber(
+                                                                      deployFee * dataGetDiscount.discountValue,
+                                                                      22
+                                                                  )} `
+                                                                : toReadableNumber(dataGetDiscount.discountValue, 18)}
+                                                        </span>
+                                                    ) : (
+                                                        <Spinner theme="dark" />
+                                                    )}
+                                                </div>
+                                            </>
+                                        )}
 
                                         <div className="col-span-5">
                                             <CaretDivider />

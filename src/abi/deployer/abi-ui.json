@@ -279,6 +279,100 @@
     "type": "function"
   },
   {
+    "anonymous": false,
+    "inputs": [],
+    "name": "DeployerDisabled",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [],
+    "name": "DeployerEnabled",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "uint16",
+        "name": "bountyShare",
+        "type": "uint16"
+      }
+    ],
+    "name": "DeployerSetBountyShare",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "diamond",
+        "type": "address"
+      }
+    ],
+    "name": "DeployerSetDiamond",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "bytes32",
+        "name": "id",
+        "type": "bytes32"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "aount",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "receiver",
+        "type": "address"
+      }
+    ],
+    "name": "DeployerUpdateFeeStore",
+    "type": "event"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "_feeId",
+        "type": "bytes32"
+      }
+    ],
+    "name": "deployerGetFee",
+    "outputs": [
+      {
+        "components": [
+          {
+            "internalType": "uint256",
+            "name": "fee",
+            "type": "uint256"
+          },
+          {
+            "internalType": "address",
+            "name": "receiver",
+            "type": "address"
+          }
+        ],
+        "internalType": "struct LibDeployerStorage.FeeStore",
+        "name": "_feeStore",
+        "type": "tuple"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
     "inputs": [
       {
         "internalType": "bytes32",
@@ -917,6 +1011,19 @@
         "internalType": "uint256",
         "name": "_fee",
         "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "deployerStakeXGetFeeId",
+    "outputs": [
+      {
+        "internalType": "bytes32",
+        "name": "_feeId",
+        "type": "bytes32"
       }
     ],
     "stateMutability": "view",

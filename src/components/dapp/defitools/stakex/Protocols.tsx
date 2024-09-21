@@ -5,7 +5,7 @@ import { CaretDivider } from '@dappshared/CaretDivider'
 import { Tile } from '@dappshared/Tile'
 import { toLower } from 'lodash'
 import { useCallback, useContext, useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 import { getChainById } from 'shared/supportedChains'
 import { ProtocolsResponse } from 'shared/types'
 import { Button } from 'src/components/Button'
@@ -16,11 +16,12 @@ export const Protocols = () => {
     const { setTitle } = useContext(DAppContext)
     const [isLoading, setIsLoading] = useState(true)
     const navigate = useNavigate()
+    let { chainId } = useParams()
     const [topProtocols, setTopProtocols] = useState<Address[]>([
         toLower('0x00000000004545cB8440FDD6095a97DEBd1F3814') as Address,
     ])
 
-    const [selectedChain, setSelectedChain] = useState<number>() // set default chain until we expand on additional networks
+    const [selectedChain, setSelectedChain] = useState<number>(Number(chainId)) // set default chain until we expand on additional networks
 
     const [protocols, setProtocols] = useState<ProtocolsResponse[]>()
 
@@ -88,6 +89,8 @@ export const Protocols = () => {
                                 <StakingProjectLogo
                                     projectName={protocol.name}
                                     source={protocol.logo}
+                                    hideChain={Boolean(selectedChain && selectedChain == protocol.chainId)}
+                                    chain={getChainById(protocol.chainId)}
                                     isLite={true}
                                     className="flex-grow"
                                 />

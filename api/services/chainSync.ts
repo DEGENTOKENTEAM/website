@@ -20,7 +20,7 @@ type RepositoryContructorOptions = {
 } & any
 
 const pkey = 'v_1'
-const region = 'eu-west-1' // TODO update this little shit here
+const region = 'eu-west-1'
 const TableName = process.env.DB_TABLE_NAME_STAKEX_CHAIN_SYNC!
 
 export class StakeXChainSyncRepository {

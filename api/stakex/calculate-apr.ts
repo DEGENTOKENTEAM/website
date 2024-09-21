@@ -4,7 +4,6 @@ import { getChainById } from '../../shared/supportedChains'
 import abi from '../../src/abi/stakex/abi-ui.json'
 import { DynamoDBHelper } from '../helpers/ddb/dynamodb'
 import { calculationsFinish } from './trigger-calculations-finish'
-// TODO maybe rename it in log APR
 
 type CalculateAprSingleEventType = {
     fromBlock: number
@@ -222,7 +221,7 @@ const calculateAPR = async (
 
     const client = createPublicClient({
         chain,
-        transport: http(),
+        transport: http(chain.rpcUrls.default.http[0], { timeout: 60_000 }),
     })
 
     let isRunningContract = false

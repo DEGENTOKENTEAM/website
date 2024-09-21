@@ -193,14 +193,6 @@ export const StakingForm = ({ stakingTokenInfo, onDepositSuccessHandler }: Staki
                 stakeBucketId !== defaultBucketId &&
                 !isLoadingERC20Allowance
         )
-        console.log('aaa', {
-            defaultBucketId,
-            stakeAmount,
-            stakeBucketId,
-            stakeBucketChecked,
-            isConnected,
-            isLoadingERC20Allowance,
-        })
     }, [defaultBucketId, stakeAmount, stakeBucketId, stakeBucketChecked, isConnected, isLoadingERC20Allowance])
 
     // initiate deposit when conditions are met

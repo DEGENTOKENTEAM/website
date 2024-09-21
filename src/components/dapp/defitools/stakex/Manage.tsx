@@ -80,6 +80,7 @@ export const Manage = () => {
 
     const reloadData = () => {
         // TODO maybe do something to update protocol specific stuff
+        console.log('reeeeeeload')
     }
 
     return (

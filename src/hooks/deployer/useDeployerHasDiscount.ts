@@ -2,19 +2,20 @@ import abi from '@dappabis/deployer/abi-ui.json'
 import { Address } from 'viem'
 import { useReadContract } from 'wagmi'
 
-export const useGetFeeEstimationDeployerSTAKEX = (
+export const useDeployerHasDiscount = (
     address: Address,
     chainId: number,
-    account: Address
+    feeId: Address,
+    issuer: Address
 ) =>
     useReadContract({
         address,
         chainId,
         abi,
-        account,
-        functionName: 'deployerStakeXGetFeeEstimation',
+        functionName: 'deployerHasDiscount',
+        args: [feeId, issuer],
         query: {
-            enabled: Boolean(address && chainId),
-            select: (data: bigint) => data,
+            enabled: Boolean(feeId && issuer),
+            select: (data: boolean) => data,
         },
     })

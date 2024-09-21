@@ -28,7 +28,6 @@ import { StakingProjectLogo } from './staking/StakingProjectLogo'
 import { StakingStatistics } from './staking/StakingSatistics'
 import { StakingTabber, StakingTabberItem } from './staking/StakingTabber'
 
-// TODO disable action when wallet is connected to wrong chain
 export const StakeX = () => {
     const { switchChain } = useSwitchChain()
     const { isConnected, isDisconnected, isConnecting, address, chain: chainAccount } = useAccount()
@@ -220,6 +219,7 @@ export const StakeX = () => {
                 <h1 className="flex w-full max-w-2xl flex-row gap-1 px-8 font-title text-3xl font-bold tracking-wide sm:px-0">
                     {stakingTokenInfo && stakingData.protocol && responseCustomization && (
                         <StakingProjectLogo
+                            chain={chain!}
                             projectName={responseCustomization.data.projectName || ''}
                             source={responseCustomization.data.logoUrl}
                         />

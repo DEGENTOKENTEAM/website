@@ -48,7 +48,7 @@ export const StakingDurationSelection = ({
 
     useEffect(() => {
         if (selectedDuration) onDurationSelection(selectedDuration)
-    }, [selectedDuration, onDurationSelection]) // TODO maybe change parent to 'useCallback'
+    }, [selectedDuration, onDurationSelection])
 
     return (
         <div className="text-sm">

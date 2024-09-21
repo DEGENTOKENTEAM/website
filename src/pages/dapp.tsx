@@ -1,12 +1,13 @@
+import { DAppContext, DAppContextDataType } from '@dapphelpers/dapp'
+import { GoogleTagManager } from '@next/third-parties/google'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { ConnectKitProvider, getDefaultConfig } from 'connectkit'
+import TimeAgo from 'javascript-time-ago'
+import en from 'javascript-time-ago/locale/en'
 import { useTheme } from 'next-themes'
 import Head from 'next/head'
 import { useEffect, useState } from 'react'
 import { BrowserRouter, Route, Routes } from 'react-router-dom'
-// import { Products } from 'src/components/dapp/Products'
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import TimeAgo from 'javascript-time-ago'
-import en from 'javascript-time-ago/locale/en'
 import { chains } from 'shared/supportedChains'
 import { DeFiTools } from 'src/components/dapp/DeFiTools'
 import { WagmiProvider, createConfig } from 'wagmi'
@@ -18,17 +19,14 @@ import { LiquidityBacking } from '../components/dapp/LiquidityBacking'
 import { StakeX } from '../components/dapp/StakeX'
 import { DappHeader } from '../components/dapp/elements/DappHeader'
 import Sidebar from '../components/dapp/elements/Sidebar'
-import { DAppContext, DAppContextDataType } from '@dapphelpers/dapp'
-import { GoogleTagManager } from '@next/third-parties/google'
 
 TimeAgo.addDefaultLocale(en)
 
 const config = createConfig(
     getDefaultConfig({
+        appName: 'DEGENX Ecosystem DAPP',
         chains: chains as any,
         walletConnectProjectId: process.env.NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID!,
-        // infuraId: process.env.NEXT_PUBLIC_INFURA_ID!,
-        appName: 'DEGENX Ecosystem DAPP',
     })
 )
 
