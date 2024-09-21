@@ -1,12 +1,13 @@
 name: Deploy Backend Production
 on:
-  push:
-    branches:
-      - main
-    paths:
-      - api
+  # push:
+  #   branches:
+  #     - main
+  #   paths:
+  #     - api
   workflow_dispatch:
 
+# TODO automate this deployment again
 jobs:
   deploy:
     runs-on: ubuntu-latest

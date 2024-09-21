@@ -4,7 +4,6 @@ on:
     types: [published]
   workflow_dispatch:
 
-
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -41,11 +40,14 @@ jobs:
           NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID: ${{ vars.NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID }}
           NEXT_PUBLIC_INFURA_ID: ${{ vars.NEXT_PUBLIC_INFURA_ID }}
           NEXT_PUBLIC_ALCHEMY_API_KEY: ${{ vars.NEXT_PUBLIC_ALCHEMY_API_KEY }}
+          NEXT_PUBLIC_ANKR_API_KEY: ${{ vars.NEXT_PUBLIC_ANKR_API_KEY }}
           NEXT_PUBLIC_BOUNCER_VERIFICATION_DATA: ${{ vars.NEXT_PUBLIC_BOUNCER_VERIFICATION_DATA }}
           NEXT_PUBLIC_BOUNCER_VERIFY_WALLET: ${{ vars.NEXT_PUBLIC_BOUNCER_VERIFY_WALLET }}
           NEXT_PUBLIC_BOUNCER_FINISH_VERIFICATION: ${{ vars.NEXT_PUBLIC_BOUNCER_FINISH_VERIFICATION }}
           NEXT_PUBLIC_STAKEX_API_ENDPOINT: ${{ vars.NEXT_PUBLIC_STAKEX_API_ENDPOINT }}
           NEXT_PUBLIC_DEGENX_BACKEND_API_ENDPOINT: ${{ vars.NEXT_PUBLIC_DEGENX_BACKEND_API_ENDPOINT }}
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+          NEXT_PUBLIC_SENTRY_DSN: ${{ vars.NEXT_PUBLIC_SENTRY_DSN }}
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v2
@@ -63,7 +65,7 @@ jobs:
           STACK_NAME: degenx-dapp-production
           TEMPLATE_FILE: ${{github.workspace}}/.deployment/production.cf.yml
           CUSTOM_BUCKET_NAME: dgnx.finance
-  
+
       - name: Deploy stkx.io Cloud Formation & Static Website
         id: deploy-stkx-bucket
         run: |
@@ -76,7 +78,7 @@ jobs:
           STACK_NAME: stkx-production
           TEMPLATE_FILE: ${{github.workspace}}/.deployment/s3-static-site.cf.yml
           ROOT_DOMAIN_NAME: stkx.io
-  
+
       - name: Update CloudFlare DNS records for review env stkx.io
         uses: rez0n/create-dns-record@v2.1
         with:
@@ -87,7 +89,7 @@ jobs:
           proxied: true
           token: ${{ secrets.CLOUDFLARE_TOKEN }}
           zone: ${{ secrets.CLOUDFLARE_ZONE }}
-  
+
       # - name: Deploy API to production
       #   run: |
       #     ./node_modules/serverless/bin/serverless.js config credentials --provider aws --key ${{ secrets.DGNX_WEBSITE_AWS_ACCOUNT_ID }} --secret ${{ secrets.DGNX_WEBSITE_AWS_ACCOUNT_KEY }} --profile dgnx
