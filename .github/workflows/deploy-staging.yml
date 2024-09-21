@@ -31,7 +31,6 @@ jobs:
       - name: Build
         run: npm run build
         env:
-          NEXT_PUBLIC_API_ENDPOINT: ${{ vars.NEXT_PUBLIC_API_ENDPOINT }}
           NEXT_PUBLIC_BACKING_API_ENDPOINT: ${{ vars.NEXT_PUBLIC_BACKING_API_ENDPOINT }}
           NEXT_PUBLIC_CONTROLLER_ADDRESS: ${{ vars.NEXT_PUBLIC_CONTROLLER_ADDRESS }}
           NEXT_PUBLIC_USDC_ADDRESSES: ${{ vars.NEXT_PUBLIC_USDC_ADDRESSES }}
@@ -45,6 +44,7 @@ jobs:
           NEXT_PUBLIC_BOUNCER_VERIFICATION_DATA: ${{ vars.NEXT_PUBLIC_BOUNCER_VERIFICATION_DATA }}
           NEXT_PUBLIC_BOUNCER_VERIFY_WALLET: ${{ vars.NEXT_PUBLIC_BOUNCER_VERIFY_WALLET }}
           NEXT_PUBLIC_BOUNCER_FINISH_VERIFICATION: ${{ vars.NEXT_PUBLIC_BOUNCER_FINISH_VERIFICATION }}
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
           NEXT_PUBLIC_ENABLE_TESTNETS: ${{ vars.NEXT_PUBLIC_ENABLE_TESTNETS }}
           NEXT_PUBLIC_STAKEX_API_ENDPOINT: ${{ vars.NEXT_PUBLIC_STAKEX_API_ENDPOINT }}
           NEXT_PUBLIC_DEGENX_BACKEND_API_ENDPOINT: ${{ vars.NEXT_PUBLIC_DEGENX_BACKEND_API_ENDPOINT }}
@@ -57,12 +57,41 @@ jobs:
           aws-secret-access-key: ${{ secrets.DGNX_WEBSITE_AWS_ACCOUNT_KEY }}
           aws-region: eu-west-1
 
-      - name: Deploy Cloud Formation
-        run: aws cloudformation deploy --template-file "${TEMPLATE_FILE}" --stack-name "${STACK_NAME}" --parameter-overrides CustomBucketName="${CUSTOM_BUCKET_NAME}"
+      - name: Deploy Cloud Formation & Static Website
+        id: deploy-website-bucket
+        run: |
+          aws cloudformation deploy --template-file "${TEMPLATE_FILE}" --stack-name "${STACK_NAME}" --parameter-overrides CustomBucketName="${CUSTOM_BUCKET_NAME}"
+          aws s3 sync ./out/ s3://${CUSTOM_BUCKET_NAME}/ --delete
         env:
           STACK_NAME: degenx-dapp-staging
           TEMPLATE_FILE: ${{github.workspace}}/.deployment/staging.cf.yml
           CUSTOM_BUCKET_NAME: staging.dgnx.finance
+
+      ### DEPLOY LANDINGPAGES
+      ## STKX.IO
+      - name: Deploy stkx.io Cloud Formation & Static Website
+        id: deploy-stkx-bucket
+        run: |
+          aws cloudformation deploy --template-file "${TEMPLATE_FILE}" --stack-name "${STACK_NAME}" --parameter-overrides RootDomainName="${ROOT_DOMAIN_NAME}"
+          echo "WEBSITE_URL_WITHOUT_PROTOCOL=$(aws cloudformation describe-stacks --stack-name "${STACK_NAME}" --query "Stacks[0].Outputs[?OutputKey=='WebsiteURLWithoutProtocol'].OutputValue" --output text)" >> "$GITHUB_OUTPUT"
+          echo "WEBSITE_URL=$(aws cloudformation describe-stacks --stack-name "${STACK_NAME}" --query "Stacks[0].Outputs[?OutputKey=='WebsiteURL'].OutputValue" --output text)" >> "$GITHUB_OUTPUT"
+          aws s3 sync ./out/ s3://${ROOT_DOMAIN_NAME}/ --delete
+          aws s3 sync ./out/lps/stakex/ s3://${ROOT_DOMAIN_NAME}/
+        env:
+          STACK_NAME: stkx-production
+          TEMPLATE_FILE: ${{github.workspace}}/.deployment/s3-static-site.cf.yml
+          ROOT_DOMAIN_NAME: stkx.io 
+
+      - name: Update CloudFlare DNS records for review env stkx.io
+        uses: rez0n/create-dns-record@v2.1
+        with:
+          type: 'CNAME'
+          name: 'staging.stkx.io'
+          content: ${{ steps.deploy-stkx-bucket.outputs.WEBSITE_URL_WITHOUT_PROTOCOL }}
+          ttl: 1
+          proxied: true
+          token: ${{ secrets.CLOUDFLARE_TOKEN }}
+          zone: ${{ secrets.CLOUDFLARE_ZONE }}
 
       # - name: Deploy API to staging
       #   run: |
@@ -70,6 +99,3 @@ jobs:
       #     cd api && ../node_modules/serverless/bin/serverless.js deploy -s staging --force --param="SNOWTRACE_API_KEY=${{ secrets.SNOWTRACE_API_KEY }}"
       #   env:
       #     SNOWTRACE_API_KEY: test
-
-      - name: Deploy static site to S3 bucket
-        run: aws s3 sync ./out/ s3://staging.dgnx.finance/ --delete
