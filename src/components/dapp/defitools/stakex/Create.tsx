@@ -234,7 +234,7 @@ export const Create = () => {
     useEffect(() => {
         if (!selectedChain || !protocols) return
 
-        setData({
+        const _data = {
             chainId: selectedChain.id,
             deployArgs: {
                 referral: dataReferrer && dataReferrer.active ? dataReferrer.account : zeroAddress,
@@ -267,7 +267,8 @@ export const Create = () => {
                     excludeStakingTokenFromRewards: useDifferentRewardToken,
                 },
             },
-        })
+        }
+        setData(_data)
     }, [
         selectedChain,
         dataReferrer,
@@ -316,7 +317,7 @@ export const Create = () => {
     }, [useDifferentRewardToken])
 
     useEffect(() => {
-        if (!enableStakeLock) setBucketFormData(initBucketData)
+        setBucketFormData({ ...initBucketData, lock: enableStakeLock })
     }, [enableStakeLock])
 
     useEffect(() => {
