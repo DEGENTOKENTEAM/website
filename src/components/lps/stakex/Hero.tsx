@@ -15,10 +15,12 @@ export const Hero = () => {
     return (
         <div>
             <div className="m-auto grid h-full max-w-7xl grid-cols-1 md:grid-cols-2 ">
-                <div className="order-last flex flex-col justify-center gap-4 py-10 md:-order-last">
-                    <span className="font-title text-4xl font-bold tracking-wide">
-                        <span className="text-techGreen">STAKE</span>
-                        <span className="text-degenOrange">X</span>
+                <div className="order-last flex flex-col justify-center gap-4 py-6 md:py-16 md:-order-last">
+                    <span className="text-4xl font-bold leading-10 tracking-wide">
+                        <span className="font-title font-extrabold">
+                            <span className="text-techGreen">STAKE</span>
+                            <span className="text-degenOrange">X</span>
+                        </span>
                         <br />
                         Staking Solutions
                     </span>
@@ -37,7 +39,7 @@ export const Hero = () => {
                     <Image
                         src={heroImage}
                         alt="Hero Banner Image"
-                        className="right-8 top-8 mt-10 w-[70%] md:absolute"
+                        className="right-8 top-8 md:mt-10 w-[70%] md:absolute"
                     />
                 </div>
             </div>

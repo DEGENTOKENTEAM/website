@@ -38,7 +38,7 @@ export default function Home() {
                         </InnerContainer>
                     </OuterContainer>
                     <OuterContainer className="bg-dapp-blue-800/20">
-                        <InnerContainer className="flex flex-col gap-16 py-16 md:flex-row">
+                        <InnerContainer className="flex flex-col-reverse gap-8 py-8 md:flex-row md:gap-16 md:py-16">
                             <div className="flex w-10/12 flex-col justify-center gap-8">
                                 <h2 className="font-title text-2xl font-bold">
                                     What is <span className="text-techGreen">STAKE</span>
@@ -59,7 +59,7 @@ export default function Home() {
                         <CallToAction />
                     </div>
                     <OuterContainer className="bg-dapp-blue-800/30">
-                        <InnerContainer className="flex flex-col gap-16 py-16 md:flex-row">
+                        <InnerContainer className="flex flex-col gap-8 py-8 md:flex-row md:gap-16 md:py-16">
                             <div>
                                 <Image
                                     src={whatDoesStakeX}
@@ -89,7 +89,7 @@ export default function Home() {
                         <CallToAction />
                     </div>
                     <OuterContainer className="bg-dapp-blue-800/30">
-                        <InnerContainer className="flex flex-col gap-16 py-16 md:flex-row">
+                        <InnerContainer className="flex flex-col-reverse gap-8 py-8 md:flex-row md:gap-16 md:py-16">
                             <div className="flex w-10/12 flex-col justify-center gap-8">
                                 <h2 className="font-title text-2xl font-bold">
                                     What can you do with <span className="text-techGreen">STAKE</span>
@@ -119,7 +119,7 @@ export default function Home() {
                         <CallToAction />
                     </div>
                     <OuterContainer className="bg-dapp-blue-800/30">
-                        <InnerContainer className="flex flex-col gap-16 py-16 md:flex-row">
+                        <InnerContainer className="flex flex-col gap-8 py-8 md:flex-row md:gap-16 md:py-16">
                             <div>
                                 <Image
                                     src={whatCanStakeXDoHolders}
