@@ -17,12 +17,16 @@ import { isUndefined } from 'lodash'
 import { useContext, useEffect, useState } from 'react'
 import { FaRegCheckCircle, FaRegTimesCircle } from 'react-icons/fa'
 import { IoMdOpen } from 'react-icons/io'
+import { useNavigate } from 'react-router-dom'
+import { Button } from 'src/components/Button'
 import { Spinner } from 'src/components/dapp/elements/Spinner'
 
 export const GeneralInformation = () => {
     const {
         data: { chain, protocol, owner },
     } = useContext(ManageStakeXContext)
+
+    const navigate = useNavigate()
 
     const [tvlUsd, setTvlUsd] = useState(0)
 
@@ -226,6 +230,23 @@ export const GeneralInformation = () => {
                     </div>
                 </StatsBoxTwoColumn.RightColumn>
             </StatsBoxTwoColumn.Wrapper>
+
+            {dataStakingToken && chain && (
+                <div className="col-span-2">
+                    <Button
+                        className="w-full"
+                        disabled={!dataIsRunning}
+                        onClick={() => {
+                            navigate(`/dapp/staking/${chain.id}/${protocol}`, {
+                                relative: 'path',
+                            })
+                        }}
+                        variant="primary"
+                    >
+                        Stake {dataStakingToken.symbol}
+                    </Button>
+                </div>
+            )}
         </Tile>
     )
 }
