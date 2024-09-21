@@ -7,7 +7,10 @@ import { InnerContainer, OuterContainer } from 'src/components/lps/stakex/Contai
 import { Footer } from 'src/components/lps/stakex/Footer'
 import { Header } from 'src/components/lps/stakex/Header'
 import { Hero } from 'src/components/lps/stakex/Hero'
-import dummyImage from './../../images/lps/stakex/dummy-image-16-9.png'
+import whatIsStakeX from './../../images/lps/stakex/whatisstakex.png'
+import whatDoesStakeX from './../../images/lps/stakex/whatdoesstakex.png'
+import whatCanStakeXDo from './../../images/lps/stakex/whatcanstakexdo.png'
+import whatCanStakeXDoHolders from './../../images/lps/stakex/whatcanstakexdoholders.png'
 import { useEffect } from 'react'
 import { ForHolders } from 'src/components/lps/stakex/ForHolders'
 import { ForDevelopers } from 'src/components/lps/stakex/ForDevelopers'
@@ -35,8 +38,8 @@ export default function Home() {
                         </InnerContainer>
                     </OuterContainer>
                     <OuterContainer className="bg-dapp-blue-800/20">
-                        <InnerContainer className="flex flex-col gap-8 py-16 md:flex-row">
-                            <div className="flex flex-col gap-8">
+                        <InnerContainer className="flex flex-col gap-16 py-16 md:flex-row">
+                            <div className="flex w-10/12 flex-col justify-center gap-8">
                                 <h2 className="font-title text-2xl font-bold">
                                     What is <span className="text-techGreen">STAKE</span>
                                     <span className="text-degenOrange">X</span>?
@@ -48,13 +51,7 @@ export default function Home() {
                                 </p>
                             </div>
                             <div>
-                                <Image
-                                    src={dummyImage}
-                                    alt="Dummy Image"
-                                    width={524}
-                                    height={294}
-                                    className="w-full rounded-lg"
-                                />
+                                <Image src={whatIsStakeX} alt="What is STAKEX image" className="w-full rounded-lg" />
                             </div>
                         </InnerContainer>
                     </OuterContainer>
@@ -62,17 +59,17 @@ export default function Home() {
                         <CallToAction />
                     </div>
                     <OuterContainer className="bg-dapp-blue-800/30">
-                        <InnerContainer className="flex flex-col gap-8 py-16 md:flex-row">
+                        <InnerContainer className="flex flex-col gap-16 py-16 md:flex-row">
                             <div>
                                 <Image
-                                    src={dummyImage}
-                                    alt="Dummy Image"
+                                    src={whatDoesStakeX}
+                                    alt="What does STAKEX image"
                                     width={524}
                                     height={294}
                                     className="w-full rounded-lg"
                                 />
                             </div>
-                            <div className="flex flex-col gap-8">
+                            <div className="flex w-10/12 flex-col justify-center gap-8">
                                 <h2 className="font-title text-2xl font-bold">
                                     What does <span className="text-techGreen">STAKE</span>
                                     <span className="text-degenOrange">X</span> do for your project?
@@ -92,8 +89,8 @@ export default function Home() {
                         <CallToAction />
                     </div>
                     <OuterContainer className="bg-dapp-blue-800/30">
-                        <InnerContainer className="flex flex-col gap-8 py-16 md:flex-row">
-                            <div className="flex flex-col gap-8">
+                        <InnerContainer className="flex flex-col gap-16 py-16 md:flex-row">
+                            <div className="flex w-10/12 flex-col justify-center gap-8">
                                 <h2 className="font-title text-2xl font-bold">
                                     What can you do with <span className="text-techGreen">STAKE</span>
                                     <span className="text-degenOrange">X</span>?
@@ -107,8 +104,8 @@ export default function Home() {
                             </div>
                             <div>
                                 <Image
-                                    src={dummyImage}
-                                    alt="Dummy Image"
+                                    src={whatCanStakeXDo}
+                                    alt="What can STAKEX do image"
                                     width={524}
                                     height={294}
                                     className="w-full rounded-lg"
@@ -116,21 +113,23 @@ export default function Home() {
                             </div>
                         </InnerContainer>
                     </OuterContainer>
+                    <ForDevelopers />
+
                     <div className="flex flex-row justify-center border-b border-t border-dapp-blue-400 bg-dapp-cyan-50/5 p-16">
                         <CallToAction />
                     </div>
                     <OuterContainer className="bg-dapp-blue-800/30">
-                        <InnerContainer className="flex flex-col gap-8 py-16 md:flex-row">
+                        <InnerContainer className="flex flex-col gap-16 py-16 md:flex-row">
                             <div>
                                 <Image
-                                    src={dummyImage}
-                                    alt="Dummy Image"
+                                    src={whatCanStakeXDoHolders}
+                                    alt="What can STAKEX do for holders image"
                                     width={524}
                                     height={294}
                                     className="w-full rounded-lg"
                                 />
                             </div>
-                            <div className="flex flex-col gap-8">
+                            <div className="flex w-10/12 flex-col justify-center gap-8">
                                 <h2 className="font-title text-2xl font-bold">
                                     What can your token holders do with <span className="text-techGreen">STAKE</span>
                                     <span className="text-degenOrange">X</span>?
@@ -190,7 +189,6 @@ export default function Home() {
                             </div>
                         </InnerContainer>
                     </OuterContainer>
-                    <ForDevelopers />
                     <div className="flex flex-row justify-center border-b border-t border-dapp-blue-400 bg-dapp-cyan-50/5 p-16">
                         <CallToAction />
                     </div>

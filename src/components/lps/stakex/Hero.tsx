@@ -33,11 +33,11 @@ export const Hero = () => {
                         <CallToActionButton />
                     </div>
                 </div>
-                <div className="flex flex-col items-center justify-center md:items-end">
+                <div className="relative flex flex-col items-center justify-center md:items-end">
                     <Image
                         src={heroImage}
                         alt="Hero Banner Image"
-                        className="rounded-lg md:max-h-[70%] md:max-w-[70%] md:rounded-lg md:object-cover"
+                        className="right-8 top-8 mt-10 w-[70%] md:absolute"
                     />
                 </div>
             </div>
