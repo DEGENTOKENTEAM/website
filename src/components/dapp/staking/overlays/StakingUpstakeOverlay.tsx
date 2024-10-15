@@ -234,7 +234,7 @@ export const StakingUpstakeOverlay = ({
                         {targetTokens && payoutToken && (
                             <StakingPayoutTokenSelection
                                 headline="Claiming Rewards"
-                                description="If your enable this option, you're able to select a payout token for the existing rewards. If you don't enable this option, your rewards will be added to the upstaked stake."
+                                description="Enable this option and select a payout token in order to claim your rewards in a specific payout token. Disable this option and your rewards will be added to the upstake amount."
                                 selectedToken={payoutToken}
                                 tokens={targetTokens}
                                 onSelect={onClickPayoutHandler}
@@ -426,10 +426,10 @@ export const StakingUpstakeOverlay = ({
                                 <>
                                     <br />
                                     <br />A fee of {toReadableNumber(feeAmount, stakingTokenInfo?.decimals)}{' '}
-                                    {stakingTokenInfo?.symbol} has been charged from your re-staking amount
+                                    {stakingTokenInfo?.symbol} has been charged from your upstaking amount
                                 </>
                             )}
-                            {typeof claimedAmount === 'bigint' && claimedAmount > 0n && (
+                            {claimRewards && typeof claimedAmount === 'bigint' && claimedAmount > 0n && (
                                 <>
                                     <br />
                                     <br />

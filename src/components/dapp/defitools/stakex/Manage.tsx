@@ -20,11 +20,12 @@ import { Customization } from './manage/Customization'
 import { Fees } from './manage/Fees'
 import { GeneralInformation } from './manage/GeneralInformation'
 import { InjectRewards } from './manage/InjectRewards'
+import { MergingManagement } from './manage/MergingManagement'
 import { NFTManagement } from './manage/NFTManagement'
 import { StakingProgressChart } from './manage/StakingProgressChart'
 import { TokenManagement } from './manage/TokenManagement'
 import { UpdateAvailability } from './manage/UpdateAvailability'
-import { UpstakingFeeManagement } from './manage/UpstakingFeeManagement'
+import { UpstakingManagement } from './manage/UpstakingManagement'
 
 export const Manage = () => {
     const { protocolAddress, chainId } = useParams<{
@@ -108,9 +109,10 @@ export const Manage = () => {
                     {data.isOwner && <Control />}
                     <Fees />
                     <div className="grid gap-8 sm:grid-cols-2">
-                        <UpstakingFeeManagement />
-                        <InjectRewards />
+                        <UpstakingManagement />
+                        <MergingManagement />
                     </div>
+                    <InjectRewards />
                 </div>
             </ManageStakeXContext.Provider>
         )

@@ -4,6 +4,7 @@ import { useGetRewardEstimationForTokens } from '@dapphooks/staking/useGetReward
 import { useGetStakeBuckets } from '@dapphooks/staking/useGetStakeBuckets'
 import { BucketStakedShare, useGetStakedSharesByStaker } from '@dapphooks/staking/useGetStakedSharesByStaker'
 import { useGetTargetTokens } from '@dapphooks/staking/useGetTargetTokens'
+import { useMergeActive } from '@dapphooks/staking/useMergeActive'
 import { useUpstakeActive } from '@dapphooks/staking/useUpstakeActive'
 import { CaretDivider } from '@dappshared/CaretDivider'
 import { StatsBoxTwoColumn } from '@dappshared/StatsBoxTwoColumn'
@@ -15,6 +16,7 @@ import { Spinner } from '../elements/Spinner'
 import { StakingNFTTile } from './StakingNFTTile'
 import { SortOption, StakingSortOptions } from './StakingSortOptions'
 import { StakingClaimOverlay } from './overlays/StakingClaimOverlay'
+import { StakingMergeOverlay } from './overlays/StakingMergeOverlay'
 import { StakingRestakeOverlay } from './overlays/StakingRestakeOverlay'
 import { StakingUpstakeOverlay } from './overlays/StakingUpstakeOverlay'
 import { StakingWithdrawOverlay } from './overlays/StakingWithdrawOverlay'
@@ -34,7 +36,6 @@ export const StakingDetails = ({ stakingTokenInfo, defaultShowToken, defaultPayo
         data: { protocol, chain },
     } = useContext(StakeXContext)
 
-    // const { address } = useAccount()
     const [selectedSortOption, setSelectedSortOption] = useState(0)
     const [isLoading, setIsLoading] = useState(true)
     const [totalStakedAmount, setTotalStakedAmount] = useState(0n)
@@ -45,6 +46,7 @@ export const StakingDetails = ({ stakingTokenInfo, defaultShowToken, defaultPayo
         [tokenId: number]: bigint
     }>({})
     const [canClaimAll, setCanClaimAll] = useState(false)
+    const [bucketStakes, setBucketStakes] = useState<{ [key: string]: number }>()
 
     const [hasBurnBuckets, setHasBurnBuckets] = useState(false)
     const [largestLock, setLargestLock] = useState(0n)
@@ -67,10 +69,12 @@ export const StakingDetails = ({ stakingTokenInfo, defaultShowToken, defaultPayo
     const [isInProgessRestake, setIsInProgessRestake] = useState(false)
     const [isInProgessWithdraw, setIsInProgessWithdraw] = useState(false)
     const [isInProgessUpstake, setIsInProgessUpstake] = useState(false)
+    const [isInProgessMerge, setIsInProgessMerge] = useState(false)
     const [tokenIdToClaim, setTokenIdToClaim] = useState<bigint>()
     const [tokenIdToRestake, setTokenIdToRestake] = useState<bigint>()
     const [tokenIdToWithdraw, setTokenIdToWithdraw] = useState<bigint>()
     const [tokenIdToUpstake, setTokenIdToUpstake] = useState<bigint>()
+    const [tokenIdToMerge, setTokenIdToMerge] = useState<bigint>()
 
     const { refetchStakes } = useContext(StakeXContext)
     const { address } = useAccount()
@@ -89,6 +93,7 @@ export const StakingDetails = ({ stakingTokenInfo, defaultShowToken, defaultPayo
     )
     const { data: dataGetStakeBuckets } = useGetStakeBuckets(protocol, chain?.id!)
     const { data: dataUpstakeActive } = useUpstakeActive(protocol, chain?.id!)
+    const { data: dataMergeActive } = useMergeActive(protocol, chain?.id!)
 
     const sortOptions: SortOption[] = useMemo(
         () =>
@@ -203,6 +208,20 @@ export const StakingDetails = ({ stakingTokenInfo, defaultShowToken, defaultPayo
     }
 
     //
+    // Merge
+    //
+    const onMergeHandler = (tokenId: bigint) => {
+        setTokenIdToMerge(tokenId)
+        setIsInProgessMerge(true)
+    }
+
+    const onMergeCloseHandler = () => {
+        refetchStakes && refetchStakes()
+        refetchGetStakedSharesByStaker && refetchGetStakedSharesByStaker()
+        setIsInProgessMerge(false)
+    }
+
+    //
     // effects
     //
 
@@ -280,6 +299,13 @@ export const StakingDetails = ({ stakingTokenInfo, defaultShowToken, defaultPayo
                     }),
                 ...stakes.filter((stake) => by == 'release' && stake.burned),
             ])
+            setBucketStakes(
+                stakes.reduce((acc, stake) => {
+                    if (!acc[stake.bucketId]) acc[stake.bucketId] = 0
+                    acc[stake.bucketId]++
+                    return acc
+                }, {})
+            )
         } else {
             setTokenIds([])
             setTotalStakedAmount(0n)
@@ -455,11 +481,14 @@ export const StakingDetails = ({ stakingTokenInfo, defaultShowToken, defaultPayo
                                         ((!stake.burned && hasBurnBuckets) || stake.lock > largestLock) &&
                                         Boolean(dataUpstakeActive)
                                     }
-                                    canMerge={stakesOrdered.length > 1}
+                                    canMerge={Boolean(
+                                        bucketStakes && bucketStakes[stake.bucketId] > 1 && dataMergeActive
+                                    )}
                                     onClaim={onClaimHandler}
                                     onRestake={onRestakeHandler}
                                     onWithdraw={onWithdrawHandler}
                                     onUpstake={onUpstakeHandler}
+                                    onMerge={onMergeHandler}
                                 />
                             ))}
                     </div>
@@ -516,6 +545,18 @@ export const StakingDetails = ({ stakingTokenInfo, defaultShowToken, defaultPayo
                     stake={stakes.find((stake) => stake.tokenId === tokenIdToUpstake)!}
                     isOpen={true}
                     onClose={onUpstakeCloseHandler}
+                />
+            )}
+            {isInProgessMerge && tokenIdToMerge && (
+                <StakingMergeOverlay
+                    protocolAddress={protocol}
+                    chainId={chain?.id!}
+                    stakingTokenInfo={stakingTokenInfo}
+                    payoutTokenInfo={defaultPayoutToken}
+                    stake={stakes.find((stake) => stake.tokenId === tokenIdToMerge)!}
+                    stakerAddress={address!}
+                    isOpen={true}
+                    onClose={onMergeCloseHandler}
                 />
             )}
         </>

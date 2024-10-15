@@ -1,9 +1,9 @@
 import { ManageStakeXContext } from '@dapphelpers/defitools'
-import { useEnableUpstaking } from '@dapphooks/staking/useEnableUpstaking'
+import { useEnableMerging } from '@dapphooks/staking/useEnableMerging'
 import { useGetFeeMax } from '@dapphooks/staking/useGetFeeMax'
-import { useGetUpstakeFee } from '@dapphooks/staking/useGetUpstakeFee'
-import { useUpdateFeeForUpstaking } from '@dapphooks/staking/useUpdateFeeForUpstaking'
-import { useUpstakeActive } from '@dapphooks/staking/useUpstakeActive'
+import { useGetMergeFee } from '@dapphooks/staking/useGetMergeFee'
+import { useMergeActive } from '@dapphooks/staking/useMergeActive'
+import { useUpdateFeeForMerging } from '@dapphooks/staking/useUpdateFeeForMerging'
 import { BigIntUpDown } from '@dappshared/BigIntUpDown'
 import { CaretDivider } from '@dappshared/CaretDivider'
 import { SwitchForm } from '@dappshared/SwitchForm'
@@ -15,10 +15,10 @@ import { useCallback, useContext, useEffect, useState } from 'react'
 import { AiOutlineQuestionCircle } from 'react-icons/ai'
 import { FaAngleDoubleUp, FaPen } from 'react-icons/fa'
 import { Button } from 'src/components/Button'
-import { ApplyChangesConfirmation } from './upstaking/overlays/ApplyChangesConfirmation'
-import { ToggleStatusConfirmation } from './upstaking/overlays/ToggleStatusConfirmation'
+import { ApplyChangesConfirmation } from './merging/overlays/ApplyChangesConfirmation'
+import { ToggleStatusConfirmation } from './merging/overlays/ToggleStatusConfirmation'
 
-export const UpstakingFeeManagement = () => {
+export const MergingManagement = () => {
     const {
         data: { protocol, chain, canEdit },
     } = useContext(ManageStakeXContext)
@@ -33,25 +33,25 @@ export const UpstakingFeeManagement = () => {
     const [feeOrig, setFeeOrig] = useState(0n)
 
     // readables
-    const { data: dataUpstakeActive, refetch: refetchUpstakeActive } = useUpstakeActive(protocol, chain?.id!)
+    const { data: dataMergeActive, refetch: refetchMergeActive } = useMergeActive(protocol, chain?.id!)
     const { data: dataGetFeeMax } = useGetFeeMax(protocol, chain?.id!)
-    const { data: dataGetFee, refetch: refetchGetFee } = useGetUpstakeFee(protocol, chain?.id!)
+    const { data: dataGetFee, refetch: refetchGetFee } = useGetMergeFee(protocol, chain?.id!)
 
     //
     // writables
     //
     const {
-        write: writeEnableUpstaking,
-        reset: resetEnableUpstaking,
-        error: errorEnableUpstaking,
-        isLoading: isLoadingEnableUpstaking,
-        isSuccess: isSuccessEnableUpstaking,
-        isPending: isPendingEnableUpstaking,
-    } = useEnableUpstaking(
+        write: writeEnableMerging,
+        reset: resetEnableMerging,
+        error: errorEnableMerging,
+        isLoading: isLoadingEnableMerging,
+        isSuccess: isSuccessEnableMerging,
+        isPending: isPendingEnableMerging,
+    } = useEnableMerging(
         protocol,
         chain?.id!,
         isActive,
-        Boolean(protocol && chain && chain.id && isBoolean(dataUpstakeActive))
+        Boolean(protocol && chain && chain.id && isBoolean(dataMergeActive))
     )
     const {
         write: writeUpdateFee,
@@ -60,32 +60,32 @@ export const UpstakingFeeManagement = () => {
         isLoading: isLoadingUpdateFee,
         isSuccess: isSuccessUpdateFee,
         isPending: isPendingUpdateFee,
-    } = useUpdateFeeForUpstaking(protocol, chain?.id!, fee)
+    } = useUpdateFeeForMerging(protocol, chain?.id!, fee)
 
     //
     // change feature status
     //
     const refreshData = useCallback(() => {
-        refetchUpstakeActive && refetchUpstakeActive()
+        refetchMergeActive && refetchMergeActive()
         refetchGetFee && refetchGetFee()
-    }, [refetchUpstakeActive, refetchGetFee])
+    }, [refetchMergeActive, refetchGetFee])
 
-    const onClickToggleUpstakingStatus = (status: boolean) => {
+    const onClickToggleMergingStatus = (status: boolean) => {
         setIsActive(status)
-        resetEnableUpstaking()
+        resetEnableMerging()
         setIsToggleStatusModalOpen(true)
     }
 
-    const onConfirmUpstakingStatusOK = useCallback(() => {
-        writeEnableUpstaking && writeEnableUpstaking()
-    }, [writeEnableUpstaking])
+    const onConfirmMergingStatusOK = useCallback(() => {
+        writeEnableMerging && writeEnableMerging()
+    }, [writeEnableMerging])
 
-    const onConfirmUpstakingStatusNOK = () => {
+    const onConfirmMergingStatusNOK = () => {
         setIsToggleStatusModalOpen(false)
         setIsActive(!isActive)
     }
 
-    const onConfirmUpstakingStatusClose = () => {
+    const onConfirmMergingStatusClose = () => {
         refreshData()
         setIsToggleStatusModalOpen(false)
     }
@@ -134,8 +134,8 @@ export const UpstakingFeeManagement = () => {
     }, [hasChanges, dataGetFee])
 
     useEffect(() => {
-        setIsActive(Boolean(dataUpstakeActive))
-    }, [dataUpstakeActive])
+        setIsActive(Boolean(dataMergeActive))
+    }, [dataMergeActive])
 
     useEffect(() => setHasChanges(fee != feeOrig), [fee, feeOrig])
 
@@ -143,12 +143,11 @@ export const UpstakingFeeManagement = () => {
         <>
             <Tile className="flex w-full flex-col gap-8">
                 <div className="flex items-center gap-2 font-title text-xl font-bold">
-                    <span>Upstaking {canEdit && 'Management'}</span>
+                    <span>Merging {canEdit && 'Management'}</span>
                     <Tooltip
                         content={
                             <div className="font-display text-darkTextLowEmphasis">
-                                <span className="font-bold text-dapp-cyan-50">Upstaking</span> is a feature available
-                                for{' '}
+                                <span className="font-bold text-dapp-cyan-50">Merging</span> is a feature available for{' '}
                                 <span className="font-bold text-dapp-cyan-50">
                                     <span className="font-title">
                                         <span className="text-techGreen">STAKE</span>
@@ -156,9 +155,8 @@ export const UpstakingFeeManagement = () => {
                                     </span>{' '}
                                     Staking Solutions
                                 </span>{' '}
-                                that are offering more than one reward pool with different locking periods. It enables
-                                the stakers to upgrade their stake to join a pool that has a higher lock period than the
-                                pool they are in right now.
+                                that are offering more than one reward pool. It enables the stakers to merge stakes of
+                                the same pool to one single stake with an updated lock period.
                             </div>
                         }
                         className="w-[500px] max-w-[90%] bg-dapp-blue-50"
@@ -169,18 +167,18 @@ export const UpstakingFeeManagement = () => {
                 </div>
                 <div className="flex flex-row items-start gap-8">
                     <div className="flex flex-grow flex-row items-center gap-8">
-                        <FaAngleDoubleUp className={clsx([`h-8 w-8`, dataUpstakeActive && 'text-dapp-cyan-500'])} />
-                        <span>Upstaking {dataUpstakeActive ? 'enabled' : 'disabled'}</span>
+                        <FaAngleDoubleUp className={clsx([`h-8 w-8`, dataMergeActive && 'text-dapp-cyan-500'])} />
+                        <span>Merging {dataMergeActive ? 'enabled' : 'disabled'}</span>
                     </div>
                     {canEdit && (
                         <div className="flex-shrink-0">
-                            <SwitchForm enabled={isActive} onChange={onClickToggleUpstakingStatus} />
+                            <SwitchForm enabled={isActive} onChange={onClickToggleMergingStatus} />
                         </div>
                     )}
                 </div>
                 <div className="flex flex-col gap-4">
                     <div className="flex flex-col gap-1 rounded-lg bg-dapp-blue-400 p-3">
-                        <div>Upstaking Fee %</div>
+                        <div>Merging Fee %</div>
                         <CaretDivider />
                         <BigIntUpDown
                             min={0n}
@@ -215,15 +213,15 @@ export const UpstakingFeeManagement = () => {
                 </div>
             </Tile>
             <ToggleStatusConfirmation
-                isLoading={isLoadingEnableUpstaking}
-                isSuccess={isSuccessEnableUpstaking}
-                isPending={isPendingEnableUpstaking}
+                isLoading={isLoadingEnableMerging}
+                isSuccess={isSuccessEnableMerging}
+                isPending={isPendingEnableMerging}
                 isOpen={isToggleStatusModalOpen}
-                onClose={() => onConfirmUpstakingStatusClose()}
-                onConfirm={() => onConfirmUpstakingStatusOK()}
-                onCancel={() => onConfirmUpstakingStatusNOK()}
-                targetStatus={!dataUpstakeActive}
-                error={errorEnableUpstaking}
+                onClose={() => onConfirmMergingStatusClose()}
+                onConfirm={() => onConfirmMergingStatusOK()}
+                onCancel={() => onConfirmMergingStatusNOK()}
+                targetStatus={!dataMergeActive}
+                error={errorEnableMerging}
             />
             <ApplyChangesConfirmation
                 isLoading={isLoadingUpdateFee}

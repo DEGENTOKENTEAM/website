@@ -294,7 +294,7 @@ export const StakingRestakeOverlay = ({
                                 <>
                                     <br />
                                     <br />A fee of {toReadableNumber(feeAmount, stakingTokenInfo?.decimals)}{' '}
-                                    {stakingTokenInfo?.symbol} has been charged from your re-staking amount
+                                    {stakingTokenInfo?.symbol} has been charged from your restaking amount
                                 </>
                             )}
                         </span>
