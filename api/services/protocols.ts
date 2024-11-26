@@ -5,6 +5,7 @@ import {
 } from '@aws-sdk/lib-dynamodb'
 import { Address } from 'viem'
 import { DynamoDBHelper } from '../helpers/ddb/dynamodb'
+import { toLower } from 'lodash'
 
 export type StakeXProtocolsDTO = {
     chainId: number
@@ -70,7 +71,7 @@ export class StakeXProtocolsRepository {
     createBatch = async (data: StakeXProtocolsDTO[]) => {
         const items = data.map((item) => ({
             pkey,
-            skey: `${item.chainId}#${item.protocol}`,
+            skey: `${item.chainId}#${toLower(item.protocol)}`,
             ...item,
         })) as StakeXProtocolsResponse[]
         const itemsBatch: BatchWriteCommandInput = {
@@ -134,7 +135,7 @@ export class StakeXProtocolsRepository {
             },
             ExpressionAttributeValues: {
                 ':pkey': pkey,
-                ':skey': `${chainId}#${protcol}`,
+                ':skey': `${chainId}#${toLower(protcol)}`,
             },
             Limit: 1,
         })
@@ -285,7 +286,7 @@ export class StakeXProtocolsRepository {
             ExpressionAttributeValues: {
                 ':pkey': pkey,
                 ':isCampaignMode': false,
-                ':owner': owner,
+                ':owner': toLower(owner),
             },
             ConsistentRead: true,
             ScanIndexForward: false,
@@ -310,7 +311,7 @@ export class StakeXProtocolsRepository {
             ExpressionAttributeValues: {
                 ':pkey': pkey,
                 ':isCampaignMode': true,
-                ':owner': owner,
+                ':owner': toLower(owner),
             },
             ConsistentRead: true,
             ScanIndexForward: false,

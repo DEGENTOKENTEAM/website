@@ -117,7 +117,8 @@ export const handler: Handler = async (_, __, callback) => {
                         blockNumberCampaignsUpdate: 0,
                         blockNumberLastUpdate: 0,
                         isCampaignMode: false,
-                        owner: owner as unknown as string,
+                        protocol: toLower(data.protocol),
+                        owner: toLower(owner as unknown as string),
                     },
                 ])
 
@@ -256,7 +257,9 @@ export const handler: Handler = async (_, __, callback) => {
                             'blockNumber',
                         ]) as StakeXAnnualsCreateDTO),
                         chainId: chainId!,
-                        skey: `${chainId}#${item.protocol}#${item.bucketId}#${item.timestamp}`,
+                        skey: `${chainId}#${toLower(item.protocol)}#${
+                            item.bucketId
+                        }#${item.timestamp}`,
                     }
                 })) ||
             []

@@ -71,7 +71,7 @@ export class StakeXStakeLogsRepository {
             },
             ExpressionAttributeValues: {
                 ':pkey': pkey,
-                ':skey': `${protocol}#`,
+                ':skey': `${toLower(protocol)}#`,
             },
             ScanIndexForward: true,
         })

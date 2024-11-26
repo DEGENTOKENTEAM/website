@@ -1,6 +1,7 @@
 import { DynamoDBClientConfig } from '@aws-sdk/client-dynamodb'
 import { BatchWriteCommandInput } from '@aws-sdk/lib-dynamodb'
 import { DynamoDBHelper } from '../helpers/ddb/dynamodb'
+import { toLower } from 'lodash'
 
 export type StakeXAnnualsCreateDTO = {
     chainId: number
@@ -61,7 +62,9 @@ export class StakeXAnnualsRepository {
     createBatch = async (data: StakeXAnnualsCreateDTO[]) => {
         const items = data.map((item) => ({
             pkey,
-            skey: `${item.chainId}#${item.protocol}#${item.bucketId}#${item.timestamp}`,
+            skey: `${item.chainId}#${toLower(item.protocol)}#${item.bucketId}#${
+                item.timestamp
+            }`,
             ...item,
         })) as StakeXAnnualsCreateResponse[]
         const itemsBatch: BatchWriteCommandInput = {
@@ -96,7 +99,7 @@ export class StakeXAnnualsRepository {
             },
             ExpressionAttributeValues: {
                 ':pkey': pkey,
-                ':skeyBegin': `${chainId}#${protocol}#`,
+                ':skeyBegin': `${chainId}#${toLower(protocol)}#`,
                 ':toBlock': blockNumber,
             },
         })
@@ -143,7 +146,7 @@ export class StakeXAnnualsRepository {
             },
             ExpressionAttributeValues: {
                 ':pkey': pkey,
-                ':skey': `${protocol}#${bucketId}#`,
+                ':skey': `${toLower(protocol)}#${bucketId}#`,
             },
             ScanIndexForward: false,
             Limit: 1,

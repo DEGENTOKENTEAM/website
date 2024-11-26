@@ -5,6 +5,7 @@ import {
 } from '@aws-sdk/lib-dynamodb'
 import { DynamoDBHelper } from '../helpers/ddb/dynamodb'
 import { Address } from 'viem'
+import { toLower } from 'lodash'
 
 export type StakeXCampaignsDTO = {
     chainId: number
@@ -70,7 +71,7 @@ export class StakeXCampaignsRepository {
     createBatch = async (data: StakeXCampaignsDTO[]) => {
         const items = data.map((item) => ({
             pkey,
-            skey: `${item.chainId}#${item.protocol}#${item.bucketId}`,
+            skey: `${item.chainId}#${toLower(item.protocol)}#${item.bucketId}`,
             ...item,
         })) as StakeXCampaignsResponse[]
         const itemsBatch: BatchWriteCommandInput = {
@@ -92,7 +93,7 @@ export class StakeXCampaignsRepository {
         const itemKeys = Object.keys(data)
         const Key = {
             pkey,
-            skey: `${data.chainId}#${data.protocol}#${data.bucketId}`,
+            skey: `${data.chainId}#${toLower(data.protocol)}#${data.bucketId}`,
         }
         const params: UpdateCommandInput = {
             TableName: this.options.dynamoDBConfig.params.TableName,
@@ -127,7 +128,9 @@ export class StakeXCampaignsRepository {
                         DeleteRequest: {
                             Key: {
                                 pkey,
-                                skey: `${item.chainId}#${item.protocol}#${item.bucketId}`,
+                                skey: `${item.chainId}#${toLower(
+                                    item.protocol
+                                )}#${item.bucketId}`,
                             },
                         },
                     })
@@ -214,7 +217,7 @@ export class StakeXCampaignsRepository {
             },
             ExpressionAttributeValues: {
                 ':pkey': pkey,
-                ':skeyBegin': `${chainId}#${protocol}#`,
+                ':skeyBegin': `${chainId}#${toLower(protocol)}#`,
             },
             ConsistentRead: true,
             ScanIndexForward: false,
@@ -239,7 +242,7 @@ export class StakeXCampaignsRepository {
             },
             ExpressionAttributeValues: {
                 ':pkey': pkey,
-                ':owner': owner,
+                ':owner': toLower(owner),
             },
             ConsistentRead: true,
             ScanIndexForward: false,
