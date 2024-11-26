@@ -1,13 +1,26 @@
-import { Route, Routes } from 'react-router-dom'
+import { useEffect } from 'react'
+import { Route, Routes, useSearchParams } from 'react-router-dom'
+import { ToastContainer } from 'react-toastify'
+import { useLocalStorage } from 'usehooks-ts'
+import { Address, zeroAddress } from 'viem'
 import { Create } from './Create'
+import { Explanation } from './Explanation'
 import { Manage } from './Manage'
 import { Protocols } from './Protocols'
-import { ToastContainer } from 'react-toastify'
-import { Explanation } from './Explanation'
-import { CampaignsList } from './campaigns/list/CampaignsList'
 import { CampaignsDetails } from './campaigns/details/CampaignsDetails'
+import { CampaignsList } from './campaigns/list/CampaignsList'
 
 export const Overview = () => {
+    const [searchParams, setSearchParams] = useSearchParams()
+    const [, saveStoredRef] = useLocalStorage<Address>('stakexRef', zeroAddress)
+    useEffect(() => {
+        if (searchParams && searchParams.has('ref') && saveStoredRef) {
+            saveStoredRef(searchParams.get('ref') as Address)
+            searchParams.delete('ref')
+            setSearchParams(searchParams)
+        }
+    }, [searchParams, saveStoredRef])
+
     return (
         <>
             <Routes>

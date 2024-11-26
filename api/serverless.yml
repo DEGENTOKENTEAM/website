@@ -284,7 +284,7 @@ functions:
     events:
       - schedule:
           rate: rate(10 minutes)
-          enabled: false # TODO enable
+          enabled: true
 
   autoCalculateStakes:
     handler: stakex/automations/calculations/calculate-stakes.handler
@@ -292,7 +292,7 @@ functions:
     events:
       - schedule:
           rate: rate(10 minutes)
-          enabled: false # TODO enable
+          enabled: true
 
   autoUpdateManifests:
     handler: stakex/automations/periphery/update-manifests.handler
@@ -306,21 +306,21 @@ functions:
     events:
       - schedule:
           rate: rate(1 minute)
-          enabled: false # TODO enable
+          enabled: true
 
   autoUpdateProtocolLogs:
     handler: stakex/automations/update-protocol-logs.handler
     events:
       - schedule:
           rate: rate(1 minute)
-          enabled: false # TODO enable
+          enabled: true
 
   autoUpdateCampaigns:
     handler: stakex/automations/update-campaigns.handler
     events:
       - schedule:
           rate: rate(5 minutes)
-          enabled: false # TODO enable
+          enabled: true
 
 resources:
   Resources:

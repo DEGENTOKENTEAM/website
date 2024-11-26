@@ -8,12 +8,12 @@ import { TokenSearchInput } from '@dappshared/TokenSearchInput'
 import { STAKEXCreatorData, STAKEXCreatorDataInitParams, STAKEXDeployArgs } from '@dapptypes'
 import { ConnectKitButton } from 'connectkit'
 import { ChangeEvent, useCallback, useContext, useEffect, useState } from 'react'
-import { useNavigate, useSearchParams } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { getChainById } from 'shared/supportedChains'
 import { Button } from 'src/components/Button'
-import { useLocalStorage } from 'usehooks-ts'
+import { useReadLocalStorage } from 'usehooks-ts'
 import { Address, Chain, encodeFunctionData, parseAbi, zeroAddress } from 'viem'
-import { useAccount, useConnect, useSwitchChain } from 'wagmi'
+import { useAccount, useSwitchChain } from 'wagmi'
 import protocols from './../../../../../config/protocols'
 import { CreateProtocolConfirmation } from './create/overlays/CreateProtocolConfirmation'
 
@@ -44,9 +44,6 @@ export const Create = ({ enableCampaignMode }: CreateProps) => {
     const navigate = useNavigate()
     const { isConnected, chainId, address: addressConnected } = useAccount()
     const { switchChain } = useSwitchChain()
-    const { connect } = useConnect()
-    const [searchParams] = useSearchParams()
-    const [storedRef, saveStoredRef] = useLocalStorage<Address>('stakexRef', zeroAddress)
     const chainIds = Object.keys(protocols).map((v) => +v)
     const networks = chainIds.map((id) => getChainById(id))
 
@@ -66,6 +63,7 @@ export const Create = ({ enableCampaignMode }: CreateProps) => {
 
     // deployment parameter
     const [deploymentParams, setDeploymentParams] = useState<STAKEXDeployArgs | null>(null)
+    const storedRef = useReadLocalStorage<Address>('stakexRef')
 
     const { data: dataReferrer } = useGetReferrerById(deployerAddress!, selectedChain?.id!, storedRef!)
 
@@ -194,14 +192,6 @@ export const Create = ({ enableCampaignMode }: CreateProps) => {
     useEffect(() => {
         setDeployerAddress(selectedChain ? protocols[selectedChain.id].deployer : undefined)
     }, [selectedChain, refetchRewardTokenInfo, refetchStakingTokenInfo])
-
-    useEffect(() => {
-        if (searchParams && saveStoredRef) {
-            const ref = searchParams.get('ref') as Address
-            saveStoredRef(ref)
-            searchParams.delete('ref')
-        }
-    }, [searchParams, saveStoredRef])
 
     useEffect(() => {
         setTitle('STAKEX Creator')
