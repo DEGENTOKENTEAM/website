@@ -34,7 +34,7 @@ const mainnets: ProtocolConfigs = {
         stakex: {
             genesis: '0x00000000004545cB8440FDD6095a97DEBd1F3814',
             init: '0x2268C6e54DC06425a09e584b36A67691d071a66D',
-            init_v_1_3_0: zeroAddress, // TODO update with upgrader address
+            init_v_1_3_0: '0x33eB57FBA21a5f646eC0D5FAB045C60C58DaDA58', // TODO update with upgrader address
         },
         upgrader: '0x4BeB5ceBDD9afE244Ebec7df49Bb882431BcF4e7',
     },
@@ -54,7 +54,7 @@ const mainnets: ProtocolConfigs = {
         stakex: {
             genesis: '0x00000000004545cB8440FDD6095a97DEBd1F3814',
             init: '0x2eC519eeF9604C7495cdAaF73B213478552d74e5',
-            init_v_1_3_0: zeroAddress, // TODO update with upgrader address
+            init_v_1_3_0: '0x658800b2e207241C579d1b0347f3C49B2EEb7Da6', // TODO update with upgrader address
         },
         upgrader: zeroAddress,
     },
@@ -64,7 +64,7 @@ const mainnets: ProtocolConfigs = {
         stakex: {
             genesis: '0x00000000004545cB8440FDD6095a97DEBd1F3814',
             init: '0x2eC519eeF9604C7495cdAaF73B213478552d74e5',
-            init_v_1_3_0: zeroAddress, // TODO update with upgrader address
+            init_v_1_3_0: '0x547982028d3044De2c7e25FB20f11CF642e006E7', // TODO update with upgrader address
         },
         upgrader: zeroAddress,
     },
@@ -74,7 +74,7 @@ const mainnets: ProtocolConfigs = {
         stakex: {
             genesis: '0x00000000004545cB8440FDD6095a97DEBd1F3814',
             init: '0x2eC519eeF9604C7495cdAaF73B213478552d74e5',
-            init_v_1_3_0: zeroAddress, // TODO update with upgrader address
+            init_v_1_3_0: '0x547982028d3044De2c7e25FB20f11CF642e006E7', // TODO update with upgrader address
         },
         upgrader: zeroAddress,
     },
@@ -102,7 +102,7 @@ const mainnets: ProtocolConfigs = {
         stakex: {
             genesis: '0x00000000004545cB8440FDD6095a97DEBd1F3814',
             init: '0x2eC519eeF9604C7495cdAaF73B213478552d74e5',
-            init_v_1_3_0: zeroAddress, // TODO update with upgrader address
+            init_v_1_3_0: '0x8932CAe974C0B1dbE9D4bd61Fa23d281C2d841a2',
         },
         upgrader: zeroAddress,
     },
