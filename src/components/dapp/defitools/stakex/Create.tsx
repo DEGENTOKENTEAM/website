@@ -51,9 +51,8 @@ export const Create = ({ enableCampaignMode }: CreateProps) => {
     const networks = chainIds.map((id) => getChainById(id))
 
     const [data, setData] = useState<STAKEXCreatorData>(initStorageData)
-    const [isLoading, setIsLoading] = useState(true)
     const [isValid, setIsValid] = useState(false)
-    const [selectedChain, setSelectedChain] = useState<Chain>()
+    const [selectedChain, setSelectedChain] = useState<Chain>(getChainById(Number(process.env.NEXT_PUBLIC_CHAIN_ID)))
     const [deployerAddress, setDeployerAddress] = useState<Address>()
     const [isConfirmationModalOpen, setIsConfirmationModalOpen] = useState(false)
 
@@ -100,9 +99,7 @@ export const Create = ({ enableCampaignMode }: CreateProps) => {
         deployedProtocol,
     } = useDeployProtocolSTAKEX(deployerAddress!, selectedChain?.id!, deploymentParams!, isValid && isConnected)
 
-    const onChangeSelectedNetwork = (chain: Chain) => {
-        if (!selectedChain || chain.id !== selectedChain?.id) setSelectedChain(chain)
-    }
+    const onChangeSelectedNetwork = (chain: Chain) => setSelectedChain(chain)
 
     const onChangeStakingTokenAddress = (e: ChangeEvent<HTMLInputElement>) => {
         const { validity, value } = e.target
@@ -150,13 +147,6 @@ export const Create = ({ enableCampaignMode }: CreateProps) => {
         setIsConfirmationModalOpen(false)
         resetDeployProtocol && resetDeployProtocol()
     }, [resetDeployProtocol])
-
-    useEffect(() => {
-        const _chainId = Number(chainId || process.env.NEXT_PUBLIC_CHAIN_ID)
-        const _chain = networks.find((chain) => chain.id === _chainId)
-        if (_chain && (!selectedChain || selectedChain?.id != _chain.id)) setSelectedChain(_chain)
-        setIsLoading(false)
-    }, [chainId, networks, selectedChain])
 
     useEffect(() => {
         if (!selectedChain || !protocols) return
@@ -227,103 +217,101 @@ export const Create = ({ enableCampaignMode }: CreateProps) => {
                     </span>
                     {enableCampaignMode ? <span>Create Campaign Staking</span> : <span>Create Flexible Staking</span>}
                 </h1>
-                {!isLoading && (
-                    <Tile className="flex flex-col gap-8">
-                        <div className="flex flex-col gap-4">
-                            <span className="text-lg font-bold">Select your network</span>
-                            {selectedChain && (
-                                <NetworkSelectorForm
-                                    chains={networks}
-                                    selectedChain={selectedChain}
-                                    onChange={onChangeSelectedNetwork}
-                                />
-                            )}
-                        </div>
-                        <div className="flex flex-col gap-2">
-                            <div className="flex flex-1 flex-col gap-2 px-2">
-                                <span className="text-lg font-bold">Enter Staking Token Address</span>
-                                <span className="text-xs">
-                                    Please enter the address of the token that your stakers need to deposit to the
-                                    protocol in order to stake.
-                                </span>
-                            </div>
-
-                            {selectedChain && (
-                                <TokenSearchInput
-                                    error={errorStakingTokenInfo?.message || ''}
-                                    tokenInfo={dataStakingTokenInfo}
-                                    isLoadingTokenInfo={isLoadingStakingTokenInfo}
-                                    isSearchActive={isStakingTokenSearchActive}
-                                    onChangeTokenAddress={onChangeStakingTokenAddress}
-                                />
-                            )}
+                <Tile className="flex flex-col gap-8">
+                    <div className="flex flex-col gap-4">
+                        <span className="text-lg font-bold">Select your network</span>
+                        {selectedChain && (
+                            <NetworkSelectorForm
+                                chains={networks}
+                                selectedChain={selectedChain}
+                                onChange={onChangeSelectedNetwork}
+                            />
+                        )}
+                    </div>
+                    <div className="flex flex-col gap-2">
+                        <div className="flex flex-1 flex-col gap-2 px-2">
+                            <span className="text-lg font-bold">Enter Staking Token Address</span>
+                            <span className="text-xs">
+                                Please enter the address of the token that your stakers need to deposit to the protocol
+                                in order to stake.
+                            </span>
                         </div>
 
-                        <div className="flex flex-col gap-2">
-                            <div className="flex flex-1 flex-col gap-2 px-2">
-                                <span className="text-lg font-bold">Enter Reward Token Address</span>
-                                <span className="text-xs">
-                                    Please enter the address of the token that you want to reward to your stakers.
-                                </span>
-                            </div>
-                            {selectedChain && (
-                                <TokenSearchInput
-                                    error={errorRewardTokenInfo?.message || ''}
-                                    tokenInfo={dataRewardTokenInfo}
-                                    isLoadingTokenInfo={isLoadingRewardTokenInfo}
-                                    isSearchActive={isRewardTokenSearchActive}
-                                    onChangeTokenAddress={onChangeRewardTokenAddress}
-                                />
-                            )}
+                        {selectedChain && (
+                            <TokenSearchInput
+                                error={errorStakingTokenInfo?.message || ''}
+                                tokenInfo={dataStakingTokenInfo}
+                                isLoadingTokenInfo={isLoadingStakingTokenInfo}
+                                isSearchActive={isStakingTokenSearchActive}
+                                onChangeTokenAddress={onChangeStakingTokenAddress}
+                            />
+                        )}
+                    </div>
+
+                    <div className="flex flex-col gap-2">
+                        <div className="flex flex-1 flex-col gap-2 px-2">
+                            <span className="text-lg font-bold">Enter Reward Token Address</span>
+                            <span className="text-xs">
+                                Please enter the address of the token that you want to reward to your stakers.
+                            </span>
                         </div>
-                        {/* 
+                        {selectedChain && (
+                            <TokenSearchInput
+                                error={errorRewardTokenInfo?.message || ''}
+                                tokenInfo={dataRewardTokenInfo}
+                                isLoadingTokenInfo={isLoadingRewardTokenInfo}
+                                isSearchActive={isRewardTokenSearchActive}
+                                onChangeTokenAddress={onChangeRewardTokenAddress}
+                            />
+                        )}
+                    </div>
+                    {/* 
                         // TODO add this video later on
                         <div className="flex flex-col px-2">
                             <span className="text-lg font-bold">Watch how to create a staking protocol</span>
                             <div>VIDEO VIDEO VIDEO</div>
                         </div> */}
 
-                        <div className="flex w-full flex-col gap-1">
-                            {isConnected ? (
-                                chainId == selectedChain?.id ? (
-                                    <Button
-                                        disabled={!isValid}
-                                        onClick={onClickCreate}
-                                        variant="primary"
-                                        className="h-20 w-full text-xl"
-                                    >
-                                        {enableCampaignMode ? (
-                                            <span>Create FREE Campaign Staking</span>
-                                        ) : (
-                                            <span>Create FREE Flexible Staking</span>
-                                        )}
-                                    </Button>
-                                ) : (
-                                    <Button
-                                        onClick={() => switchChain({ chainId: selectedChain?.id! })}
-                                        variant="primary"
-                                        className="h-20 w-full text-xl"
-                                    >
-                                        Change Network to {selectedChain?.name}
-                                    </Button>
-                                )
+                    <div className="flex w-full flex-col gap-1">
+                        {isConnected ? (
+                            chainId && selectedChain && Number(chainId) == selectedChain.id ? (
+                                <Button
+                                    disabled={!isValid}
+                                    onClick={onClickCreate}
+                                    variant="primary"
+                                    className="h-20 w-full text-xl"
+                                >
+                                    {enableCampaignMode ? (
+                                        <span>Create FREE Campaign Staking</span>
+                                    ) : (
+                                        <span>Create FREE Flexible Staking</span>
+                                    )}
+                                </Button>
                             ) : (
-                                <ConnectKitButton.Custom>
-                                    {({ isConnecting, show }) => {
-                                        return (
-                                            <Button onClick={show} variant="primary" className="h-20 w-full text-xl">
-                                                {isConnecting ? 'Connecting...' : 'Connect Your Wallet'}
-                                            </Button>
-                                        )
-                                    }}
-                                </ConnectKitButton.Custom>
-                            )}
-                            <span className="flex items-center gap-2 px-2 text-sm">
-                                * gas has to paid separately and can differ between networks
-                            </span>
-                        </div>
-                    </Tile>
-                )}
+                                <Button
+                                    onClick={() => switchChain({ chainId: selectedChain?.id! })}
+                                    variant="primary"
+                                    className="h-20 w-full text-xl"
+                                >
+                                    Change Network to {selectedChain?.name}
+                                </Button>
+                            )
+                        ) : (
+                            <ConnectKitButton.Custom>
+                                {({ isConnecting, show }) => {
+                                    return (
+                                        <Button onClick={show} variant="primary" className="h-20 w-full text-xl">
+                                            {isConnecting ? 'Connecting...' : 'Connect Your Wallet'}
+                                        </Button>
+                                    )
+                                }}
+                            </ConnectKitButton.Custom>
+                        )}
+                        <span className="flex items-center gap-2 px-2 text-sm">
+                            * gas has to paid separately and can differ between networks
+                        </span>
+                    </div>
+                </Tile>
                 {/* <Introduction /> */}
             </div>
             <CreateProtocolConfirmation

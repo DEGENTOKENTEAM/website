@@ -12,24 +12,14 @@ type NetworkSelectorFormProps = {
 }
 export const NetworkSelectorForm = ({ chains, selectedChain, onChange }: NetworkSelectorFormProps) => {
     const { isConnected, chain: connectedChain } = useAccount()
-
-    let [selected, setSelected] = useState<number>(selectedChain.id)
     let [showTestnets, setShowTestnets] = useState(false)
-
-    useEffect(() => {
-        chains &&
-            isNumber(selected) &&
-            selected != selectedChain.id &&
-            onChange &&
-            onChange(chains.find((chain) => chain.id == selected)!)
-    }, [chains, selected, selectedChain, onChange])
 
     useEffect(() => {
         connectedChain && connectedChain.testnet && setShowTestnets(true)
     }, [connectedChain])
 
     return (
-        <RadioGroup value={selected} onChange={setSelected} className="grid grid-cols-2 gap-4 md:grid-cols-3">
+        <RadioGroup value={selectedChain} onChange={onChange} className="grid grid-cols-2 gap-4 md:grid-cols-3">
             {/* {isConnected && connectedChain && connectedChain.id != selected && (
                 <div className="text-error/50 md:col-span-2">
                     The network you&apos;ve selected differs the one you&apos;re connected with.{' '}
@@ -50,7 +40,7 @@ export const NetworkSelectorForm = ({ chains, selectedChain, onChange }: Network
                 .map((chain, i) => (
                     <Field key={i} className="flex w-full items-center ">
                         <Radio
-                            value={chain.id}
+                            value={chain}
                             className="group relative flex w-full cursor-pointer rounded-lg border border-dapp-blue-400 bg-dapp-blue-400 p-2 text-white shadow-md transition focus:outline-none data-[checked]:border-dapp-cyan-500 data-[checked]:bg-dapp-blue-100 data-[focus]:outline-1 data-[focus]:outline-dapp-blue-50"
                         >
                             <div className="flex w-full flex-row items-center justify-between gap-2">

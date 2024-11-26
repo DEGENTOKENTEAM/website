@@ -274,7 +274,6 @@ const SidebarItem = ({ item, current }: { item: any; current: boolean }) => (
 export default function Sidebar(props: { mobile?: boolean }) {
     const { data } = useContext(DAppContext)
     const { pathname } = useLocation()
-    console.log({ pathname })
     const isCurrent = useCallback(
         (item: any) =>
             ((item.href as string).includes('staking/') && pathname.includes('/dapp/staking/')) ||
