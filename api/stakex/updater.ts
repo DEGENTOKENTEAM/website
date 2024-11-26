@@ -8,7 +8,7 @@ import {
     zeroAddress,
     zeroHash,
 } from 'viem'
-import { createReturn } from '../helpers/return'
+import { createReturn } from './../helpers/return'
 import protocols from './../../config/protocols'
 import { getChainById } from './../../shared/supportedChains'
 
@@ -94,7 +94,9 @@ export const handler = async (
         ['queryStringParameters', 'protocol'],
         ''
     )
-    const chainId: number = get(event, ['queryStringParameters', 'chainId'], 0)
+    const chainId: number = Number(
+        get(event, ['queryStringParameters', 'chainId'], 0)
+    )
 
     const client = createPublicClient({
         chain: getChainById(chainId),

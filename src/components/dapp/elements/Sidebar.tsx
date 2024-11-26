@@ -16,7 +16,7 @@ const getNavigation = (config: NavigationConfig | null) => [
     {
         name: 'Dashboard',
         icon: HiHome,
-        href: '/',
+        href: '',
         count: undefined,
         show: true,
         children: null,
@@ -46,7 +46,7 @@ const getNavigation = (config: NavigationConfig | null) => [
         children: null,
     },
     {
-        name: 'Stake your $DGNX',
+        name: 'Staking',
         icon: MdLockClock,
         href: 'staking/43114/0x00000000004545cb8440fdd6095a97debd1f3814/',
         count: undefined,
@@ -134,7 +134,7 @@ function MobileSidebar({ config }: { config: NavigationConfig | null }) {
     const { pathname } = useLocation()
     const isCurrent = useCallback(
         (item: any) =>
-            ((item.href as string).includes('staking/') && pathname.includes('/dapp/staking')) ||
+            ((item.href as string).includes('staking/') && pathname.includes('/dapp/staking/')) ||
             (item.href && pathname.endsWith(item.href)) ||
             (`/dapp` === pathname && item.href === '') ||
             (`/dapp/` === pathname && item.href === ''),
@@ -274,10 +274,11 @@ const SidebarItem = ({ item, current }: { item: any; current: boolean }) => (
 export default function Sidebar(props: { mobile?: boolean }) {
     const { data } = useContext(DAppContext)
     const { pathname } = useLocation()
+    console.log({ pathname })
     const isCurrent = useCallback(
         (item: any) =>
-            ((item.href as string).includes('staking/') && pathname.includes('/dapp/staking')) ||
-            (item.href && pathname.endsWith(item.href)) ||
+            ((item.href as string).includes('staking/') && pathname.includes('/dapp/staking/')) ||
+            (item.href && (pathname.endsWith(item.href) || pathname.includes(item.href))) ||
             (`/dapp` === pathname && item.href === '') ||
             (`/dapp/` === pathname && item.href === ''),
         [pathname]
