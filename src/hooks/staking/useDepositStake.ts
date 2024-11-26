@@ -8,7 +8,9 @@ export const useDepositStake = (
     chainId: number,
     stakeBucketId: Address,
     amount: bigint,
-    isEnabled: boolean
+    isEnabled: boolean,
+    actionFeeActive: boolean,
+    actionFeeAmount: bigint
 ) => {
     const [feeAmount, setFeeAmount] = useState<bigint>()
     const [stakeAmount, setStakeAmount] = useState<bigint>()
@@ -28,6 +30,7 @@ export const useDepositStake = (
         args: [stakeBucketId, amount],
         eventNames: ['Staked'],
         enabled: isEnabled,
+        value: actionFeeActive && actionFeeAmount > 0n ? actionFeeAmount : 0n,
         onEventMatch,
     })
 

@@ -1,25 +1,30 @@
 import { ManageStakeXContext } from '@dapphelpers/defitools'
 import { toReadableNumber } from '@dapphelpers/number'
 import { durationFromSeconds } from '@dapphelpers/staking'
-import { useEnableStakeBucket } from '@dapphooks/shared/useEnableStakeBucket'
-import { useAddStakeBuckets } from '@dapphooks/staking/useAddStakeBuckets'
+import { useBucketsEnableStakeBucket } from '@dapphooks/shared/useBucketsEnableStakeBucket'
+import { useBucketsAddStakeBuckets } from '@dapphooks/staking/useBucketsAddStakeBuckets'
+import { useBucketsAirdropStakers } from '@dapphooks/staking/useBucketsAirdropStakers'
+import { useBucketsDeleteBucket } from '@dapphooks/staking/useBucketsDeleteBucket'
+import { useBucketsGetStakeBuckets } from '@dapphooks/staking/useBucketsGetStakeBuckets'
+import { useBucketsUpdateStakeBucketShares } from '@dapphooks/staking/useBucketsUpdateStakeBucketShares'
 import { useGetMultipliersPerOneStakingToken } from '@dapphooks/staking/useGetMultipliersPerOneStakingToken'
-import { useGetStakeBuckets } from '@dapphooks/staking/useGetStakeBuckets'
 import { useGetStakingData } from '@dapphooks/staking/useGetStakingData'
-import { useUpdateStakeBucketShares } from '@dapphooks/staking/useUpdateStakeBucketShares'
 import { CaretDivider } from '@dappshared/CaretDivider'
 import { StatsBoxTwoColumn } from '@dappshared/StatsBoxTwoColumn'
 import { Tile } from '@dappshared/Tile'
 import { AnnualPercentageDataType, BucketParams, StakeBucket, StakeBucketUpdateShareParams } from '@dapptypes'
 import clsx from 'clsx'
 import { useCallback, useContext, useEffect, useState } from 'react'
-import { FaPen, FaPlus, FaRegCheckCircle, FaRegTimesCircle } from 'react-icons/fa'
+import { FaParachuteBox, FaPen, FaPlus, FaRegCheckCircle, FaRegTimesCircle } from 'react-icons/fa'
+import { FaRegTrashCan } from 'react-icons/fa6'
 import { Button } from 'src/components/Button'
 import { Spinner } from 'src/components/dapp/elements/Spinner'
-import { Address } from 'viem'
+import { Address, zeroHash } from 'viem'
 import { BucketsForm } from './buckets/Form'
+import { AirdropStakersConfirmation } from './buckets/overlays/AirdropStakersConfirmation'
 import { ApplyChangesConfirmation } from './buckets/overlays/ApplyChangesConfirmation'
 import { ChangeStateConfirmation } from './buckets/overlays/ChangeStateConfirmation'
+import { DeleteConfirmation } from './buckets/overlays/DeleteConfirmation'
 
 export const Buckets = () => {
     const {
@@ -41,10 +46,17 @@ export const Buckets = () => {
     }>()
     const [isApplyChangesModalOpen, setIsApplyChangesModalOpen] = useState(false)
 
+    ///
+    /// Hooks
+    ///
     const { data: dataStaking } = useGetStakingData(protocol, chain?.id!)
-    const { data: dataStakeBuckets, refetch: refetchStakeBuckets } = useGetStakeBuckets(protocol, chain?.id!, true)
+    const {
+        data: dataStakeBuckets,
+        isLoading: isLoadingStakeBuckets,
+        refetch: refetchStakeBuckets,
+    } = useBucketsGetStakeBuckets(protocol, chain?.id!, true)
     const { data: dataMultipliersPerOneStakingToken, isLoading: isLoadingMultipliersPerOneStakingToken } =
-        useGetMultipliersPerOneStakingToken(protocol, chain?.id!)
+        useGetMultipliersPerOneStakingToken(protocol, chain?.id!, zeroHash, 0n)
     const {
         isLoading: isLoadingAddStakeBuckets,
         isSuccess: isSuccessAddStakeBuckets,
@@ -52,7 +64,7 @@ export const Buckets = () => {
         write: writeAddStakeBuckets,
         reset: resetAddStakeBuckets,
         isPending: isPendingAddStakeBuckets,
-    } = useAddStakeBuckets(
+    } = useBucketsAddStakeBuckets(
         chain?.id!,
         protocol,
         addBucketFormData?.bucketAddParams!,
@@ -65,7 +77,12 @@ export const Buckets = () => {
         write: writeUpdateStakeBucketShares,
         reset: resetUpdateStakeBucketShares,
         isPending: isPendingUpdateStakeBucketShares,
-    } = useUpdateStakeBucketShares(chain?.id!, protocol, addBucketFormData?.bucketUpdateShareParams!)
+    } = useBucketsUpdateStakeBucketShares(
+        chain?.id!,
+        protocol,
+        addBucketFormData?.bucketUpdateShareParams!,
+        Boolean(showChangeSharesForm)
+    )
 
     const onClickAddButton = () => {
         resetAddStakeBuckets()
@@ -82,9 +99,11 @@ export const Buckets = () => {
         setShowChangeSharesForm(false)
     }
     const onClickSaveButton = useCallback(() => {
+        resetAddStakeBuckets && resetAddStakeBuckets()
+        resetUpdateStakeBucketShares && resetUpdateStakeBucketShares()
         setAddBucketFormData(addBucketFormDataDraft)
         setIsApplyChangesModalOpen(true)
-    }, [addBucketFormDataDraft])
+    }, [addBucketFormDataDraft, resetAddStakeBuckets, resetUpdateStakeBucketShares])
 
     const onConfirmationModalOK = useCallback(() => {
         if (addBucketFormData && addBucketFormData?.bucketAddParams && addBucketFormData?.bucketAddParams.length > 0) {
@@ -107,7 +126,6 @@ export const Buckets = () => {
 
     useEffect(() => {
         if (!dataMultipliersPerOneStakingToken) return
-
         setMultiplierPerStakingTokens(
             dataMultipliersPerOneStakingToken.reduce(
                 (acc, multiplier) => ({
@@ -124,12 +142,16 @@ export const Buckets = () => {
     }, [metrics])
 
     useEffect(() => {
-        addBucketFormDataDraft && setHasChanges(true)
+        if (addBucketFormDataDraft) {
+            setHasChanges(
+                addBucketFormDataDraft.bucketAddParams.reduce((acc, item) => acc + item.share, 0) +
+                    addBucketFormDataDraft.bucketUpdateShareParams.reduce((acc, item) => acc + item.share, 0) ===
+                    10000
+            )
+        }
     }, [addBucketFormDataDraft])
 
-    //
-    // bucket state toggle
-    //
+    /// Bucket State Toggle
     const [isStateToggleModalOpen, setIsStateToggleModalOpen] = useState(false)
     const [bucketIdToToggle, setBucketIdToToggle] = useState<Address | null>(null)
     const [bucketIdToToggleState, setBucketIdToToggleState] = useState(false)
@@ -141,7 +163,7 @@ export const Buckets = () => {
         write: writeEnableStakeBucket,
         reset: resetEnableStakeBucket,
         isPending: isPendingEnableStakeBucket,
-    } = useEnableStakeBucket(chain?.id!, protocol, bucketIdToToggle!, bucketIdToToggleState)
+    } = useBucketsEnableStakeBucket(chain?.id!, protocol, bucketIdToToggle!, bucketIdToToggleState)
 
     const onClickToggleActiveState = (bucket: StakeBucket) => {
         resetEnableStakeBucket()
@@ -167,6 +189,92 @@ export const Buckets = () => {
         setIsStateToggleModalOpen(false)
     }
 
+    /// Aidrops
+    const [isStateAirdropModalOpen, setIsStateAirdropModalOpen] = useState(false)
+    const [airdropBucketId, setAirdropBucketId] = useState<Address | null>(null)
+    const [airdropLimit, setAirdropLimit] = useState(50)
+    const {
+        isLoading: isLoadingAirdrop,
+        isSuccess: isSuccessAirdrop,
+        error: errorAirdrop,
+        write: writeAirdrop,
+        reset: resetAirdrop,
+        isPending: isPendingAirdrop,
+        stakesAirdropped,
+    } = useBucketsAirdropStakers(protocol, chain?.id!, airdropBucketId, airdropLimit)
+
+    const onClickAirdropStakers = (bucket: StakeBucket) => {
+        resetAirdrop()
+        setAirdropBucketId(bucket.id)
+        setAirdropLimit(Math.min(Number(bucket.stakes), 50))
+        setIsStateAirdropModalOpen(true)
+    }
+
+    const onConfirmAirdropModal = () => {
+        if (airdropBucketId && writeAirdrop) writeAirdrop()
+    }
+
+    const onCancelAirdropModal = () => {
+        setIsStateAirdropModalOpen(false)
+    }
+
+    const onCloseAirdropModal = () => {
+        refetchStakeBuckets && refetchStakeBuckets()
+        setIsStateAirdropModalOpen(false)
+    }
+
+    /// Delete Stake Bucket
+    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
+    const [bucketToDelete, setBucketToDelete] = useState<StakeBucket | null>(null)
+    const [overtakeBucketId, setOvertakeBucketId] = useState<Address | null>(null)
+    const [deleteShares, setDeleteShares] = useState<StakeBucketUpdateShareParams[] | null>(null)
+    const {
+        write: writeDeleteBucket,
+        error: errorDeleteBucket,
+        reset: resetDeleteBucket,
+        isLoading: isLoadingDeleteBucket,
+        isSuccess: isSuccessDeleteBucket,
+        isPending: isPendingDeleteBucket,
+    } = useBucketsDeleteBucket(protocol, chain?.id!, bucketToDelete?.id!, deleteShares)
+
+    const onClickDelete = (bucket: StakeBucket) => {
+        resetDeleteBucket()
+        setIsDeleteModalOpen(true)
+        setBucketToDelete(bucket)
+    }
+
+    const onConfirmDeleteModal = () => {
+        writeDeleteBucket && writeDeleteBucket()
+    }
+
+    const onCancelDeleteModal = () => {
+        setIsDeleteModalOpen(false)
+        setBucketToDelete(null)
+        setDeleteShares(null)
+    }
+
+    const onCloseDeleteModal = () => {
+        refetchStakeBuckets && refetchStakeBuckets()
+        resetDeleteBucket && resetDeleteBucket()
+        setIsDeleteModalOpen(false)
+        setBucketToDelete(null)
+        setDeleteShares(null)
+    }
+
+    useEffect(() => {
+        bucketToDelete &&
+            dataStakeBuckets &&
+            overtakeBucketId &&
+            setDeleteShares(
+                dataStakeBuckets
+                    .filter((b) => b.id != bucketToDelete.id)
+                    .map((b) => ({
+                        id: b.id,
+                        share: b.id == overtakeBucketId ? b.share + bucketToDelete.share : b.share,
+                    }))
+            )
+    }, [bucketToDelete, dataStakeBuckets, overtakeBucketId])
+
     return (
         <>
             <Tile className="w-full">
@@ -190,7 +298,7 @@ export const Buckets = () => {
                             {!showAddBucketsForm && !showChangeSharesForm && (
                                 <div className="flex w-full justify-end gap-2">
                                     <Button onClick={onClickAddButton} variant="primary" className="gap-3">
-                                        <FaPlus /> <span>Add</span>
+                                        <FaPlus /> <span>Add New Pool</span>
                                     </Button>
                                     {dataStakeBuckets && dataStakeBuckets.length > 1 && (
                                         <Button onClick={onClickChangeSharesButton} variant="primary" className="gap-3">
@@ -202,7 +310,7 @@ export const Buckets = () => {
                         </>
                     )}
                 </div>
-                {isLoading ? (
+                {isLoadingStakeBuckets ? (
                     <div className="flex w-full flex-row justify-center pt-8">
                         <Spinner theme="dark" />
                     </div>
@@ -228,110 +336,162 @@ export const Buckets = () => {
                             </div>
                         )}
                         {dataStakeBuckets &&
-                            dataStakeBuckets.map((bucket: StakeBucket) => (
-                                <div key={bucket.id} className="flex flex-col gap-4">
-                                    <StatsBoxTwoColumn.Wrapper className="w-full rounded-lg bg-dapp-blue-800 px-4 py-2 text-sm">
-                                        <StatsBoxTwoColumn.LeftColumn>
-                                            <span className="font-bold">Lock duration</span>
-                                        </StatsBoxTwoColumn.LeftColumn>
-                                        <StatsBoxTwoColumn.RightColumn>
-                                            <span className="font-bold">
-                                                {bucket.burn
-                                                    ? `burns ${stakingToken?.symbol}`
-                                                    : bucket.duration > 0
-                                                    ? `${durationFromSeconds(bucket.duration, {
-                                                          long: true,
-                                                      })}`
-                                                    : 'No lock'}
-                                            </span>
-                                        </StatsBoxTwoColumn.RightColumn>
+                            dataStakeBuckets
+                                .sort((a, b) => (a.duration < b.duration ? -1 : 1))
+                                .sort((a, b) => (a.burn != b.burn ? -1 : 1))
+                                .map((bucket: StakeBucket) => (
+                                    <div key={bucket.id} className="flex flex-col gap-4">
+                                        <StatsBoxTwoColumn.Wrapper className="w-full rounded-lg bg-dapp-blue-800 px-4 py-2 text-sm">
+                                            <StatsBoxTwoColumn.LeftColumn>
+                                                <span className="font-bold">Lock duration</span>
+                                            </StatsBoxTwoColumn.LeftColumn>
+                                            <StatsBoxTwoColumn.RightColumn>
+                                                <span className="font-bold">
+                                                    {bucket.burn
+                                                        ? `burns ${stakingToken?.symbol}`
+                                                        : bucket.duration > 0
+                                                        ? `${durationFromSeconds(bucket.duration, {
+                                                              long: true,
+                                                          })}`
+                                                        : 'No lock'}
+                                                </span>
+                                            </StatsBoxTwoColumn.RightColumn>
 
-                                        <div className="col-span-2">
-                                            <CaretDivider />
-                                        </div>
+                                            <div className="col-span-2">
+                                                <CaretDivider />
+                                            </div>
 
-                                        <StatsBoxTwoColumn.LeftColumn>Multiplier</StatsBoxTwoColumn.LeftColumn>
-                                        <StatsBoxTwoColumn.RightColumn>
-                                            {bucket.multiplier}x
-                                        </StatsBoxTwoColumn.RightColumn>
+                                            <StatsBoxTwoColumn.LeftColumn>Multiplier</StatsBoxTwoColumn.LeftColumn>
+                                            <StatsBoxTwoColumn.RightColumn>
+                                                {bucket.multiplier}x
+                                            </StatsBoxTwoColumn.RightColumn>
 
-                                        <StatsBoxTwoColumn.LeftColumn>
-                                            Multiplier per {stakingToken?.symbol}
-                                        </StatsBoxTwoColumn.LeftColumn>
-                                        <StatsBoxTwoColumn.RightColumn>
-                                            {isLoadingMultipliersPerOneStakingToken ? (
-                                                <Spinner theme="dark" className="!h-4 !w-4" />
-                                            ) : multiplierPerStakingTokens && multiplierPerStakingTokens[bucket.id] ? (
-                                                `${multiplierPerStakingTokens[bucket.id]}x`
-                                            ) : (
-                                                'n/a'
-                                            )}
-                                        </StatsBoxTwoColumn.RightColumn>
-
-                                        <StatsBoxTwoColumn.LeftColumn>Reward share</StatsBoxTwoColumn.LeftColumn>
-                                        <StatsBoxTwoColumn.RightColumn>
-                                            {bucket.share / 100}%
-                                        </StatsBoxTwoColumn.RightColumn>
-
-                                        <StatsBoxTwoColumn.LeftColumn>APR / APY</StatsBoxTwoColumn.LeftColumn>
-                                        <StatsBoxTwoColumn.RightColumn>
-                                            {yieldPerBucket && yieldPerBucket[bucket.id]
-                                                ? `${toReadableNumber(yieldPerBucket[bucket.id].apr, 0, {
-                                                      maximumFractionDigits: 2,
-                                                      minimumFractionDigits: 2,
-                                                  })}% / ${toReadableNumber(yieldPerBucket[bucket.id].apy, 0, {
-                                                      maximumFractionDigits: 2,
-                                                      minimumFractionDigits: 2,
-                                                  })}%`
-                                                : '0% / 0%'}
-                                        </StatsBoxTwoColumn.RightColumn>
-
-                                        <div className="col-span-2">
-                                            <CaretDivider />
-                                        </div>
-
-                                        <StatsBoxTwoColumn.LeftColumn>Staked</StatsBoxTwoColumn.LeftColumn>
-                                        <StatsBoxTwoColumn.RightColumn>
-                                            {stakingToken && toReadableNumber(bucket.staked, stakingToken?.decimals)}
-                                        </StatsBoxTwoColumn.RightColumn>
-
-                                        <StatsBoxTwoColumn.LeftColumn>Staked in %</StatsBoxTwoColumn.LeftColumn>
-                                        <StatsBoxTwoColumn.RightColumn>
-                                            {bucket.staked && dataStaking && stakingToken
-                                                ? `${toReadableNumber(
-                                                      (Number(bucket.staked) / Number(dataStaking.staked.amount)) * 100,
-                                                      0
-                                                  )}%`
-                                                : 'n/a'}
-                                        </StatsBoxTwoColumn.RightColumn>
-                                        <div className="col-span-2">
-                                            <CaretDivider />
-                                        </div>
-
-                                        <StatsBoxTwoColumn.LeftColumn>Is active?</StatsBoxTwoColumn.LeftColumn>
-                                        <StatsBoxTwoColumn.RightColumn>
-                                            <div className="flex items-center justify-end">
-                                                {bucket.active ? (
-                                                    <FaRegCheckCircle className="h-5 w-5 text-success" />
+                                            <StatsBoxTwoColumn.LeftColumn>
+                                                Multiplier per {stakingToken?.symbol}
+                                            </StatsBoxTwoColumn.LeftColumn>
+                                            <StatsBoxTwoColumn.RightColumn>
+                                                {isLoadingMultipliersPerOneStakingToken ? (
+                                                    <Spinner theme="dark" className="!h-4 !w-4" />
+                                                ) : multiplierPerStakingTokens &&
+                                                  multiplierPerStakingTokens[bucket.id] ? (
+                                                    `${multiplierPerStakingTokens[bucket.id]}x`
                                                 ) : (
-                                                    <FaRegTimesCircle className="h-5 w-5 text-error" />
+                                                    'n/a'
+                                                )}
+                                            </StatsBoxTwoColumn.RightColumn>
+
+                                            <StatsBoxTwoColumn.LeftColumn>Reward share</StatsBoxTwoColumn.LeftColumn>
+                                            <StatsBoxTwoColumn.RightColumn>
+                                                {bucket.share / 100}%
+                                            </StatsBoxTwoColumn.RightColumn>
+
+                                            <StatsBoxTwoColumn.LeftColumn>APR / APY</StatsBoxTwoColumn.LeftColumn>
+                                            <StatsBoxTwoColumn.RightColumn>
+                                                {yieldPerBucket && yieldPerBucket[bucket.id]
+                                                    ? `${toReadableNumber(yieldPerBucket[bucket.id].apr, 0, {
+                                                          maximumFractionDigits: 2,
+                                                          minimumFractionDigits: 2,
+                                                      })}% / ${toReadableNumber(yieldPerBucket[bucket.id].apy, 0, {
+                                                          maximumFractionDigits: 2,
+                                                          minimumFractionDigits: 2,
+                                                      })}%`
+                                                    : '0% / 0%'}
+                                            </StatsBoxTwoColumn.RightColumn>
+
+                                            <div className="col-span-2">
+                                                <CaretDivider />
+                                            </div>
+
+                                            <StatsBoxTwoColumn.LeftColumn>Stakes</StatsBoxTwoColumn.LeftColumn>
+                                            <StatsBoxTwoColumn.RightColumn>
+                                                {Number(bucket.stakes)}
+                                            </StatsBoxTwoColumn.RightColumn>
+
+                                            <StatsBoxTwoColumn.LeftColumn>Staked</StatsBoxTwoColumn.LeftColumn>
+                                            <StatsBoxTwoColumn.RightColumn>
+                                                {stakingToken &&
+                                                    toReadableNumber(bucket.staked, stakingToken?.decimals)}
+                                            </StatsBoxTwoColumn.RightColumn>
+
+                                            <StatsBoxTwoColumn.LeftColumn>Staked in %</StatsBoxTwoColumn.LeftColumn>
+                                            <StatsBoxTwoColumn.RightColumn>
+                                                {bucket.staked && dataStaking && stakingToken
+                                                    ? `${toReadableNumber(
+                                                          (Number(bucket.staked) / Number(dataStaking.staked.amount)) *
+                                                              100,
+                                                          0
+                                                      )}%`
+                                                    : 'n/a'}
+                                            </StatsBoxTwoColumn.RightColumn>
+                                            <div className="col-span-2">
+                                                <CaretDivider />
+                                            </div>
+
+                                            <StatsBoxTwoColumn.LeftColumn>Is active?</StatsBoxTwoColumn.LeftColumn>
+                                            <StatsBoxTwoColumn.RightColumn>
+                                                <div className="flex items-center justify-end">
+                                                    {bucket.active ? (
+                                                        <FaRegCheckCircle className="size-5 text-success" />
+                                                    ) : (
+                                                        <FaRegTimesCircle className="size-5 text-error" />
+                                                    )}
+                                                </div>
+                                            </StatsBoxTwoColumn.RightColumn>
+                                        </StatsBoxTwoColumn.Wrapper>
+                                        {canEdit && (
+                                            <div
+                                                className={clsx([
+                                                    'col-span-2 grid grid-cols-5 gap-4',
+                                                    // bucket.staked === 0n ||
+                                                    //     (bucket.staked > 0n && !bucket.active && ),
+                                                ])}
+                                            >
+                                                <Button
+                                                    variant={`${bucket.active ? 'error' : 'primary'}`}
+                                                    className={clsx([!bucket.active ? 'col-span-2' : 'col-span-5'])}
+                                                    disabled={
+                                                        bucket.burn ||
+                                                        isLoadingEnableStakeBucket ||
+                                                        isPendingEnableStakeBucket
+                                                    }
+                                                    onClick={() => onClickToggleActiveState(bucket)}
+                                                >
+                                                    {bucket.active ? 'Disable' : 'Enable'}
+                                                </Button>
+                                                {!bucket.active && (
+                                                    <>
+                                                        <Button
+                                                            variant="error"
+                                                            disabled={
+                                                                bucket.staked == 0n ||
+                                                                isLoadingEnableStakeBucket ||
+                                                                isPendingEnableStakeBucket
+                                                            }
+                                                            className="col-span-2 text-dapp-cyan-50"
+                                                            onClick={() => onClickAirdropStakers(bucket)}
+                                                        >
+                                                            <span className="flex items-center gap-2">
+                                                                <FaParachuteBox /> Stakers
+                                                            </span>
+                                                        </Button>
+                                                        <Button
+                                                            variant="error"
+                                                            disabled={
+                                                                bucket.staked > 0n ||
+                                                                bucket.burn ||
+                                                                isLoadingEnableStakeBucket ||
+                                                                isPendingEnableStakeBucket
+                                                            }
+                                                            onClick={() => onClickDelete(bucket)}
+                                                        >
+                                                            <FaRegTrashCan />
+                                                        </Button>
+                                                    </>
                                                 )}
                                             </div>
-                                        </StatsBoxTwoColumn.RightColumn>
-                                    </StatsBoxTwoColumn.Wrapper>
-
-                                    {canEdit && dataStakeBuckets.length > 1 && (
-                                        <Button
-                                            variant={`${bucket.active ? 'error' : 'primary'}`}
-                                            className="col-span-2"
-                                            disabled={isLoadingEnableStakeBucket || isPendingEnableStakeBucket}
-                                            onClick={() => onClickToggleActiveState(bucket)}
-                                        >
-                                            Set {bucket.active ? 'Inactive' : 'Active'}
-                                        </Button>
-                                    )}
-                                </div>
-                            ))}
+                                        )}
+                                    </div>
+                                ))}
                     </div>
                 )}
             </Tile>
@@ -355,6 +515,34 @@ export const Buckets = () => {
                 onCancel={() => onCancelStateToggleModal()}
                 error={errorEnableStakeBucket}
                 enabled={bucketIdToToggleState}
+            />
+            <AirdropStakersConfirmation
+                isLoading={isLoadingAirdrop}
+                isSuccess={isSuccessAirdrop}
+                isPending={isPendingAirdrop}
+                isOpen={isStateAirdropModalOpen}
+                onClose={() => onCloseAirdropModal()}
+                onConfirm={() => onConfirmAirdropModal()}
+                onCancel={() => onCancelAirdropModal()}
+                error={errorAirdrop}
+                amountAirdrop={airdropLimit}
+                amountAirdropEstimation={airdropLimit}
+                amountAirdropped={Number(stakesAirdropped)}
+                amountLeft={airdropLimit - Number(stakesAirdropped)}
+            />
+            <DeleteConfirmation
+                isLoading={isLoadingDeleteBucket}
+                isSuccess={isSuccessDeleteBucket}
+                isPending={isPendingDeleteBucket}
+                isOpen={isDeleteModalOpen}
+                onClose={() => onCloseDeleteModal()}
+                onConfirm={() => onConfirmDeleteModal()}
+                onCancel={() => onCancelDeleteModal()}
+                error={errorDeleteBucket}
+                buckets={dataStakeBuckets || []}
+                bucketToDelete={bucketToDelete}
+                selectedBucketId={overtakeBucketId}
+                onBucketSelection={setOvertakeBucketId}
             />
         </>
     )

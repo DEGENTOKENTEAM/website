@@ -1,5 +1,5 @@
 import { Handler } from 'aws-lambda'
-import { omit } from 'lodash'
+import { omit, toLower } from 'lodash'
 import { createPublicClient, http, parseEventLogs } from 'viem'
 import {
     arbitrum,
@@ -21,6 +21,7 @@ import {
     StakeXProtocolsDTO,
     StakeXProtocolsRepository,
 } from '../../services/protocols'
+import stakexAbi from './../../../src/abi/stakex/abi-ui.json'
 
 const abi = [
     {
@@ -33,39 +34,16 @@ const abi = [
                 type: 'address',
             },
             {
-                indexed: false,
-                internalType: 'address',
-                name: 'protocol',
-                type: 'address',
-            },
-            {
                 indexed: true,
                 internalType: 'address',
                 name: 'referral',
                 type: 'address',
             },
             {
-                components: [
-                    {
-                        internalType: 'uint256',
-                        name: 'amountSent',
-                        type: 'uint256',
-                    },
-                    {
-                        internalType: 'uint256',
-                        name: 'referrerShare',
-                        type: 'uint256',
-                    },
-                    {
-                        internalType: 'uint256',
-                        name: 'feeCharged',
-                        type: 'uint256',
-                    },
-                ],
                 indexed: false,
-                internalType: 'struct DeployerStakeXFacet.DeployedEvent',
-                name: 'deployEvent',
-                type: 'tuple',
+                internalType: 'address',
+                name: 'protocol',
+                type: 'address',
             },
         ],
         name: 'StakeXProtocolDeployed',
@@ -73,15 +51,6 @@ const abi = [
     },
 ]
 
-const chainAPUpdateInterval: { [key: number]: number } = {
-    [avalanche.id]: 43200, // daily
-    [mainnet.id]: 7200, // daily
-    [base.id]: 43200, // daily
-    [polygon.id]: 39272, // daily
-    [arbitrum.id]: 288000, // daily
-    [bsc.id]: 28800, // daily
-    [optimism.id]: 43200, // daily
-}
 const chainAPPeriod: { [key: number]: number } = {
     [avalanche.id]: 907200, // 3 weeks
     [mainnet.id]: 151200, // 3 weeks
@@ -96,6 +65,9 @@ export const handler: Handler = async (_, __, callback) => {
     let success = true
     for (const chain of chains) {
         const chainId = chain.id
+
+        if (chainId != 43114) continue
+
         const client = createPublicClient({
             chain,
             transport: http(),
@@ -166,18 +138,35 @@ export const handler: Handler = async (_, __, callback) => {
         }
 
         const protocolBatch: StakeXProtocolsDTO[] = []
-        for (const log of logs as any[])
+        for (const log of logs as any[]) {
+            const protocolData = (await client.readContract({
+                abi: stakexAbi,
+                address: log.args.protocol,
+                functionName: 'getStakingData',
+            })) as unknown as { isCampaignMode: boolean }
+            const owner = (await client.readContract({
+                abi: stakexAbi,
+                address: log.args.protocol,
+                functionName: 'contractOwner',
+            })) as unknown as string
+
             protocolBatch.push({
                 chainId,
-                protocol: log.args.protocol,
+                protocol: toLower(log.args.protocol),
+                owner: toLower(owner),
                 timestamp: Math.ceil(Date.now() / 1000),
+                isCampaignMode: protocolData.isCampaignMode,
                 blockNumberCreated: Number(log.blockNumber),
-                blockNumberEnabled: 0,
+                blockNumberEnabled: protocolData.isCampaignMode
+                    ? Number(log.blockNumber)
+                    : 0,
+                blockNumberLastUpdate: Number(log.blockNumber),
                 blockNumberAPUpdate: 0,
                 blockNumberStakesUpdate: 0,
-                blockNumberAPUpdateIntervall: chainAPUpdateInterval[chainId],
+                blockNumberCampaignsUpdate: 0,
                 blockNumberAPPeriod: chainAPPeriod[chainId],
             })
+        }
 
         if (protocolBatch.length) {
             const protocolsRepo = new StakeXProtocolsRepository()

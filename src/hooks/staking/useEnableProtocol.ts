@@ -5,15 +5,13 @@ import { Address } from 'viem'
 export const useEnableProtocol = (
     address: Address,
     chainId: number,
-    status: boolean,
-    enabled: boolean
+    status: boolean
 ) =>
     useExecuteFunction({
         abi,
         address,
         chainId,
         args: [status],
-        enabled,
         functionName: 'stakeXEnableProtocol',
         eventNames: ['Enabled', 'Disabled'],
     })

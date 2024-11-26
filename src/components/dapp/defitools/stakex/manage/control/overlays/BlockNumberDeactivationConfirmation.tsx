@@ -29,18 +29,12 @@ export const BlockNumberDeactivationConfirmation = ({
     const showError = !!error && !isLoading && !isSuccess
 
     return (
-        <BaseOverlay
-            isOpen={isOpen}
-            closeOnBackdropClick={false}
-            onClose={() => {}}
-        >
+        <BaseOverlay isOpen={isOpen} closeOnBackdropClick={false} onClose={() => {}}>
             {showSuccessMessage && (
                 <div>
                     <div className="flex flex-col items-center gap-6 p-6 text-center text-base">
-                        <IoCheckmarkCircle className="h-[100px] w-[100px] text-success" />
-                        <span className="font-bold">
-                            Successfully remove the configured starting block
-                        </span>
+                        <IoCheckmarkCircle className="size-[100px] text-success" />
+                        <span className="font-bold">Successfully remove the configured starting block</span>
                     </div>
                     <Button
                         variant="primary"
@@ -54,7 +48,7 @@ export const BlockNumberDeactivationConfirmation = ({
 
             {showSpinner && (
                 <div>
-                    <div className="item-center flex flex-row justify-center">
+                    <div className="flex flex-row items-center justify-center">
                         <Spinner theme="dark" className="m-20 !h-24 !w-24" />
                     </div>
                     <div className="w-full text-center">
@@ -74,18 +68,10 @@ export const BlockNumberDeactivationConfirmation = ({
                         Are you sure you want to proceed?
                     </div>
                     <div className="flex w-full flex-row-reverse gap-4">
-                        <Button
-                            variant="primary"
-                            onClick={() => onConfirm()}
-                            className="w-2/3"
-                        >
+                        <Button variant="primary" onClick={() => onConfirm()} className="w-2/3">
                             Confirm & Proceed
                         </Button>
-                        <Button
-                            variant="secondary"
-                            onClick={() => onCancel()}
-                            className="w-1/3"
-                        >
+                        <Button variant="secondary" onClick={() => onCancel()} className="w-1/3">
                             Cancel
                         </Button>
                     </div>
@@ -95,7 +81,7 @@ export const BlockNumberDeactivationConfirmation = ({
             {showError && (
                 <div className="flex flex-col gap-6">
                     <div className="flex flex-col items-center gap-6 text-center text-base">
-                        <MdError className="h-[100px] w-[100px] text-error " />
+                        <MdError className="size-[100px] text-error " />
                         There was an error: <br />
                         {error?.cause?.shortMessage}
                         <br />
@@ -104,18 +90,10 @@ export const BlockNumberDeactivationConfirmation = ({
                         or cancel the process.
                     </div>
                     <div className="flex w-full flex-row-reverse gap-4">
-                        <Button
-                            variant="primary"
-                            onClick={() => onConfirm()}
-                            className="w-2/3"
-                        >
+                        <Button variant="primary" onClick={() => onConfirm()} className="w-2/3">
                             Retry
                         </Button>
-                        <Button
-                            variant="secondary"
-                            onClick={() => onCancel()}
-                            className="w-1/3"
-                        >
+                        <Button variant="secondary" onClick={() => onCancel()} className="w-1/3">
                             Cancel
                         </Button>
                     </div>

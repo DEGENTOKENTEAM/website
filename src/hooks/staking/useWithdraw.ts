@@ -4,11 +4,13 @@ import { useState } from 'react'
 import { Address } from 'viem'
 
 export const useWithdraw = (
-    enabled: boolean,
     address: Address,
     chainId: number,
     tokenId: bigint,
-    target: Address
+    target: Address,
+    actionFeeActive: boolean,
+    actionFeeAmount: bigint,
+    enabled: boolean
 ) => {
     const [feeAmount, setFeeAmount] = useState<bigint>()
     const [claimedAmount, setClaimedAmount] = useState<bigint>()
@@ -29,6 +31,7 @@ export const useWithdraw = (
         chainId,
         eventNames: ['Unstaked'],
         enabled,
+        value: actionFeeActive && actionFeeAmount > 0n ? actionFeeAmount : 0n,
         onEventMatch,
     })
     return { ...execProps, feeAmount, claimedAmount, withdrawnAmount }

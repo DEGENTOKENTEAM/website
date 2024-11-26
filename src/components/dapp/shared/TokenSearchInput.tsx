@@ -30,15 +30,16 @@ export const TokenSearchInput = ({
                 onChange={onChangeTokenAddress}
                 required={true}
                 disabled={false}
+                autoComplete="off"
                 placeholder="0x..."
-                className="mt-2 w-full rounded-lg border-0 bg-dapp-blue-800 p-2 text-2xl leading-10 outline-0 [appearance:textfield] focus:ring-0 focus:ring-offset-0"
+                className="mt-2 w-full rounded-lg border-0 bg-dapp-blue-800 p-2 text-2xl leading-10 outline-0 [appearance:textfield] focus:ring-0 focus:ring-offset-0 "
             />
             {isSearchActive && (
                 <>
                     <div className="pl-2 text-xs">
                         {!error && !isLoadingTokenInfo && tokenInfo && tokenInfo?.name && (
                             <div className="flex flex-row items-center gap-2">
-                                <FaRegCheckCircle className="h-5 w-5 text-success" /> Found: {tokenInfo.name} (
+                                <FaRegCheckCircle className="size-5 text-success" /> Found: {tokenInfo.name} (
                                 {tokenInfo.symbol}) with {Number(tokenInfo.decimals)} decimals
                             </div>
                         )}
@@ -50,7 +51,7 @@ export const TokenSearchInput = ({
                         )}
                         {((!isLoadingTokenInfo && tokenInfo && !tokenInfo?.name) || error) && (
                             <div className="flex flex-row items-center gap-2">
-                                <FaRegTimesCircle className="h-5 w-5 text-error" />{' '}
+                                <FaRegTimesCircle className="size-5 text-error" />{' '}
                                 {error ? error : <span>Not found! Please check the entered address</span>}
                             </div>
                         )}

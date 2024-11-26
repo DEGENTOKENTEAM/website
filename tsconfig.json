@@ -25,10 +25,11 @@
       "@dapptypes": ["src/types"],
       "@dappconstants": ["src/constants"],
       "@dappabis/*": ["src/abi/*"],
+      "@images/*": ["src/images/*"],
       "@public/*": ["public/*"],
       "react": ["./node_modules/@types/react"]
     }
   },
   "include": ["additional.d.ts", "next-env.d.ts", "**/*.ts", "**/*.tsx"],
-  "exclude": ["node_modules"]
+  "exclude": ["node_modules", "api"]
 }

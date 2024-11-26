@@ -13,7 +13,6 @@ import { WagmiProvider, createConfig } from 'wagmi'
 import { ATM } from '../components/dapp/ATM'
 import { Bouncer } from '../components/dapp/Bouncer'
 import { Dashboard } from '../components/dapp/Dashboard'
-import { Disburser } from '../components/dapp/Disburser'
 import { LiquidityBacking } from '../components/dapp/LiquidityBacking'
 import { StakeX } from '../components/dapp/StakeX'
 import { DappHeader } from '../components/dapp/elements/DappHeader'
@@ -41,10 +40,7 @@ export default function Dapp() {
     const { theme } = useTheme()
     const defaultTitle = 'DEGENX Ecosystem'
     const [title, setTitle] = useState<string>(defaultTitle)
-    const [data, setData] = useState<DAppContextDataType>({
-        ready: false,
-        title: '',
-    })
+    const [data, setData] = useState<Partial<DAppContextDataType>>({})
 
     useEffect(() => {
         let _titleUpdate = defaultTitle
@@ -87,7 +83,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
                                 ></iframe>
                             </noscript>
                             <DappHeader />
-                            <div className="dapp my-40 flex sm:my-24 lg:ml-3">
+                            <div className="dapp my-20 flex lg:my-24 lg:ml-3">
                                 <div className="mr-4 hidden w-64 max-w-4xl lg:block">
                                     <Sidebar />
                                 </div>
@@ -96,7 +92,6 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
                                         <Route element={<Dashboard />} path="/dapp" />
                                         <Route index={true} element={<DeFiTools />} path="/dapp/defitools/*" />
                                         <Route element={<LiquidityBacking />} path="/dapp/liquidity-backing" />
-                                        <Route element={<Disburser />} path="/dapp/disburser" />
                                         <Route element={<ATM />} path="/dapp/atm" />
                                         <Route element={<Bouncer />} path="/dapp/bouncer/:hash" />
                                         <Route element={<StakeX />} path="/dapp/staking/:chainId/:protocolAddress" />

@@ -1,12 +1,12 @@
 import { toReadableNumber } from '@dapphelpers/number'
 import { useGetClaimEstimation } from '@dapphooks/staking/useGetClaimEstimation'
-import { useGetStakeBuckets } from '@dapphooks/staking/useGetStakeBuckets'
+import { useBucketsGetStakeBuckets } from '@dapphooks/staking/useBucketsGetStakeBuckets'
 import { useRestake } from '@dapphooks/staking/useRestake'
 import { CaretDivider } from '@dappshared/CaretDivider'
 import { StatsBoxTwoColumn } from '@dappshared/StatsBoxTwoColumn'
 import { BaseOverlay, BaseOverlayProps } from '@dappshared/overlays/BaseOverlay'
 import { StakeBucket, TokenInfo, TokenInfoResponse } from '@dapptypes'
-import { useEffect, useState } from 'react'
+import { useContext, useEffect, useState } from 'react'
 import { AiOutlineQuestionCircle } from 'react-icons/ai'
 import { FaArrowLeft } from 'react-icons/fa'
 import { IoCheckmarkCircle } from 'react-icons/io5'
@@ -17,6 +17,7 @@ import { Address } from 'viem'
 import { useAccount } from 'wagmi'
 import { Spinner } from '../../elements/Spinner'
 import { StakeBucketButton, StakingDurationSelection } from '../StakingDurationSelection'
+import { StakeXContext } from '@dapphelpers/staking'
 
 type StakingRestakeOverlayProps = {
     protocolAddress: Address
@@ -36,6 +37,10 @@ export const StakingRestakeOverlay = ({
     payoutTokenInfo,
 }: StakingRestakeOverlayProps) => {
     const { address } = useAccount()
+    const {
+        data: { actionFeeActive, actionFeeThreshold },
+    } = useContext(StakeXContext)
+
     const [isLoading, setIsLoading] = useState(true)
     const [isCheckboxSelected, setIsCheckboxSelected] = useState(false)
     const [stakeBucketId, setStakeBucketId] = useState<Address>()
@@ -45,7 +50,10 @@ export const StakingRestakeOverlay = ({
     //
     // Data Hooks
     //
-    const { data: stakeBucketsData, isLoading: isLoadingGetStakeBuckets } = useGetStakeBuckets(protocolAddress, chainId)
+    const { data: stakeBucketsData, isLoading: isLoadingGetStakeBuckets } = useBucketsGetStakeBuckets(
+        protocolAddress,
+        chainId
+    )
     const { data: claimEstimationNFT, isLoading: isLoadingClaimEstimationNFT } = useGetClaimEstimation(
         true,
         protocolAddress,
@@ -65,7 +73,15 @@ export const StakingRestakeOverlay = ({
         restakeAmount,
         feeAmount,
         hash: hashRestake,
-    } = useRestake(Boolean(isCheckboxSelected && stakeBucketId), protocolAddress, chainId, tokenId, stakeBucketId!)
+    } = useRestake(
+        Boolean(isCheckboxSelected && stakeBucketId),
+        protocolAddress,
+        chainId,
+        tokenId,
+        stakeBucketId!,
+        actionFeeActive,
+        actionFeeThreshold
+    )
 
     //
     // Handlers
@@ -134,7 +150,7 @@ export const StakingRestakeOverlay = ({
     return (
         <BaseOverlay isOpen={isOpen} closeOnBackdropClick={false} onClose={onCloseHandler}>
             {isLoading && (
-                <div className="item-center flex flex-row justify-center">
+                <div className="flex flex-row items-center justify-center">
                     <Spinner theme="dark" className="m-20 !h-24 !w-24" />
                 </div>
             )}
@@ -147,13 +163,13 @@ export const StakingRestakeOverlay = ({
                             <div>
                                 <AiOutlineQuestionCircle />
                             </div>
-                            <div className="flex flex-grow justify-end">
+                            <div className="flex grow justify-end">
                                 <button
                                     type="button"
                                     className="flex items-center justify-end gap-1 text-xs"
                                     onClick={onCloseHandler}
                                 >
-                                    <FaArrowLeft className="h-3 w-3" />
+                                    <FaArrowLeft className="size-3" />
                                     Back
                                 </button>
                             </div>
@@ -256,7 +272,7 @@ export const StakingRestakeOverlay = ({
 
             {isError && !isLoading && !isSuccessRestake && !isLoadingRestake && (
                 <div className="flex flex-col items-center gap-6 p-6 text-center text-base">
-                    <MdError className="h-[100px] w-[100px] text-error " />
+                    <MdError className="size-[100px] text-error " />
                     There was an error: <br />
                     {error && (error as any).details}
                 </div>
@@ -284,7 +300,7 @@ export const StakingRestakeOverlay = ({
             {!isLoadingRestake && isSuccessRestake && (
                 <>
                     <div className="flex flex-col items-center gap-6 p-6 text-center text-base">
-                        <IoCheckmarkCircle className="h-[100px] w-[100px] text-success" />
+                        <IoCheckmarkCircle className="size-[100px] text-success" />
                         <span>
                             Successfully restaked <br />
                             <span className="text-xl font-bold">
@@ -294,7 +310,7 @@ export const StakingRestakeOverlay = ({
                                 <>
                                     <br />
                                     <br />A fee of {toReadableNumber(feeAmount, stakingTokenInfo?.decimals)}{' '}
-                                    {stakingTokenInfo?.symbol} has been charged from your re-staking amount
+                                    {stakingTokenInfo?.symbol} has been charged from your restaking amount
                                 </>
                             )}
                         </span>

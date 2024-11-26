@@ -11,7 +11,7 @@ import { SiLinktree } from 'react-icons/si'
 
 export function Discover() {
     return (
-        <Container className="pb-10 pt-10 text-center text-light-600">
+        <Container className="py-10 text-center text-light-600">
             Discover our ecosystem
             <div className="mt-3 flex items-center justify-center gap-x-6">
                 <Link
@@ -19,7 +19,7 @@ export function Discover() {
                     target="_blank"
                     className="group"
                 >
-                    <FaTelegramPlane className="h-6 w-6 text-light-600 hover:text-light-200" />
+                    <FaTelegramPlane className="size-6 text-light-600 hover:text-light-200" />
                 </Link>
                 <Link
                     href="https://twitter.com/degenecosystem"
@@ -35,28 +35,28 @@ export function Discover() {
                     target="_blank"
                     className="group"
                 >
-                    <FaDiscord className="h-6 w-6 text-light-600 hover:text-light-200" />
+                    <FaDiscord className="size-6 text-light-600 hover:text-light-200" />
                 </Link>
                 <Link
                     href="https://instagram.com/degenecosystem"
                     target="_blank"
                     className="group"
                 >
-                    <FaInstagram className="h-6 w-6 text-light-600 hover:text-light-200" />
+                    <FaInstagram className="size-6 text-light-600 hover:text-light-200" />
                 </Link>
                 <Link
                     href="https://www.tiktok.com/@degen_traders"
                     target="_blank"
                     className="group"
                 >
-                    <FaTiktok className="h-6 w-6 text-light-600 hover:text-light-200" />
+                    <FaTiktok className="size-6 text-light-600 hover:text-light-200" />
                 </Link>
                 <Link
                     href="https://linktr.ee/DEGENX"
                     target="_blank"
                     className="group"
                 >
-                    <SiLinktree className="h-6 w-6 text-light-600 hover:text-light-200" />
+                    <SiLinktree className="size-6 text-light-600 hover:text-light-200" />
                 </Link>
             </div>
         </Container>

@@ -1,20 +1,18 @@
 import { Address } from 'viem'
 
-export type StakeXCustomizationResponseType = {
+export type StakeXAPIPeripheryResponseType = {
     data: {
         projectName: string | null
-        logoUrl: string | null
-        logoUrlUpdatePending: boolean
-        stylesUrl: string | null
-        stylesUrlUpdatePending: boolean
+        heroBannerUrl: string | null
+        projectLogoUrl: string | null
+        pending: boolean
     }
 }
 
-export type StakeXCustomizationDTO = {
+export type StakeXAPIPeripheryUpdateDTO = {
     protocol: Address
     chainId: number
-    image: string
-    styles: object | []
+    data: any // TODO maybe type this
     challenge: string
-    sig: string
+    sig: Address
 }

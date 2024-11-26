@@ -42,7 +42,7 @@ export const LockUnitsForm = ({
                     onClick={() => onChangeLockUnit(bucketIndex, val as keyof typeof LockUnits)}
                     disabled={disabled}
                     className={clsx([
-                        'flex-grow border-0 border-l border-dapp-blue-200 bg-dapp-blue-800 px-2 text-center text-sm/10 last:rounded-r-lg focus:ring-0 focus:ring-offset-0',
+                        'grow border-0 border-l border-dapp-blue-200 bg-dapp-blue-800 px-2 text-center text-sm/10 last:rounded-r-lg focus:ring-0 focus:ring-offset-0',
                         val === bucket.lockUnit && '!bg-dapp-blue-100',
                     ])}
                 >

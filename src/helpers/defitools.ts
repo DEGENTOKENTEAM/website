@@ -28,8 +28,10 @@ export type ManageStakeXContextDataType = {
     isOwner: boolean
     isActive: boolean
     isRunning: boolean
+    isCampaign: boolean
     canEdit: boolean
     chain?: Chain
+    tokens: TokenInfoResponse[]
     stakingToken?: TokenInfoResponse
     metrics?: StakingMetrics
 }
@@ -40,12 +42,14 @@ export type ManageStakeXContextType = {
     reloadData: Function
 }
 
-export const ManageStakeXContextInitialData = {
+export const ManageStakeXContextInitialData: ManageStakeXContextDataType = {
     protocol: zeroAddress,
     owner: zeroAddress,
+    tokens: [],
     isOwner: false,
     isActive: false,
     isRunning: false,
+    isCampaign: false,
     isLoading: true,
     canEdit: false,
 }

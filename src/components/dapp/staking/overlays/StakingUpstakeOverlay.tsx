@@ -1,6 +1,5 @@
 import { toReadableNumber } from '@dapphelpers/number'
-import { useGetStakeBuckets } from '@dapphooks/staking/useGetStakeBuckets'
-import { useGetTargetTokens } from '@dapphooks/staking/useGetTargetTokens'
+import { useBucketsGetStakeBuckets } from '@dapphooks/staking/useBucketsGetStakeBuckets'
 import { useGetUpstakingEstimation } from '@dapphooks/staking/useGetUpstakingEstimation'
 import { useUpstake } from '@dapphooks/staking/useUpstake'
 import { CaretDivider } from '@dappshared/CaretDivider'
@@ -9,7 +8,7 @@ import { StatsBoxTwoColumn } from '@dappshared/StatsBoxTwoColumn'
 import { StakeBucket, StakeResponse, TokenInfo, TokenInfoResponse } from '@dapptypes'
 import { Tooltip } from 'flowbite-react'
 import { isBoolean, pick } from 'lodash'
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useContext, useEffect, useState } from 'react'
 import { AiOutlineQuestionCircle } from 'react-icons/ai'
 import { FaArrowLeft } from 'react-icons/fa'
 import { IoCheckmarkCircle } from 'react-icons/io5'
@@ -20,10 +19,12 @@ import { Address } from 'viem'
 import { Spinner } from '../../elements/Spinner'
 import { StakeBucketButton, StakingDurationSelection } from '../StakingDurationSelection'
 import { StakingPayoutTokenSelection } from '../StakingPayoutTokenSelection'
+import { StakeXContext } from '@dapphelpers/staking'
 
 type StakingUpstakeOverlayProps = {
     protocolAddress: Address
     chainId: number
+    tokens: TokenInfoResponse[]
     stakingTokenInfo: TokenInfoResponse
     payoutTokenInfo: TokenInfo
     stake: StakeResponse
@@ -32,6 +33,7 @@ type StakingUpstakeOverlayProps = {
 export const StakingUpstakeOverlay = ({
     isOpen,
     onClose,
+    tokens,
     protocolAddress,
     chainId,
     stakingTokenInfo,
@@ -39,6 +41,9 @@ export const StakingUpstakeOverlay = ({
     stake,
 }: StakingUpstakeOverlayProps) => {
     const { tokenId } = stake
+    const {
+        data: { actionFeeActive, actionFeeThreshold },
+    } = useContext(StakeXContext)
 
     const [isLoading, setIsLoading] = useState(true)
 
@@ -60,12 +65,10 @@ export const StakingUpstakeOverlay = ({
     //
     //  Stake Bucket Data Hooks
     //
-    const { data: stakeBucketsData, isLoading: isLoadingGetStakeBuckets } = useGetStakeBuckets(protocolAddress, chainId)
-
-    //
-    //  Payout Tokens Hooks
-    //
-    const { data: dataTargetTokens, isLoading: isLoadingGetTargetTokens } = useGetTargetTokens(protocolAddress, chainId)
+    const { data: stakeBucketsData, isLoading: isLoadingGetStakeBuckets } = useBucketsGetStakeBuckets(
+        protocolAddress,
+        chainId
+    )
 
     //
     // Upstaking & Estimations
@@ -94,7 +97,9 @@ export const StakingUpstakeOverlay = ({
         tokenId,
         stakeBucketId!,
         !claimRewards,
-        payoutToken.source
+        payoutToken.source,
+        actionFeeActive,
+        actionFeeThreshold
     )
 
     //
@@ -141,8 +146,8 @@ export const StakingUpstakeOverlay = ({
     // Effects Stake Bucket
     //
     useEffect(() => {
-        setIsLoading(isLoadingGetStakeBuckets || isLoadingGetTargetTokens)
-    }, [isLoadingGetStakeBuckets, isLoadingGetTargetTokens])
+        setIsLoading(isLoadingGetStakeBuckets || !tokens)
+    }, [isLoadingGetStakeBuckets, tokens])
 
     useEffect(() => {
         if (stakeBucketsData) {
@@ -173,10 +178,10 @@ export const StakingUpstakeOverlay = ({
     // Effects Payout Tokens
     //
     useEffect(() => {
-        if (dataTargetTokens && dataTargetTokens.length > 0) {
-            setTargetTokens(dataTargetTokens.filter((token) => token.isTargetActive))
+        if (tokens && tokens.length > 0) {
+            setTargetTokens(tokens.filter((token) => token.isTarget))
         } else setTargetTokens([])
-    }, [dataTargetTokens])
+    }, [tokens])
 
     useEffect(() => {
         if (tokenId && payoutToken && refetchUpstakingEstimation) refetchUpstakingEstimation()
@@ -185,7 +190,7 @@ export const StakingUpstakeOverlay = ({
     return (
         <BaseOverlay isOpen={isOpen} closeOnBackdropClick={false} onClose={onCloseHandler}>
             {isLoading && (
-                <div className="item-center flex flex-row justify-center">
+                <div className="flex flex-row items-center justify-center">
                     <Spinner theme="dark" className="m-20 !h-24 !w-24" />
                 </div>
             )}
@@ -204,13 +209,13 @@ export const StakingUpstakeOverlay = ({
                                     <AiOutlineQuestionCircle data-tooltip-target="tooltip-default" />
                                 </Tooltip>
                             </div>
-                            <div className="flex flex-grow justify-end">
+                            <div className="flex grow justify-end">
                                 <button
                                     type="button"
                                     className="flex items-center justify-end gap-1 text-xs"
                                     onClick={onCloseHandler}
                                 >
-                                    <FaArrowLeft className="h-3 w-3" />
+                                    <FaArrowLeft className="size-3" />
                                     Back
                                 </button>
                             </div>
@@ -234,7 +239,7 @@ export const StakingUpstakeOverlay = ({
                         {targetTokens && payoutToken && (
                             <StakingPayoutTokenSelection
                                 headline="Claiming Rewards"
-                                description="If your enable this option, you're able to select a payout token for the existing rewards. If you don't enable this option, your rewards will be added to the upstaked stake."
+                                description="Enable this option and select a payout token in order to claim your rewards in a specific payout token. Disable this option and your rewards will be added to the upstake amount."
                                 selectedToken={payoutToken}
                                 tokens={targetTokens}
                                 onSelect={onClickPayoutHandler}
@@ -388,7 +393,7 @@ export const StakingUpstakeOverlay = ({
 
             {isError && !isLoading && !isSuccessUpstake && !isLoadingUpstake && (
                 <div className="flex flex-col items-center gap-6 p-6 text-center text-base">
-                    <MdError className="h-[100px] w-[100px] text-error " />
+                    <MdError className="size-[100px] text-error " />
                     There was an error: <br />
                     {error && (error as any).details}
                 </div>
@@ -416,7 +421,7 @@ export const StakingUpstakeOverlay = ({
             {!isLoadingUpstake && isSuccessUpstake && (
                 <>
                     <div className="flex flex-col items-center gap-6 p-6 text-center text-base">
-                        <IoCheckmarkCircle className="h-[100px] w-[100px] text-success" />
+                        <IoCheckmarkCircle className="size-[100px] text-success" />
                         <span>
                             Successfully upstaked <br />
                             <span className="text-xl font-bold">
@@ -426,10 +431,10 @@ export const StakingUpstakeOverlay = ({
                                 <>
                                     <br />
                                     <br />A fee of {toReadableNumber(feeAmount, stakingTokenInfo?.decimals)}{' '}
-                                    {stakingTokenInfo?.symbol} has been charged from your re-staking amount
+                                    {stakingTokenInfo?.symbol} has been charged from your upstaking amount
                                 </>
                             )}
-                            {typeof claimedAmount === 'bigint' && claimedAmount > 0n && (
+                            {claimRewards && typeof claimedAmount === 'bigint' && claimedAmount > 0n && (
                                 <>
                                     <br />
                                     <br />

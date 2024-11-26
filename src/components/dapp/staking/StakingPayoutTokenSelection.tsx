@@ -26,7 +26,7 @@ export const StakingPayoutTokenSelection = ({
     return (
         <div>
             <div className="mb-2 flex">
-                <div className="flex-grow">
+                <div className="grow">
                     <div>{headline}</div>
                     {description && <div className="text-xs text-darkTextLowEmphasis">{description}</div>}
                 </div>

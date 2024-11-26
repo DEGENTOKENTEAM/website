@@ -147,7 +147,7 @@ const base = defineChain({
 
 export const chains: Chain[] = [
     avalanche,
-    mainnet,
+    // mainnet,
     bsc,
     base,
     arbitrum,
@@ -181,6 +181,51 @@ export const getExplorerByChainId = (chainId: number) =>
                     `https://snowscan.xyz/token/${token}`,
                 getAddressUrl: (token: Address) =>
                     `https://snowscan.xyz/address/${token}`,
+            },
+            [bsc.id]: {
+                name: 'bscscan.com',
+                getTxUrl: (txHash: Address) =>
+                    `${bsc.blockExplorers.default.url}/tx/${txHash}`,
+                getTokenUrl: (token: Address) =>
+                    `${bsc.blockExplorers.default.url}/token/${token}`,
+                getAddressUrl: (token: Address) =>
+                    `${bsc.blockExplorers.default.url}/address/${token}`,
+            },
+            [arbitrum.id]: {
+                name: 'arbiscan.io',
+                getTxUrl: (txHash: Address) =>
+                    `${arbitrum.blockExplorers.default.url}/tx/${txHash}`,
+                getTokenUrl: (token: Address) =>
+                    `${arbitrum.blockExplorers.default.url}/token/${token}`,
+                getAddressUrl: (token: Address) =>
+                    `${arbitrum.blockExplorers.default.url}/address/${token}`,
+            },
+            [polygon.id]: {
+                name: 'polygonscan.com',
+                getTxUrl: (txHash: Address) =>
+                    `${polygon.blockExplorers.default.url}/tx/${txHash}`,
+                getTokenUrl: (token: Address) =>
+                    `${polygon.blockExplorers.default.url}/token/${token}`,
+                getAddressUrl: (token: Address) =>
+                    `${polygon.blockExplorers.default.url}/address/${token}`,
+            },
+            [base.id]: {
+                name: 'basescan.org',
+                getTxUrl: (txHash: Address) =>
+                    `${base.blockExplorers.default.url}/tx/${txHash}`,
+                getTokenUrl: (token: Address) =>
+                    `${base.blockExplorers.default.url}/token/${token}`,
+                getAddressUrl: (token: Address) =>
+                    `${base.blockExplorers.default.url}/address/${token}`,
+            },
+            [mainnet.id]: {
+                name: 'etherscan.io',
+                getTxUrl: (txHash: Address) =>
+                    `${mainnet.blockExplorers.default.url}/tx/${txHash}`,
+                getTokenUrl: (token: Address) =>
+                    `${mainnet.blockExplorers.default.url}/token/${token}`,
+                getAddressUrl: (token: Address) =>
+                    `${mainnet.blockExplorers.default.url}/address/${token}`,
             },
         },
         chainId,

@@ -1,5 +1,6 @@
 import { toReadableNumber } from '@dapphelpers/number'
 import { durationFromSeconds, StakeXContext } from '@dapphelpers/staking'
+import { useGetMetrics } from '@dapphooks/staking/useGetMetrics'
 import { useGetStakingData } from '@dapphooks/staking/useGetStakingData'
 import { useGetTVLinUSD } from '@dapphooks/staking/useGetTVLinUSD'
 import { Tile } from '@dappshared/Tile'
@@ -25,13 +26,15 @@ export const StakingStatistics = ({ protocol, chainId }: StakingStatisticsProps)
         isComplete: isCompleteTVLinUSD,
     } = useGetTVLinUSD(protocol, chainId)
 
+    const { response: dataMetrics } = useGetMetrics(protocol, chainId)
+
     return (
         <Tile className="w-full max-w-2xl text-lg leading-6">
             <h1 className="mb-5 flex flex-row items-center gap-2 px-1">
-                <span className="flex-1 font-title text-xl font-bold">General Information</span>
+                <span className="flex-1 font-title text-xl font-bold">Statistics</span>
                 <span
-                    className={`flex h-full min-h-0 items-center gap-2 rounded-lg bg-opacity-30 px-2 py-1 font-display text-xs leading-3 ${
-                        isActive ? 'bg-success' : 'bg-error'
+                    className={`flex h-full min-h-0 items-center gap-2 rounded-lg px-2 py-1 font-display text-xs leading-3 ${
+                        isActive ? 'bg-success/30' : 'bg-error/30'
                     }`}
                 >
                     <svg width={8} height={8} viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">

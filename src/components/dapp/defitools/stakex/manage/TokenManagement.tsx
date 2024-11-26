@@ -2,195 +2,187 @@ import { ManageStakeXContext } from '@dapphelpers/defitools'
 import { toReadableNumber } from '@dapphelpers/number'
 import { useGetChainExplorer } from '@dapphooks/shared/useGetChainExplorer'
 import { RoutingsForTokenResponse } from '@dapphooks/staking/useGetRoutingsForToken'
-import { useGetTargetTokens } from '@dapphooks/staking/useGetTargetTokens'
-import { useSetTokens } from '@dapphooks/staking/useSetTokens'
-import { useTogglePayoutTokenStatus } from '@dapphooks/staking/useTogglePayoutTokenStatus'
-import { useToggleRewardTokenStatus } from '@dapphooks/staking/useToggleRewardTokenStatus'
+import { useTokensAdd } from '@dapphooks/staking/useTokensAdd'
+import { useTokensEnableReward } from '@dapphooks/staking/useTokensEnableReward'
+import { useTokensEnableTarget } from '@dapphooks/staking/useTokensEnableTarget'
+import { useTokensGetTokens } from '@dapphooks/staking/useTokensGetTokens'
 import { CaretDivider } from '@dappshared/CaretDivider'
 import { StatsBoxTwoColumn } from '@dappshared/StatsBoxTwoColumn'
 import { Tile } from '@dappshared/Tile'
-import { SetTargetTokenParams } from '@dapptypes'
+import { TokenAddParams, TokenInfoResponse } from '@dapptypes'
 import clsx from 'clsx'
-import { cloneDeep, isBoolean } from 'lodash'
-import { useCallback, useContext, useEffect, useState } from 'react'
+import { cloneDeep, isUndefined } from 'lodash'
+import { useCallback, useContext, useState } from 'react'
 import { FaPlus, FaRegCheckCircle, FaRegTimesCircle } from 'react-icons/fa'
 import { IoMdOpen } from 'react-icons/io'
-import { toast } from 'react-toastify'
 import { Button } from 'src/components/Button'
 import { Spinner } from 'src/components/dapp/elements/Spinner'
-import { Address } from 'viem'
 import { TokensForm } from './tokens/Form'
 import { ApplyChangesConfirmation } from './tokens/overlays/ApplyChangesConfirmation'
+import { ChangeStateConfirmation } from './tokens/overlays/ChangeStateConfirmation'
 
 export const TokenManagement = () => {
     const {
-        data: { protocol, chain, owner, canEdit },
+        data: { protocol, chain, canEdit },
     } = useContext(ManageStakeXContext)
 
-    const [error, setError] = useState<string | null>(null)
-    const [isReward, setIsReward] = useState<boolean | null>(null)
+    /// General
+    const chainExplorer = useGetChainExplorer(chain!)
 
+    /// Tokens Listing
+    const {
+        data: dataGetTokens,
+        isLoading: isLoadingGetTokens,
+        refetch: refetchGetTokens,
+    } = useTokensGetTokens(protocol, chain?.id!)
+
+    /// Toggle Tokens Status
+    const [toggleRewardToken, setToggleRewardToken] = useState<TokenInfoResponse>()
+    const [toggleTargetToken, setToggleTargetToken] = useState<TokenInfoResponse>()
+    const [toggleState, setToggleState] = useState<boolean>()
+    const [isChangeStateModalOpen, setIsChangeStateModalOpen] = useState(false)
+
+    const {
+        write: writeEnableReward,
+        token: tokenEnableReward,
+        error: errorEnableReward,
+        isSuccess: isSuccessEnableReward,
+        isLoading: isLoadingEnableReward,
+        isPending: isPendingEnableReward,
+        reset: resetEnableReward,
+    } = useTokensEnableReward(protocol, chain?.id!)
+
+    const {
+        write: writeEnableTarget,
+        token: tokenEnableTarget,
+        error: errorEnableTarget,
+        isSuccess: isSuccessEnableTarget,
+        isLoading: isLoadingEnableTarget,
+        isPending: isPendingEnableTarget,
+        reset: resetEnableTarget,
+    } = useTokensEnableTarget(protocol, chain?.id!)
+
+    const onToggleRewardState = (token: TokenInfoResponse) => {
+        setToggleTargetToken(undefined)
+        setToggleRewardToken(token)
+        setToggleState(!token.isReward)
+        setIsChangeStateModalOpen(true)
+    }
+
+    const onTogglePayoutState = (token: TokenInfoResponse) => {
+        setToggleTargetToken(token)
+        setToggleRewardToken(undefined)
+        setToggleState(!token.isTarget)
+        setIsChangeStateModalOpen(true)
+    }
+
+    const onChangeStateModalOK = useCallback(() => {
+        toggleRewardToken &&
+            writeEnableReward &&
+            writeEnableReward(toggleRewardToken.source, !toggleRewardToken.isReward)
+        toggleTargetToken &&
+            writeEnableTarget &&
+            writeEnableTarget(toggleTargetToken.source, !toggleTargetToken.isTarget)
+    }, [toggleRewardToken, toggleTargetToken, writeEnableTarget, writeEnableReward])
+
+    const onChangeStateModalNOK = useCallback(() => {
+        resetEnableTarget && resetEnableTarget()
+        resetEnableReward && resetEnableReward()
+        setIsChangeStateModalOpen(false)
+    }, [resetEnableTarget, resetEnableReward])
+
+    const onChangeStateModalClose = useCallback(() => {
+        refetchGetTokens && refetchGetTokens()
+        resetEnableTarget && resetEnableTarget()
+        resetEnableReward && resetEnableReward()
+        setIsChangeStateModalOpen(false)
+    }, [refetchGetTokens, resetEnableTarget, resetEnableReward])
+
+    /// Add Token
     const [showForm, setShowForm] = useState(false)
-    const [payoutTokenData, setPayoutTokenData] = useState<SetTargetTokenParams | null>(null)
+    const [tokenAddParams, setTokenAddParams] = useState<TokenAddParams | null>(null)
     const [isApplyChangesModalOpen, setIsApplyChangesModalOpen] = useState(false)
 
     const {
-        data: dataTargetTokens,
-        isLoading: isLoadingTargetTokens,
-        refetch: refetchTargetTokens,
-    } = useGetTargetTokens(protocol, chain?.id!)
+        isLoading: isLoadingAdd,
+        isPending: isPendingAdd,
+        error: errorAdd,
+        isSuccess: isSuccessAdd,
+        reset: resetAdd,
+        write: writeAdd,
+    } = useTokensAdd(protocol, chain?.id!, tokenAddParams!)
 
-    const {
-        isLoading: isLoadingSetTokens,
-        isPending: isPendingSetTokens,
-        error: errorSetTokens,
-        isSuccess: isSuccessSetTokens,
-        reset: resetSetTokens,
-        write: writeSetTokens,
-    } = useSetTokens(
-        Boolean(payoutTokenData && chain && isBoolean(isReward)),
-        chain?.id!,
-        protocol,
-        payoutTokenData!,
-        isReward!
-    )
-
-    const {
-        write: togglePayoutToken,
-        token: togglePayoutTokenAddress,
-        error: errorTogglePayoutToken,
-        isError: isErrorTogglePayoutToken,
-        isSuccess: isSuccessTogglePayoutToken,
-        reset: resetTogglePayoutToken,
-    } = useTogglePayoutTokenStatus(protocol, chain?.id!)
-    const {
-        write: toggleRewardToken,
-        token: toggleRewardTokenAddress,
-        error: errorToggleRewardToken,
-        isError: isErrorToggleRewardToken,
-        isSuccess: isSuccessToggleRewardToken,
-        reset: resetToggleRewardToken,
-    } = useToggleRewardTokenStatus(protocol, chain?.id!)
-
-    const chainExplorer = useGetChainExplorer(chain!)
-
-    const resetError = () => setError(null)
-
-    const onChangeForm = (routings: RoutingsForTokenResponse, isReward: boolean) => {
-        resetError()
+    const onChangeForm = (routings: RoutingsForTokenResponse) => {
         if (!routings) {
-            setPayoutTokenData(null)
+            setTokenAddParams(null)
             return
         }
 
-        if (isReward !== null) setIsReward(isReward)
-
-        setPayoutTokenData({
-            targetToken: routings[0].fromToken.address,
-            candidatesGroup: routings.map((route) => ({
-                rewardToken: route.toToken.address,
-                candidates: cloneDeep(route.paths)
+        setTokenAddParams({
+            token: routings[0].fromToken.address,
+            isReward: false,
+            isTarget: false,
+            swapGroup: routings.map((route) => ({
+                token: route.toToken.address,
+                swaps: cloneDeep(route.paths)
                     .reverse()
                     .map((path) => ({
                         calleeSwap: path.dex.router,
-                        calleeAmountOut: path.dex.reader ?? path.dex.router,
+                        calleeAmountOut: path.dex.router,
                         path: [path.toToken.address, path.fromToken.address],
-                        isGmx: Boolean(path.dex.reader),
                     })),
             })),
         })
     }
 
     const onClickAddButton = () => {
-        resetSetTokens()
+        resetAdd()
         setShowForm(true)
     }
 
     const onClickCancelButton = () => {
-        resetSetTokens()
-        setPayoutTokenData(null)
+        resetAdd()
+        setTokenAddParams(null)
         setShowForm(false)
     }
 
     const onClickSaveButton = () => {
-        resetSetTokens()
+        resetAdd()
         setIsApplyChangesModalOpen(true)
     }
 
     const onConfirmationModalOK = useCallback(() => {
-        payoutTokenData && writeSetTokens && isReward !== null && writeSetTokens()
-    }, [writeSetTokens, payoutTokenData, isReward])
+        tokenAddParams && writeAdd && writeAdd()
+    }, [writeAdd, tokenAddParams])
 
     const onConfirmationModalNOK = () => {
         setIsApplyChangesModalOpen(false)
     }
 
     const onConfirmationModalClose = () => {
-        refetchTargetTokens && refetchTargetTokens()
+        refetchGetTokens && refetchGetTokens()
         setShowForm(false)
-        setPayoutTokenData(null)
+        setTokenAddParams(null)
         setIsApplyChangesModalOpen(false)
     }
-
-    const onClickTogglePayoutToken = (token: Address, status: boolean) => {
-        togglePayoutToken(token, status)
-    }
-
-    const onClickToggleRewardToken = (token: Address, status: boolean) => {
-        toggleRewardToken(token, status)
-    }
-
-    useEffect(() => {
-        if (isSuccessTogglePayoutToken && !isErrorTogglePayoutToken) {
-            toast.success(`Successfully changed the payout token status`)
-            refetchTargetTokens && refetchTargetTokens()
-            resetTogglePayoutToken && resetTogglePayoutToken()
-        }
-        if (isErrorTogglePayoutToken && errorTogglePayoutToken) {
-            toast.error((errorTogglePayoutToken as any).shortMessage)
-            resetTogglePayoutToken && resetTogglePayoutToken()
-        }
-    }, [
-        isSuccessTogglePayoutToken,
-        isErrorTogglePayoutToken,
-        errorTogglePayoutToken,
-        refetchTargetTokens,
-        resetTogglePayoutToken,
-    ])
-
-    useEffect(() => {
-        if (isSuccessToggleRewardToken && !isErrorToggleRewardToken) {
-            toast.success(`Successfully changed the payout token status`)
-            refetchTargetTokens && refetchTargetTokens()
-            resetToggleRewardToken && resetToggleRewardToken()
-        }
-        if (isErrorToggleRewardToken && errorToggleRewardToken) {
-            toast.error((errorToggleRewardToken as any).shortMessage)
-            resetToggleRewardToken && resetToggleRewardToken()
-        }
-    }, [
-        isSuccessToggleRewardToken,
-        isErrorToggleRewardToken,
-        errorToggleRewardToken,
-        resetTogglePayoutToken,
-        refetchTargetTokens,
-        resetToggleRewardToken,
-    ])
 
     return (
         <>
             <Tile className="w-full">
                 <div className="flex flex-col gap-4 md:flex-row md:gap-0">
-                    <span className="flex-1 font-title text-xl font-bold md:flex-grow">
+                    <span className="flex-1 font-title text-xl font-bold md:grow">
+                        {tokenEnableTarget}
+                        {tokenEnableReward}
+
                         {canEdit ? `Token Management` : `Tokens`}
                     </span>
                     {canEdit &&
                         (showForm ? (
                             <div className="flex w-full gap-2 md:w-auto">
                                 <Button
-                                    disabled={!Boolean(payoutTokenData)}
+                                    disabled={!Boolean(tokenAddParams)}
                                     onClick={onClickSaveButton}
-                                    className="flex-grow md:flex-grow-0"
+                                    className="grow md:grow-0"
                                     variant="primary"
                                 >
                                     <span>Apply Changes</span>
@@ -201,18 +193,18 @@ export const TokenManagement = () => {
                             </div>
                         ) : (
                             <Button onClick={onClickAddButton} variant="primary" className="w-full gap-3 md:w-auto">
-                                <FaPlus /> <span>Add</span>
+                                <FaPlus /> <span>Add New Token</span>
                             </Button>
                         ))}
                 </div>
-                {showForm && (
+                {showForm && chain?.id && (
                     <div className="mt-8 grid grid-cols-1 gap-8 md:grid-cols-2">
                         <div className="md:col-span-2">
-                            <TokensForm error={error} onChange={onChangeForm} />
+                            <TokensForm tokens={dataGetTokens || []} chainId={chain.id} onChange={onChangeForm} />
                         </div>
                     </div>
                 )}
-                {isLoadingTargetTokens ? (
+                {isLoadingGetTokens ? (
                     <div className="flex w-full flex-row justify-center pt-8">
                         <Spinner theme="dark" />
                     </div>
@@ -220,20 +212,20 @@ export const TokenManagement = () => {
                     <div
                         className={clsx([
                             'mt-8 grid grid-cols-1 gap-8',
-                            dataTargetTokens && dataTargetTokens.length > 1 && 'md:grid-cols-2',
+                            dataGetTokens && dataGetTokens.length > 1 && 'md:grid-cols-2',
                         ])}
                     >
-                        {dataTargetTokens &&
-                            dataTargetTokens.map((targetToken) => (
-                                <div key={targetToken.source} className="flex flex-col gap-4">
+                        {dataGetTokens &&
+                            dataGetTokens.map((token) => (
+                                <div key={token.source} className="flex flex-col gap-4">
                                     <StatsBoxTwoColumn.Wrapper className="w-full rounded-lg bg-dapp-blue-800 px-4 py-2 text-sm">
                                         <StatsBoxTwoColumn.LeftColumn>
-                                            <span className="font-bold">{targetToken.symbol}</span>
+                                            <span className="font-bold">{token.symbol}</span>
                                         </StatsBoxTwoColumn.LeftColumn>
                                         <StatsBoxTwoColumn.RightColumn>
                                             {chainExplorer && (
                                                 <a
-                                                    href={chainExplorer.getTokenUrl(targetToken.source)}
+                                                    href={chainExplorer.getTokenUrl(token.source)}
                                                     target="_blank"
                                                     rel="noreferrer"
                                                     className="flex w-full flex-row items-center justify-end gap-1"
@@ -248,102 +240,70 @@ export const TokenManagement = () => {
                                             <CaretDivider />
                                         </div>
 
-                                        <StatsBoxTwoColumn.LeftColumn>Is payout token?</StatsBoxTwoColumn.LeftColumn>
-                                        <StatsBoxTwoColumn.RightColumn>
-                                            <div className="flex items-center justify-end">
-                                                {targetToken.isTarget ? (
-                                                    <FaRegCheckCircle className="h-5 w-5 text-success" />
-                                                ) : (
-                                                    <FaRegTimesCircle className="h-5 w-5 text-error" />
-                                                )}
-                                            </div>
-                                        </StatsBoxTwoColumn.RightColumn>
-
                                         <StatsBoxTwoColumn.LeftColumn>Enabled as payout?</StatsBoxTwoColumn.LeftColumn>
                                         <StatsBoxTwoColumn.RightColumn>
                                             <div className="flex items-center justify-end">
-                                                {targetToken.isTargetActive ? (
-                                                    <FaRegCheckCircle className="h-5 w-5 text-success" />
+                                                {token.isTarget ? (
+                                                    <FaRegCheckCircle className="size-5 text-success" />
                                                 ) : (
-                                                    <FaRegTimesCircle className="h-5 w-5 text-error" />
+                                                    <FaRegTimesCircle className="size-5 text-error" />
                                                 )}
                                             </div>
                                         </StatsBoxTwoColumn.RightColumn>
 
                                         <StatsBoxTwoColumn.LeftColumn>Paid out</StatsBoxTwoColumn.LeftColumn>
                                         <StatsBoxTwoColumn.RightColumn>
-                                            {toReadableNumber(targetToken.rewarded, targetToken.decimals)}
+                                            {toReadableNumber(token.rewarded, token.decimals)}
                                         </StatsBoxTwoColumn.RightColumn>
 
                                         <div className="col-span-2">
                                             <CaretDivider />
                                         </div>
 
-                                        <StatsBoxTwoColumn.LeftColumn>Is reward token?</StatsBoxTwoColumn.LeftColumn>
-                                        <StatsBoxTwoColumn.RightColumn>
-                                            <div className="flex items-center justify-end">
-                                                {targetToken.isReward ? (
-                                                    <FaRegCheckCircle className="h-5 w-5 text-success" />
-                                                ) : (
-                                                    <FaRegTimesCircle className="h-5 w-5 text-error" />
-                                                )}
-                                            </div>
-                                        </StatsBoxTwoColumn.RightColumn>
-
                                         <StatsBoxTwoColumn.LeftColumn>Enabled as reward?</StatsBoxTwoColumn.LeftColumn>
                                         <StatsBoxTwoColumn.RightColumn>
                                             <div className="flex items-center justify-end">
-                                                {targetToken.isRewardActive ? (
-                                                    <FaRegCheckCircle className="h-5 w-5 text-success" />
+                                                {token.isReward ? (
+                                                    <FaRegCheckCircle className="size-5 text-success" />
                                                 ) : (
-                                                    <FaRegTimesCircle className="h-5 w-5 text-error" />
+                                                    <FaRegTimesCircle className="size-5 text-error" />
                                                 )}
                                             </div>
                                         </StatsBoxTwoColumn.RightColumn>
 
-                                        <StatsBoxTwoColumn.LeftColumn>Injected</StatsBoxTwoColumn.LeftColumn>
+                                        <StatsBoxTwoColumn.LeftColumn>Rewarded</StatsBoxTwoColumn.LeftColumn>
                                         <StatsBoxTwoColumn.RightColumn>
-                                            {toReadableNumber(targetToken.injected, targetToken.decimals)}
+                                            {toReadableNumber(token.injected, token.decimals)}
                                         </StatsBoxTwoColumn.RightColumn>
                                     </StatsBoxTwoColumn.Wrapper>
-                                    {canEdit && dataTargetTokens.length > 1 && (
+                                    {canEdit && dataGetTokens.length > 1 && (
                                         <div className="flex flex-row gap-4">
                                             <Button
-                                                disabled={togglePayoutTokenAddress === targetToken.source}
-                                                onClick={() =>
-                                                    onClickTogglePayoutToken(
-                                                        targetToken.source,
-                                                        !targetToken.isTargetActive
-                                                    )
-                                                }
-                                                variant={`${targetToken.isTargetActive ? 'error' : 'primary'}`}
+                                                disabled={tokenEnableReward === token.source}
+                                                onClick={() => onToggleRewardState(token)}
+                                                variant={`${token.isReward ? 'error' : 'primary'}`}
                                                 className=" w-full"
                                             >
-                                                {togglePayoutTokenAddress === targetToken.source ? (
+                                                {tokenEnableReward === token.source ? (
                                                     <Spinner theme="dark" />
-                                                ) : targetToken.isTargetActive ? (
-                                                    'Disable Payout'
-                                                ) : (
-                                                    'Enable Payout'
-                                                )}
-                                            </Button>{' '}
-                                            <Button
-                                                disabled={toggleRewardTokenAddress === targetToken.source}
-                                                onClick={() =>
-                                                    onClickToggleRewardToken(
-                                                        targetToken.source,
-                                                        !targetToken.isRewardActive
-                                                    )
-                                                }
-                                                variant={`${targetToken.isRewardActive ? 'error' : 'primary'}`}
-                                                className=" w-full"
-                                            >
-                                                {toggleRewardTokenAddress === targetToken.source ? (
-                                                    <Spinner theme="dark" />
-                                                ) : targetToken.isRewardActive ? (
+                                                ) : token.isReward ? (
                                                     'Disable Reward'
                                                 ) : (
                                                     'Enable Reward'
+                                                )}
+                                            </Button>{' '}
+                                            <Button
+                                                disabled={tokenEnableTarget === token.source}
+                                                onClick={() => onTogglePayoutState(token)}
+                                                variant={`${token.isTarget ? 'error' : 'primary'}`}
+                                                className=" w-full"
+                                            >
+                                                {tokenEnableTarget === token.source ? (
+                                                    <Spinner theme="dark" />
+                                                ) : token.isTarget ? (
+                                                    'Disable Payout'
+                                                ) : (
+                                                    'Enable Payout'
                                                 )}
                                             </Button>
                                         </div>
@@ -354,14 +314,27 @@ export const TokenManagement = () => {
                 )}
             </Tile>
             <ApplyChangesConfirmation
-                isLoading={isLoadingSetTokens}
-                isSuccess={isSuccessSetTokens}
-                isPending={isPendingSetTokens}
+                isLoading={isLoadingAdd}
+                isSuccess={isSuccessAdd}
+                isPending={isPendingAdd}
                 isOpen={isApplyChangesModalOpen}
                 onClose={() => onConfirmationModalClose()}
                 onConfirm={() => onConfirmationModalOK()}
                 onCancel={() => onConfirmationModalNOK()}
-                error={errorSetTokens}
+                error={errorAdd}
+            />
+            <ChangeStateConfirmation
+                isLoading={isLoadingEnableReward || isLoadingEnableTarget}
+                isPending={isPendingEnableReward || isPendingEnableTarget}
+                isSuccess={isSuccessEnableReward || isSuccessEnableTarget}
+                onClose={() => onChangeStateModalClose()}
+                onCancel={() => onChangeStateModalNOK()}
+                onConfirm={() => onChangeStateModalOK()}
+                tokenSymbol={toggleRewardToken?.symbol || toggleTargetToken?.symbol || ''}
+                error={errorEnableReward || errorEnableTarget}
+                enabled={!isUndefined(toggleState) && toggleState}
+                isReward={Boolean(toggleRewardToken)}
+                isOpen={isChangeStateModalOpen}
             />
         </>
     )

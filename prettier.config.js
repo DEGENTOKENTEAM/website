@@ -17,4 +17,7 @@ module.exports = {
       },
     },
   ],
+
+  tailwindAttributes: ['theme'],
+  tailwindFunctions: ['twMerge', 'createTheme'],
 }

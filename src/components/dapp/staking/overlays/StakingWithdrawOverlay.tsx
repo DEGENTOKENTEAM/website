@@ -1,14 +1,13 @@
 import { toReadableNumber } from '@dapphelpers/number'
 import { useGetRewardEstimationForTokens } from '@dapphooks/staking/useGetRewardEstimationForTokens'
 import { useGetStakes } from '@dapphooks/staking/useGetStakes'
-import { useGetTargetTokens } from '@dapphooks/staking/useGetTargetTokens'
 import { useWithdraw } from '@dapphooks/staking/useWithdraw'
 import { CaretDivider } from '@dappshared/CaretDivider'
 import { StatsBoxTwoColumn } from '@dappshared/StatsBoxTwoColumn'
 import { BaseOverlay, BaseOverlayProps } from '@dappshared/overlays/BaseOverlay'
 import { StakeResponse, TokenInfo, TokenInfoResponse } from '@dapptypes'
 import { pick } from 'lodash'
-import { useEffect, useState } from 'react'
+import { useContext, useEffect, useState } from 'react'
 import { AiOutlineQuestionCircle } from 'react-icons/ai'
 import { FaArrowLeft } from 'react-icons/fa6'
 import { IoCheckmarkCircle } from 'react-icons/io5'
@@ -19,10 +18,12 @@ import { useAccount } from 'wagmi'
 import { Button } from '../../../Button'
 import { Spinner } from '../../elements/Spinner'
 import { StakingPayoutTokenSelection } from '../StakingPayoutTokenSelection'
+import { StakeXContext } from '@dapphelpers/staking'
 
 type StakingWithdrawOverlayProps = {
     protocolAddress: Address
     chainId: number
+    tokens: TokenInfoResponse[]
     stakingTokenInfo: TokenInfoResponse
     payoutTokenInfo: TokenInfo
     tokenId: bigint
@@ -32,12 +33,18 @@ export const StakingWithdrawOverlay = ({
     tokenId,
     isOpen,
     onClose,
+    tokens,
     protocolAddress,
     chainId,
     stakingTokenInfo,
     payoutTokenInfo,
 }: StakingWithdrawOverlayProps) => {
     const { address } = useAccount()
+
+    const {
+        data: { actionFeeActive, actionFeeThreshold },
+    } = useContext(StakeXContext)
+
     const [isLoading, setIsLoading] = useState(true)
     const [isLoadingRewards, setIsLoadingRewards] = useState(true)
     const [payoutToken, setPayoutToken] = useState<TokenInfo>(payoutTokenInfo)
@@ -48,7 +55,6 @@ export const StakingWithdrawOverlay = ({
     const [targetTokens, setTargetTokens] = useState<TokenInfoResponse[]>([])
 
     const { data: dataStakes } = useGetStakes(protocolAddress, chainId, address!, true)
-    const { data: dataTargetTokens } = useGetTargetTokens(protocolAddress, chainId)
     const { data: rewardEstimations, refetch: refetchRewardEstimations } = useGetRewardEstimationForTokens(
         protocolAddress,
         chainId,
@@ -66,7 +72,15 @@ export const StakingWithdrawOverlay = ({
         isError,
         error,
         hash: hashWithdraw,
-    } = useWithdraw(Boolean(payoutToken), protocolAddress, chainId, tokenId, payoutToken?.source)
+    } = useWithdraw(
+        protocolAddress,
+        chainId,
+        tokenId,
+        payoutToken?.source,
+        actionFeeActive,
+        actionFeeThreshold,
+        Boolean(payoutToken)
+    )
 
     const onCloseHandler = () => {
         reset()
@@ -128,29 +142,29 @@ export const StakingWithdrawOverlay = ({
     }, [tokenId, payoutToken, refetchRewardEstimations])
 
     useEffect(() => {
-        if (dataTargetTokens && dataTargetTokens.length > 0) {
-            setTargetTokens(dataTargetTokens.filter((token) => token.isTargetActive))
+        if (tokens && tokens.length > 0) {
+            setTargetTokens(tokens.filter((token) => token.isTarget))
         } else setTargetTokens([])
-    }, [dataTargetTokens])
+    }, [tokens])
 
     useEffect(() => {
         if (isLoading)
             setIsLoading(
                 !Boolean(
-                    dataTargetTokens &&
-                        dataTargetTokens.length &&
+                    tokens &&
+                        tokens.length &&
                         dataStakes &&
                         dataStakes.length &&
                         rewardEstimations &&
                         rewardEstimations.length
                 )
             )
-    }, [isLoading, dataTargetTokens, dataStakes, rewardEstimations])
+    }, [isLoading, tokens, dataStakes, rewardEstimations])
 
     return (
         <BaseOverlay isOpen={isOpen} closeOnBackdropClick={false} onClose={onCloseHandler}>
             {isLoading && (
-                <div className="item-center flex flex-row justify-center">
+                <div className="flex flex-row items-center justify-center">
                     <Spinner theme="dark" className="m-20 !h-24 !w-24" />
                 </div>
             )}
@@ -163,13 +177,13 @@ export const StakingWithdrawOverlay = ({
                             <div>
                                 <AiOutlineQuestionCircle />
                             </div>
-                            <div className="flex flex-grow justify-end">
+                            <div className="flex grow justify-end">
                                 <button
                                     type="button"
                                     className="flex items-center justify-end gap-1 text-xs"
                                     onClick={onCloseHandler}
                                 >
-                                    <FaArrowLeft className="h-3 w-3" />
+                                    <FaArrowLeft className="size-3" />
                                     Back
                                 </button>
                             </div>
@@ -253,7 +267,7 @@ export const StakingWithdrawOverlay = ({
 
             {isError && error && !isLoading && !isSuccessWithdraw && !isLoadingWithdraw && (
                 <div className="flex flex-col items-center gap-6 p-6 text-center text-base">
-                    <MdError className="h-[100px] w-[100px] text-error " />
+                    <MdError className="size-[100px] text-error " />
                     There was an error: <br />
                     {error && (error as any).details}
                 </div>
@@ -262,7 +276,7 @@ export const StakingWithdrawOverlay = ({
             {!isLoadingWithdraw && isSuccessWithdraw && (
                 <>
                     <div className="flex flex-col items-center gap-6 p-6 text-center text-base">
-                        <IoCheckmarkCircle className="h-[100px] w-[100px] text-success" />
+                        <IoCheckmarkCircle className="size-[100px] text-success" />
                         <span>
                             Successfully withdrawn <br />
                             <span className="text-xl font-bold">

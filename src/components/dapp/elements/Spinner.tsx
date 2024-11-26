@@ -4,7 +4,7 @@ export const Spinner = (props: {
     theme?: 'light' | 'dark'
     className?: string
 }) => {
-    const baseStyles = clsx('h-6 w-6 animate-spin')
+    const baseStyles = clsx('size-6 animate-spin')
     let className = clsx(
         baseStyles,
         'fill-white text-orange-600 dark:text-orange-600',

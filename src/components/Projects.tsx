@@ -13,12 +13,7 @@ import imageBrocSwap from '../images/projects/brocswap.svg'
 import imageDAO from '../images/projects/dao-small.svg'
 import imageLiqBack from '../images/projects/liqback.svg'
 
-const Slide = (props: {
-    name: string
-    logo: string
-    text: string
-    children: any
-}) => {
+const Slide = (props: { name: string; logo: string; text: string; children: any }) => {
     return (
         <div className="h-full sm:px-20">
             <div className="flex h-full flex-col items-center justify-start rounded-xl border-2 border-activeblue bg-darkerblue p-5 pb-12">
@@ -32,7 +27,7 @@ const Slide = (props: {
                 </div>
                 <p>{props.text}</p>
                 {props.children && (
-                    <div className="flex h-full flex-col justify-end sm:justify-center items-center sm:items-end sm:flex-row sm:gap-4">
+                    <div className="flex h-full flex-col items-center justify-end sm:flex-row sm:items-end sm:justify-center sm:gap-4">
                         {props.children}
                     </div>
                 )}
@@ -43,16 +38,14 @@ const Slide = (props: {
 
 export function Projects() {
     return (
-        <Container className="pb-10 pt-10 text-center" id="ecosystem">
+        <Container className="py-10 text-center" id="ecosystem">
             <div className="text-center">
                 <H1 className="leading-10">
-                    <span className="text-techGreen">Explore</span> our
-                    ecosystem
+                    <span className="text-techGreen">Explore</span> our ecosystem
                 </H1>
             </div>
             <p className="mx-8 text-left font-semibold text-light-600 md:mx-0 md:text-center">
-                Our present and future products and services for both projects
-                and users
+                Our present and future products and services for both projects and users
             </p>
 
             <div className="mt-5 h-auto">
@@ -104,7 +97,7 @@ export function Projects() {
                             <BsArrowUpRight />
                         </Button>
                         <Button
-                            className="mb-2 mt-2 flex gap-2 sm:mt-4"
+                            className="my-2 flex gap-2 sm:mt-4"
                             href="https://docs.dgnx.finance/degenx-ecosystem/Products/Liquidity_Backing/liquidity_backing"
                             variant="outline"
                             color="orange"
@@ -129,7 +122,7 @@ export function Projects() {
                             <BsArrowUpRight />
                         </Button>
                         <Button
-                            className="mb-2 mt-2 flex gap-2 sm:mt-4"
+                            className="my-2 flex gap-2 sm:mt-4"
                             href="https://docs.dgnx.finance/degenx-ecosystem/Products/broccoliswap/broccoliswap"
                             variant="outline"
                             color="orange"
@@ -154,7 +147,7 @@ export function Projects() {
                             <BsArrowUpRight />
                         </Button>
                         <Button
-                            className="mb-2 mt-2 flex gap-2 sm:mt-4"
+                            className="my-2 flex gap-2 sm:mt-4"
                             href="https://docs.dgnx.finance/degenx-ecosystem/Governance/intro_governance"
                             variant="outline"
                             color="orange"
@@ -179,7 +172,7 @@ export function Projects() {
                             <BsArrowUpRight />
                         </Button>
                         <Button
-                            className="mb-2 mt-2 flex gap-2 sm:mt-4"
+                            className="my-2 flex gap-2 sm:mt-4"
                             href="https://docs.dgnx.finance/degenx-ecosystem/Products/linkbridge"
                             variant="outline"
                             color="orange"

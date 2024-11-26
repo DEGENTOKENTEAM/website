@@ -1,5 +1,11 @@
-import { ManageStakeXContext, ManageStakeXContextDataType } from '@dapphelpers/defitools'
+import { Spinner } from '@dappelements/Spinner'
+import {
+    ManageStakeXContext,
+    ManageStakeXContextDataType,
+    ManageStakeXContextInitialData,
+} from '@dapphelpers/defitools'
 import { useActive } from '@dapphooks/staking/useActive'
+import { useCampaignIsCampaignMode } from '@dapphooks/staking/useCampaignIsCampaignMode'
 import { useGetContractOwner } from '@dapphooks/staking/useGetContractOwner'
 import { useGetMetrics } from '@dapphooks/staking/useGetMetrics'
 import { useGetStakingToken } from '@dapphooks/staking/useGetStakingToken'
@@ -7,24 +13,23 @@ import { useRunning } from '@dapphooks/staking/useRunning'
 import { NotConnectedHint } from '@dappshared/NotConnectedHint'
 import { WrongChainHint } from '@dappshared/WrongChainHint'
 import { isUndefined, toLower } from 'lodash'
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { toast } from 'react-toastify'
 import { getChainById } from 'shared/supportedChains'
-import { Address, zeroAddress } from 'viem'
+import { Address } from 'viem'
 import { useAccount } from 'wagmi'
+import { CampaignsManage } from './campaigns/manage/CampaignsManage'
+import { AddingUpManagement } from './manage/AddingUpManagement'
 import { Buckets } from './manage/Buckets'
-import { Checklist } from './manage/Checklist'
 import { Control } from './manage/Control'
-import { Customization } from './manage/Customization'
 import { Fees } from './manage/Fees'
 import { GeneralInformation } from './manage/GeneralInformation'
 import { InjectRewards } from './manage/InjectRewards'
-import { NFTManagement } from './manage/NFTManagement'
+import { MergingManagement } from './manage/MergingManagement'
 import { StakingProgressChart } from './manage/StakingProgressChart'
 import { TokenManagement } from './manage/TokenManagement'
-import { UpdateAvailability } from './manage/UpdateAvailability'
-import { UpstakingFeeManagement } from './manage/UpstakingFeeManagement'
+import { UpstakingManagement } from './manage/UpstakingManagement'
 
 export const Manage = () => {
     const { protocolAddress, chainId } = useParams<{
@@ -38,40 +43,55 @@ export const Manage = () => {
     const { address, isConnected, chain: chainAccount } = useAccount()
 
     const chain = getChainById(protocolChainId)
-    const [data, setData] = useState<ManageStakeXContextDataType>({
-        protocol: protocolAddress!,
-        chain,
-        owner: zeroAddress,
-        isOwner: false,
-        isActive: false,
-        isRunning: false,
-        isLoading: false,
-        canEdit: false,
-    })
+    const [data, setData] = useState<ManageStakeXContextDataType>({ ...ManageStakeXContextInitialData, chain })
 
-    const { data: dataStakingToken } = useGetStakingToken(protocolAddress!, chain?.id!)
-    const { data: dataContractOwner } = useGetContractOwner(protocolAddress!, chain?.id!)
-    const { response: dataMetrics } = useGetMetrics(protocolAddress!, chain?.id!)
-    const { data: dataIsActive } = useActive(protocolAddress!, chain?.id!)
-    const { data: dataIsRunning } = useRunning(protocolAddress!, chain?.id!)
+    const { data: dataStakingToken, refetch: refetchStakingToken } = useGetStakingToken(protocolAddress!, chain.id!)
+    const { data: dataContractOwner } = useGetContractOwner(protocolAddress!, chain.id!)
+    const { response: dataMetrics } = useGetMetrics(protocolAddress!, chain.id!)
+    const { data: dataIsActive, refetch: refetchIsActive } = useActive(protocolAddress!, chain.id!)
+    const { data: dataIsRunning, refetch: refetchIsRunning } = useRunning(protocolAddress!, chain.id!)
+    const { data: dataIsCampaignMode, isLoading: isLoadingIsCampaignMode } = useCampaignIsCampaignMode(
+        protocolAddress!,
+        chain.id!
+    )
 
     useEffect(() => {
         const _data: ManageStakeXContextDataType = {
-            ...(data || {}),
+            ...(ManageStakeXContextInitialData || {}),
             isLoading: !Boolean(dataStakingToken && dataMetrics && dataContractOwner),
         }
 
         _data.isOwner = Boolean(address && dataContractOwner && toLower(address) === toLower(dataContractOwner))
         _data.canEdit = Boolean(chain && chainAccount && chain.id === chainAccount.id && _data.isOwner)
 
+        if (protocolAddress) _data.protocol = protocolAddress
+        if (chain) _data.chain = chain
         if (dataContractOwner) _data.owner = dataContractOwner
         if (dataMetrics) _data.metrics = dataMetrics
         if (dataStakingToken) _data.stakingToken = dataStakingToken
         if (!isUndefined(dataIsActive)) _data.isActive = dataIsActive
         if (!isUndefined(dataIsRunning)) _data.isRunning = dataIsRunning
+        if (!isUndefined(dataIsCampaignMode)) _data.isCampaign = dataIsCampaignMode
 
         setData(_data)
-    }, [dataStakingToken, address, dataMetrics, dataContractOwner, dataIsActive, dataIsRunning, chain, chainAccount])
+    }, [
+        dataStakingToken,
+        address,
+        dataMetrics,
+        dataContractOwner,
+        dataIsActive,
+        dataIsRunning,
+        chain,
+        chainAccount,
+        protocolAddress,
+        dataIsCampaignMode,
+    ])
+
+    const reloadData = useCallback(() => {
+        refetchStakingToken && refetchStakingToken()
+        refetchIsActive && refetchIsActive()
+        refetchIsRunning && refetchIsRunning()
+    }, [refetchStakingToken, refetchIsActive, refetchIsRunning])
 
     if (!protocolAddress) {
         toast.error('Invalid protocol address')
@@ -79,38 +99,51 @@ export const Manage = () => {
         return <></>
     }
 
-    const reloadData = () => {
-        // TODO maybe do something to update protocol specific stuff
-        console.log('reeeeeeload')
-    }
-
     return (
         protocolAddress && (
             <ManageStakeXContext.Provider value={{ data, setData, reloadData }}>
-                <div className="mb-8 flex w-full max-w-5xl flex-col gap-8">
-                    <h1 className="flex w-full max-w-2xl flex-row items-end px-8 font-title text-3xl font-bold tracking-wide sm:px-0">
+                <h1 className="my-2 flex w-full flex-row flex-wrap items-end gap-0 px-4 font-title text-3xl font-bold tracking-wide sm:px-0 md:gap-1">
+                    <span>
                         <span className="text-techGreen">STAKE</span>
                         <span className="text-degenOrange">X</span>
-                        <span className="ml-1 text-xl">Management</span>
-                    </h1>
-                    {data.isOwner && <UpdateAvailability />}
+                    </span>
+                    <span className="text-xl">{dataIsCampaignMode && 'Campaign '}Management</span>
+                </h1>
+                <div className="mb-8 flex w-full max-w-5xl flex-col gap-8">
                     {isConnected && chainAccount && chain && chain.id !== chainAccount.id && (
                         <WrongChainHint chainIdProtocol={chain.id} chainIdAccount={chainAccount.id!} />
                     )}
                     {!isConnected && <NotConnectedHint />}
-                    <Checklist />
-                    <Customization />
-                    <GeneralInformation />
-                    <StakingProgressChart />
-                    <Buckets />
-                    <TokenManagement />
-                    <NFTManagement />
-                    {data.isOwner && <Control />}
-                    <Fees />
-                    <div className="grid gap-8 sm:grid-cols-2">
-                        <UpstakingFeeManagement />
-                        <InjectRewards />
-                    </div>
+
+                    {isLoadingIsCampaignMode ? (
+                        <div className="flex flex-col items-center justify-center gap-4 p-10">
+                            <Spinner className="!h-10 !w-10" theme="dark" />
+                            <span className="text-darkTextLowEmphasis">Loading...</span>
+                        </div>
+                    ) : dataIsCampaignMode ? (
+                        <>
+                            <GeneralInformation />
+                            <CampaignsManage />
+                        </>
+                    ) : (
+                        <>
+                            <GeneralInformation />
+                            <StakingProgressChart />
+                            <Buckets />
+                            <TokenManagement />
+                            {/* <NFTManagement /> */}
+                            {data.isOwner && <Control />}
+                            <Fees />
+                            <div className="grid gap-8 sm:grid-cols-2">
+                                <UpstakingManagement />
+                                <MergingManagement />
+                            </div>
+                            <div className="grid gap-8 sm:grid-cols-2">
+                                <AddingUpManagement />
+                                <InjectRewards />
+                            </div>
+                        </>
+                    )}
                 </div>
             </ManageStakeXContext.Provider>
         )

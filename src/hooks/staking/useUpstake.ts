@@ -10,7 +10,9 @@ export const useUpstake = (
     tokenId: bigint,
     stakeBucketId: Address,
     includeRewards: boolean,
-    target: Address
+    target: Address,
+    actionFeeActive: boolean,
+    actionFeeAmount: bigint
 ) => {
     const [feeAmount, setFeeAmount] = useState<bigint>()
     const [upstakeAmount, setUpstakeAmount] = useState<bigint>()
@@ -39,6 +41,7 @@ export const useUpstake = (
         chainId,
         eventNames: ['Upstaked'],
         enabled,
+        value: actionFeeActive && actionFeeAmount > 0n ? actionFeeAmount : 0n,
         onEventMatch,
     })
 

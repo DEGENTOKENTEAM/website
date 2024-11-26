@@ -1,12 +1,9 @@
-import clsx from 'clsx'
-import { ConnectKitButton } from 'connectkit'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
-import { useAccount, useBalance } from 'wagmi'
-import { toPrecision } from '../../../helpers/number'
 import logoImage from '../../../images/logo_large.png'
-import { DarkmodeToggle } from '../../DarkmodeToggle'
+import logoImageSingle from '../../../images/logo_large_single.png'
+import { CustomConnectedButton } from '../CustomConnectButton'
 import { DappContainer } from './DappContainer'
 import Sidebar from './Sidebar'
 
@@ -18,10 +15,10 @@ const TokenImage = (props: { src: string; symbol: string; size?: number }) => {
     }, [props.src])
 
     return (
-        <div className="relative flex h-8 w-8 items-center justify-center rounded-full">
+        <div className="relative flex size-8 items-center justify-center rounded-full">
             <div
                 style={{ display: showImage ? undefined : 'flex' }}
-                className="absolute hidden h-full w-full items-center justify-center rounded-full bg-slate-800 font-bold text-white"
+                className="absolute hidden size-full items-center justify-center rounded-full bg-slate-800 font-bold text-white"
             >
                 {props.symbol[0]}
             </div>
@@ -40,68 +37,25 @@ const TokenImage = (props: { src: string; symbol: string; size?: number }) => {
     )
 }
 
-const ConnectedButton = () => {
-    const { address, chain } = useAccount()
-
-    const { data: balanceData } = useBalance({
-        address,
-        chainId: chain?.id,
-    })
-
-    return (
-        <div className="-my-2 flex items-center gap-0.5 p-0">
-            {balanceData && (
-                <div className="mr-2 flex items-center border-r border-dapp-blue-800 py-1 pr-2">
-                    {chain && (
-                        <TokenImage
-                            src={chain.id == 56 ? `/chains/${chain.id}.png` : `/chains/${chain.id}.svg`}
-                            symbol={chain.nativeCurrency.symbol}
-                            size={16}
-                        />
-                    )}
-                    {toPrecision(parseFloat(balanceData?.formatted || '0'), 4)}
-                </div>
-            )}
-            {address?.slice(0, 6)}...{address?.slice(address.length - 3)}
-        </div>
-    )
-}
-
 export function DappHeader() {
     return (
-        <header className="absolute z-10 w-full py-6 lg:fixed bg-gradient-to-b from-dapp-blue-800 from-20%">
+        <header className="absolute z-10 w-full bg-gradient-to-b from-dapp-blue-800 from-20% lg:fixed">
             <DappContainer>
-                <nav className="relative z-50 flex flex-col items-center justify-between gap-6 sm:flex-row">
-                    <div className="flex flex-row-reverse items-center sm:flex-row">
-                        <div className="mr-3 lg:hidden">
+                <nav className="relative z-50 flex flex-col items-center justify-between gap-6 p-4 md:flex-row lg:py-6">
+                    <div className="flex w-full flex-row items-center">
+                        <div className="mr-3 hidden md:inline-block lg:hidden">
                             <Sidebar mobile />
                         </div>
                         <Link href="/" aria-label="Home">
-                            <Image
-                                className=""
-                                src={logoImage}
-                                alt=""
-                                // width={48}
-                                height={48}
-                            />
+                            <Image src={logoImage} alt="" height={48} className="hidden sm:inline-block" />
+                            <Image src={logoImageSingle} alt="" height={48} className="sm:hidden" />
                         </Link>
-                    </div>
-                    <div className="flex items-center gap-x-2 md:gap-x-2">
-                        <ConnectKitButton.Custom>
-                            {({ isConnected, show }) => {
-                                return (
-                                    <button
-                                        onClick={show}
-                                        className={clsx(
-                                            'flex items-center gap-1 rounded-lg bg-light-100 px-3 py-2 font-bold text-light-800 transition-colors hover:bg-degenOrange  dark:bg-dapp-blue-400 dark:text-dapp-cyan-50 dark:hover:bg-dapp-blue-200'
-                                        )}
-                                    >
-                                        {isConnected ? <ConnectedButton /> : 'Connect Wallet'}
-                                    </button>
-                                )
-                            }}
-                        </ConnectKitButton.Custom>
-                        <DarkmodeToggle />
+                        <div className="flex grow items-center justify-end pr-8 md:pr-0">
+                            <CustomConnectedButton />
+                        </div>
+                        <div className="mr-3 md:hidden">
+                            <Sidebar mobile />
+                        </div>
                     </div>
                 </nav>
             </DappContainer>

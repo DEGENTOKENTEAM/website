@@ -3,13 +3,14 @@ import { durationFromSeconds, StakeXContext } from '@dapphelpers/staking'
 import { useERC20Approve } from '@dapphooks/shared/useERC20Approve'
 import { useGetERC20BalanceOf } from '@dapphooks/shared/useGetERC20BalanceOf'
 import { useHasERC20Allowance } from '@dapphooks/shared/useHasERC20Allowance'
+import { useBucketsGetStakeBuckets } from '@dapphooks/staking/useBucketsGetStakeBuckets'
 import { useDepositStake } from '@dapphooks/staking/useDepositStake'
 import { useGetFeeFor } from '@dapphooks/staking/useGetFee'
+import { useGetMetrics } from '@dapphooks/staking/useGetMetrics'
 import { useGetMultipliersPerOneStakingToken } from '@dapphooks/staking/useGetMultipliersPerOneStakingToken'
-import { useGetStakeBuckets } from '@dapphooks/staking/useGetStakeBuckets'
 import { useHasFees } from '@dapphooks/staking/useHasFees'
 import { StatsBoxTwoColumn } from '@dappshared/StatsBoxTwoColumn'
-import { StakeBucket, StakingBaseProps } from '@dapptypes'
+import { AnnualPercentageDataType, StakeBucket, StakingBaseProps } from '@dapptypes'
 import { ChangeEvent, useCallback, useContext, useEffect, useState } from 'react'
 import { IoCheckmarkCircle } from 'react-icons/io5'
 import { MdError, MdLockOpen, MdLockOutline } from 'react-icons/md'
@@ -29,7 +30,7 @@ export const StakingForm = ({ stakingTokenInfo, onDepositSuccessHandler }: Staki
     const defaultBucketId = toHex('boss mode', { size: 32 })
 
     const {
-        data: { protocol, chain },
+        data: { protocol, chain, actionFeeActive, actionFeeThreshold },
     } = useContext(StakeXContext)
 
     const { address, isConnected, isDisconnected } = useAccount()
@@ -61,12 +62,22 @@ export const StakingForm = ({ stakingTokenInfo, onDepositSuccessHandler }: Staki
     const [isDepositButtonEnabled, setIsDepositButtonEnabled] = useState(false)
     const [startDeposit, setStartDeposit] = useState(false) // show static overlay if true
 
+    ///
+    /// Get Metrics
+    ///
+    const [yieldPerBucket, setYieldPerBucket] = useState<AnnualPercentageDataType>()
+    const { response: dataMetrics } = useGetMetrics(protocol, chain?.id!)
+    useEffect(() => {
+        dataMetrics && setYieldPerBucket(dataMetrics.annualPercentageData)
+    }, [dataMetrics])
     //
     // Hooks
     //
     // base data hooks
-    const { data: dataStakeBuckets } = useGetStakeBuckets(protocol, chain?.id!)
-    const { data: dataMultiplierPerToken } = useGetMultipliersPerOneStakingToken(protocol, chain?.id!)
+    const { data: dataStakeBuckets } = useBucketsGetStakeBuckets(protocol, chain?.id!)
+    const { data: dataMultiplierPerToken, isLoading: isLoadingMultiplierPerToken } =
+        useGetMultipliersPerOneStakingToken(protocol, chain?.id!, stakeBucketId, stakeAmount)
+
     const { data: dataBalanceOf } = useGetERC20BalanceOf(stakingTokenInfo?.source, address!, chain?.id!)
     const {
         data: dataAllowance,
@@ -96,7 +107,15 @@ export const StakingForm = ({ stakingTokenInfo, onDepositSuccessHandler }: Staki
         feeAmount: feeAmountDepositStake,
         stakeAmount: stakeAmountDepositStake,
         hash: hashDepositStake,
-    } = useDepositStake(protocol, chain?.id!, stakeBucketId, stakeAmount, Boolean(hasAllowance && startDeposit))
+    } = useDepositStake(
+        protocol,
+        chain?.id!,
+        stakeBucketId,
+        stakeAmount,
+        Boolean(hasAllowance && startDeposit),
+        actionFeeActive,
+        actionFeeThreshold
+    )
 
     //
     // Handlers
@@ -245,7 +264,9 @@ export const StakingForm = ({ stakingTokenInfo, onDepositSuccessHandler }: Staki
                 dataMultiplierPerToken.reduce(
                     (acc, m) => ({
                         ...acc,
-                        [m.bucketId as Address]: Math.floor(Number(m.multiplier) / m.divider),
+                        [m.bucketId as Address]: (Number(m.multiplier) / m.divider).toLocaleString(navigator.language, {
+                            maximumFractionDigits: 2,
+                        }),
                     }),
                     {}
                 )
@@ -343,7 +364,7 @@ export const StakingForm = ({ stakingTokenInfo, onDepositSuccessHandler }: Staki
             >
                 {startDeposit && (
                     <>
-                        <Spinner className="h-4 w-4" theme="dark" />
+                        <Spinner className="size-4" theme="dark" />
                         <span>processing...</span>
                     </>
                 )}
@@ -359,6 +380,25 @@ export const StakingForm = ({ stakingTokenInfo, onDepositSuccessHandler }: Staki
                 <StatsBoxTwoColumn.LeftColumn>{tokenSymbol}</StatsBoxTwoColumn.LeftColumn>
                 <StatsBoxTwoColumn.RightColumn>
                     {stakeAmountEntered ? stakeAmountEntered : '-'}
+                </StatsBoxTwoColumn.RightColumn>
+
+                <StatsBoxTwoColumn.LeftColumn>APR</StatsBoxTwoColumn.LeftColumn>
+                <StatsBoxTwoColumn.RightColumn>
+                    {yieldPerBucket && yieldPerBucket[stakeBucketId]
+                        ? `${toReadableNumber(yieldPerBucket[stakeBucketId].apr, 0, {
+                              maximumFractionDigits: 2,
+                              minimumFractionDigits: 2,
+                          })}%`
+                        : '0%'}
+                </StatsBoxTwoColumn.RightColumn>
+                <StatsBoxTwoColumn.LeftColumn>APY</StatsBoxTwoColumn.LeftColumn>
+                <StatsBoxTwoColumn.RightColumn>
+                    {yieldPerBucket && yieldPerBucket[stakeBucketId]
+                        ? `${toReadableNumber(yieldPerBucket[stakeBucketId].apy, 0, {
+                              maximumFractionDigits: 2,
+                              minimumFractionDigits: 2,
+                          })}%`
+                        : '0%'}
                 </StatsBoxTwoColumn.RightColumn>
 
                 {dataHasFees?.hasFeeForStaking && (
@@ -377,9 +417,15 @@ export const StakingForm = ({ stakingTokenInfo, onDepositSuccessHandler }: Staki
 
                 <StatsBoxTwoColumn.LeftColumn>Multiplier per {tokenSymbol} in Pool</StatsBoxTwoColumn.LeftColumn>
                 <StatsBoxTwoColumn.RightColumn>
-                    {multiplierPerToken && selectedStake && multiplierPerToken[selectedStake.id]
-                        ? `${multiplierPerToken?.[selectedStake.id]}x`
-                        : '-'}
+                    {isLoadingMultiplierPerToken ? (
+                        <span className="flex justify-end">
+                            <Spinner className="size-4" theme="dark" />
+                        </span>
+                    ) : multiplierPerToken && selectedStake && multiplierPerToken[selectedStake.id] ? (
+                        `${multiplierPerToken?.[selectedStake.id]}x`
+                    ) : (
+                        '-'
+                    )}
                 </StatsBoxTwoColumn.RightColumn>
 
                 {/* <StatsBoxTwoColumn.LeftColumn>
@@ -436,7 +482,7 @@ export const StakingForm = ({ stakingTokenInfo, onDepositSuccessHandler }: Staki
                     <>
                         {(isErrorERC20Approve || isErrorDepositStake) && (
                             <div className="flex flex-col items-center gap-6 p-6 text-center text-base">
-                                <MdError className="h-[100px] w-[100px] text-error " />
+                                <MdError className="size-[100px] text-error " />
                                 There was an error: <br />
                                 {errorDepositStake && (errorDepositStake as any).reason}
                                 {errorERC20Approve && (errorERC20Approve as any).reason}
@@ -491,7 +537,7 @@ export const StakingForm = ({ stakingTokenInfo, onDepositSuccessHandler }: Staki
                         {isSuccessDepositStake && (
                             <>
                                 <div className="flex flex-col items-center gap-6 p-6 text-center text-base">
-                                    <IoCheckmarkCircle className="h-[100px] w-[100px] text-success" />
+                                    <IoCheckmarkCircle className="size-[100px] text-success" />
                                     <span className="font-bold">
                                         Successfully deposited <br />
                                         <span className="text-xl font-bold">

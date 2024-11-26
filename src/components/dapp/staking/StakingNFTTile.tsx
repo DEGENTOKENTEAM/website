@@ -2,8 +2,10 @@ import { useFetchTokenURI } from '@dapphooks/staking/useFetchTokenURI'
 import { CaretDivider } from '@dappshared/CaretDivider'
 import { StatsBoxTwoColumn } from '@dappshared/StatsBoxTwoColumn'
 import clsx from 'clsx'
+import { Tooltip } from 'flowbite-react'
 import TimeAgo from 'javascript-time-ago'
 import { useLayoutEffect, useMemo, useRef, useState } from 'react'
+import { AiOutlineQuestionCircle } from 'react-icons/ai'
 import { IoMdOpen } from 'react-icons/io'
 import { MdLockOutline } from 'react-icons/md'
 import { PiCaretDownBold, PiCaretUpBold } from 'react-icons/pi'
@@ -19,18 +21,23 @@ type StakingNFTTileProps = {
     stakedTokenAmount: string
     rewardAmount: string
     rewardSymbol: string
+    lockDuration: number
     withdrawDate: number
     lockStartDate: number
     isBurned: boolean
+    isLocked: boolean
     canRestake: boolean
     canWithdraw: boolean
     canClaim: boolean
     canUpstake: boolean
     canMerge: boolean
+    canAddUp: boolean
     onRestake: (tokenId: bigint) => void
     onWithdraw: (tokenId: bigint) => void
     onClaim: (tokenId: bigint) => void
     onUpstake: (tokenId: bigint) => void
+    onMerge: (tokenId: bigint) => void
+    onAddUp: (tokenId: bigint) => void
 }
 export const StakingNFTTile = ({
     protocolAddress,
@@ -40,18 +47,23 @@ export const StakingNFTTile = ({
     stakedTokenAmount,
     rewardAmount,
     rewardSymbol,
+    lockDuration,
     withdrawDate,
     lockStartDate,
     isBurned,
+    isLocked,
     canRestake,
     canWithdraw,
     canClaim,
     canUpstake,
     canMerge,
+    canAddUp,
     onRestake,
     onWithdraw,
     onClaim,
     onUpstake,
+    onMerge,
+    onAddUp,
 }: StakingNFTTileProps) => {
     const { data, loadData } = useFetchTokenURI(protocolAddress, tokenId)
     const timeAgo = new TimeAgo(navigator.language)
@@ -120,20 +132,50 @@ export const StakingNFTTile = ({
                                     Unlock {stakedTokenSymbol} to withdraw
                                 </StatsBoxTwoColumn.LeftColumn>
                                 <StatsBoxTwoColumn.RightColumn>
-                                    <span
-                                        title={`${new Date(withdrawDate * 1000).toLocaleDateString(navigator.language, {
-                                            year: 'numeric',
-                                            month: '2-digit',
-                                            day: '2-digit',
-                                        })}, ${new Date(lockStartDate * 1000).toLocaleTimeString(navigator.language)}`}
-                                    >
-                                        {Boolean(dataBlock && dataBlock?.timestamp) &&
-                                            timeAgo.format(withdrawDate * 1000, {
-                                                future: true,
-                                                round: 'floor',
-                                                now: Number(dataBlock?.timestamp) * 1000,
-                                            })}
-                                    </span>
+                                    <div className="flex items-center justify-end gap-2">
+                                        <span
+                                            className={clsx([
+                                                !isLocked && Date.now() < withdrawDate * 1000 && 'line-through',
+                                            ])}
+                                            title={`${new Date(withdrawDate * 1000).toLocaleDateString(
+                                                navigator.language,
+                                                {
+                                                    year: 'numeric',
+                                                    month: '2-digit',
+                                                    day: '2-digit',
+                                                }
+                                            )}, ${new Date(lockStartDate * 1000).toLocaleTimeString(
+                                                navigator.language
+                                            )}`}
+                                        >
+                                            {Boolean(dataBlock && dataBlock?.timestamp) &&
+                                                timeAgo.format(withdrawDate * 1000, {
+                                                    future: true,
+                                                    round: 'floor',
+                                                    now: Number(dataBlock?.timestamp) * 1000,
+                                                })}
+                                        </span>
+                                        {!isLocked && Date.now() < withdrawDate * 1000 && (
+                                            <>
+                                                <span className="animate-bounce pl-2 font-bold text-degenOrange">
+                                                    NOW
+                                                </span>
+                                                <Tooltip
+                                                    content={
+                                                        <span>
+                                                            <span className="font-bold">Your stake got unlocked</span>{' '}
+                                                            <br />
+                                                            This happens when the pool you&apos;ve staked into has
+                                                            changed its parameters to your disadvantage.
+                                                        </span>
+                                                    }
+                                                    className="max-w-[400px] text-center"
+                                                >
+                                                    <AiOutlineQuestionCircle className="size-5" />
+                                                </Tooltip>
+                                            </>
+                                        )}
+                                    </div>
                                 </StatsBoxTwoColumn.RightColumn>
                             </>
                         )}
@@ -177,6 +219,18 @@ export const StakingNFTTile = ({
                                 >
                                     Restake {!canRestake && <MdLockOutline />}
                                 </Button>
+                                {canAddUp && (
+                                    <Button
+                                        onClick={() => {
+                                            setOpenContext(false)
+                                            onAddUp(tokenId)
+                                        }}
+                                        variant="secondary"
+                                        className="cursor-pointer whitespace-nowrap"
+                                    >
+                                        Add Tokens
+                                    </Button>
+                                )}
                                 {canUpstake && (
                                     <Button
                                         onClick={() => {
@@ -190,8 +244,15 @@ export const StakingNFTTile = ({
                                     </Button>
                                 )}
                                 {canMerge && (
-                                    <Button variant="secondary" disabled={true} className="gap-2 whitespace-nowrap">
-                                        Merge <sub>available soon 🚀</sub>
+                                    <Button
+                                        onClick={() => {
+                                            setOpenContext(false)
+                                            onMerge(tokenId)
+                                        }}
+                                        variant="secondary"
+                                        className="cursor-pointer whitespace-nowrap"
+                                    >
+                                        Merge
                                     </Button>
                                 )}
                                 {!isBurned && (
@@ -224,7 +285,7 @@ export const StakingNFTTile = ({
                                 setOpenContext(false)
                                 onClaim(tokenId)
                             }}
-                            className="focus:outline-non flex flex-grow items-center justify-center gap-2 rounded-bl-lg rounded-tl-lg border border-dapp-cyan-500 border-r-dapp-blue-800/10 bg-dapp-cyan-500 px-4 py-2 font-semibold leading-5 hover:border-dapp-cyan-500/0 hover:border-r-dapp-blue-800/10 hover:bg-dapp-cyan-500/70 active:border-dapp-cyan-50 disabled:opacity-40 disabled:hover:opacity-40"
+                            className="flex grow items-center justify-center gap-2 rounded-l-lg border border-dapp-cyan-500 border-r-dapp-blue-800/10 bg-dapp-cyan-500 px-4 py-2 font-semibold leading-5 hover:border-dapp-cyan-500/0 hover:border-r-dapp-blue-800/10 hover:bg-dapp-cyan-500/70 focus:outline-none active:border-dapp-cyan-50 disabled:opacity-40 disabled:hover:opacity-40"
                         >
                             Claim Rewards {!canClaim && <MdLockOutline />}
                         </button>

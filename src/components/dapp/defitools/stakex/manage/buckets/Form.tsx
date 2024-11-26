@@ -2,75 +2,12 @@ import { CaretDivider } from '@dappshared/CaretDivider'
 import { BucketParams, StakeBucket, StakeBucketUpdateShareParams } from '@dapptypes'
 import { Button, Description, Field, Input, Tab, TabGroup, TabList, TabPanel, TabPanels } from '@headlessui/react'
 import clsx from 'clsx'
-import { cloneDeep } from 'lodash'
+import { cloneDeep, isUndefined } from 'lodash'
 import { ChangeEvent, useEffect, useState } from 'react'
 import { FaRegCheckSquare, FaRegSquare, FaTimes } from 'react-icons/fa'
-import { TiLockClosed, TiLockOpen } from 'react-icons/ti'
 import { Address } from 'viem'
 import { Button as DappButton } from './../../../../../Button'
 import { LockUnits, LockUnitsForm } from './LockUnitsForm'
-
-const STEP = 0.5
-const initialBucketData: BucketFormParams = {
-    burn: false,
-    lock: true,
-    lockUnit: 'month',
-    lockPeriod: 1,
-    initialShare: 100,
-    share: 0,
-    shareLock: false,
-    shareMax: 100,
-}
-
-const balanceShares = (buckets: BucketFormParams[], bucketIndex?: number) => {
-    const bucketCount = buckets.length
-    const { restShare, restShareOverall, unlockedBuckets, unlockedBucketsOverall } = buckets.reduce(
-        (acc, bucket, i) => ({
-            restShareOverall: acc.restShareOverall - (bucket.shareLock ? bucket.share : 0),
-            unlockedBucketsOverall: acc.unlockedBucketsOverall + (bucket.shareLock ? 0 : 1),
-            restShare: acc.restShare - (bucket.shareLock || bucketIndex == i ? bucket.share : 0),
-            unlockedBuckets: acc.unlockedBuckets + (bucket.shareLock || bucketIndex == i ? 0 : 1),
-        }),
-        {
-            restShare: 100,
-            restShareOverall: 100,
-            unlockedBuckets: 0,
-            unlockedBucketsOverall: 0,
-        }
-    )
-
-    let bucketShare = restShare / unlockedBuckets - ((restShare / unlockedBuckets) % STEP)
-
-    let overlayForFirst = restShare - bucketShare * unlockedBuckets
-
-    return buckets.map((bucket, i) => {
-        let { share, shareLock } = bucket
-
-        if (!shareLock && bucketIndex != i) {
-            share = bucketShare + overlayForFirst
-            overlayForFirst = 0
-        }
-
-        return {
-            ...bucket,
-            ...(bucketCount === 1
-                ? {
-                      // reset shares when only on items is available
-                      shareLock: initialBucketData.shareLock,
-                      share: initialBucketData.share,
-                      shareMax: initialBucketData.shareMax,
-                  }
-                : {
-                      shareLock: bucketCount == 1 ? false : bucket.shareLock,
-                      share,
-                      shareMax:
-                          !bucket.shareLock && unlockedBucketsOverall >= 2
-                              ? restShareOverall - (unlockedBucketsOverall - 1)
-                              : bucket.shareMax,
-                  }),
-        }
-    })
-}
 
 export type BucketFormParams = {
     id?: Address // immutable marker
@@ -80,8 +17,6 @@ export type BucketFormParams = {
     lockPeriod: number
     initialShare: number
     share: number
-    shareLock: boolean
-    shareMax: number
 }
 
 type BucketsFormType = {
@@ -90,48 +25,93 @@ type BucketsFormType = {
     onChange?: (bucketAddParams: BucketParams[], bucketUpdateShareParams: StakeBucketUpdateShareParams[]) => void
 }
 
-export const BucketsForm = ({ existingBuckets, onChange, editSharesOnly }: BucketsFormType) => {
-    const [currentBuckets, setCurrentBuckets] = useState<BucketFormParams[]>(
-        balanceShares([
-            ...(editSharesOnly ? [] : [initialBucketData]),
-            ...(existingBuckets || []).map(({ id, duration, burn, share }) => {
-                const lockUnit = Object.keys(LockUnits)
-                    .sort((a, b) => (LockUnits[a] > LockUnits[b] ? -1 : 1))
-                    .find((unit) => !(duration % LockUnits[unit])) as keyof typeof LockUnits
-                return {
-                    ...initialBucketData,
-                    id,
-                    lock: Boolean(duration),
-                    lockUnit,
-                    lockPeriod: duration / LockUnits[lockUnit],
-                    share: (editSharesOnly ? share : 0) / 100,
-                    shareLock: editSharesOnly,
-                    burn,
-                } as BucketFormParams
-            }),
-        ])
-    )
+const STEP = 0.5
+const initialBucketData: BucketFormParams = {
+    burn: false,
+    lock: true,
+    lockUnit: 'month',
+    lockPeriod: 1,
+    initialShare: 100,
+    share: 100,
+}
 
-    const [shareLocksEnabled, setShareLocksEnabled] = useState(true)
+const balanceShares = (
+    initialBuckets: BucketFormParams[] | null,
+    buckets: BucketFormParams[],
+    bucketIndex?: number
+) => {
+    const shareMax = 100 - (buckets.length - 1)
+    const shareBlocked = buckets.reduce((acc, bucket) => acc + bucket.share, 0)
+    if (!isUndefined(bucketIndex)) {
+        if (initialBuckets && initialBuckets[bucketIndex] && initialBuckets[bucketIndex].burn) {
+            if (initialBuckets[bucketIndex].share > buckets[bucketIndex].share) {
+                buckets[bucketIndex].share = initialBuckets[bucketIndex].share
+            }
+        }
+        if (100 - shareBlocked < 0) buckets[bucketIndex].share += 100 - shareBlocked
+    }
+    return buckets.map((bucket) => ({
+        ...bucket,
+        share:
+            buckets.length === 1
+                ? initialBucketData.share
+                : bucket.share < 1
+                ? 1
+                : bucket.share > shareMax
+                ? shareMax
+                : bucket.share,
+    }))
+}
+
+export const BucketsForm = ({ existingBuckets, onChange, editSharesOnly }: BucketsFormType) => {
+    let shareReduction = initialBucketData.share
+    const initialBuckets = balanceShares(null, [
+        ...(editSharesOnly
+            ? []
+            : [{ ...initialBucketData, share: existingBuckets && existingBuckets.length > 0 ? 1 : 100 }]),
+        ...(existingBuckets || []).map(({ id, duration, burn, share }) => {
+            const lockUnit = Object.keys(LockUnits)
+                .sort((a, b) => (LockUnits[a] > LockUnits[b] ? -1 : 1))
+                .find((unit) => !(duration % LockUnits[unit])) as keyof typeof LockUnits
+
+            let _share = share
+            if (!editSharesOnly && shareReduction && !burn) {
+                _share -= shareReduction
+                shareReduction = 0
+            }
+
+            return {
+                ...initialBucketData,
+                id,
+                lock: Boolean(duration),
+                lockUnit,
+                lockPeriod: duration / LockUnits[lockUnit],
+                share: _share / 100,
+                burn,
+            } as BucketFormParams
+        }),
+    ])
+
+    const [currentBuckets, setCurrentBuckets] = useState<BucketFormParams[]>(initialBuckets)
+    const [shareBlocked, setShareBlocked] = useState(0)
 
     const onAddBucket = () => {
-        const updateBuckets = [...cloneDeep(currentBuckets), initialBucketData].map((bucket) => ({
-            ...bucket,
-            shareLock: false,
-        }))
-        setCurrentBuckets(balanceShares(updateBuckets))
+        let bucketToAdd = { ...initialBucketData, share: 1 }
+        let shareReduction = bucketToAdd.share
+        const updateBuckets = [...cloneDeep(currentBuckets), bucketToAdd].map((bucket) => {
+            if (bucket.share > shareReduction * 2 && !bucket.burn) {
+                bucket.share -= shareReduction
+                shareReduction = 0
+            }
+            return {
+                ...bucket,
+            }
+        })
+        setCurrentBuckets(balanceShares(initialBuckets, updateBuckets))
     }
 
     useEffect(() => {
         if (!currentBuckets || !currentBuckets.length) return
-
-        const unlockedShares = currentBuckets.filter((bucket) => !bucket.shareLock).length
-
-        setShareLocksEnabled(
-            unlockedShares > 1 &&
-                100 - currentBuckets.reduce((acc, bucket) => (bucket.shareLock ? acc + bucket.share : acc), 0) >
-                    unlockedShares
-        )
 
         // trigger on change event for parent component
         onChange &&
@@ -145,7 +125,9 @@ export const BucketsForm = ({ existingBuckets, onChange, editSharesOnly }: Bucke
                     })),
                 currentBuckets.filter((b) => b.id).map(({ id, share }) => ({ id: id!, share: share * 100 }))
             )
-    }, [currentBuckets])
+
+        setShareBlocked(currentBuckets.reduce((acc, bucket) => acc + bucket.share, 0))
+    }, [currentBuckets, onChange])
 
     const onChangeLockUnit = (bucketIndex: number, lockUnit: keyof typeof LockUnits) => {
         const updateBuckets = cloneDeep(currentBuckets)
@@ -163,24 +145,14 @@ export const BucketsForm = ({ existingBuckets, onChange, editSharesOnly }: Bucke
         const updateBuckets = cloneDeep(currentBuckets)
         if (currentBuckets.length === 1) return
         updateBuckets.splice(bucketIndex, 1)
-        setCurrentBuckets(balanceShares(updateBuckets))
-    }
-
-    const onShareLockClick = (bucketIndex: number) => {
-        const updateBuckets = cloneDeep(currentBuckets)
-        updateBuckets[bucketIndex].shareLock = !updateBuckets[bucketIndex].shareLock
-        setCurrentBuckets(balanceShares(updateBuckets, bucketIndex))
+        setCurrentBuckets(balanceShares(initialBuckets, updateBuckets))
     }
 
     const onShareChange = (event: ChangeEvent<HTMLInputElement>, bucketIndex: number) => {
         const updateBuckets = cloneDeep(currentBuckets)
-        if (
-            !!event.target.value &&
-            Number(event.target.value) <= updateBuckets[bucketIndex].shareMax &&
-            Number(event.target.value) >= 1
-        ) {
+        if (!!event.target.value) {
             updateBuckets[bucketIndex].share = Number(event.target.value)
-            setCurrentBuckets(balanceShares(updateBuckets, bucketIndex))
+            setCurrentBuckets(balanceShares(initialBuckets, updateBuckets, bucketIndex))
         }
     }
 
@@ -210,14 +182,14 @@ export const BucketsForm = ({ existingBuckets, onChange, editSharesOnly }: Bucke
                 </div>
                 <div>
                     <TabGroup defaultIndex={editSharesOnly ? 1 : 0}>
-                        <TabList className="full-w flex flex-grow flex-row gap-2 rounded-lg bg-dapp-blue-800 p-[6px] leading-7 text-gray-700">
+                        <TabList className="flex w-full grow flex-row gap-2 rounded-lg bg-dapp-blue-800 p-[6px] leading-7 text-gray-700">
                             <Tab
                                 disabled={editSharesOnly}
-                                className="flex flex-grow cursor-pointer flex-row items-center justify-center gap-1 rounded-md font-semibold text-darkTextLowEmphasis transition-all duration-300 ease-in data-[selected]:bg-dapp-blue-400 data-[selected]:text-dapp-cyan-50"
+                                className="flex grow cursor-pointer flex-row items-center justify-center gap-1 rounded-md font-semibold text-darkTextLowEmphasis transition-all duration-300 ease-in data-[selected]:bg-dapp-blue-400 data-[selected]:text-dapp-cyan-50"
                             >
                                 1. Pools & Locks
                             </Tab>
-                            <Tab className="flex flex-grow cursor-pointer flex-row items-center justify-center gap-1 rounded-md font-semibold text-darkTextLowEmphasis transition-all duration-300 ease-in data-[selected]:bg-dapp-blue-400 data-[selected]:text-dapp-cyan-50">
+                            <Tab className="flex grow cursor-pointer flex-row items-center justify-center gap-1 rounded-md font-semibold text-darkTextLowEmphasis transition-all duration-300 ease-in data-[selected]:bg-dapp-blue-400 data-[selected]:text-dapp-cyan-50">
                                 2. Pool Shares %
                             </Tab>
                         </TabList>
@@ -251,9 +223,9 @@ export const BucketsForm = ({ existingBuckets, onChange, editSharesOnly }: Bucke
                                                                     >
                                                                         Lock Stake{' '}
                                                                         {bucket.lock ? (
-                                                                            <FaRegCheckSquare className="h-5 w-5" />
+                                                                            <FaRegCheckSquare className="size-5" />
                                                                         ) : (
-                                                                            <FaRegSquare className="h-5 w-5" />
+                                                                            <FaRegSquare className="size-5" />
                                                                         )}
                                                                     </Button>
                                                                     <Button
@@ -266,9 +238,9 @@ export const BucketsForm = ({ existingBuckets, onChange, editSharesOnly }: Bucke
                                                                     >
                                                                         Burn Stake
                                                                         {bucket.burn ? (
-                                                                            <FaRegCheckSquare className="h-5 w-5" />
+                                                                            <FaRegCheckSquare className="size-5" />
                                                                         ) : (
-                                                                            <FaRegSquare className="h-5 w-5" />
+                                                                            <FaRegSquare className="size-5" />
                                                                         )}
                                                                     </Button>
                                                                     <Button
@@ -280,7 +252,7 @@ export const BucketsForm = ({ existingBuckets, onChange, editSharesOnly }: Bucke
                                                                         className="flex w-auto items-center justify-center gap-2 rounded-lg border-0 border-dapp-blue-200 bg-error/60 px-4 text-center text-sm/10 focus:ring-0 focus:ring-offset-0 disabled:opacity-30"
                                                                         onClick={() => onRemoveBucket(bucketIndex)}
                                                                     >
-                                                                        <FaTimes className="h-5 w-5" />
+                                                                        <FaTimes className="size-5" />
                                                                     </Button>
                                                                 </div>
                                                                 <LockUnitsForm
@@ -319,21 +291,6 @@ export const BucketsForm = ({ existingBuckets, onChange, editSharesOnly }: Bucke
                                         ].map(({ bucket, bucketIndex }, idx) => (
                                             <div className="pt-2" key={idx}>
                                                 <Field className="flex flex-col gap-2">
-                                                    {idx === 0 && (
-                                                        <Description className="px-2 text-xs/4 text-dapp-cyan-50/50">
-                                                            {/* If you are about to
-                                                            add more than one
-                                                            staking pool, you
-                                                            need to split the
-                                                            share between these
-                                                            pools.  */}
-                                                            The configured shares will always be balanced between all
-                                                            pools while you&apos;re setting them up. Until you lock
-                                                            them. If you add a new pool after setting up the shares, the
-                                                            shares will be reset and balanced. Two pools don&apos;t need
-                                                            a lock.
-                                                        </Description>
-                                                    )}
                                                     {idx > 0 && <CaretDivider />}
                                                     <div className="mx-1 flex gap-2 text-xs">
                                                         <span className="font-bold">Pools & Locks:</span>
@@ -349,12 +306,8 @@ export const BucketsForm = ({ existingBuckets, onChange, editSharesOnly }: Bucke
                                                         <div className="w-24">
                                                             <Input
                                                                 type="number"
-                                                                disabled={
-                                                                    !shareLocksEnabled ||
-                                                                    bucket.shareLock ||
-                                                                    currentBuckets.length == 1
-                                                                }
-                                                                value={bucket.share || bucket.initialShare || 1}
+                                                                disabled={currentBuckets.length == 1}
+                                                                value={bucket.share || 1}
                                                                 onChange={(_event) =>
                                                                     onShareChange(_event, bucketIndex)
                                                                 }
@@ -362,38 +315,31 @@ export const BucketsForm = ({ existingBuckets, onChange, editSharesOnly }: Bucke
                                                                 className="w-full rounded-lg border-0 bg-dapp-blue-800 text-center text-sm/6 [appearance:textfield] focus:ring-0 focus:ring-offset-0 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
                                                             />
                                                         </div>
-                                                        <div className="flex-grow-1 w-full">
+                                                        <div className="relative w-full grow">
+                                                            <div
+                                                                className={clsx([
+                                                                    'absolute bottom-2 right-0 z-20 h-2 rounded-full bg-success',
+                                                                    shareBlocked < 100 && '!bg-yellow/60',
+                                                                ])}
+                                                                style={{
+                                                                    width: `${Math.min(
+                                                                        100,
+                                                                        shareBlocked - bucket.share
+                                                                    )}%`,
+                                                                }}
+                                                            ></div>
                                                             <input
-                                                                className="h-2 w-full appearance-none rounded-full bg-dapp-blue-800 outline-none transition [&::-webkit-slider-thumb]:h-6 [&::-webkit-slider-thumb]:w-6 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-dapp-cyan-50"
+                                                                className="[&::-webkit-slider-thumb]:size-6 z-10 h-2 w-full appearance-none rounded-full bg-dapp-blue-800 outline-none transition [&::-webkit-slider-thumb]:relative [&::-webkit-slider-thumb]:z-30 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-dapp-cyan-50"
                                                                 type="range"
-                                                                disabled={
-                                                                    !shareLocksEnabled ||
-                                                                    bucket.shareLock ||
-                                                                    currentBuckets.length == 1
-                                                                }
+                                                                disabled={currentBuckets.length == 1}
                                                                 step={STEP}
-                                                                value={bucket.share || bucket.initialShare || 1}
+                                                                value={bucket.share || 1}
                                                                 onChange={(_event) =>
                                                                     onShareChange(_event, bucketIndex)
                                                                 }
                                                                 min={1}
-                                                                max={bucket.shareMax}
+                                                                max={100}
                                                             />
-                                                        </div>
-                                                        <div>
-                                                            <button
-                                                                disabled={
-                                                                    (!shareLocksEnabled && !bucket.shareLock) ||
-                                                                    currentBuckets.length == 1
-                                                                }
-                                                                onClick={() => onShareLockClick(bucketIndex)}
-                                                                className={clsx([
-                                                                    'w-full rounded-lg border-0 border-dapp-blue-200 bg-dapp-blue-800 px-3 py-2 text-center text-2xl focus:ring-0 focus:ring-offset-0',
-                                                                    bucket.shareLock && '!bg-dapp-blue-100',
-                                                                ])}
-                                                            >
-                                                                {bucket.shareLock ? <TiLockClosed /> : <TiLockOpen />}
-                                                            </button>
                                                         </div>
                                                     </div>
                                                 </Field>

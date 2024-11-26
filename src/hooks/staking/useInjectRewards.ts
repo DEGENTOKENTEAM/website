@@ -7,13 +7,16 @@ export const useInjectRewards = (
     chainId: number,
     token: Address,
     amount: bigint,
-    isEnabled: boolean
+    isEnabled: boolean,
+    actionFeeActive: boolean,
+    actionFeeAmount: bigint
 ) =>
     useExecuteFunction({
         abi,
         address,
         args: [token, amount],
         chainId,
+        value: actionFeeActive && actionFeeAmount > 0n ? actionFeeAmount : 0n,
         eventNames: ['Deposited'],
         functionName: 'deposit',
         enabled: isEnabled,

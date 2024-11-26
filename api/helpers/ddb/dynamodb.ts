@@ -26,7 +26,7 @@ import {
 export class DynamoDBHelper {
     _docClient: DynamoDBDocumentClient
 
-    constructor(options: DynamoDBClientConfig) {
+    constructor(options: DynamoDBClientConfig & any) {
         if (process.env.IS_OFFLINE) {
             options = Object.assign(options || {}, {
                 region: 'localhost',
@@ -34,7 +34,8 @@ export class DynamoDBHelper {
             })
         }
         this._docClient = DynamoDBDocumentClient.from(
-            new DynamoDBClient(options)
+            new DynamoDBClient(options),
+            { marshallOptions: { removeUndefinedValues: true } }
         )
     }
 

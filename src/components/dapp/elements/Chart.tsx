@@ -287,7 +287,7 @@ export const Chart = (props: { wantTokenName: string; className?: string }) => {
 
     return (
         <div
-            className={clsx(props.className, 'h-full w-full')}
+            className={clsx(props.className, 'size-full')}
             id={`tv_chart_container_${containerId}`}
         />
     )

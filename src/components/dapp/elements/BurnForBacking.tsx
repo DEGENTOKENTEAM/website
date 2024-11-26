@@ -147,7 +147,7 @@ export const BurnForBacking = (props: BurnForBackingProps) => {
             toastId && toast.dismiss(toastId)
 
             if (isSuccessERC20Approve) {
-                toast.success(`Approval successfully. View on <a href="https://snowtrace/tx/${hashApproval}">`, {
+                toast.success(`Approval successfully. View on <a href="https://snowscan.xyz/tx/${hashApproval}">`, {
                     autoClose: 3000,
                 })
                 onSettingsChange()
@@ -182,7 +182,7 @@ export const BurnForBacking = (props: BurnForBackingProps) => {
 
             if (isSuccessDoBurnForBacking) {
                 toast.success(
-                    `Burn for backing successful. View on <a href="https://snowtrace/tx/${hashDoBurnForBacking}">`,
+                    `Burn for backing successful. View on <a href="https://snowscan.xyz/tx/${hashDoBurnForBacking}">`,
                     {
                         autoClose: 3000,
                     }
@@ -263,7 +263,7 @@ export const BurnForBacking = (props: BurnForBackingProps) => {
                             <input
                                 ref={slippageInputRef}
                                 type="text"
-                                className="dark:border-dark-800 m-0 w-6 border p-0 text-xs dark:bg-dark dark:text-light-200"
+                                className="m-0 w-6 border border-dapp-blue-800 bg-dark p-0 text-xs dark:text-light-200"
                             />
                             %
                             <AiOutlineCheckCircle
@@ -362,14 +362,14 @@ export const BurnForBacking = (props: BurnForBackingProps) => {
                                 ? 'Includes token tax, fees, etc'
                                 : 'Estimated output. Approve to get exact values'}
                             <div className="flex gap-x-5">
-                                <p className="flex-grow">Expected output:</p>
+                                <p className="grow">Expected output:</p>
                                 <p className="text-right">
                                     {toReadableNumber(dataGetBackingFromWantToken, activeWantToken.decimals)}{' '}
                                     {activeWantToken.info.name}
                                 </p>
                             </div>
                             <div className="flex gap-x-5">
-                                <p className="flex-grow">Minimum received:</p>
+                                <p className="grow">Minimum received:</p>
                                 <p className="text-right">
                                     {toReadableNumber(slippageAmount, activeWantToken.decimals)}{' '}
                                     {activeWantToken.info.name}

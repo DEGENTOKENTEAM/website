@@ -1,21 +1,16 @@
+import { StakeXCampaignsResponse } from 'api/services/campaigns'
+import { ExactPartial } from 'viem'
+
 export type ProtocolsResponse = {
     protocol: {
         name: string
         logo: string
         stakedRel: number
-        stakedAbs: string // is converted bigint as string
+        stakedAbs: string | bigint // is converted bigint as string
         stakers: number
         stakes: number
-        apr: {
-            low: number
-            avg: number
-            high: number
-        }
-        apy: {
-            low: number
-            avg: number
-            high: number
-        }
+        apr: number
+        apy: number
         source: string
         chainId: number
         isRunning: boolean
@@ -25,3 +20,5 @@ export type ProtocolsResponse = {
         decimals: number
     }
 }
+
+export type CampaignResponse = ExactPartial<StakeXCampaignsResponse>

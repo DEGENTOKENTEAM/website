@@ -37,7 +37,7 @@ export const ForHolders = () => {
             <InnerContainer className="flex flex-col gap-8 py-16 md:flex-row">
                 <div className="flex w-full flex-col gap-8">
                     <div className="md:flex">
-                        <ul className="space-y mb-4 space-y-4 font-medium md:mb-0 md:me-4">
+                        <ul className="mb-4 space-y-4 font-medium md:mb-0 md:me-4">
                             {tabs.map((tab, i) => (
                                 <li key={i} className="md:whitespace-nowrap">
                                     <button
@@ -54,7 +54,7 @@ export const ForHolders = () => {
                                 </li>
                             ))}
                         </ul>
-                        <div className="flex w-full flex-grow flex-col gap-4 rounded-lg bg-dapp-blue-400/70 p-6">
+                        <div className="flex w-full grow flex-col gap-4 rounded-lg bg-dapp-blue-400/70 p-6">
                             <h3 className="text-xl font-bold">{tabs[currentTab].title}</h3>
                             {tabs.map(
                                 (tab, i) =>

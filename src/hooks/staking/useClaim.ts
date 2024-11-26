@@ -8,7 +8,9 @@ export const useClaim = (
     chainId: number,
     tokenId: bigint,
     target: Address,
-    isEnabled: boolean
+    isEnabled: boolean,
+    actionFeeActive: boolean,
+    actionFeeAmount: bigint
 ) => {
     const [rewardAmount, setRewardAmount] = useState<bigint>()
 
@@ -24,6 +26,7 @@ export const useClaim = (
         functionName: 'claim',
         eventNames: ['Claimed'],
         enabled: isEnabled,
+        value: actionFeeActive && actionFeeAmount > 0n ? actionFeeAmount : 0n,
         onEventMatch,
     })
 

@@ -1,16 +1,11 @@
-import { Link, Route, Routes } from 'react-router-dom'
-import { DeFiToolsOverview } from './defitools/Overview'
-import {
-    DeFiToolsContext,
-    DeFiToolsContextDataType,
-    DeFiToolsContextType,
-} from '@dapphelpers/defitools'
+import { DeFiToolsContext, DeFiToolsContextDataType, DeFiToolsContextType } from '@dapphelpers/defitools'
 import { useState } from 'react'
+import { Route, Routes } from 'react-router-dom'
+import { DeFiToolsOverview } from './defitools/Overview'
 import { Overview as DeFiToolsStakeXOverview } from './defitools/stakex/Overview'
 
 export const DeFiTools = () => {
-    const [dataDeFiToolsContext, setDataDeFiToolsContext] =
-        useState<DeFiToolsContextDataType>({})
+    const [dataDeFiToolsContext, setDataDeFiToolsContext] = useState<DeFiToolsContextDataType>({})
 
     const providerConfig: DeFiToolsContextType = {
         data: dataDeFiToolsContext,
@@ -22,10 +17,7 @@ export const DeFiTools = () => {
             <div>
                 <Routes>
                     <Route element={<DeFiToolsOverview />} path="/" />
-                    <Route
-                        element={<DeFiToolsStakeXOverview />}
-                        path="stakex/*"
-                    />
+                    <Route element={<DeFiToolsStakeXOverview />} path="stakex/*" />
                 </Routes>
             </div>
         </DeFiToolsContext.Provider>

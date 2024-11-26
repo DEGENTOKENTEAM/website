@@ -1,16 +1,15 @@
 import clsx from 'clsx'
 import { ConnectKitButton } from 'connectkit'
-import { useAccount } from 'wagmi'
 import { Tile } from './Tile'
 
 export const NotConnectedHint = () => {
     return (
         <Tile className="flex flex-col items-center gap-8 md:flex-row">
-            <p className="flex-grow-1 w-full">
-                If you&apos;re the owner of this STAKEX protocol and you want to
-                modify it, you need to be connected with your wallet.
+            <p className="w-full grow">
+                If you&apos;re the owner of this STAKEX protocol and you want to modify it, you need to be connected
+                with your wallet.
             </p>
-            <div className="flex w-full flex-shrink-[20] justify-end">
+            <div className="flex w-full shrink-[20] justify-end">
                 <ConnectKitButton.Custom>
                     {({ show }) => {
                         return (

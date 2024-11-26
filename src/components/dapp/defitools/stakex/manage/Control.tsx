@@ -1,19 +1,16 @@
 import { ManageStakeXContext } from '@dapphelpers/defitools'
-import { useActive } from '@dapphooks/staking/useActive'
 import { useEnableProtocol } from '@dapphooks/staking/useEnableProtocol'
 import { useEnableProtocolByBlock } from '@dapphooks/staking/useEnableProtocolByBlock'
 import { useEnableProtocolByTime } from '@dapphooks/staking/useEnableProtocolByTime'
 import { useGetActivationBlock } from '@dapphooks/staking/useGetActivationBlock'
 import { useGetActivationTime } from '@dapphooks/staking/useGetActivationTime'
-import { useNFTGetConfigs } from '@dapphooks/staking/useNFTGetConfigs'
 import { CaretDivider } from '@dappshared/CaretDivider'
 import { Tile } from '@dappshared/Tile'
 import clsx from 'clsx'
 import TimeAgo from 'javascript-time-ago'
-import { isBoolean, isUndefined } from 'lodash'
-import { useContext, useEffect, useState } from 'react'
+import { isUndefined } from 'lodash'
+import { useContext, useState } from 'react'
 import { FaCheckDouble, FaCubes, FaRegClock } from 'react-icons/fa'
-import { MdLockOutline } from 'react-icons/md'
 import { Button } from 'src/components/Button'
 import { useBlock } from 'wagmi'
 import { BlockNumberActivation } from './control/overlays/BlockNumberActivation'
@@ -24,13 +21,12 @@ import { DisableProtocolConfirmation } from './control/overlays/DisableProtocolC
 
 export const Control = () => {
     const {
-        data: { protocol, chain, canEdit },
+        reloadData,
+        data: { protocol, chain, canEdit, isActive },
     } = useContext(ManageStakeXContext)
 
     const timeAgo = new TimeAgo(navigator.language)
 
-    const [isActive, setIsActive] = useState<boolean | null>(null)
-    const [canActivate, setCanActivate] = useState(false)
     const [isApplyChangesModalOpen, setIsApplyChangesModalOpen] = useState(false)
     const [isBlockNumberActivationModalOpen, setIsBlockNumberActivationModalOpen] = useState(false)
     const [isBlockNumberDeactivationModalOpen, setIsBlockNumberDeactivationModalOpen] = useState(false)
@@ -39,8 +35,6 @@ export const Control = () => {
     const [activationBlock, setActivationBlock] = useState<bigint>()
     const [activationTime, setActivationTime] = useState<bigint>()
 
-    const { data: dataNFTConfigs, refetch: refetchNFTConfigs } = useNFTGetConfigs(protocol, chain?.id!)
-    const { data: dataIsActive, refetch: refetchIsActive } = useActive(protocol, chain?.id!)
     const { data: currentActivationBlock, refetch: refetchActivationBlock } = useGetActivationBlock(
         protocol,
         chain?.id!
@@ -52,12 +46,7 @@ export const Control = () => {
         watch: Boolean(currentActivationBlock && currentActivationBlock > 0n),
     })
 
-    const { error, isLoading, isPending, isSuccess, reset, write } = useEnableProtocol(
-        protocol,
-        chain?.id!,
-        !isActive!,
-        canActivate
-    )
+    const { error, isLoading, isPending, isSuccess, reset, write } = useEnableProtocol(protocol, chain?.id!, !isActive)
 
     const onClickToggleProtocolStatus = () => {
         reset()
@@ -70,19 +59,18 @@ export const Control = () => {
         setIsApplyChangesModalOpen(false)
     }
     const onConfirmationModalClose = () => {
-        refetchIsActive && refetchIsActive()
+        reloadData && reloadData()
         setIsApplyChangesModalOpen(false)
     }
 
     const {
         error: errorEnableByBlock,
-        isError: isErrorEnableByBlock,
         isLoading: isLoadingEnableByBlock,
         isPending: isPendingEnableByBlock,
         isSuccess: isSuccessEnableByBlock,
         reset: resetEnableByBlock,
         write: writeEnableByBlock,
-    } = useEnableProtocolByBlock(protocol, chain?.id!, activationBlock!, canActivate)
+    } = useEnableProtocolByBlock(protocol, chain?.id!, activationBlock!)
 
     const onClickBlockNumberActivation = () => {
         resetEnableByBlock()
@@ -114,7 +102,7 @@ export const Control = () => {
         isSuccess: isSuccessEnableByTime,
         reset: resetEnableByTime,
         write: writeEnableByTime,
-    } = useEnableProtocolByTime(protocol, chain?.id!, activationTime!, canActivate)
+    } = useEnableProtocolByTime(protocol, chain?.id!, activationTime!)
 
     const onClickBlockTimeActivation = () => {
         resetEnableByTime()
@@ -138,15 +126,6 @@ export const Control = () => {
         setIsBlockTimeDeactivationModalOpen(false)
     }
 
-    useEffect(() => {
-        isBoolean(dataIsActive) && setIsActive(dataIsActive)
-        if (dataIsActive && refetchNFTConfigs) refetchNFTConfigs()
-    }, [refetchNFTConfigs, dataIsActive])
-
-    useEffect(() => {
-        setCanActivate(Boolean(dataNFTConfigs && dataNFTConfigs.length > 0))
-    }, [dataNFTConfigs])
-
     if (!canEdit) return <></>
 
     return (
@@ -162,8 +141,8 @@ export const Control = () => {
                             Boolean(currentActivationTime || isActive) && 'opacity-30',
                         ])}
                     >
-                        <div className="flex flex-row items-center gap-8 md:flex-grow">
-                            <FaCubes className="h-8 w-8" />{' '}
+                        <div className="flex flex-row items-center gap-8 px-4 md:grow md:px-0">
+                            <FaCubes className="size-8" />{' '}
                             {Boolean(currentBlock) &&
                                 (!Boolean(currentActivationBlock) ? (
                                     <span>Set a block number when the protocol should start</span>
@@ -186,7 +165,7 @@ export const Control = () => {
                         </div>
                         {!Boolean(currentActivationBlock) ? (
                             <Button
-                                disabled={Boolean(isActive) || Boolean(currentActivationTime) || !canActivate}
+                                disabled={isActive || Boolean(currentActivationTime)}
                                 className="w-full md:w-auto"
                                 onClick={onClickBlockNumberActivation}
                                 variant={'primary'}
@@ -195,7 +174,7 @@ export const Control = () => {
                             </Button>
                         ) : (
                             <Button
-                                disabled={Boolean(isActive)}
+                                disabled={isActive}
                                 className="w-full md:w-auto"
                                 onClick={onClickBlockNumberRemoveActivation}
                                 variant={'error'}
@@ -210,8 +189,8 @@ export const Control = () => {
                             Boolean(currentActivationTime || isActive) && 'opacity-30',
                         ])}
                     >
-                        <div className="flex flex-row items-center gap-8 md:flex-grow">
-                            <FaRegClock className="h-8 w-8" />
+                        <div className="flex flex-row items-center gap-8 px-4 md:grow md:px-0">
+                            <FaRegClock className="size-8" />
                             {Boolean(currentBlock) &&
                                 (!Boolean(currentActivationTime) ? (
                                     <span>Set a time when the protocol should start</span>
@@ -258,7 +237,7 @@ export const Control = () => {
                         </div>
                         {!Boolean(currentActivationTime) ? (
                             <Button
-                                disabled={Boolean(isActive) || Boolean(currentActivationBlock) || !canActivate}
+                                disabled={isActive || Boolean(currentActivationBlock)}
                                 onClick={onClickBlockTimeActivation}
                                 className="w-full md:w-auto"
                                 variant={'primary'}
@@ -267,7 +246,7 @@ export const Control = () => {
                             </Button>
                         ) : (
                             <Button
-                                disabled={Boolean(isActive)}
+                                disabled={isActive}
                                 onClick={onClickBlockTimeRemoveActivation}
                                 className="w-full md:w-auto"
                                 variant={'error'}
@@ -278,8 +257,8 @@ export const Control = () => {
                     </div>
                     <CaretDivider />
                     <div className="flex flex-col gap-4 md:flex-row md:gap-8">
-                        <div className="flex flex-row items-center gap-8 md:flex-grow">
-                            <FaCheckDouble className={clsx([`h-8 w-8`, isActive && 'text-dapp-cyan-500'])} />
+                        <div className="flex flex-row items-center gap-8 px-4 md:grow md:px-0">
+                            <FaCheckDouble className={clsx([`size-8`, isActive && 'text-dapp-cyan-500'])} />
                             {isActive ? (
                                 <span>Your protocol is enabled</span>
                             ) : (
@@ -288,7 +267,6 @@ export const Control = () => {
                         </div>
 
                         <Button
-                            disabled={!canActivate}
                             onClick={onClickToggleProtocolStatus}
                             className="w-full whitespace-nowrap md:w-auto"
                             variant={isActive ? 'error' : 'primary'}
@@ -297,15 +275,6 @@ export const Control = () => {
                         </Button>
                     </div>
                 </div>
-                {!canActivate && (
-                    <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 border-b border-t border-dapp-blue-100 bg-dapp-blue-800/90 md:rounded-lg md:border">
-                        <MdLockOutline className="h-32 w-32" />
-                        <span>
-                            Please choose an NFT template <br />
-                            in order to enable your protocol
-                        </span>
-                    </div>
-                )}
             </Tile>
             <DisableProtocolConfirmation
                 isLoading={isLoading}
