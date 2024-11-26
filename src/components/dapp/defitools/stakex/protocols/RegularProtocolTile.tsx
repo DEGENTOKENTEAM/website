@@ -95,11 +95,11 @@ export const RegularProtocolTile = ({ protocolResponse }: RegularProtocolTilePro
                     <Button
                         className="w-full"
                         onClick={() => {
-                            navigate(`./../manage/${protocol.chainId}/${protocol.source}`, { relative: 'route' })
+                            navigate(`/dapp/staking/${protocol.chainId}/${protocol.source}`, { relative: 'path' })
                         }}
                         variant="primary"
                     >
-                        Manage
+                        More Details
                     </Button>
                 </div>
             </Tile>

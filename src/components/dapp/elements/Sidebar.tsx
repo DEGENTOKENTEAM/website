@@ -16,7 +16,7 @@ const getNavigation = (config: NavigationConfig | null) => [
     {
         name: 'Dashboard',
         icon: HiHome,
-        href: '',
+        href: '/',
         count: undefined,
         show: true,
         children: null,
@@ -32,7 +32,7 @@ const getNavigation = (config: NavigationConfig | null) => [
     {
         name: 'Liquidity Backing',
         icon: FaPiggyBank,
-        href: 'liquidity-backing',
+        href: 'liquidity-backing/',
         count: undefined,
         show: true,
         children: null,
@@ -70,28 +70,28 @@ const getNavigation = (config: NavigationConfig | null) => [
                     {
                         name: 'Protocols',
                         icon: PiChartPieSliceLight,
-                        href: 'defitools/stakex/regulars',
+                        href: 'defitools/stakex/regulars/',
                         count: undefined,
                         show: true,
                     },
                     {
                         name: 'My Protocols',
                         icon: PiChartPieSliceLight,
-                        href: 'defitools/stakex/regulars/account',
+                        href: 'defitools/stakex/regulars/account/',
                         count: undefined,
                         show: get(config, ['defitools', 'staking', 'myFlexibles', 'enabled'], false),
                     },
                     {
                         name: 'Campaigns',
                         icon: PiTimer,
-                        href: 'defitools/stakex/campaigns',
+                        href: 'defitools/stakex/campaigns/',
                         count: undefined,
                         show: true,
                     },
                     {
                         name: 'My Campaigns',
                         icon: PiTimer,
-                        href: 'defitools/stakex/campaigns/account',
+                        href: 'defitools/stakex/campaigns/account/',
                         count: undefined,
                         show: get(config, ['defitools', 'staking', 'myCampaigns', 'enabled'], false),
                     },
@@ -144,7 +144,7 @@ function MobileSidebar({ config }: { config: NavigationConfig | null }) {
     return (
         <Popover>
             <Popover.Button
-                className="size-8 relative z-10 flex items-center justify-center [&:not(:focus-visible)]:focus:outline-none"
+                className="relative z-10 flex size-8 items-center justify-center [&:not(:focus-visible)]:focus:outline-none"
                 aria-label="Toggle Navigation"
             >
                 {({ open }) => <MobileNavIcon open={open} />}
@@ -263,7 +263,7 @@ const SidebarItem = ({ item, current }: { item: any; current: boolean }) => (
                 current
                     ? 'text-dark dark:text-dapp-cyan-50'
                     : 'text-light-800 transition-colors group-hover:text-dark dark:text-dapp-cyan-50 dark:group-hover:text-dapp-cyan-50',
-                'size-6 mr-3 shrink-0 stroke-dapp-cyan-50 '
+                'mr-3 size-6 shrink-0 stroke-dapp-cyan-50 '
             )}
             aria-hidden="true"
         />
