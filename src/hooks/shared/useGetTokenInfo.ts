@@ -1,41 +1,37 @@
 import erc20Abi from '@dappabis/erc20.json'
 import { TokenInfo } from '@dapptypes'
-import { Address } from 'viem'
+import { isNull } from 'lodash'
+import { Address, isAddress, zeroAddress } from 'viem'
 import { useReadContracts } from 'wagmi'
 
 type useGetTokenInfoProps = {
-    token: Address
-    chainId?: number
-    enabled: boolean
+    token: Address | null
+    chainId: number
 }
-export const useGetTokenInfo = ({
-    token,
-    chainId = 43114,
-    enabled,
-}: useGetTokenInfoProps) =>
+export const useGetTokenInfo = ({ token, chainId }: useGetTokenInfoProps) =>
     useReadContracts({
         contracts: [
             {
-                address: token,
+                address: token || zeroAddress,
                 chainId,
                 abi: erc20Abi,
                 functionName: 'name',
             },
             {
-                address: token,
+                address: token || zeroAddress,
                 chainId,
                 abi: erc20Abi,
                 functionName: 'symbol',
             },
             {
-                address: token,
+                address: token || zeroAddress,
                 chainId,
                 abi: erc20Abi,
                 functionName: 'decimals',
             },
         ],
         query: {
-            enabled,
+            enabled: Boolean(token && chainId && isAddress(token)),
             select: ([name, symbol, decimals]) =>
                 ({
                     name: name.status == 'success' ? name.result : null,

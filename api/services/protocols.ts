@@ -3,34 +3,46 @@ import {
     BatchWriteCommandInput,
     UpdateCommandInput,
 } from '@aws-sdk/lib-dynamodb'
+import { Address } from 'viem'
 import { DynamoDBHelper } from '../helpers/ddb/dynamodb'
 
 export type StakeXProtocolsDTO = {
     chainId: number
     protocol: string
     timestamp: number
+    isCampaignMode: boolean
     blockNumberCreated: number
     blockNumberEnabled: number
+    blockNumberLastUpdate: number
     blockNumberAPUpdate: number
     blockNumberStakesUpdate: number
-    blockNumberAPUpdateIntervall: number
     blockNumberAPPeriod: number
+    blockNumberCampaignsUpdate: number
+    owner: string
 }
-export type StakeXProtocolsUpdateDTO = {
+
+export type StakeXProtocolsLastUpdateDTO = {
     chainId: number
     protocol: string
-    timestamp?: number
-    blockNumberCreated?: number
-    blockNumberEnabled?: number
-    blockNumberAPUpdate?: number
-    blockNumberStakesUpdate?: number
-    blockNumberAPUpdateIntervall?: number
-    blockNumberAPPeriod?: number
-}
+    blockNumberLastUpdate: number
+} & Partial<StakeXProtocolsDTO>
+
+export type StakeXProtocolsStakesUpdateDTO = {
+    chainId: number
+    protocol: string
+    blockNumberStakesUpdate: number
+} & Partial<StakeXProtocolsDTO>
+
+export type StakeXProtocolsAPUpdateDTO = {
+    chainId: number
+    protocol: string
+    blockNumberAPUpdate: number
+} & Partial<StakeXProtocolsDTO>
+
 export type StakeXProtocolsResponse = {
     pkey: string
     skey: string
-} & (StakeXProtocolsDTO | StakeXProtocolsUpdateDTO)
+} & (StakeXProtocolsDTO | StakeXProtocolsLastUpdateDTO)
 
 type RepositoryContructorOptions = {
     dynamoDBConfig: DynamoDBClientConfig
@@ -76,7 +88,12 @@ export class StakeXProtocolsRepository {
         return items
     }
 
-    update = async (data: StakeXProtocolsUpdateDTO) => {
+    update = async (
+        data:
+            | StakeXProtocolsLastUpdateDTO
+            | StakeXProtocolsStakesUpdateDTO
+            | StakeXProtocolsAPUpdateDTO
+    ) => {
         const itemKeys = Object.keys(data)
         const Key = {
             pkey,
@@ -107,72 +124,21 @@ export class StakeXProtocolsRepository {
         return { ...Key, ...data } as StakeXProtocolsResponse
     }
 
-    // getByChainId = async (chainId: number, lastEvaluatedKey?: any) => {
-    //     const { Items, Count, LastEvaluatedKey } = await this._db.query({
-    //         TableName: this.options.dynamoDBConfig.params.TableName,
-    //         KeyConditionExpression:
-    //             '#pkey = :pkey AND begins_with(#skey, :skey)',
-    //         ExpressionAttributeNames: {
-    //             '#pkey': 'pkey',
-    //             '#skey': 'skey',
-    //         },
-    //         ExpressionAttributeValues: {
-    //             ':pkey': pkey,
-    //             ':skey': `${chainId}#`,
-    //         },
-    //         ConsistentRead: true,
-    //         ScanIndexForward: false,
-    //         Limit: 1,
-    //     })
-    //     return {
-    //         items: Items,
-    //         count: Count,
-    //         lastEvaluatedKey: LastEvaluatedKey,
-    //     }
-    // }
-
-    // getByChainIdAndProtocol = async (chainId: number, protocol: string) =>
-    //     (
-    //         await this._db.query({
-    //             TableName: this.options.dynamoDBConfig.params.TableName,
-    //             KeyConditionExpression: '#pkey = :pkey AND #skey = :skey',
-    //             ExpressionAttributeNames: {
-    //                 '#pkey': 'pkey',
-    //                 '#skey': 'skey',
-    //             },
-    //             ExpressionAttributeValues: {
-    //                 ':pkey': pkey,
-    //                 ':skey': `${chainId}#${protocol}`,
-    //             },
-    //             ConsistentRead: true,
-    //             ScanIndexForward: false,
-    //             Limit: 1,
-    //         })
-    //     ).Items ?? null
-
-    getAll = async (size = 10, lastEvaluatedKey?: any) => {
-        if (lastEvaluatedKey)
-            lastEvaluatedKey = JSON.parse(decodeURIComponent(lastEvaluatedKey))
-
-        const { Items, Count, LastEvaluatedKey } = await this._db.query({
+    get = async (chainId: number, protcol: string) => {
+        const { Items, Count } = await this._db.query({
             TableName: this.options.dynamoDBConfig.params.TableName,
-            KeyConditionExpression: '#pkey = :pkey',
+            KeyConditionExpression: '#pkey = :pkey AND #skey = :skey',
             ExpressionAttributeNames: {
                 '#pkey': 'pkey',
+                '#skey': 'skey',
             },
             ExpressionAttributeValues: {
                 ':pkey': pkey,
+                ':skey': `${chainId}#${protcol}`,
             },
-            ConsistentRead: true,
-            ScanIndexForward: false,
-            ExclusiveStartKey: lastEvaluatedKey ? lastEvaluatedKey : undefined,
-            Limit: size,
+            Limit: 1,
         })
-        return {
-            items: Items || [],
-            count: Count || 0,
-            lastEvaluatedKey: LastEvaluatedKey || null,
-        }
+        return Count && Items ? (Items[0] as StakeXProtocolsResponse) : null
     }
 
     getAllByChainId = async (
@@ -207,21 +173,144 @@ export class StakeXProtocolsRepository {
         }
     }
 
-    getAllDisabledByChainId = async (chainId: number) => {
-        const { Items, Count } = await this._db.query({
+    getAllRegulars = async (size = 10, lastEvaluatedKey?: any) => {
+        if (lastEvaluatedKey)
+            lastEvaluatedKey = JSON.parse(decodeURIComponent(lastEvaluatedKey))
+
+        const { Items, Count, LastEvaluatedKey } = await this._db.query({
+            TableName: this.options.dynamoDBConfig.params.TableName,
+            KeyConditionExpression: '#pkey = :pkey',
+            FilterExpression: '#isCampaignMode = :isCampaignMode',
+            ExpressionAttributeNames: {
+                '#pkey': 'pkey',
+                '#isCampaignMode': 'isCampaignMode',
+            },
+            ExpressionAttributeValues: {
+                ':pkey': pkey,
+                ':isCampaignMode': false,
+            },
+            ConsistentRead: true,
+            ScanIndexForward: false,
+            ExclusiveStartKey: lastEvaluatedKey ? lastEvaluatedKey : undefined,
+            Limit: size,
+        })
+        return {
+            items: (Items || []) as StakeXProtocolsResponse[],
+            count: Count || 0,
+            lastEvaluatedKey: LastEvaluatedKey || null,
+        }
+    }
+
+    getAllCampaignsByChainId = async (
+        chainId: number,
+        size = 10,
+        lastEvaluatedKey?: any
+    ) => {
+        if (lastEvaluatedKey)
+            lastEvaluatedKey = JSON.parse(decodeURIComponent(lastEvaluatedKey))
+
+        const { Items, Count, LastEvaluatedKey } = await this._db.query({
             TableName: this.options.dynamoDBConfig.params.TableName,
             KeyConditionExpression:
                 '#pkey = :pkey AND begins_with(#skey, :skeyBegin)',
-            FilterExpression: '#blockNumberEnabled = :blockNumberEnabled',
+            FilterExpression: '#isCampaignMode = :isCampaignMode',
             ExpressionAttributeNames: {
                 '#pkey': 'pkey',
                 '#skey': 'skey',
-                '#blockNumberEnabled': 'blockNumberEnabled',
+                '#isCampaignMode': 'isCampaignMode',
             },
             ExpressionAttributeValues: {
                 ':pkey': pkey,
                 ':skeyBegin': `${chainId}#`,
-                ':blockNumberEnabled': 0,
+                ':isCampaignMode': true,
+            },
+            ConsistentRead: true,
+            ScanIndexForward: false,
+            ExclusiveStartKey: lastEvaluatedKey ? lastEvaluatedKey : undefined,
+            Limit: size,
+        })
+        return {
+            items: (Items || []) as StakeXProtocolsResponse[],
+            count: Count || 0,
+            lastEvaluatedKey: LastEvaluatedKey || null,
+        }
+    }
+
+    getAllRegularsByChainId = async (
+        chainId: number,
+        size = 10,
+        lastEvaluatedKey?: any
+    ) => {
+        if (lastEvaluatedKey)
+            lastEvaluatedKey = JSON.parse(decodeURIComponent(lastEvaluatedKey))
+
+        const { Items, Count, LastEvaluatedKey } = await this._db.query({
+            TableName: this.options.dynamoDBConfig.params.TableName,
+            KeyConditionExpression:
+                '#pkey = :pkey AND begins_with(#skey, :skeyBegin)',
+            FilterExpression: '#isCampaignMode = :isCampaignMode',
+            ExpressionAttributeNames: {
+                '#pkey': 'pkey',
+                '#skey': 'skey',
+                '#isCampaignMode': 'isCampaignMode',
+            },
+            ExpressionAttributeValues: {
+                ':pkey': pkey,
+                ':skeyBegin': `${chainId}#`,
+                ':isCampaignMode': false,
+            },
+            ConsistentRead: true,
+            ScanIndexForward: false,
+            ExclusiveStartKey: lastEvaluatedKey ? lastEvaluatedKey : undefined,
+            Limit: size,
+        })
+        return {
+            items: (Items || []) as StakeXProtocolsResponse[],
+            count: Count || 0,
+            lastEvaluatedKey: LastEvaluatedKey || null,
+        }
+    }
+
+    getAllRegularsByOwnerAddress = async (owner: Address) => {
+        const { Items, Count } = await this._db.query({
+            TableName: this.options.dynamoDBConfig.params.TableName,
+            KeyConditionExpression: '#pkey = :pkey',
+            FilterExpression:
+                '#isCampaignMode = :isCampaignMode AND #owner = :owner',
+            ExpressionAttributeNames: {
+                '#pkey': 'pkey',
+                '#isCampaignMode': 'isCampaignMode',
+                '#owner': 'owner',
+            },
+            ExpressionAttributeValues: {
+                ':pkey': pkey,
+                ':isCampaignMode': false,
+                ':owner': owner,
+            },
+            ConsistentRead: true,
+            ScanIndexForward: false,
+        })
+        return {
+            items: (Items || []) as StakeXProtocolsResponse[],
+            count: Count || 0,
+        }
+    }
+
+    getAllCampaignsByOwnerAddress = async (owner: Address) => {
+        const { Items, Count } = await this._db.query({
+            TableName: this.options.dynamoDBConfig.params.TableName,
+            KeyConditionExpression: '#pkey = :pkey',
+            FilterExpression:
+                '#isCampaignMode = :isCampaignMode AND #owner = :owner',
+            ExpressionAttributeNames: {
+                '#pkey': 'pkey',
+                '#isCampaignMode': 'isCampaignMode',
+                '#owner': 'owner',
+            },
+            ExpressionAttributeValues: {
+                ':pkey': pkey,
+                ':isCampaignMode': true,
+                ':owner': owner,
             },
             ConsistentRead: true,
             ScanIndexForward: false,

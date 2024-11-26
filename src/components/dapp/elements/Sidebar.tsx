@@ -1,21 +1,24 @@
+import { DAppContext, NavigationConfig } from '@dapphelpers/dapp'
+import { useStakeXGetAccountInfo } from '@dapphooks/shared/useStakeXGetAccountInfo'
 import { Popover, Transition } from '@headlessui/react'
 import clsx from 'clsx'
-import { isArray } from 'lodash'
-import { Fragment, useCallback } from 'react'
+import { get, isArray } from 'lodash'
+import { Fragment, useCallback, useContext, useEffect, useState } from 'react'
 import { FaPiggyBank, FaTools } from 'react-icons/fa'
-import { GiPayMoney } from 'react-icons/gi'
 import { HiCurrencyDollar, HiHome } from 'react-icons/hi'
 import { MdLockClock } from 'react-icons/md'
-import { PiCoins } from 'react-icons/pi'
+import { PiChartPieSliceLight, PiCoins, PiTimer } from 'react-icons/pi'
 import { RiGovernmentFill } from 'react-icons/ri'
 import { Link, useLocation } from 'react-router-dom'
+import { useAccount } from 'wagmi'
 
-const navigation = [
+const getNavigation = (config: NavigationConfig | null) => [
     {
         name: 'Dashboard',
         icon: HiHome,
         href: '',
         count: undefined,
+        show: true,
         children: null,
     },
     {
@@ -24,12 +27,14 @@ const navigation = [
         href: 'https://broccoliswap.com/?inputToken=AVAX&inputChain=AVAX&outputToken=DGNX&outputChain=AVAX&amount=10',
         count: undefined,
         children: null,
+        show: true,
     },
     {
         name: 'Liquidity Backing',
         icon: FaPiggyBank,
         href: 'liquidity-backing',
         count: undefined,
+        show: true,
         children: null,
     },
     {
@@ -37,34 +42,60 @@ const navigation = [
         icon: RiGovernmentFill,
         href: 'https://docs.dgnx.finance/degenx-ecosystem/Governance/intro_governance',
         count: undefined,
+        show: true,
         children: null,
     },
     {
-        name: 'Disburser',
-        icon: GiPayMoney,
-        href: 'disburser',
-        count: undefined,
-        children: null,
-    },
-    {
-        name: 'Staking',
+        name: 'Stake your $DGNX',
         icon: MdLockClock,
         href: 'staking/43114/0x00000000004545cb8440fdd6095a97debd1f3814/',
         count: undefined,
+        show: true,
         children: null,
     },
     {
         name: 'DeFi Tools',
         icon: FaTools,
-        href: 'defitools/',
+        href: 'defitools/stakex/',
         count: undefined,
+        show: true,
         children: [
             {
-                name: 'STAKEX',
+                name: 'Staking Solutions',
                 icon: PiCoins,
                 href: 'defitools/stakex/',
                 count: undefined,
-                children: [],
+                show: true,
+                children: [
+                    {
+                        name: 'Protocols',
+                        icon: PiChartPieSliceLight,
+                        href: 'defitools/stakex/regulars',
+                        count: undefined,
+                        show: true,
+                    },
+                    {
+                        name: 'My Protocols',
+                        icon: PiChartPieSliceLight,
+                        href: 'defitools/stakex/regulars/account',
+                        count: undefined,
+                        show: get(config, ['defitools', 'staking', 'myFlexibles', 'enabled'], false),
+                    },
+                    {
+                        name: 'Campaigns',
+                        icon: PiTimer,
+                        href: 'defitools/stakex/campaigns',
+                        count: undefined,
+                        show: true,
+                    },
+                    {
+                        name: 'My Campaigns',
+                        icon: PiTimer,
+                        href: 'defitools/stakex/campaigns/account',
+                        count: undefined,
+                        show: get(config, ['defitools', 'staking', 'myCampaigns', 'enabled'], false),
+                    },
+                ],
             },
         ],
     },
@@ -82,7 +113,7 @@ function MobileNavIcon({ open }) {
     return (
         <svg
             aria-hidden="true"
-            className="h-3.5 w-3.5 overflow-visible stroke-slate-700 dark:stroke-slate-200"
+            className="size-3.5 overflow-visible stroke-slate-700 dark:stroke-slate-200"
             fill="none"
             strokeWidth={2}
             strokeLinecap="round"
@@ -99,11 +130,21 @@ function MobileNavIcon({ open }) {
     )
 }
 
-function MobileSidebar() {
+function MobileSidebar({ config }: { config: NavigationConfig | null }) {
+    const { pathname } = useLocation()
+    const isCurrent = useCallback(
+        (item: any) =>
+            ((item.href as string).includes('staking/') && pathname.includes('/dapp/staking')) ||
+            (item.href && pathname.endsWith(item.href)) ||
+            (`/dapp` === pathname && item.href === '') ||
+            (`/dapp/` === pathname && item.href === ''),
+        [pathname]
+    )
+
     return (
         <Popover>
             <Popover.Button
-                className="relative z-10 flex h-8 w-8 items-center justify-center [&:not(:focus-visible)]:focus:outline-none"
+                className="size-8 relative z-10 flex items-center justify-center [&:not(:focus-visible)]:focus:outline-none"
                 aria-label="Toggle Navigation"
             >
                 {({ open }) => <MobileNavIcon open={open} />}
@@ -133,26 +174,66 @@ function MobileSidebar() {
                         as="div"
                         className="absolute inset-x-0 top-full mt-4 flex origin-top flex-col rounded-2xl bg-white p-4 text-lg tracking-tight text-slate-900 shadow-xl ring-1 ring-slate-900/5"
                     >
-                        {navigation
-                            .filter(({ name, href }) => Boolean(name))
+                        {getNavigation(config)
+                            .filter(({ name }) => Boolean(name))
+                            .filter((child) => child.show)
                             .map((item) => (
                                 <Fragment key={item.name}>
                                     <MobileNavLink
                                         target={item.href?.startsWith('http') ? '_blank' : '_self'}
                                         href={item.href?.startsWith('http') ? item.href : `/dapp/${item.href}`}
                                     >
-                                        {item.name}
+                                        <span className={clsx([isCurrent(item) && 'font-bold'])}>{item.name}</span>
                                     </MobileNavLink>
                                     {item.children &&
-                                        item.children.map((item) => (
-                                            <MobileNavLink
-                                                key={item.name}
-                                                target={item.href?.startsWith('http') ? '_blank' : '_self'}
-                                                href={item.href?.startsWith('http') ? item.href : `/dapp/${item.href}`}
-                                            >
-                                                <span className="pl-4">- {item.name}</span>
-                                            </MobileNavLink>
-                                        ))}
+                                        item.children
+                                            .filter((child) => child.show)
+                                            .map((item) => (
+                                                <Fragment key={item.name}>
+                                                    <MobileNavLink
+                                                        target={item.href?.startsWith('http') ? '_blank' : '_self'}
+                                                        href={
+                                                            item.href?.startsWith('http')
+                                                                ? item.href
+                                                                : `/dapp/${item.href}`
+                                                        }
+                                                    >
+                                                        <span
+                                                            className={clsx(['pl-4', isCurrent(item) && 'font-bold'])}
+                                                        >
+                                                            - {item.name}
+                                                        </span>
+                                                    </MobileNavLink>
+                                                    {item.children &&
+                                                        item.children
+                                                            .filter((child) => child.show)
+                                                            .map((item) => (
+                                                                <Fragment key={item.name}>
+                                                                    <MobileNavLink
+                                                                        target={
+                                                                            item.href?.startsWith('http')
+                                                                                ? '_blank'
+                                                                                : '_self'
+                                                                        }
+                                                                        href={
+                                                                            item.href?.startsWith('http')
+                                                                                ? item.href
+                                                                                : `/dapp/${item.href}`
+                                                                        }
+                                                                    >
+                                                                        <span
+                                                                            className={clsx([
+                                                                                'pl-8',
+                                                                                isCurrent(item) && 'font-bold',
+                                                                            ])}
+                                                                        >
+                                                                            - {item.name}
+                                                                        </span>
+                                                                    </MobileNavLink>
+                                                                </Fragment>
+                                                            ))}
+                                                </Fragment>
+                                            ))}
                                 </Fragment>
                             ))}
                     </Popover.Panel>
@@ -182,7 +263,7 @@ const SidebarItem = ({ item, current }: { item: any; current: boolean }) => (
                 current
                     ? 'text-dark dark:text-dapp-cyan-50'
                     : 'text-light-800 transition-colors group-hover:text-dark dark:text-dapp-cyan-50 dark:group-hover:text-dapp-cyan-50',
-                'mr-3 h-6 w-6 flex-shrink-0 stroke-dapp-cyan-50 '
+                'size-6 mr-3 shrink-0 stroke-dapp-cyan-50 '
             )}
             aria-hidden="true"
         />
@@ -191,58 +272,91 @@ const SidebarItem = ({ item, current }: { item: any; current: boolean }) => (
 )
 
 export default function Sidebar(props: { mobile?: boolean }) {
+    const { data } = useContext(DAppContext)
     const { pathname } = useLocation()
     const isCurrent = useCallback(
         (item: any) =>
             ((item.href as string).includes('staking/') && pathname.includes('/dapp/staking')) ||
-            (item.href && pathname.includes(item.href)) ||
+            (item.href && pathname.endsWith(item.href)) ||
             (`/dapp` === pathname && item.href === '') ||
             (`/dapp/` === pathname && item.href === ''),
         [pathname]
     )
 
-    if (props.mobile) {
-        return <MobileSidebar />
-    }
+    ///
+    /// account information
+    ///
+    const { address, isConnected } = useAccount()
+    const { refetch: refetchAccountInfo, response: responseAccountInfo } = useStakeXGetAccountInfo(address!)
+    const [navigationConfig, setNavigationConfig] = useState<NavigationConfig | null>(null)
+    useEffect(() => {
+        if (data && responseAccountInfo) {
+            setNavigationConfig({
+                defitools: {
+                    staking: {
+                        myCampaigns: { enabled: responseAccountInfo.campaigns.count > 0 },
+                        myFlexibles: { enabled: responseAccountInfo.regulars.count > 0 },
+                    },
+                },
+            })
+        }
+    }, [responseAccountInfo, data])
+
+    useEffect(() => {
+        if (address && isConnected) {
+            setNavigationConfig(null)
+            refetchAccountInfo && refetchAccountInfo()
+        }
+    }, [address, isConnected, refetchAccountInfo])
+
+    if (props.mobile) return <MobileSidebar config={navigationConfig} />
 
     return (
-        <div className="flex flex-grow flex-col overflow-y-auto ">
-            <div className="flex flex-grow flex-col">
+        <div className="flex grow flex-col overflow-y-auto ">
+            <div className="flex grow flex-col">
                 <nav className="fixed flex w-64 flex-col gap-2 space-y-1 px-2" aria-label="Sidebar">
-                    {navigation.map((item, i) => {
-                        return (
-                            <Fragment key={i}>
-                                <SidebarItem item={item} current={isCurrent(item)} />
-                                {
-                                    /*isCurrent(item) && */ item.children && (
-                                        <div className="flex flex-col gap-2  space-y-1 border-l-2 border-l-dapp-blue-400 pl-4">
-                                            {item.children.map((child, j) => (
-                                                <Fragment key={j}>
-                                                    <SidebarItem item={child} current={isCurrent(child)} />
-                                                    {
-                                                        /*isCurrent(child) &&*/
-                                                        child.children &&
-                                                            isArray(child.children) &&
-                                                            child.children.length > 0 && (
-                                                                <div className="flex flex-col gap-2  space-y-1 border-l-2 border-l-dapp-blue-400 pl-4">
-                                                                    {child.children.map((grandchild, k) => (
-                                                                        <SidebarItem
-                                                                            key={k}
-                                                                            item={grandchild}
-                                                                            current={isCurrent(grandchild)}
-                                                                        />
-                                                                    ))}
-                                                                </div>
-                                                            )
-                                                    }
-                                                </Fragment>
-                                            ))}
-                                        </div>
-                                    )
-                                }
-                            </Fragment>
-                        )
-                    })}
+                    {getNavigation(navigationConfig)
+                        .filter((item) => item.show)
+                        .map((item, i) => {
+                            return (
+                                <Fragment key={i}>
+                                    <SidebarItem item={item} current={isCurrent(item)} />
+                                    {
+                                        /*isCurrent(item) && */ item.children && (
+                                            <div className="flex flex-col gap-2  space-y-1 border-l-2 border-l-dapp-blue-400 pl-4">
+                                                {item.children
+                                                    .filter((child) => child.show)
+                                                    .map((child, j) => (
+                                                        <Fragment key={j}>
+                                                            <SidebarItem item={child} current={isCurrent(child)} />
+                                                            {
+                                                                /*isCurrent(child) &&*/
+                                                                child.children &&
+                                                                    isArray(child.children) &&
+                                                                    child.children.filter(
+                                                                        (grandchild) => grandchild.show
+                                                                    ).length > 0 && (
+                                                                        <div className="flex flex-col gap-2  space-y-1 border-l-2 border-l-dapp-blue-400 pl-4">
+                                                                            {child.children
+                                                                                .filter((grandchild) => grandchild.show)
+                                                                                .map((grandchild, k) => (
+                                                                                    <SidebarItem
+                                                                                        key={k}
+                                                                                        item={grandchild}
+                                                                                        current={isCurrent(grandchild)}
+                                                                                    />
+                                                                                ))}
+                                                                        </div>
+                                                                    )
+                                                            }
+                                                        </Fragment>
+                                                    ))}
+                                            </div>
+                                        )
+                                    }
+                                </Fragment>
+                            )
+                        })}
                 </nav>
             </div>
         </div>

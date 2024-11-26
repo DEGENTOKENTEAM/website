@@ -1,4 +1,4 @@
-import { Address } from 'viem'
+import { Address, Hash } from 'viem'
 
 export enum BACKING_TYPE {
     TOTAL = 'TOTAL',
@@ -16,16 +16,15 @@ export type AtmStatsLoading = {
 
 // STAKING
 export type TokenInfoResponse = {
-    isReward: boolean
-    isTarget: boolean
-    isRewardActive: boolean
-    isTargetActive: boolean
-    decimals: bigint
     source: Address
-    injected: bigint
-    rewarded: bigint
     name: string
     symbol: string
+    decimals: bigint
+    exists: boolean
+    isReward: boolean
+    isTarget: boolean
+    injected: bigint
+    rewarded: bigint
 }
 
 export type StakingBaseProps = {
@@ -57,6 +56,7 @@ export type StakeBucketDataResponse = {
     share: bigint
     lock: bigint
     staked: bigint
+    stakes: bigint
 }
 
 export type StakeBucket = {
@@ -67,6 +67,7 @@ export type StakeBucket = {
     multiplier: number
     share: number
     staked: bigint
+    stakes: bigint
 }
 
 export type BucketParams = {
@@ -107,7 +108,6 @@ export type StakingMetrics = {
     protocolInformation: {
         blockNumberAPUpdate: number
         blockNumberStakesUpdate: number
-        blockNumberAPUpdateIntervall: number
     }
     stakeLogs: {
         timestamp: number
@@ -115,45 +115,71 @@ export type StakingMetrics = {
     }[]
 }
 
-type SwapCandidate = {
+type Swap = {
     calleeSwap: Address
     calleeAmountOut: Address
     path: Address[]
-    isGmx: boolean
 }
 
-type SwapCandidatesGroup = {
-    rewardToken: Address
-    candidates: SwapCandidate[]
+type SwapGroup = {
+    token: Address
+    swaps: Swap[]
 }
 
-export type SetTargetTokenParams = {
-    targetToken: Address
-    candidatesGroup: SwapCandidatesGroup[]
+export type TokenAddParams = {
+    token: Address
+    isReward: boolean
+    isTarget: boolean
+    swapGroup: SwapGroup[]
 }
 
-type GetSwapResponse = {
-    from: Address
-    to: Address
-    swaps: SwapCandidate[]
+export enum AddTokenType {
+    REWARD,
+    PAYOUT,
+    BOTH,
 }
-export type GetSwapsResponse = GetSwapResponse[]
+// type GetSwapResponse = {
+//     from: Address
+//     to: Address
+//     swaps: SwapCandidate[]
+// }
+// export type GetSwapsResponse = GetSwapResponse[]
+
+//
+//
+//
+export type STAKEXAccountInfo = {
+    campaigns: {
+        items: any[]
+        count: number
+    }
+    regulars: {
+        items: any[]
+        count: number
+    }
+}
+
+export type STAKEXUpdater = {
+    protocol: Address
+    chainId: number
+    upgradeData: {
+        updateCalldata: Hash
+        cleanupCalldata: Hash
+    }
+}
 
 //
 // STAKEX Creator Types
 //
 export type STAKEXCreatorDataInitParams = {
     stakingToken: Address | null
-    stableToken: Address | null
-    bucketsToAdd: BucketParams[] | null
-    swaps: SetTargetTokenParams[] | null
-    rewards: { token: Address }[] | null
+    rewardToken: Address | null
     manager: Address | null
-    excludeStakingTokenFromRewards: boolean
 }
 
 export type STAKEXDeployArgs = {
-    referral: Address
+    referrer: Address
+    enableCampaignMode: boolean
     initContract: Address
     initFn: string
     initParams: STAKEXCreatorDataInitParams
@@ -162,4 +188,51 @@ export type STAKEXDeployArgs = {
 export type STAKEXCreatorData = {
     chainId: number
     deployArgs: STAKEXDeployArgs
+}
+
+//
+// STAKEX Campaign Types
+//
+export type STAKEXManagementCreateCampaignParams = {
+    bucketId?: string
+    rewardAmount: bigint
+    period: number
+    name: string
+}
+export type STAKEXManagementUpdateCampaignParams = {
+    bucketId: string
+    rewardAmount: bigint
+    period: number
+    name: string
+}
+
+export type CampaignConfig = {
+    bucketId: Address
+    rewardAmount: bigint
+    initialRewardAmount: bigint
+    staked: bigint
+    rewardToken: Address
+    createdTimestamp: bigint
+    openTimestamp: bigint
+    startTimestamp: bigint
+    period: number
+    name: string
+}
+
+export type CampaignStats = {
+    staked: bigint
+    apr: bigint
+    timeLeft: bigint
+    currentTimestamp: bigint
+    isOpen: boolean
+    isRunning: boolean
+    isFinished: boolean
+    isStale: boolean
+    rewardToken: TokenInfo
+    stakingToken: TokenInfo
+}
+
+export type CampaignData = {
+    config: CampaignConfig
+    stats: CampaignStats
 }

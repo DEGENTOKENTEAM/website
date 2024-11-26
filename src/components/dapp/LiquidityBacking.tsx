@@ -36,11 +36,11 @@ const WalletBacking = ({
     return (
         <>
             <div className="flex">
-                <div className="flex-grow">DGNX in wallet</div>
+                <div className="grow">DGNX in wallet</div>
                 <div>{toReadableNumber(baseTokenAmount, baseTokenDecimals)}</div>
             </div>
             <div className="flex">
-                <div className="flex-grow">Value in {wantTokenName || ''}</div>
+                <div className="grow">Value in {wantTokenName || ''}</div>
                 <div>{toReadableNumber(backingAmount, backingDecimals)}</div>
             </div>
         </>
@@ -150,7 +150,7 @@ export const LiquidityBacking = () => {
 
             <div className="mb-8 flex flex-col items-center gap-3 lg:flex-row">
                 <h2 className="text-2xl font-bold">Show backing values in</h2>
-                <div className="mb-2 mt-8 flex flex-row lg:mb-0 lg:mt-0">
+                <div className="mb-2 mt-8 flex flex-row lg:my-0">
                     {dataGetStats?.wantTokenData &&
                         dataGetStats.wantTokenData.map((token) => (
                             <span
@@ -185,7 +185,7 @@ export const LiquidityBacking = () => {
                                 {activeWantToken.info.name}
                             </div>
                             <div className="flex">
-                                <div className="flex-grow"></div>
+                                <div className="grow"></div>
                                 <div>
                                     {toReadableNumber(dataGetBackingPerDGNX, activeWantToken?.decimals)}{' '}
                                     {activeWantToken.info.name} / DGNX
@@ -222,7 +222,7 @@ export const LiquidityBacking = () => {
                             dataGetStats?.vaultData.map((vaultItem) => {
                                 return (
                                     <div key={vaultItem.tokenAddress} className="flex">
-                                        <div className="mr-2 shrink-0 flex-grow-0 self-center">
+                                        <div className="mr-2 shrink-0 grow-0 self-center">
                                             <Image
                                                 className="w-5"
                                                 src={`/tokens/${chainId}/${vaultItem.tokenAddress}.png`}
@@ -232,7 +232,7 @@ export const LiquidityBacking = () => {
                                                 height={20}
                                             />
                                         </div>
-                                        <div className="flex-grow">{vaultItem.name}</div>
+                                        <div className="grow">{vaultItem.name}</div>
                                         <div>{toReadableNumber(vaultItem.balance, vaultItem.decimals)}</div>
                                     </div>
                                 )
@@ -248,18 +248,10 @@ export const LiquidityBacking = () => {
                 </Tile>
 
                 <Tile>
-                    {console.log({
-                        dataGetERC20BalanceOf,
-                        dataGetBaseToken,
-                        dataGetERC20Decimals,
-                        activeWantToken,
-                        onSettingsChange,
-                        isLoading,
-                    })}
                     <H2>Burn DGNX for backing</H2>
                     <p className="mb-3">How much DGNX do you want to burn?</p>
                     <div className="flex justify-center">
-                        <div className="flex-grow">
+                        <div className="grow">
                             <BurnForBacking
                                 baseTokenAmount={dataGetERC20BalanceOf!}
                                 baseTokenAddress={dataGetBaseToken!}

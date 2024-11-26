@@ -1,14 +1,12 @@
 import abi from '@dappabis/deployer/abi-ui.json'
 import { useExecuteFunction } from '@dapphooks/shared/useExecuteFunction'
 import { STAKEXDeployArgs } from '@dapptypes'
-import { isUndefined } from 'lodash'
 import { useState } from 'react'
 import { Address } from 'viem'
 
 export const useDeployProtocolSTAKEX = (
     address: Address,
     chainId: number,
-    value: bigint,
     deployArgs: STAKEXDeployArgs,
     enabled: boolean
 ) => {
@@ -24,8 +22,7 @@ export const useDeployProtocolSTAKEX = (
         functionName: 'deployerStakeXDeploy',
         args: [deployArgs],
         eventNames: ['StakeXProtocolDeployed'],
-        value,
-        enabled: Boolean(!isUndefined(value) && enabled),
+        enabled,
         onEventMatch,
     })
 

@@ -74,6 +74,7 @@ export const useExecuteFunction = ({
     const reset = useCallback(() => {
         setLogs([])
         setIsSuccess(false)
+        setIsLoading(false)
         resetWriteContract && resetWriteContract()
     }, [resetWriteContract])
 

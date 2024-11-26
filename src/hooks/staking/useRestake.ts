@@ -8,7 +8,9 @@ export const useRestake = (
     address: Address,
     chainId: number,
     tokenId: bigint,
-    stakeBucketId: Address
+    stakeBucketId: Address,
+    actionFeeActive: boolean,
+    actionFeeAmount: bigint
 ) => {
     const [feeAmount, setFeeAmount] = useState<bigint>()
     const [restakeAmount, setRestakeAmount] = useState<bigint>()
@@ -28,6 +30,7 @@ export const useRestake = (
         chainId,
         eventNames: ['Restaked'],
         enabled,
+        value: actionFeeActive && actionFeeAmount > 0n ? actionFeeAmount : 0n,
         onEventMatch,
     })
 

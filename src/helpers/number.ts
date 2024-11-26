@@ -49,8 +49,8 @@ export const toReadableNumber = (
         : 2
 
     if (no && minimumFractionDigits && maximumFractionDigits) {
-        const base = no < 0 ? -10 : 10
-        while (no < 1 / base ** minimumFractionDigits) {
+        const noPos = no < 0 ? no * -1 : no
+        while (noPos < 1 / 10 ** minimumFractionDigits) {
             minimumFractionDigits++
             if (minimumFractionDigits > maximumFractionDigits)
                 maximumFractionDigits = minimumFractionDigits + 3

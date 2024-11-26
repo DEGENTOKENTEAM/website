@@ -12,14 +12,14 @@ export const CaretDivider = ({ color = 'default' }: CaretDividerProps) => {
         color == 'cyan' && 'border-t-dapp-cyan-500'
     )
     const caret = clsx(
-        'h-4 w-4',
+        'size-4',
         color == 'default' && 'text-darkTextLowEmphasis',
         color == 'cyan' && 'text-dapp-cyan-500'
     )
     return (
         <div className="flex w-full flex-row items-center">
             <div className={border}>&nbsp;</div>
-            <div className="flex-grow px-2">
+            <div className="grow px-2">
                 <RxCaretDown className={caret} />
             </div>
             <div className={border}>&nbsp;</div>

@@ -15,17 +15,13 @@ type StakingSortOptionsProps = {
     selectedSortOption: number
     onChangeSorting: (sortOptionIndex: number) => void
 }
-export const StakingSortOptions = ({
-    sortOptions,
-    selectedSortOption,
-    onChangeSorting,
-}: StakingSortOptionsProps) => {
+export const StakingSortOptions = ({ sortOptions, selectedSortOption, onChangeSorting }: StakingSortOptionsProps) => {
     return (
         <Popover className="relative">
             {({ close }) => (
                 <>
                     <Popover.Button className="group inline-flex items-center rounded-md px-3 py-2 text-base font-medium focus:outline-none focus-visible:ring-2 focus-visible:ring-white/75">
-                        <BsFilterLeft className="h-[18px] w-[18px]" />
+                        <BsFilterLeft className="size-[18px]" />
                     </Popover.Button>
 
                     <Transition
@@ -50,9 +46,7 @@ export const StakingSortOptions = ({
                                                 close()
                                             }}
                                         >
-                                            {option.label}{' '}
-                                            {selectedSortOption ==
-                                                optionIndex && <IoCheckmark />}
+                                            {option.label} {selectedSortOption == optionIndex && <IoCheckmark />}
                                         </button>
                                     ))}
                                 </div>

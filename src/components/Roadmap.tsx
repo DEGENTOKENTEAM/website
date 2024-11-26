@@ -7,48 +7,55 @@ import { H2 } from './H2'
 import { BsSquareFill } from 'react-icons/bs'
 import clsx from 'clsx'
 
-import roadmap from '../images/roadmap.svg';
+import roadmap from '../images/roadmap.svg'
 
 const RoadmapItem = (props: {
-    quarter: string,
-    year: string,
-    items: { text: string; highlight?: boolean }[],
+    quarter: string
+    year: string
+    items: { text: string; highlight?: boolean }[]
     first?: boolean
 }) => {
     return (
         <>
-            <div className="col-span-1 sm:col-span-2 flex gap-2 sm:block">
-                <h3 className="text-white leading-none font-bold text-3xl sm:text-3xl md:text-4xl">{props.quarter},</h3>
-                <h3 className="text-white leading-none font-bold text-3xl sm:text-3xl md:text-4xl">{props.year}</h3>
+            <div className="col-span-1 flex gap-2 sm:col-span-2 sm:block">
+                <h3 className="text-3xl font-bold leading-none text-white sm:text-3xl md:text-4xl">{props.quarter},</h3>
+                <h3 className="text-3xl font-bold leading-none text-white sm:text-3xl md:text-4xl">{props.year}</h3>
             </div>
-            <div className="hidden sm:col-span-3 w-full sm:flex items-center mx-3 sm:mx-12 text-2xl relative">
-                <div className={clsx("border mx-[0.7rem] border-white h-[150%] z-0 absolute", props.first && 'top-1/2')} />
-                <BsSquareFill className="text-techGreen rotate-45 z-1 mb-5" />
+            <div className="relative mx-3 hidden w-full items-center text-2xl sm:col-span-3 sm:mx-12 sm:flex">
+                <div
+                    className={clsx('absolute z-0 mx-[0.7rem] h-[150%] border border-white', props.first && 'top-1/2')}
+                />
+                <BsSquareFill className="z-10 mb-5 rotate-45 text-techGreen" />
             </div>
             <div className="col-span-1 sm:col-span-7">
                 {props.items.map((item, i) => {
                     return (
-                        <div key={i} className={item.highlight ? 'text-white' : 'text-white'}>{item.text}</div>
+                        <div key={i} className={item.highlight ? 'text-white' : 'text-white'}>
+                            {item.text}
+                        </div>
                     )
                 })}
             </div>
-            <div className="flex items-center text-2xl my-3 justify-center sm:hidden"><BsSquareFill className="text-techGreen rotate-45 z-1" /></div>
+            <div className="my-3 flex items-center justify-center text-2xl sm:hidden">
+                <BsSquareFill className="z-10 rotate-45 text-techGreen" />
+            </div>
         </>
     )
 }
 
 export function Roadmap() {
     return (
-        <div className="relative max-w-7xl mx-auto" id="roadmap">
-            <div className="absolute hidden md:block top-0 bottom-0 left-0 right-0 z-0" style={{
-            backgroundImage: `url(${roadmap.src})`,
-            backgroundRepeat: 'no-repeat',
-            backgroundSize: '600px',
-            backgroundPosition: 'left 80%'
-        }}>
-                
-            </div>
-            <Container className="pt-10 pb-10 text-center relative z-1">
+        <div className="relative mx-auto max-w-7xl" id="roadmap">
+            <div
+                className="absolute inset-0 z-0 hidden md:block"
+                style={{
+                    backgroundImage: `url(${roadmap.src})`,
+                    backgroundRepeat: 'no-repeat',
+                    backgroundSize: '600px',
+                    backgroundPosition: 'left 80%',
+                }}
+            ></div>
+            <Container className="relative z-10 py-10 text-center">
                 <div className="grid grid-cols-1 md:grid-cols-3">
                     <div className="col-span-1">
                         <div className="text-center">
@@ -56,12 +63,12 @@ export function Roadmap() {
                                 The road <span className="text-degenOrange">ahead</span> is bright
                             </H1>
                         </div>
-                        <p className="mt-6 font-semibold sm:px-10 max-w-2xl text-md text-left md:text-center text-light-600 mx-8 md:mx-0">
+                        <p className="mx-8 mt-6 max-w-2xl text-left text-base font-semibold text-light-600 sm:px-10 md:mx-0 md:text-center">
                             Remembering our past achievements and forging a path into the future!
                         </p>
                     </div>
-                    <div className="md:col-span-2 rounded-lg text-left mt-5 border-2 border-activeblue bg-darkerblue py-6 px-8 lg:px-16 lg:py-12">
-                        <div className="relative overflow-hidden grid grid-cols-1 sm:grid-cols-12 gap-2  font-semibold">
+                    <div className="mt-5 rounded-lg border-2 border-activeblue bg-darkerblue px-8 py-6 text-left md:col-span-2 lg:px-16 lg:py-12">
+                        <div className="relative grid grid-cols-1 gap-2 overflow-hidden font-semibold  sm:grid-cols-12">
                             <RoadmapItem
                                 first
                                 quarter="Q3"
@@ -136,14 +143,14 @@ export function Roadmap() {
                                     { text: 'LinkBridge launch to ETH' },
                                 ]}
                             />
-                            
+
                             <div className="col-span-1 sm:col-span-2">
-                                <h3 className="text-white leading-none font-bold text-xl">Coming</h3>
-                                <h3 className="text-white leading-none font-bold text-xl">Soon</h3>
+                                <h3 className="text-xl font-bold leading-none text-white">Coming</h3>
+                                <h3 className="text-xl font-bold leading-none text-white">Soon</h3>
                             </div>
-                            <div className="hidden sm:col-span-3 sm:flex w-full items-center mx-3 sm:mx-12 text-2xl relative">
-                                <div className="border mx-[0.7rem] border-white h-[100%] z-0 absolute bottom-1/2" />
-                                <BsSquareFill className="text-techGreen rotate-45 z-1 mb-5" />
+                            <div className="relative mx-3 hidden w-full items-center text-2xl sm:col-span-3 sm:mx-12 sm:flex">
+                                <div className="absolute bottom-1/2 z-0 mx-[0.7rem] h-full border border-white" />
+                                <BsSquareFill className="z-10 mb-5 rotate-45 text-techGreen" />
                             </div>
                             <div className="col-span-1 sm:col-span-7">
                                 <div className="text-light-600">LinkBridge launch to BSC</div>

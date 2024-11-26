@@ -12,7 +12,7 @@ export const BaseOverlay = ({ isOpen, onClose, closeOnBackdropClick = true, chil
         <Transition appear show={isOpen} as={Fragment}>
             <Dialog
                 as="div"
-                className="relative z-10"
+                className="relative z-40"
                 onClose={() => {
                     closeOnBackdropClick && onClose && onClose()
                 }}
@@ -26,7 +26,7 @@ export const BaseOverlay = ({ isOpen, onClose, closeOnBackdropClick = true, chil
                     leaveFrom="opacity-100"
                     leaveTo="opacity-0"
                 >
-                    <div className="fixed inset-0 bg-dapp-blue-800 bg-opacity-90 transition-opacity" />
+                    <div className="fixed inset-0 bg-dapp-blue-800/90 transition-opacity" />
                 </Transition.Child>
                 <div className="fixed inset-0 overflow-y-auto">
                     <div className="flex min-h-full items-center justify-center p-4 text-center">
@@ -39,7 +39,7 @@ export const BaseOverlay = ({ isOpen, onClose, closeOnBackdropClick = true, chil
                             leaveFrom="opacity-100 scale-100"
                             leaveTo="opacity-0 scale-95"
                         >
-                            <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-xl bg-dapp-blue-600 px-4 py-6 text-left align-middle text-dapp-cyan-50 shadow-xl transition-all">
+                            <Dialog.Panel className="w-full max-w-md overflow-hidden rounded-xl bg-dapp-blue-600 px-4 py-6 text-left align-middle text-dapp-cyan-50 shadow-xl transition-all">
                                 {children}
                             </Dialog.Panel>
                         </Transition.Child>

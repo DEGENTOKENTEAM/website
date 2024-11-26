@@ -49,7 +49,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
                     <Header />
                 </div>
                 <main className="website flex flex-col">
-                    <OuterContainer className="w-full border-b border-t border-dapp-blue-400 bg-dapp-blue-400/20">
+                    <OuterContainer className="w-full border-y border-dapp-blue-400 bg-dapp-blue-400/20">
                         <InnerContainer>
                             <Hero />
                         </InnerContainer>
@@ -72,7 +72,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
                             </div>
                         </InnerContainer>
                     </OuterContainer>
-                    <div className="flex flex-row justify-center border-b border-t border-dapp-blue-400 bg-dapp-cyan-50/5 p-16">
+                    <div className="flex flex-row justify-center border-y border-dapp-blue-400 bg-dapp-cyan-50/5 p-16">
                         <CallToAction />
                     </div>
                     <OuterContainer className="bg-dapp-blue-800/30">
@@ -102,7 +102,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
                             </div>
                         </InnerContainer>
                     </OuterContainer>
-                    <div className="flex flex-row justify-center border-b border-t border-dapp-blue-400 bg-dapp-cyan-50/5 p-16">
+                    <div className="flex flex-row justify-center border-y border-dapp-blue-400 bg-dapp-cyan-50/5 p-16">
                         <CallToAction />
                     </div>
                     <OuterContainer className="bg-dapp-blue-800/30">
@@ -132,7 +132,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
                     </OuterContainer>
                     <ForDevelopers />
 
-                    <div className="flex flex-row justify-center border-b border-t border-dapp-blue-400 bg-dapp-cyan-50/5 p-16">
+                    <div className="flex flex-row justify-center border-y border-dapp-blue-400 bg-dapp-cyan-50/5 p-16">
                         <CallToAction />
                     </div>
                     <OuterContainer className="bg-dapp-blue-800/30">
@@ -163,7 +163,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 
                     <ForHolders />
 
-                    <div className="flex flex-row justify-center border-b border-t border-dapp-blue-400 bg-dapp-cyan-50/5 p-16">
+                    <div className="flex flex-row justify-center border-y border-dapp-blue-400 bg-dapp-cyan-50/5 p-16">
                         <CallToAction />
                     </div>
 
@@ -206,7 +206,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
                             </div>
                         </InnerContainer>
                     </OuterContainer>
-                    <div className="flex flex-row justify-center border-b border-t border-dapp-blue-400 bg-dapp-cyan-50/5 p-16">
+                    <div className="flex flex-row justify-center border-y border-dapp-blue-400 bg-dapp-cyan-50/5 p-16">
                         <CallToAction />
                     </div>
                 </main>

@@ -1,9 +1,10 @@
 import erc20Abi from '@dappabis/erc20.json'
+import { TokenInfoResponse } from '@dapptypes'
+import { isNaN } from 'lodash'
 import { useEffect, useState } from 'react'
 import { Address } from 'viem'
 import { usePublicClient } from 'wagmi'
-import { useGetRewardTokens } from './useGetRewardTokens'
-import { isNaN } from 'lodash'
+import { useTokensGetTokens } from './useTokensGetTokens'
 
 export const useGetTVLinUSD = (protocolAddress: Address, chainId: number) => {
     const [response, setResponse] = useState<number>(0)
@@ -13,19 +14,15 @@ export const useGetTVLinUSD = (protocolAddress: Address, chainId: number) => {
     const [dataFetchesResults, setDataFetchesResult] = useState<any>()
     const [balanceFetchesResults, setBalanceFetchesResults] = useState<any>()
     const [isComplete, setIsComplete] = useState(true)
+    const [tokens, setTokens] = useState<TokenInfoResponse[]>()
 
-    const { data: dataRewardTokens } = useGetRewardTokens(
+    const { data: dataGetTokens } = useTokensGetTokens(
         protocolAddress,
         chainId!
     )
 
     useEffect(() => {
-        if (
-            !client ||
-            !protocolAddress ||
-            !dataRewardTokens ||
-            dataRewardTokens.length === 0
-        )
+        if (!client || !protocolAddress || !tokens || tokens.length === 0)
             return
 
         const abortController = new AbortController()
@@ -34,10 +31,11 @@ export const useGetTVLinUSD = (protocolAddress: Address, chainId: number) => {
         const dataFetches: Promise<Response>[] = []
         const balanceFetches: Promise<bigint>[] = []
 
-        for (const rewardToken of dataRewardTokens) {
+        for (const token of tokens) {
+            if (!token.isReward) continue
             dataFetches.push(
                 fetch(
-                    `${process.env.NEXT_PUBLIC_STAKEX_API_ENDPOINT}/latest/dex/tokens/${rewardToken.source}`,
+                    `${process.env.NEXT_PUBLIC_STAKEX_API_ENDPOINT}/latest/dex/tokens/${token.source}`,
                     {
                         method: 'GET',
                         signal,
@@ -51,7 +49,7 @@ export const useGetTVLinUSD = (protocolAddress: Address, chainId: number) => {
 
             balanceFetches.push(
                 client.readContract({
-                    address: rewardToken.source,
+                    address: token.source,
                     abi: erc20Abi,
                     functionName: 'balanceOf',
                     args: [protocolAddress],
@@ -64,22 +62,30 @@ export const useGetTVLinUSD = (protocolAddress: Address, chainId: number) => {
             .then(setDataFetchesResult)
 
         Promise.all(balanceFetches).then(setBalanceFetchesResults)
-    }, [client, dataRewardTokens, protocolAddress])
+
+        if (signal.aborted) return () => abortController.abort()
+    }, [client, tokens, protocolAddress])
+
+    useEffect(() => {
+        dataGetTokens &&
+            dataGetTokens.length > 0 &&
+            setTokens(dataGetTokens.filter((token) => token.isReward))
+    }, [dataGetTokens])
 
     useEffect(() => {
         if (
-            !dataRewardTokens ||
+            !tokens ||
             !balanceFetchesResults ||
             !dataFetchesResults ||
-            dataRewardTokens.length +
+            tokens.length +
                 balanceFetchesResults.length +
                 dataFetchesResults.length !==
-                dataRewardTokens.length * 3
+                tokens.length * 3
         )
             return
 
         setResponse(
-            dataRewardTokens.reduce((acc: number, rewardToken, idx) => {
+            tokens.reduce((acc: number, rewardToken, idx) => {
                 if (balanceFetchesResults[idx] > 0n) {
                     const balance =
                         Number(balanceFetchesResults[idx]) /
@@ -111,7 +117,7 @@ export const useGetTVLinUSD = (protocolAddress: Address, chainId: number) => {
             }, 0)
         )
         setLoading(false)
-    }, [dataRewardTokens, balanceFetchesResults, dataFetchesResults])
+    }, [tokens, balanceFetchesResults, dataFetchesResults])
 
     return { response, loading, isComplete }
 }

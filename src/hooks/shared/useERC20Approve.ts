@@ -16,5 +16,5 @@ export const useERC20Approve = (
         eventNames: [],
         args: [spender, amount],
         abi,
-        enabled: Boolean(spender && !isUndefined(amount)),
+        enabled: Boolean(address && spender && chainId && !isUndefined(amount)),
     })

@@ -3,19 +3,19 @@ import imageEthereum from '@public/chains/1.svg'
 import imagePolygon from '@public/chains/137.svg'
 import imageArbitrum from '@public/chains/42161.svg'
 import imageAvalanche from '@public/chains/43114.svg'
-import imageBSC from '@public/chains/56.png'
+import imageBSC from '@public/chains/56.svg'
 import imageBase from '@public/chains/8453.svg'
 import Image from 'next/image'
 import Link from 'next/link'
+import { FaExternalLinkAlt } from 'react-icons/fa'
 import heroImage from './../../../images/lps/stakex/hero.png'
 import { CallToActionButton } from './CallToAction'
-import { FaExternalLinkAlt } from 'react-icons/fa'
 
 export const Hero = () => {
     return (
         <div>
             <div className="m-auto grid h-full max-w-7xl grid-cols-1 md:grid-cols-2 ">
-                <div className="order-last flex flex-col justify-center gap-4 py-6 md:py-16 md:-order-last">
+                <div className="order-last flex flex-col justify-center gap-4 py-6 md:-order-last md:py-16">
                     <span className="text-4xl font-bold leading-10 tracking-wide">
                         <span className="font-title font-extrabold">
                             <span className="text-techGreen">STAKE</span>
@@ -39,7 +39,7 @@ export const Hero = () => {
                     <Image
                         src={heroImage}
                         alt="Hero Banner Image"
-                        className="right-8 top-8 md:mt-10 w-[70%] md:absolute"
+                        className="right-8 top-8 w-[70%] md:absolute md:mt-10"
                     />
                 </div>
             </div>
@@ -50,32 +50,32 @@ export const Hero = () => {
                     <Image
                         src={imageAvalanche}
                         alt="Support Avalanche Network Image"
-                        className="h-12 w-12 md:h-16 md:w-16 md:grayscale md:hover:filter-none"
+                        className="size-12 md:size-16 md:grayscale md:hover:filter-none"
                     />
                     <Image
                         src={imageEthereum}
-                        alt="Support Avalanche Network Image"
-                        className="h-12 w-12 md:h-16 md:w-16 md:grayscale md:hover:filter-none"
+                        alt="Support Ethereum Network Image"
+                        className="size-12 md:size-16 md:grayscale md:hover:filter-none"
                     />
                     <Image
                         src={imageBase}
-                        alt="Support Avalanche Network Image"
-                        className="h-12 w-12 md:h-16 md:w-16 md:grayscale md:hover:filter-none"
+                        alt="Support Base Network Image"
+                        className="size-12 md:size-16 md:grayscale md:hover:filter-none"
                     />
                     <Image
                         src={imageBSC}
-                        alt="Support Avalanche Network Image"
-                        className="h-12 w-12 md:h-16 md:w-16 md:grayscale md:hover:filter-none"
+                        alt="Support BNB Smart Chain Network Image"
+                        className="size-12 md:size-16 md:grayscale md:hover:filter-none"
                     />
                     <Image
                         src={imageArbitrum}
-                        alt="Support Avalanche Network Image"
-                        className="h-12 w-12 md:h-16 md:w-16 md:grayscale md:hover:filter-none"
+                        alt="Support Arbitrum Network Image"
+                        className="size-12 md:size-16 md:grayscale md:hover:filter-none"
                     />
                     <Image
                         src={imagePolygon}
-                        alt="Support Avalanche Network Image"
-                        className="h-12 w-12 md:h-16 md:w-16 md:grayscale md:hover:filter-none"
+                        alt="Support Polygon Network Image"
+                        className="size-12 md:size-16 md:grayscale md:hover:filter-none"
                     />
                 </div>
             </div>
@@ -85,7 +85,7 @@ export const Hero = () => {
                         <Link href="/audits/20240522_STAKEX.pdf" target="_blank" className="hover:underline">
                             Smart Contract Security Audit
                         </Link>{' '}
-                        <FaExternalLinkAlt className="relative -top-[2px] inline-block text-xl" />
+                        <FaExternalLinkAlt className="relative top-[-2px] inline-block text-xl" />
                     </span>{' '}
                     by
                 </div>

@@ -1,15 +1,16 @@
 import { DynamoDBClientConfig } from '@aws-sdk/client-dynamodb'
+import { BatchWriteCommandInput } from '@aws-sdk/lib-dynamodb'
 import { DynamoDBHelper } from '../helpers/ddb/dynamodb'
 
-type StakeXAnnualsCreateDTO = {
+export type StakeXAnnualsCreateDTO = {
+    chainId: number
     protocol: string
     bucketId: string
-    blockNumber: number
+    timestamp: number
     apr: number
     apy: number
     fromBlock: number
     toBlock: number
-    timestamp: number
 }
 
 type StakeXAnnualsUpdateDTO = {
@@ -24,7 +25,7 @@ type StakeXAnnualsUpdateDTO = {
 type StakeXAnnualsCreateResponse = {
     pkey: string
     skey: string
-} & StakeXAnnualsCreateDTO
+} & Partial<StakeXAnnualsCreateDTO>
 
 type StakeXAnnualsUpdateResponse = {
     pkey: string
@@ -57,27 +58,29 @@ export class StakeXAnnualsRepository {
         this._db = new DynamoDBHelper(this.options.dynamoDBConfig)
     }
 
-    // create = async (data: StakeXAnnualsCreateDTO) => {
-    //     const itemKeys = Object.keys(data)
-    //     const itemData = {
-    //         pkey,
-    //         skey: `${data.protocol}#${data.bucketId}#${data.blockNumber}`,
-    //         ...itemKeys.reduce(
-    //             (accumulator, k) => ({
-    //                 ...accumulator,
-    //                 [k]: (data as any)[k],
-    //             }),
-    //             {}
-    //         ),
-    //     } as StakeXAnnualsCreateResponse
-    //     await this._db.create({
-    //         TableName: this.options.dynamoDBConfig.params.TableName,
-    //         Item: itemData,
-    //     })
-    //     return itemData
-    // }
+    createBatch = async (data: StakeXAnnualsCreateDTO[]) => {
+        const items = data.map((item) => ({
+            pkey,
+            skey: `${item.chainId}#${item.protocol}#${item.bucketId}#${item.timestamp}`,
+            ...item,
+        })) as StakeXAnnualsCreateResponse[]
+        const itemsBatch: BatchWriteCommandInput = {
+            RequestItems: {
+                [this.options.dynamoDBConfig.params.TableName]: items.map(
+                    (Item) => ({
+                        PutRequest: {
+                            Item,
+                        },
+                    })
+                ),
+            },
+        }
+        await this._db.batchWrite(itemsBatch)
+        return items
+    }
 
-    getByProtocolAndBlockNumber = async (
+    getLatestByBlockNumber = async (
+        chainId: number,
         protocol: string,
         blockNumber: number
     ) => {
@@ -85,16 +88,16 @@ export class StakeXAnnualsRepository {
             TableName: this.options.dynamoDBConfig.params.TableName,
             KeyConditionExpression:
                 '#pkey = :pkey AND begins_with(#skey, :skeyBegin)',
-            FilterExpression: '#blockNumber = :blockNumber',
+            FilterExpression: '#toBlock = :toBlock',
             ExpressionAttributeNames: {
                 '#pkey': 'pkey',
                 '#skey': 'skey',
-                '#blockNumber': 'blockNumber',
+                '#toBlock': 'toBlock',
             },
             ExpressionAttributeValues: {
                 ':pkey': pkey,
-                ':skeyBegin': `${protocol}#`,
-                ':blockNumber': blockNumber,
+                ':skeyBegin': `${chainId}#${protocol}#`,
+                ':toBlock': blockNumber,
             },
         })
         return {
@@ -127,5 +130,25 @@ export class StakeXAnnualsRepository {
             count: Count,
             lastEvaluatedKey: LastEvaluatedKey,
         }
+    }
+
+    getMostRecentBucket = async (protocol: string, bucketId: string) => {
+        const { Count, Items } = await this._db.query({
+            TableName: this.options.dynamoDBConfig.params.TableName,
+            KeyConditionExpression:
+                '#pkey = :pkey AND begins_with(#skey, :skey)',
+            ExpressionAttributeNames: {
+                '#pkey': 'pkey',
+                '#skey': 'skey',
+            },
+            ExpressionAttributeValues: {
+                ':pkey': pkey,
+                ':skey': `${protocol}#${bucketId}#`,
+            },
+            ScanIndexForward: false,
+            Limit: 1,
+        })
+
+        return Count && Items ? Items[0] : null
     }
 }

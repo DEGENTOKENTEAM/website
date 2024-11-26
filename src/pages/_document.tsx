@@ -25,7 +25,7 @@ export default function Document(props) {
             </Head>
             <body>
                 <Main />
-                <NextScript  />
+                <NextScript />
             </body>
         </Html>
     )

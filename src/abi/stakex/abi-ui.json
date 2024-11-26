@@ -67,22 +67,17 @@
   },
   {
     "inputs": [],
-    "name": "BucketMissing",
-    "type": "error"
-  },
-  {
-    "inputs": [],
     "name": "BucketNotActive",
     "type": "error"
   },
   {
     "inputs": [],
-    "name": "DepositInactiveRewardToken",
+    "name": "ExistingToken",
     "type": "error"
   },
   {
     "inputs": [],
-    "name": "DepositNoRewardToken",
+    "name": "FromTokenInvalid",
     "type": "error"
   },
   {
@@ -123,8 +118,14 @@
     "type": "error"
   },
   {
-    "inputs": [],
-    "name": "InvalidSwaps",
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "minShare",
+        "type": "uint256"
+      }
+    ],
+    "name": "InvalidShareForBurnBucket",
     "type": "error"
   },
   {
@@ -139,20 +140,1089 @@
     "type": "error"
   },
   {
+    "inputs": [],
+    "name": "MissingSwapParams",
+    "type": "error"
+  },
+  {
     "inputs": [
       {
-        "internalType": "uint256",
-        "name": "release",
-        "type": "uint256"
+        "internalType": "address",
+        "name": "fromToken",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "toToken",
+        "type": "address"
       }
     ],
-    "name": "Locked",
+    "name": "NoExistingSwap",
     "type": "error"
   },
   {
     "inputs": [],
-    "name": "NoMatchingTargetAndRewardAllowed",
+    "name": "NotInitialized",
     "type": "error"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "fromToken",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "toToken",
+        "type": "address"
+      }
+    ],
+    "name": "SwapRouteInvalid",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "ToTokenInvalid",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "UnexpectedMatchingTokens",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "ZeroValueNotAllowed",
+    "type": "error"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "deployer",
+        "type": "address"
+      }
+    ],
+    "name": "Initialized",
+    "type": "event"
+  },
+  {
+    "inputs": [
+      {
+        "components": [
+          {
+            "internalType": "address",
+            "name": "stakingToken",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "rewardToken",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "manager",
+            "type": "address"
+          }
+        ],
+        "internalType": "struct IStakeXCoreFacet.InitStakeXCoreFacetParams",
+        "name": "_params",
+        "type": "tuple"
+      }
+    ],
+    "name": "initStakeXCoreFacet",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_newOwner",
+        "type": "address"
+      }
+    ],
+    "name": "transferOwnership",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "getFeeForMax",
+    "outputs": [
+      {
+        "internalType": "uint16",
+        "name": "_v",
+        "type": "uint16"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_amount",
+        "type": "uint256"
+      }
+    ],
+    "name": "getFeeForRestaking",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "_stakeAmount",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_feeAmount",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_amount",
+        "type": "uint256"
+      }
+    ],
+    "name": "getFeeForStaking",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "_stakeAmount",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_feeAmount",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_amount",
+        "type": "uint256"
+      }
+    ],
+    "name": "getFeeForUnstaking",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "_stakeAmount",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_feeAmount",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "hasFeeForRestaking",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "_has",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "hasFeeForStaking",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "_has",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "hasFeeForUnstaking",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "_has",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "ActivateBlockInvalid",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "ActivateTimeInvalid",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "AlreadyActivated",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "ExceededMaxFee",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "InvalidRewardToken",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "MissingTokenConfiguration",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "NotAllowed",
+    "type": "error"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "manager",
+        "type": "address"
+      }
+    ],
+    "name": "Disabled",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "manager",
+        "type": "address"
+      }
+    ],
+    "name": "DisabledAccessControlOnDeposit",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "manager",
+        "type": "address"
+      }
+    ],
+    "name": "DisabledTransferOnlyBurned",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "manager",
+        "type": "address"
+      }
+    ],
+    "name": "Enabled",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "manager",
+        "type": "address"
+      }
+    ],
+    "name": "EnabledAccessControlOnDeposit",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "manager",
+        "type": "address"
+      }
+    ],
+    "name": "EnabledTransferOnlyBurned",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "manager",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "chosenBlock",
+        "type": "uint256"
+      }
+    ],
+    "name": "UpdatedActiveBlock",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "manager",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "chosenTime",
+        "type": "uint256"
+      }
+    ],
+    "name": "UpdatedActiveTime",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "manager",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint16",
+        "name": "bpsStake",
+        "type": "uint16"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint16",
+        "name": "bpsUnstake",
+        "type": "uint16"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint16",
+        "name": "bpsRestake",
+        "type": "uint16"
+      }
+    ],
+    "name": "UpdatedFeeForStaking",
+    "type": "event"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bool",
+        "name": "_enabled",
+        "type": "bool"
+      }
+    ],
+    "name": "stakeXEnableDepositRestriction",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bool",
+        "name": "_enabled",
+        "type": "bool"
+      }
+    ],
+    "name": "stakeXEnableProtocol",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_block",
+        "type": "uint256"
+      }
+    ],
+    "name": "stakeXEnableProtocolByBlock",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_time",
+        "type": "uint256"
+      }
+    ],
+    "name": "stakeXEnableProtocolByTime",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bool",
+        "name": "_enabled",
+        "type": "bool"
+      }
+    ],
+    "name": "stakeXEnableTransferOnlyBurned",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint16",
+        "name": "_bpsStake",
+        "type": "uint16"
+      },
+      {
+        "internalType": "uint16",
+        "name": "_bpsUnstake",
+        "type": "uint16"
+      },
+      {
+        "internalType": "uint16",
+        "name": "_bpsRestake",
+        "type": "uint16"
+      }
+    ],
+    "name": "stakeXUpdateFeesForStaking",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "contractOwner",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "_owner",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "getActivationBlock",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "_block",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "getActivationTime",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "_time",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "getNextTokenId",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "_tokenId",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_tokenId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "address",
+        "name": "_rewardToken",
+        "type": "address"
+      }
+    ],
+    "name": "getRewardEstimation",
+    "outputs": [
+      {
+        "components": [
+          {
+            "components": [
+              {
+                "internalType": "string",
+                "name": "name",
+                "type": "string"
+              },
+              {
+                "internalType": "string",
+                "name": "symbol",
+                "type": "string"
+              },
+              {
+                "internalType": "uint8",
+                "name": "decimals",
+                "type": "uint8"
+              },
+              {
+                "internalType": "address",
+                "name": "source",
+                "type": "address"
+              }
+            ],
+            "internalType": "struct TokenInfo",
+            "name": "tokenInfo",
+            "type": "tuple"
+          },
+          {
+            "internalType": "uint256",
+            "name": "amount",
+            "type": "uint256"
+          }
+        ],
+        "internalType": "struct RewardEstimation",
+        "name": "_reward",
+        "type": "tuple"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_tokenId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "address",
+        "name": "_targetToken",
+        "type": "address"
+      }
+    ],
+    "name": "getRewardEstimationInToken",
+    "outputs": [
+      {
+        "components": [
+          {
+            "components": [
+              {
+                "internalType": "string",
+                "name": "name",
+                "type": "string"
+              },
+              {
+                "internalType": "string",
+                "name": "symbol",
+                "type": "string"
+              },
+              {
+                "internalType": "uint8",
+                "name": "decimals",
+                "type": "uint8"
+              },
+              {
+                "internalType": "address",
+                "name": "source",
+                "type": "address"
+              }
+            ],
+            "internalType": "struct TokenInfo",
+            "name": "tokenInfo",
+            "type": "tuple"
+          },
+          {
+            "internalType": "uint256",
+            "name": "amount",
+            "type": "uint256"
+          }
+        ],
+        "internalType": "struct RewardEstimation",
+        "name": "_reward",
+        "type": "tuple"
+      },
+      {
+        "components": [
+          {
+            "components": [
+              {
+                "internalType": "string",
+                "name": "name",
+                "type": "string"
+              },
+              {
+                "internalType": "string",
+                "name": "symbol",
+                "type": "string"
+              },
+              {
+                "internalType": "uint8",
+                "name": "decimals",
+                "type": "uint8"
+              },
+              {
+                "internalType": "address",
+                "name": "source",
+                "type": "address"
+              }
+            ],
+            "internalType": "struct TokenInfo",
+            "name": "tokenInfo",
+            "type": "tuple"
+          },
+          {
+            "internalType": "uint256",
+            "name": "amount",
+            "type": "uint256"
+          }
+        ],
+        "internalType": "struct RewardEstimation[]",
+        "name": "_rewardBreakdown",
+        "type": "tuple[]"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_tokenId",
+        "type": "uint256"
+      }
+    ],
+    "name": "getRewardsEstimations",
+    "outputs": [
+      {
+        "components": [
+          {
+            "components": [
+              {
+                "internalType": "string",
+                "name": "name",
+                "type": "string"
+              },
+              {
+                "internalType": "string",
+                "name": "symbol",
+                "type": "string"
+              },
+              {
+                "internalType": "uint8",
+                "name": "decimals",
+                "type": "uint8"
+              },
+              {
+                "internalType": "address",
+                "name": "source",
+                "type": "address"
+              }
+            ],
+            "internalType": "struct TokenInfo",
+            "name": "tokenInfo",
+            "type": "tuple"
+          },
+          {
+            "internalType": "uint256",
+            "name": "amount",
+            "type": "uint256"
+          }
+        ],
+        "internalType": "struct RewardEstimation[]",
+        "name": "_rewardBreakdown",
+        "type": "tuple[]"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "getStakingData",
+    "outputs": [
+      {
+        "components": [
+          {
+            "components": [
+              {
+                "components": [
+                  {
+                    "internalType": "string",
+                    "name": "name",
+                    "type": "string"
+                  },
+                  {
+                    "internalType": "string",
+                    "name": "symbol",
+                    "type": "string"
+                  },
+                  {
+                    "internalType": "uint8",
+                    "name": "decimals",
+                    "type": "uint8"
+                  },
+                  {
+                    "internalType": "address",
+                    "name": "source",
+                    "type": "address"
+                  }
+                ],
+                "internalType": "struct TokenInfo",
+                "name": "tokenInfo",
+                "type": "tuple"
+              },
+              {
+                "internalType": "uint256",
+                "name": "amount",
+                "type": "uint256"
+              }
+            ],
+            "internalType": "struct RewardEstimation",
+            "name": "staked",
+            "type": "tuple"
+          },
+          {
+            "components": [
+              {
+                "components": [
+                  {
+                    "internalType": "string",
+                    "name": "name",
+                    "type": "string"
+                  },
+                  {
+                    "internalType": "string",
+                    "name": "symbol",
+                    "type": "string"
+                  },
+                  {
+                    "internalType": "uint8",
+                    "name": "decimals",
+                    "type": "uint8"
+                  },
+                  {
+                    "internalType": "address",
+                    "name": "source",
+                    "type": "address"
+                  }
+                ],
+                "internalType": "struct TokenInfo",
+                "name": "tokenInfo",
+                "type": "tuple"
+              },
+              {
+                "internalType": "uint256",
+                "name": "amount",
+                "type": "uint256"
+              }
+            ],
+            "internalType": "struct RewardEstimation",
+            "name": "stakedBurned",
+            "type": "tuple"
+          },
+          {
+            "components": [
+              {
+                "components": [
+                  {
+                    "internalType": "string",
+                    "name": "name",
+                    "type": "string"
+                  },
+                  {
+                    "internalType": "string",
+                    "name": "symbol",
+                    "type": "string"
+                  },
+                  {
+                    "internalType": "uint8",
+                    "name": "decimals",
+                    "type": "uint8"
+                  },
+                  {
+                    "internalType": "address",
+                    "name": "source",
+                    "type": "address"
+                  }
+                ],
+                "internalType": "struct TokenInfo",
+                "name": "tokenInfo",
+                "type": "tuple"
+              },
+              {
+                "internalType": "uint256",
+                "name": "amount",
+                "type": "uint256"
+              }
+            ],
+            "internalType": "struct RewardEstimation[]",
+            "name": "injected",
+            "type": "tuple[]"
+          },
+          {
+            "components": [
+              {
+                "components": [
+                  {
+                    "internalType": "string",
+                    "name": "name",
+                    "type": "string"
+                  },
+                  {
+                    "internalType": "string",
+                    "name": "symbol",
+                    "type": "string"
+                  },
+                  {
+                    "internalType": "uint8",
+                    "name": "decimals",
+                    "type": "uint8"
+                  },
+                  {
+                    "internalType": "address",
+                    "name": "source",
+                    "type": "address"
+                  }
+                ],
+                "internalType": "struct TokenInfo",
+                "name": "tokenInfo",
+                "type": "tuple"
+              },
+              {
+                "internalType": "uint256",
+                "name": "amount",
+                "type": "uint256"
+              }
+            ],
+            "internalType": "struct RewardEstimation[]",
+            "name": "rewarded",
+            "type": "tuple[]"
+          },
+          {
+            "internalType": "uint256",
+            "name": "avgLock",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "stakes",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "stakesBurned",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "totalSupply",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "blockNumber",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "blockTimestamp",
+            "type": "uint256"
+          },
+          {
+            "internalType": "bool",
+            "name": "isCampaignMode",
+            "type": "bool"
+          }
+        ],
+        "internalType": "struct IStakeXPublicFacet.StakingData",
+        "name": "_data",
+        "type": "tuple"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "getStakingToken",
+    "outputs": [
+      {
+        "components": [
+          {
+            "internalType": "address",
+            "name": "source",
+            "type": "address"
+          },
+          {
+            "internalType": "string",
+            "name": "name",
+            "type": "string"
+          },
+          {
+            "internalType": "string",
+            "name": "symbol",
+            "type": "string"
+          },
+          {
+            "internalType": "uint8",
+            "name": "decimals",
+            "type": "uint8"
+          },
+          {
+            "internalType": "bool",
+            "name": "exists",
+            "type": "bool"
+          },
+          {
+            "internalType": "bool",
+            "name": "isReward",
+            "type": "bool"
+          },
+          {
+            "internalType": "bool",
+            "name": "isTarget",
+            "type": "bool"
+          },
+          {
+            "internalType": "uint256",
+            "name": "injected",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "rewarded",
+            "type": "uint256"
+          }
+        ],
+        "internalType": "struct TokenInfoResponse",
+        "name": "_response",
+        "type": "tuple"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "hasDepositRestriction",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "_has",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "isActive",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "_is",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "isInitialized",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "_is",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "isRunning",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "_is",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
   },
   {
     "inputs": [],
@@ -165,116 +1235,6 @@
     "type": "error"
   },
   {
-    "inputs": [],
-    "name": "NotActive",
-    "type": "error"
-  },
-  {
-    "inputs": [],
-    "name": "NotAllowed",
-    "type": "error"
-  },
-  {
-    "inputs": [],
-    "name": "ParamsMissing",
-    "type": "error"
-  },
-  {
-    "inputs": [],
-    "name": "RewardAlreadyExists",
-    "type": "error"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "rewardToken",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "targetToken",
-        "type": "address"
-      }
-    ],
-    "name": "RewardTokenMissingTargetToken",
-    "type": "error"
-  },
-  {
-    "inputs": [],
-    "name": "RewardsMissing",
-    "type": "error"
-  },
-  {
-    "inputs": [],
-    "name": "StableTokenNotZero",
-    "type": "error"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "from",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "to",
-        "type": "address"
-      }
-    ],
-    "name": "SwapRouteInconsistency",
-    "type": "error"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "from",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "to",
-        "type": "address"
-      }
-    ],
-    "name": "SwapRouteInvalid",
-    "type": "error"
-  },
-  {
-    "inputs": [],
-    "name": "SwapsMissing",
-    "type": "error"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "token",
-        "type": "address"
-      }
-    ],
-    "name": "TargetTokenInvalid",
-    "type": "error"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "targetToken",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "rewardToken",
-        "type": "address"
-      }
-    ],
-    "name": "TargetTokenMissingRewardToken",
-    "type": "error"
-  },
-  {
     "inputs": [
       {
         "internalType": "address",
@@ -283,21 +1243,6 @@
       }
     ],
     "name": "TargetTokenNotActive",
-    "type": "error"
-  },
-  {
-    "inputs": [],
-    "name": "WithdrawImpossible",
-    "type": "error"
-  },
-  {
-    "inputs": [],
-    "name": "WrongTokenInSwapPath",
-    "type": "error"
-  },
-  {
-    "inputs": [],
-    "name": "ZeroValueNotAllowed",
     "type": "error"
   },
   {
@@ -505,6 +1450,205 @@
     "type": "event"
   },
   {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_tokenId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "address",
+        "name": "_targetToken",
+        "type": "address"
+      }
+    ],
+    "name": "claim",
+    "outputs": [
+      {
+        "components": [
+          {
+            "components": [
+              {
+                "internalType": "string",
+                "name": "name",
+                "type": "string"
+              },
+              {
+                "internalType": "string",
+                "name": "symbol",
+                "type": "string"
+              },
+              {
+                "internalType": "uint8",
+                "name": "decimals",
+                "type": "uint8"
+              },
+              {
+                "internalType": "address",
+                "name": "source",
+                "type": "address"
+              }
+            ],
+            "internalType": "struct TokenInfo",
+            "name": "tokenInfo",
+            "type": "tuple"
+          },
+          {
+            "internalType": "uint256",
+            "name": "amount",
+            "type": "uint256"
+          }
+        ],
+        "internalType": "struct RewardEstimation",
+        "name": "_reward",
+        "type": "tuple"
+      },
+      {
+        "components": [
+          {
+            "components": [
+              {
+                "internalType": "string",
+                "name": "name",
+                "type": "string"
+              },
+              {
+                "internalType": "string",
+                "name": "symbol",
+                "type": "string"
+              },
+              {
+                "internalType": "uint8",
+                "name": "decimals",
+                "type": "uint8"
+              },
+              {
+                "internalType": "address",
+                "name": "source",
+                "type": "address"
+              }
+            ],
+            "internalType": "struct TokenInfo",
+            "name": "tokenInfo",
+            "type": "tuple"
+          },
+          {
+            "internalType": "uint256",
+            "name": "amount",
+            "type": "uint256"
+          }
+        ],
+        "internalType": "struct RewardEstimation[]",
+        "name": "_rewardBreakDown",
+        "type": "tuple[]"
+      }
+    ],
+    "stateMutability": "payable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_targetToken",
+        "type": "address"
+      }
+    ],
+    "name": "claimAll",
+    "outputs": [
+      {
+        "components": [
+          {
+            "components": [
+              {
+                "internalType": "string",
+                "name": "name",
+                "type": "string"
+              },
+              {
+                "internalType": "string",
+                "name": "symbol",
+                "type": "string"
+              },
+              {
+                "internalType": "uint8",
+                "name": "decimals",
+                "type": "uint8"
+              },
+              {
+                "internalType": "address",
+                "name": "source",
+                "type": "address"
+              }
+            ],
+            "internalType": "struct TokenInfo",
+            "name": "tokenInfo",
+            "type": "tuple"
+          },
+          {
+            "internalType": "uint256",
+            "name": "amount",
+            "type": "uint256"
+          }
+        ],
+        "internalType": "struct RewardEstimation",
+        "name": "_reward",
+        "type": "tuple"
+      },
+      {
+        "components": [
+          {
+            "components": [
+              {
+                "internalType": "string",
+                "name": "name",
+                "type": "string"
+              },
+              {
+                "internalType": "string",
+                "name": "symbol",
+                "type": "string"
+              },
+              {
+                "internalType": "uint8",
+                "name": "decimals",
+                "type": "uint8"
+              },
+              {
+                "internalType": "address",
+                "name": "source",
+                "type": "address"
+              }
+            ],
+            "internalType": "struct TokenInfo",
+            "name": "tokenInfo",
+            "type": "tuple"
+          },
+          {
+            "internalType": "uint256",
+            "name": "amount",
+            "type": "uint256"
+          }
+        ],
+        "internalType": "struct RewardEstimation[]",
+        "name": "_rewardBreakDown",
+        "type": "tuple[]"
+      }
+    ],
+    "stateMutability": "payable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "DepositInactiveRewardToken",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "NotActive",
+    "type": "error"
+  },
+  {
     "anonymous": false,
     "inputs": [
       {
@@ -530,17 +1674,44 @@
     "type": "event"
   },
   {
-    "anonymous": false,
     "inputs": [
       {
-        "indexed": false,
         "internalType": "address",
-        "name": "deployer",
+        "name": "_rewardToken",
         "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_amount",
+        "type": "uint256"
       }
     ],
-    "name": "Initialized",
-    "type": "event"
+    "name": "deposit",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "payable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "release",
+        "type": "uint256"
+      }
+    ],
+    "name": "Locked",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "WithdrawImpossible",
+    "type": "error"
   },
   {
     "anonymous": false,
@@ -550,6 +1721,12 @@
         "internalType": "address",
         "name": "staker",
         "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "bytes32",
+        "name": "bucketId",
+        "type": "bytes32"
       },
       {
         "indexed": false,
@@ -669,6 +1846,12 @@
         "type": "address"
       },
       {
+        "indexed": true,
+        "internalType": "bytes32",
+        "name": "bucketId",
+        "type": "bytes32"
+      },
+      {
         "indexed": false,
         "internalType": "uint256",
         "name": "tokenId",
@@ -698,6 +1881,12 @@
         "internalType": "address",
         "name": "staker",
         "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "bytes32",
+        "name": "bucketId",
+        "type": "bytes32"
       },
       {
         "indexed": false,
@@ -741,219 +1930,6 @@
         "type": "uint256"
       },
       {
-        "internalType": "address",
-        "name": "_targetToken",
-        "type": "address"
-      }
-    ],
-    "name": "claim",
-    "outputs": [
-      {
-        "components": [
-          {
-            "components": [
-              {
-                "internalType": "string",
-                "name": "name",
-                "type": "string"
-              },
-              {
-                "internalType": "string",
-                "name": "symbol",
-                "type": "string"
-              },
-              {
-                "internalType": "uint8",
-                "name": "decimals",
-                "type": "uint8"
-              },
-              {
-                "internalType": "address",
-                "name": "source",
-                "type": "address"
-              }
-            ],
-            "internalType": "struct TokenInfo",
-            "name": "tokenInfo",
-            "type": "tuple"
-          },
-          {
-            "internalType": "uint256",
-            "name": "amount",
-            "type": "uint256"
-          }
-        ],
-        "internalType": "struct RewardEstimation",
-        "name": "_reward",
-        "type": "tuple"
-      },
-      {
-        "components": [
-          {
-            "components": [
-              {
-                "internalType": "string",
-                "name": "name",
-                "type": "string"
-              },
-              {
-                "internalType": "string",
-                "name": "symbol",
-                "type": "string"
-              },
-              {
-                "internalType": "uint8",
-                "name": "decimals",
-                "type": "uint8"
-              },
-              {
-                "internalType": "address",
-                "name": "source",
-                "type": "address"
-              }
-            ],
-            "internalType": "struct TokenInfo",
-            "name": "tokenInfo",
-            "type": "tuple"
-          },
-          {
-            "internalType": "uint256",
-            "name": "amount",
-            "type": "uint256"
-          }
-        ],
-        "internalType": "struct RewardEstimation[]",
-        "name": "_rewardBreakDown",
-        "type": "tuple[]"
-      }
-    ],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "_targetToken",
-        "type": "address"
-      }
-    ],
-    "name": "claimAll",
-    "outputs": [
-      {
-        "components": [
-          {
-            "components": [
-              {
-                "internalType": "string",
-                "name": "name",
-                "type": "string"
-              },
-              {
-                "internalType": "string",
-                "name": "symbol",
-                "type": "string"
-              },
-              {
-                "internalType": "uint8",
-                "name": "decimals",
-                "type": "uint8"
-              },
-              {
-                "internalType": "address",
-                "name": "source",
-                "type": "address"
-              }
-            ],
-            "internalType": "struct TokenInfo",
-            "name": "tokenInfo",
-            "type": "tuple"
-          },
-          {
-            "internalType": "uint256",
-            "name": "amount",
-            "type": "uint256"
-          }
-        ],
-        "internalType": "struct RewardEstimation",
-        "name": "_reward",
-        "type": "tuple"
-      },
-      {
-        "components": [
-          {
-            "components": [
-              {
-                "internalType": "string",
-                "name": "name",
-                "type": "string"
-              },
-              {
-                "internalType": "string",
-                "name": "symbol",
-                "type": "string"
-              },
-              {
-                "internalType": "uint8",
-                "name": "decimals",
-                "type": "uint8"
-              },
-              {
-                "internalType": "address",
-                "name": "source",
-                "type": "address"
-              }
-            ],
-            "internalType": "struct TokenInfo",
-            "name": "tokenInfo",
-            "type": "tuple"
-          },
-          {
-            "internalType": "uint256",
-            "name": "amount",
-            "type": "uint256"
-          }
-        ],
-        "internalType": "struct RewardEstimation[]",
-        "name": "_rewardBreakDown",
-        "type": "tuple[]"
-      }
-    ],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "_rewardToken",
-        "type": "address"
-      },
-      {
-        "internalType": "uint256",
-        "name": "_amount",
-        "type": "uint256"
-      }
-    ],
-    "name": "deposit",
-    "outputs": [
-      {
-        "internalType": "bool",
-        "name": "",
-        "type": "bool"
-      }
-    ],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "_tokenId",
-        "type": "uint256"
-      },
-      {
         "internalType": "bytes32",
         "name": "_targetBucketId",
         "type": "bytes32"
@@ -961,7 +1937,7 @@
     ],
     "name": "restake",
     "outputs": [],
-    "stateMutability": "nonpayable",
+    "stateMutability": "payable",
     "type": "function"
   },
   {
@@ -979,7 +1955,7 @@
     ],
     "name": "stake",
     "outputs": [],
-    "stateMutability": "nonpayable",
+    "stateMutability": "payable",
     "type": "function"
   },
   {
@@ -1002,7 +1978,7 @@
     ],
     "name": "stakeFor",
     "outputs": [],
-    "stateMutability": "nonpayable",
+    "stateMutability": "payable",
     "type": "function"
   },
   {
@@ -1020,22 +1996,302 @@
     ],
     "name": "unstake",
     "outputs": [],
-    "stateMutability": "nonpayable",
+    "stateMutability": "payable",
     "type": "function"
   },
   {
     "inputs": [],
-    "name": "ActivateBlockInvalid",
+    "name": "AddingUpNotActive",
     "type": "error"
   },
   {
     "inputs": [],
-    "name": "ActivateTimeInvalid",
+    "name": "AmountInvalid",
     "type": "error"
   },
   {
     "inputs": [],
-    "name": "AlreadyActivated",
+    "name": "IncludeRewardsImpossible",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "TargetTokenNotActive",
+    "type": "error"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "staker",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "bytes32",
+        "name": "bucketId",
+        "type": "bytes32"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "tokenId",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "fromTokenId",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+      },
+      {
+        "components": [
+          {
+            "components": [
+              {
+                "internalType": "string",
+                "name": "name",
+                "type": "string"
+              },
+              {
+                "internalType": "string",
+                "name": "symbol",
+                "type": "string"
+              },
+              {
+                "internalType": "uint8",
+                "name": "decimals",
+                "type": "uint8"
+              },
+              {
+                "internalType": "address",
+                "name": "source",
+                "type": "address"
+              }
+            ],
+            "internalType": "struct TokenInfo",
+            "name": "tokenInfo",
+            "type": "tuple"
+          },
+          {
+            "internalType": "uint256",
+            "name": "amount",
+            "type": "uint256"
+          }
+        ],
+        "indexed": false,
+        "internalType": "struct RewardEstimation",
+        "name": "reward",
+        "type": "tuple"
+      },
+      {
+        "components": [
+          {
+            "components": [
+              {
+                "internalType": "string",
+                "name": "name",
+                "type": "string"
+              },
+              {
+                "internalType": "string",
+                "name": "symbol",
+                "type": "string"
+              },
+              {
+                "internalType": "uint8",
+                "name": "decimals",
+                "type": "uint8"
+              },
+              {
+                "internalType": "address",
+                "name": "source",
+                "type": "address"
+              }
+            ],
+            "internalType": "struct TokenInfo",
+            "name": "tokenInfo",
+            "type": "tuple"
+          },
+          {
+            "internalType": "uint256",
+            "name": "amount",
+            "type": "uint256"
+          }
+        ],
+        "indexed": false,
+        "internalType": "struct RewardEstimation[]",
+        "name": "rewardBreakDown",
+        "type": "tuple[]"
+      }
+    ],
+    "name": "AddedUp",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "manager",
+        "type": "address"
+      }
+    ],
+    "name": "DisabledAddingUp",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "manager",
+        "type": "address"
+      }
+    ],
+    "name": "EnabledAddingUp",
+    "type": "event"
+  },
+  {
+    "inputs": [
+      {
+        "components": [
+          {
+            "internalType": "uint256",
+            "name": "tokenId",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "amount",
+            "type": "uint256"
+          },
+          {
+            "internalType": "address",
+            "name": "targetToken",
+            "type": "address"
+          },
+          {
+            "internalType": "bool",
+            "name": "includeRewards",
+            "type": "bool"
+          }
+        ],
+        "internalType": "struct AddUpParams",
+        "name": "_params",
+        "type": "tuple"
+      }
+    ],
+    "name": "stakeXAddUpStake",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bool",
+        "name": "_enabled",
+        "type": "bool"
+      }
+    ],
+    "name": "stakeXEnableAddingUp",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "components": [
+          {
+            "internalType": "uint256",
+            "name": "tokenId",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "amount",
+            "type": "uint256"
+          },
+          {
+            "internalType": "address",
+            "name": "targetToken",
+            "type": "address"
+          },
+          {
+            "internalType": "bool",
+            "name": "includeRewards",
+            "type": "bool"
+          }
+        ],
+        "internalType": "struct AddUpParams",
+        "name": "_params",
+        "type": "tuple"
+      }
+    ],
+    "name": "stakeXGetAddingUpEstimation",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "_stakeAmount",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_targetAmount",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "stakeXIsAddingUpActive",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "_is",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "AirdropNotAllowed",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "BucketActive",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "BucketBurned",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "BucketHasStakes",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "BucketInvalid",
     "type": "error"
   },
   {
@@ -1045,96 +2301,8 @@
   },
   {
     "inputs": [],
-    "name": "ExceededMaxFee",
+    "name": "ParamsMissing",
     "type": "error"
-  },
-  {
-    "inputs": [],
-    "name": "ExceedsMinimumAvailableAssets",
-    "type": "error"
-  },
-  {
-    "inputs": [],
-    "name": "ExceedsMinimumAvailableBuckets",
-    "type": "error"
-  },
-  {
-    "inputs": [],
-    "name": "MissingNFTConfiguration",
-    "type": "error"
-  },
-  {
-    "inputs": [],
-    "name": "NoChanges",
-    "type": "error"
-  },
-  {
-    "inputs": [],
-    "name": "StakingTokenIsNoRewardToken",
-    "type": "error"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "token",
-        "type": "address"
-      }
-    ],
-    "name": "TokenInvalid",
-    "type": "error"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "manager",
-        "type": "address"
-      },
-      {
-        "components": [
-          {
-            "internalType": "address",
-            "name": "token",
-            "type": "address"
-          }
-        ],
-        "indexed": false,
-        "internalType": "struct RewardAddParams",
-        "name": "params",
-        "type": "tuple"
-      }
-    ],
-    "name": "AddedReward",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "manager",
-        "type": "address"
-      },
-      {
-        "components": [
-          {
-            "internalType": "address",
-            "name": "token",
-            "type": "address"
-          }
-        ],
-        "indexed": false,
-        "internalType": "struct RewardAddParams[]",
-        "name": "params",
-        "type": "tuple[]"
-      }
-    ],
-    "name": "AddedRewards",
-    "type": "event"
   },
   {
     "anonymous": false,
@@ -1151,47 +2319,8 @@
   },
   {
     "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "manager",
-        "type": "address"
-      }
-    ],
-    "name": "Disabled",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "manager",
-        "type": "address"
-      }
-    ],
-    "name": "DisabledAccessControlOnDeposit",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "manager",
-        "type": "address"
-      },
-      {
-        "indexed": false,
-        "internalType": "address",
-        "name": "token",
-        "type": "address"
-      }
-    ],
-    "name": "DisabledRewardToken",
+    "inputs": [],
+    "name": "BucketDeleted",
     "type": "event"
   },
   {
@@ -1224,83 +2353,6 @@
       },
       {
         "indexed": false,
-        "internalType": "address",
-        "name": "token",
-        "type": "address"
-      }
-    ],
-    "name": "DisabledTargetToken",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "manager",
-        "type": "address"
-      }
-    ],
-    "name": "DisabledTransferOnlyBurned",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "manager",
-        "type": "address"
-      }
-    ],
-    "name": "Enabled",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "manager",
-        "type": "address"
-      }
-    ],
-    "name": "EnabledAccessControlOnDeposit",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "manager",
-        "type": "address"
-      },
-      {
-        "indexed": false,
-        "internalType": "address",
-        "name": "token",
-        "type": "address"
-      }
-    ],
-    "name": "EnabledRewardToken",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "manager",
-        "type": "address"
-      },
-      {
-        "indexed": false,
         "internalType": "bytes32",
         "name": "bucketId",
         "type": "bytes32"
@@ -1313,120 +2365,13 @@
     "anonymous": false,
     "inputs": [
       {
-        "indexed": true,
-        "internalType": "address",
-        "name": "manager",
-        "type": "address"
-      },
-      {
-        "indexed": false,
-        "internalType": "address",
-        "name": "token",
-        "type": "address"
-      }
-    ],
-    "name": "EnabledTargetToken",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "manager",
-        "type": "address"
-      }
-    ],
-    "name": "EnabledTransferOnlyBurned",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "manager",
-        "type": "address"
-      },
-      {
-        "indexed": false,
-        "internalType": "address",
-        "name": "token",
-        "type": "address"
-      }
-    ],
-    "name": "SetTargetToken",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "manager",
-        "type": "address"
-      },
-      {
         "indexed": false,
         "internalType": "uint256",
-        "name": "chosenBlock",
+        "name": "stakesAirdropped",
         "type": "uint256"
       }
     ],
-    "name": "UpdatedActiveBlock",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "manager",
-        "type": "address"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "chosenTime",
-        "type": "uint256"
-      }
-    ],
-    "name": "UpdatedActiveTime",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "manager",
-        "type": "address"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint16",
-        "name": "bpsStake",
-        "type": "uint16"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint16",
-        "name": "bpsUnstake",
-        "type": "uint16"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint16",
-        "name": "bpsRestake",
-        "type": "uint16"
-      }
-    ],
-    "name": "UpdatedFeeForStaking",
+    "name": "StakesAirdropped",
     "type": "event"
   },
   {
@@ -1441,85 +2386,6 @@
     ],
     "name": "UpdatedStakeBucketShares",
     "type": "event"
-  },
-  {
-    "inputs": [
-      {
-        "components": [
-          {
-            "internalType": "address",
-            "name": "targetToken",
-            "type": "address"
-          },
-          {
-            "components": [
-              {
-                "internalType": "address",
-                "name": "rewardToken",
-                "type": "address"
-              },
-              {
-                "components": [
-                  {
-                    "internalType": "address",
-                    "name": "calleeSwap",
-                    "type": "address"
-                  },
-                  {
-                    "internalType": "address",
-                    "name": "calleeAmountOut",
-                    "type": "address"
-                  },
-                  {
-                    "internalType": "address[]",
-                    "name": "path",
-                    "type": "address[]"
-                  },
-                  {
-                    "internalType": "bool",
-                    "name": "isGmx",
-                    "type": "bool"
-                  }
-                ],
-                "internalType": "struct SwapCandidate[]",
-                "name": "candidates",
-                "type": "tuple[]"
-              }
-            ],
-            "internalType": "struct SwapCandidatesGroup[]",
-            "name": "candidatesGroup",
-            "type": "tuple[]"
-          }
-        ],
-        "internalType": "struct SetTargetTokenParams",
-        "name": "_params",
-        "type": "tuple"
-      }
-    ],
-    "name": "stakeXAddRewardAndTargetToken",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "components": [
-          {
-            "internalType": "address",
-            "name": "token",
-            "type": "address"
-          }
-        ],
-        "internalType": "struct RewardAddParams[]",
-        "name": "_params",
-        "type": "tuple[]"
-      }
-    ],
-    "name": "stakeXAddRewards",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
   },
   {
     "inputs": [
@@ -1571,69 +2437,47 @@
   {
     "inputs": [
       {
-        "internalType": "bool",
-        "name": "_enabled",
-        "type": "bool"
-      }
-    ],
-    "name": "stakeXEnableDepositRestriction",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "bool",
-        "name": "_enabled",
-        "type": "bool"
-      }
-    ],
-    "name": "stakeXEnableProtocol",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "_block",
-        "type": "uint256"
-      }
-    ],
-    "name": "stakeXEnableProtocolByBlock",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "_time",
-        "type": "uint256"
-      }
-    ],
-    "name": "stakeXEnableProtocolByTime",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "_token",
-        "type": "address"
+        "internalType": "bytes32",
+        "name": "_bucketId",
+        "type": "bytes32"
       },
       {
-        "internalType": "bool",
-        "name": "_enabled",
-        "type": "bool"
+        "internalType": "uint256",
+        "name": "_limit",
+        "type": "uint256"
       }
     ],
-    "name": "stakeXEnableRewardToken",
+    "name": "stakeXBucketsAirdropStakers",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "_bucketId",
+        "type": "bytes32"
+      },
+      {
+        "components": [
+          {
+            "internalType": "bytes32",
+            "name": "id",
+            "type": "bytes32"
+          },
+          {
+            "internalType": "uint16",
+            "name": "share",
+            "type": "uint16"
+          }
+        ],
+        "internalType": "struct StakeBucketUpdateShareParams[]",
+        "name": "_params",
+        "type": "tuple[]"
+      }
+    ],
+    "name": "stakeXBucketsDeleteBucket",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -1652,183 +2496,6 @@
       }
     ],
     "name": "stakeXEnableStakeBucket",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "components": [
-          {
-            "internalType": "address",
-            "name": "targetToken",
-            "type": "address"
-          },
-          {
-            "components": [
-              {
-                "internalType": "address",
-                "name": "rewardToken",
-                "type": "address"
-              },
-              {
-                "components": [
-                  {
-                    "internalType": "address",
-                    "name": "calleeSwap",
-                    "type": "address"
-                  },
-                  {
-                    "internalType": "address",
-                    "name": "calleeAmountOut",
-                    "type": "address"
-                  },
-                  {
-                    "internalType": "address[]",
-                    "name": "path",
-                    "type": "address[]"
-                  },
-                  {
-                    "internalType": "bool",
-                    "name": "isGmx",
-                    "type": "bool"
-                  }
-                ],
-                "internalType": "struct SwapCandidate[]",
-                "name": "candidates",
-                "type": "tuple[]"
-              }
-            ],
-            "internalType": "struct SwapCandidatesGroup[]",
-            "name": "candidatesGroup",
-            "type": "tuple[]"
-          }
-        ],
-        "internalType": "struct SetTargetTokenParams",
-        "name": "_params",
-        "type": "tuple"
-      },
-      {
-        "internalType": "bool",
-        "name": "_enable",
-        "type": "bool"
-      }
-    ],
-    "name": "stakeXEnableStakingTokenAsRewardToken",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "_token",
-        "type": "address"
-      },
-      {
-        "internalType": "bool",
-        "name": "_enabled",
-        "type": "bool"
-      }
-    ],
-    "name": "stakeXEnableTargetToken",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "bool",
-        "name": "_enabled",
-        "type": "bool"
-      }
-    ],
-    "name": "stakeXEnableTransferOnlyBurned",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "components": [
-          {
-            "internalType": "address",
-            "name": "targetToken",
-            "type": "address"
-          },
-          {
-            "components": [
-              {
-                "internalType": "address",
-                "name": "rewardToken",
-                "type": "address"
-              },
-              {
-                "components": [
-                  {
-                    "internalType": "address",
-                    "name": "calleeSwap",
-                    "type": "address"
-                  },
-                  {
-                    "internalType": "address",
-                    "name": "calleeAmountOut",
-                    "type": "address"
-                  },
-                  {
-                    "internalType": "address[]",
-                    "name": "path",
-                    "type": "address[]"
-                  },
-                  {
-                    "internalType": "bool",
-                    "name": "isGmx",
-                    "type": "bool"
-                  }
-                ],
-                "internalType": "struct SwapCandidate[]",
-                "name": "candidates",
-                "type": "tuple[]"
-              }
-            ],
-            "internalType": "struct SwapCandidatesGroup[]",
-            "name": "candidatesGroup",
-            "type": "tuple[]"
-          }
-        ],
-        "internalType": "struct SetTargetTokenParams",
-        "name": "_params",
-        "type": "tuple"
-      }
-    ],
-    "name": "stakeXSetTargetToken",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint16",
-        "name": "_bpsStake",
-        "type": "uint16"
-      },
-      {
-        "internalType": "uint16",
-        "name": "_bpsUnstake",
-        "type": "uint16"
-      },
-      {
-        "internalType": "uint16",
-        "name": "_bpsRestake",
-        "type": "uint16"
-      }
-    ],
-    "name": "stakeXUpdateFeesForStaking",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -1862,345 +2529,58 @@
     "inputs": [
       {
         "internalType": "bytes32",
-        "name": "bucketId",
+        "name": "_bucketId",
         "type": "bytes32"
       }
     ],
-    "name": "InvalidBucketId",
-    "type": "error"
-  },
-  {
-    "inputs": [],
-    "name": "InvalidConfig",
-    "type": "error"
-  },
-  {
-    "inputs": [],
-    "name": "InvalidLayer",
-    "type": "error"
-  },
-  {
-    "inputs": [],
-    "name": "InvalidLayerOrder",
-    "type": "error"
-  },
-  {
-    "inputs": [],
-    "name": "InvalidSize",
-    "type": "error"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "manager",
-        "type": "address"
-      }
-    ],
-    "name": "AddedConfig",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "manager",
-        "type": "address"
-      }
-    ],
-    "name": "AddedLayer",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "manager",
-        "type": "address"
-      }
-    ],
-    "name": "AssignedConfigToBuckets",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "manager",
-        "type": "address"
-      }
-    ],
-    "name": "RemovedLayer",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "manager",
-        "type": "address"
-      }
-    ],
-    "name": "UpdatedBaseLayer",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "manager",
-        "type": "address"
-      }
-    ],
-    "name": "UpdatedLayer",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "manager",
-        "type": "address"
-      }
-    ],
-    "name": "UpdatedLayerOrder",
-    "type": "event"
-  },
-  {
-    "inputs": [
+    "name": "getAllStakesByBucket",
+    "outputs": [
       {
         "components": [
           {
-            "internalType": "uint16",
-            "name": "width",
-            "type": "uint16"
-          },
-          {
-            "internalType": "uint16",
-            "name": "height",
-            "type": "uint16"
-          },
-          {
-            "components": [
-              {
-                "internalType": "enum SVGComponentType",
-                "name": "componentType",
-                "type": "uint8"
-              },
-              {
-                "components": [
-                  {
-                    "internalType": "bytes",
-                    "name": "data",
-                    "type": "bytes"
-                  },
-                  {
-                    "internalType": "enum SVGConditionType",
-                    "name": "cType",
-                    "type": "uint8"
-                  },
-                  {
-                    "internalType": "enum SVGConditionComperator",
-                    "name": "comperator",
-                    "type": "uint8"
-                  }
-                ],
-                "internalType": "struct LibStakeXNFTStorage.SVGCondition[]",
-                "name": "conditions",
-                "type": "tuple[]"
-              },
-              {
-                "internalType": "bytes32[]",
-                "name": "styles",
-                "type": "bytes32[]"
-              },
-              {
-                "internalType": "bytes",
-                "name": "data",
-                "type": "bytes"
-              },
-              {
-                "internalType": "bool",
-                "name": "hide",
-                "type": "bool"
-              }
-            ],
-            "internalType": "struct LibStakeXNFTStorage.SVGLayerData",
-            "name": "baseLayer",
-            "type": "tuple"
-          },
-          {
-            "components": [
-              {
-                "internalType": "enum SVGComponentType",
-                "name": "componentType",
-                "type": "uint8"
-              },
-              {
-                "components": [
-                  {
-                    "internalType": "bytes",
-                    "name": "data",
-                    "type": "bytes"
-                  },
-                  {
-                    "internalType": "enum SVGConditionType",
-                    "name": "cType",
-                    "type": "uint8"
-                  },
-                  {
-                    "internalType": "enum SVGConditionComperator",
-                    "name": "comperator",
-                    "type": "uint8"
-                  }
-                ],
-                "internalType": "struct LibStakeXNFTStorage.SVGCondition[]",
-                "name": "conditions",
-                "type": "tuple[]"
-              },
-              {
-                "internalType": "bytes32[]",
-                "name": "styles",
-                "type": "bytes32[]"
-              },
-              {
-                "internalType": "bytes",
-                "name": "data",
-                "type": "bytes"
-              },
-              {
-                "internalType": "bool",
-                "name": "hide",
-                "type": "bool"
-              }
-            ],
-            "internalType": "struct LibStakeXNFTStorage.SVGLayerData[]",
-            "name": "layers",
-            "type": "tuple[]"
-          },
-          {
-            "internalType": "uint8[]",
-            "name": "layerOrder",
-            "type": "uint8[]"
-          }
-        ],
-        "internalType": "struct LibStakeXNFTStorage.SVGConfig",
-        "name": "_data",
-        "type": "tuple"
-      }
-    ],
-    "name": "stakeXNFTAddConfig",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "_indexConfig",
-        "type": "uint256"
-      },
-      {
-        "components": [
-          {
-            "internalType": "enum SVGComponentType",
-            "name": "componentType",
-            "type": "uint8"
-          },
-          {
-            "components": [
-              {
-                "internalType": "bytes",
-                "name": "data",
-                "type": "bytes"
-              },
-              {
-                "internalType": "enum SVGConditionType",
-                "name": "cType",
-                "type": "uint8"
-              },
-              {
-                "internalType": "enum SVGConditionComperator",
-                "name": "comperator",
-                "type": "uint8"
-              }
-            ],
-            "internalType": "struct LibStakeXNFTStorage.SVGCondition[]",
-            "name": "conditions",
-            "type": "tuple[]"
-          },
-          {
-            "internalType": "bytes32[]",
-            "name": "styles",
-            "type": "bytes32[]"
-          },
-          {
-            "internalType": "bytes",
-            "name": "data",
-            "type": "bytes"
+            "internalType": "bool",
+            "name": "burned",
+            "type": "bool"
           },
           {
             "internalType": "bool",
-            "name": "hide",
+            "name": "locked",
             "type": "bool"
+          },
+          {
+            "internalType": "bytes32",
+            "name": "bucketId",
+            "type": "bytes32"
+          },
+          {
+            "internalType": "uint32",
+            "name": "lock",
+            "type": "uint32"
+          },
+          {
+            "internalType": "uint32",
+            "name": "lockStart",
+            "type": "uint32"
+          },
+          {
+            "internalType": "uint32",
+            "name": "release",
+            "type": "uint32"
+          },
+          {
+            "internalType": "uint256",
+            "name": "tokenId",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "amount",
+            "type": "uint256"
           }
         ],
-        "internalType": "struct LibStakeXNFTStorage.SVGLayerData",
-        "name": "_data",
-        "type": "tuple"
-      }
-    ],
-    "name": "stakeXNFTAddLayer",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint8",
-        "name": "_indexConfig",
-        "type": "uint8"
-      },
-      {
-        "internalType": "bytes32[]",
-        "name": "_bucketIds",
-        "type": "bytes32[]"
-      }
-    ],
-    "name": "stakeXNFTAssignConfigToBuckets",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "stakeXNFTGetBucketConfigAssignments",
-    "outputs": [
-      {
-        "internalType": "bytes32[]",
-        "name": "_bucketIds",
-        "type": "bytes32[]"
-      },
-      {
-        "internalType": "uint8[]",
-        "name": "_configIndexes",
-        "type": "uint8[]"
+        "internalType": "struct IStakeXBucketsPublicFacet.StakeResponse[]",
+        "name": "_stakes",
+        "type": "tuple[]"
       }
     ],
     "stateMutability": "view",
@@ -2208,126 +2588,28 @@
   },
   {
     "inputs": [],
-    "name": "stakeXNFTGetConfigs",
+    "name": "getMultipliersPerOneStakingToken",
     "outputs": [
       {
         "components": [
           {
-            "internalType": "uint16",
-            "name": "width",
-            "type": "uint16"
+            "internalType": "bytes32",
+            "name": "bucketId",
+            "type": "bytes32"
+          },
+          {
+            "internalType": "uint256",
+            "name": "multiplier",
+            "type": "uint256"
           },
           {
             "internalType": "uint16",
-            "name": "height",
+            "name": "divider",
             "type": "uint16"
-          },
-          {
-            "components": [
-              {
-                "internalType": "enum SVGComponentType",
-                "name": "componentType",
-                "type": "uint8"
-              },
-              {
-                "components": [
-                  {
-                    "internalType": "bytes",
-                    "name": "data",
-                    "type": "bytes"
-                  },
-                  {
-                    "internalType": "enum SVGConditionType",
-                    "name": "cType",
-                    "type": "uint8"
-                  },
-                  {
-                    "internalType": "enum SVGConditionComperator",
-                    "name": "comperator",
-                    "type": "uint8"
-                  }
-                ],
-                "internalType": "struct LibStakeXNFTStorage.SVGCondition[]",
-                "name": "conditions",
-                "type": "tuple[]"
-              },
-              {
-                "internalType": "bytes32[]",
-                "name": "styles",
-                "type": "bytes32[]"
-              },
-              {
-                "internalType": "bytes",
-                "name": "data",
-                "type": "bytes"
-              },
-              {
-                "internalType": "bool",
-                "name": "hide",
-                "type": "bool"
-              }
-            ],
-            "internalType": "struct LibStakeXNFTStorage.SVGLayerData",
-            "name": "baseLayer",
-            "type": "tuple"
-          },
-          {
-            "components": [
-              {
-                "internalType": "enum SVGComponentType",
-                "name": "componentType",
-                "type": "uint8"
-              },
-              {
-                "components": [
-                  {
-                    "internalType": "bytes",
-                    "name": "data",
-                    "type": "bytes"
-                  },
-                  {
-                    "internalType": "enum SVGConditionType",
-                    "name": "cType",
-                    "type": "uint8"
-                  },
-                  {
-                    "internalType": "enum SVGConditionComperator",
-                    "name": "comperator",
-                    "type": "uint8"
-                  }
-                ],
-                "internalType": "struct LibStakeXNFTStorage.SVGCondition[]",
-                "name": "conditions",
-                "type": "tuple[]"
-              },
-              {
-                "internalType": "bytes32[]",
-                "name": "styles",
-                "type": "bytes32[]"
-              },
-              {
-                "internalType": "bytes",
-                "name": "data",
-                "type": "bytes"
-              },
-              {
-                "internalType": "bool",
-                "name": "hide",
-                "type": "bool"
-              }
-            ],
-            "internalType": "struct LibStakeXNFTStorage.SVGLayerData[]",
-            "name": "layers",
-            "type": "tuple[]"
-          },
-          {
-            "internalType": "uint8[]",
-            "name": "layerOrder",
-            "type": "uint8[]"
           }
         ],
-        "internalType": "struct LibStakeXNFTStorage.SVGConfig[]",
-        "name": "_configs",
+        "internalType": "struct BucketMultiplier[]",
+        "name": "_multipliers",
         "type": "tuple[]"
       }
     ],
@@ -2337,17 +2619,398 @@
   {
     "inputs": [
       {
-        "internalType": "uint256",
-        "name": "_indexConfig",
-        "type": "uint256"
+        "internalType": "bytes32",
+        "name": "_bucketId",
+        "type": "bytes32"
       },
       {
         "internalType": "uint256",
-        "name": "_indexLayer",
+        "name": "_amount",
         "type": "uint256"
       }
     ],
-    "name": "stakeXNFTRemoveLayer",
+    "name": "getMultipliersPerOneStakingToken",
+    "outputs": [
+      {
+        "components": [
+          {
+            "internalType": "bytes32",
+            "name": "bucketId",
+            "type": "bytes32"
+          },
+          {
+            "internalType": "uint256",
+            "name": "multiplier",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint16",
+            "name": "divider",
+            "type": "uint16"
+          }
+        ],
+        "internalType": "struct BucketMultiplier[]",
+        "name": "_multipliers",
+        "type": "tuple[]"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "getStakeBuckets",
+    "outputs": [
+      {
+        "components": [
+          {
+            "internalType": "bool",
+            "name": "active",
+            "type": "bool"
+          },
+          {
+            "internalType": "bool",
+            "name": "burn",
+            "type": "bool"
+          },
+          {
+            "internalType": "bytes32",
+            "name": "id",
+            "type": "bytes32"
+          },
+          {
+            "internalType": "uint16",
+            "name": "share",
+            "type": "uint16"
+          },
+          {
+            "internalType": "uint32",
+            "name": "lock",
+            "type": "uint32"
+          },
+          {
+            "internalType": "uint256",
+            "name": "staked",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "stakes",
+            "type": "uint256"
+          }
+        ],
+        "internalType": "struct IStakeXBucketsPublicFacet.StakeBucketDataResponse[]",
+        "name": "_response",
+        "type": "tuple[]"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_staker",
+        "type": "address"
+      }
+    ],
+    "name": "getStakedSharesByStaker",
+    "outputs": [
+      {
+        "components": [
+          {
+            "internalType": "bytes32",
+            "name": "bucketId",
+            "type": "bytes32"
+          },
+          {
+            "internalType": "uint256",
+            "name": "share",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "staked",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint32",
+            "name": "divider",
+            "type": "uint32"
+          }
+        ],
+        "internalType": "struct IStakeXBucketsPublicFacet.BucketStakedShare[]",
+        "name": "_results",
+        "type": "tuple[]"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_staker",
+        "type": "address"
+      }
+    ],
+    "name": "getStakes",
+    "outputs": [
+      {
+        "components": [
+          {
+            "internalType": "bool",
+            "name": "burned",
+            "type": "bool"
+          },
+          {
+            "internalType": "bool",
+            "name": "locked",
+            "type": "bool"
+          },
+          {
+            "internalType": "bytes32",
+            "name": "bucketId",
+            "type": "bytes32"
+          },
+          {
+            "internalType": "uint32",
+            "name": "lock",
+            "type": "uint32"
+          },
+          {
+            "internalType": "uint32",
+            "name": "lockStart",
+            "type": "uint32"
+          },
+          {
+            "internalType": "uint32",
+            "name": "release",
+            "type": "uint32"
+          },
+          {
+            "internalType": "uint256",
+            "name": "tokenId",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "amount",
+            "type": "uint256"
+          }
+        ],
+        "internalType": "struct IStakeXBucketsPublicFacet.StakeResponse[]",
+        "name": "_stakes",
+        "type": "tuple[]"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "_bucketId",
+        "type": "bytes32"
+      }
+    ],
+    "name": "getStakesByBucket",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "_stakes",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "AlreadyEnabled",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "AlreadyFinished",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "AlreadyOpenCampaign",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "AlreadyOpened",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "AlreadyRunning",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "AlreadyRunningCampaign",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "HasStakes",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "InsufficientTokenBalance",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "InvalidCampaign",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "InvalidPeriod",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "InvalidRewardAmount",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "NoStakers",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "NotInCampaignMode",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "NotOpened",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "TooManyBuckets",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "TooManyRewards",
+    "type": "error"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "bytes32",
+        "name": "bucketId",
+        "type": "bytes32"
+      }
+    ],
+    "name": "CampaignCreated",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "bytes32",
+        "name": "bucketId",
+        "type": "bytes32"
+      }
+    ],
+    "name": "CampaignDeleted",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [],
+    "name": "CampaignModeEnabled",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "bytes32",
+        "name": "bucketId",
+        "type": "bytes32"
+      }
+    ],
+    "name": "CampaignOpened",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "bytes32",
+        "name": "bucketId",
+        "type": "bytes32"
+      }
+    ],
+    "name": "CampaignStarted",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "bytes32",
+        "name": "bucketId",
+        "type": "bytes32"
+      }
+    ],
+    "name": "CampaignUpdated",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [],
+    "name": "CampaignsPurged",
+    "type": "event"
+  },
+  {
+    "inputs": [
+      {
+        "components": [
+          {
+            "internalType": "uint256",
+            "name": "rewardAmount",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint32",
+            "name": "period",
+            "type": "uint32"
+          },
+          {
+            "internalType": "string",
+            "name": "name",
+            "type": "string"
+          }
+        ],
+        "internalType": "struct CampaignCreateParams",
+        "name": "_params",
+        "type": "tuple"
+      }
+    ],
+    "name": "stakeXCampaignCreate",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -2355,61 +3018,696 @@
   {
     "inputs": [
       {
+        "internalType": "bytes32",
+        "name": "_bucketId",
+        "type": "bytes32"
+      }
+    ],
+    "name": "stakeXCampaignDelete",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "components": [
+          {
+            "internalType": "bytes32",
+            "name": "bucketId",
+            "type": "bytes32"
+          },
+          {
+            "internalType": "uint256",
+            "name": "rewardAmount",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint32",
+            "name": "period",
+            "type": "uint32"
+          },
+          {
+            "internalType": "string",
+            "name": "name",
+            "type": "string"
+          }
+        ],
+        "internalType": "struct CampaignUpdateParams",
+        "name": "_params",
+        "type": "tuple"
+      }
+    ],
+    "name": "stakeXCampaignOpen",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "stakeXCampaignPurgeStale",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "_bucketId",
+        "type": "bytes32"
+      }
+    ],
+    "name": "stakeXCampaignStart",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "components": [
+          {
+            "internalType": "bytes32",
+            "name": "bucketId",
+            "type": "bytes32"
+          },
+          {
+            "internalType": "uint256",
+            "name": "rewardAmount",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint32",
+            "name": "period",
+            "type": "uint32"
+          },
+          {
+            "internalType": "string",
+            "name": "name",
+            "type": "string"
+          }
+        ],
+        "internalType": "struct CampaignUpdateParams",
+        "name": "_params",
+        "type": "tuple"
+      }
+    ],
+    "name": "stakeXCampaignUpdate",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "stakeXEnableCampaignMode",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "stakeXGetAllCampaignsData",
+    "outputs": [
+      {
+        "components": [
+          {
+            "components": [
+              {
+                "internalType": "bytes32",
+                "name": "bucketId",
+                "type": "bytes32"
+              },
+              {
+                "internalType": "uint256",
+                "name": "rewardAmount",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "initialRewardAmount",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "staked",
+                "type": "uint256"
+              },
+              {
+                "internalType": "address",
+                "name": "rewardToken",
+                "type": "address"
+              },
+              {
+                "internalType": "uint32",
+                "name": "createdTimestamp",
+                "type": "uint32"
+              },
+              {
+                "internalType": "uint32",
+                "name": "openTimestamp",
+                "type": "uint32"
+              },
+              {
+                "internalType": "uint32",
+                "name": "startTimestamp",
+                "type": "uint32"
+              },
+              {
+                "internalType": "uint32",
+                "name": "period",
+                "type": "uint32"
+              },
+              {
+                "internalType": "string",
+                "name": "name",
+                "type": "string"
+              }
+            ],
+            "internalType": "struct CampaignConfig",
+            "name": "config",
+            "type": "tuple"
+          },
+          {
+            "components": [
+              {
+                "internalType": "uint256",
+                "name": "staked",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "claimed",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "apr",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "timeLeft",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "currentTimestamp",
+                "type": "uint256"
+              },
+              {
+                "internalType": "bool",
+                "name": "isOpen",
+                "type": "bool"
+              },
+              {
+                "internalType": "bool",
+                "name": "isRunning",
+                "type": "bool"
+              },
+              {
+                "internalType": "bool",
+                "name": "isFinished",
+                "type": "bool"
+              },
+              {
+                "internalType": "bool",
+                "name": "isStale",
+                "type": "bool"
+              },
+              {
+                "components": [
+                  {
+                    "internalType": "string",
+                    "name": "name",
+                    "type": "string"
+                  },
+                  {
+                    "internalType": "string",
+                    "name": "symbol",
+                    "type": "string"
+                  },
+                  {
+                    "internalType": "uint8",
+                    "name": "decimals",
+                    "type": "uint8"
+                  },
+                  {
+                    "internalType": "address",
+                    "name": "source",
+                    "type": "address"
+                  }
+                ],
+                "internalType": "struct TokenInfo",
+                "name": "stakingToken",
+                "type": "tuple"
+              },
+              {
+                "components": [
+                  {
+                    "internalType": "string",
+                    "name": "name",
+                    "type": "string"
+                  },
+                  {
+                    "internalType": "string",
+                    "name": "symbol",
+                    "type": "string"
+                  },
+                  {
+                    "internalType": "uint8",
+                    "name": "decimals",
+                    "type": "uint8"
+                  },
+                  {
+                    "internalType": "address",
+                    "name": "source",
+                    "type": "address"
+                  }
+                ],
+                "internalType": "struct TokenInfo",
+                "name": "rewardToken",
+                "type": "tuple"
+              }
+            ],
+            "internalType": "struct CampaignStats",
+            "name": "stats",
+            "type": "tuple"
+          }
+        ],
+        "internalType": "struct CampaignData[]",
+        "name": "_data",
+        "type": "tuple[]"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "_bucketId",
+        "type": "bytes32"
+      }
+    ],
+    "name": "stakeXGetCampaignData",
+    "outputs": [
+      {
+        "components": [
+          {
+            "components": [
+              {
+                "internalType": "bytes32",
+                "name": "bucketId",
+                "type": "bytes32"
+              },
+              {
+                "internalType": "uint256",
+                "name": "rewardAmount",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "initialRewardAmount",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "staked",
+                "type": "uint256"
+              },
+              {
+                "internalType": "address",
+                "name": "rewardToken",
+                "type": "address"
+              },
+              {
+                "internalType": "uint32",
+                "name": "createdTimestamp",
+                "type": "uint32"
+              },
+              {
+                "internalType": "uint32",
+                "name": "openTimestamp",
+                "type": "uint32"
+              },
+              {
+                "internalType": "uint32",
+                "name": "startTimestamp",
+                "type": "uint32"
+              },
+              {
+                "internalType": "uint32",
+                "name": "period",
+                "type": "uint32"
+              },
+              {
+                "internalType": "string",
+                "name": "name",
+                "type": "string"
+              }
+            ],
+            "internalType": "struct CampaignConfig",
+            "name": "config",
+            "type": "tuple"
+          },
+          {
+            "components": [
+              {
+                "internalType": "uint256",
+                "name": "staked",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "claimed",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "apr",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "timeLeft",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "currentTimestamp",
+                "type": "uint256"
+              },
+              {
+                "internalType": "bool",
+                "name": "isOpen",
+                "type": "bool"
+              },
+              {
+                "internalType": "bool",
+                "name": "isRunning",
+                "type": "bool"
+              },
+              {
+                "internalType": "bool",
+                "name": "isFinished",
+                "type": "bool"
+              },
+              {
+                "internalType": "bool",
+                "name": "isStale",
+                "type": "bool"
+              },
+              {
+                "components": [
+                  {
+                    "internalType": "string",
+                    "name": "name",
+                    "type": "string"
+                  },
+                  {
+                    "internalType": "string",
+                    "name": "symbol",
+                    "type": "string"
+                  },
+                  {
+                    "internalType": "uint8",
+                    "name": "decimals",
+                    "type": "uint8"
+                  },
+                  {
+                    "internalType": "address",
+                    "name": "source",
+                    "type": "address"
+                  }
+                ],
+                "internalType": "struct TokenInfo",
+                "name": "stakingToken",
+                "type": "tuple"
+              },
+              {
+                "components": [
+                  {
+                    "internalType": "string",
+                    "name": "name",
+                    "type": "string"
+                  },
+                  {
+                    "internalType": "string",
+                    "name": "symbol",
+                    "type": "string"
+                  },
+                  {
+                    "internalType": "uint8",
+                    "name": "decimals",
+                    "type": "uint8"
+                  },
+                  {
+                    "internalType": "address",
+                    "name": "source",
+                    "type": "address"
+                  }
+                ],
+                "internalType": "struct TokenInfo",
+                "name": "rewardToken",
+                "type": "tuple"
+              }
+            ],
+            "internalType": "struct CampaignStats",
+            "name": "stats",
+            "type": "tuple"
+          }
+        ],
+        "internalType": "struct CampaignData",
+        "name": "_data",
+        "type": "tuple"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "stakeXIsCampaignMode",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "_is",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "InvalidLock",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      {
         "internalType": "uint256",
-        "name": "_indexConfig",
+        "name": "tokenId",
+        "type": "uint256"
+      }
+    ],
+    "name": "InvalidStake",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "InvalidStakes",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "MergeImpossible",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "MergeNotActive",
+    "type": "error"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "manager",
+        "type": "address"
+      }
+    ],
+    "name": "DisabledMerging",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "manager",
+        "type": "address"
+      }
+    ],
+    "name": "EnabledMerging",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "staker",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "bytes32",
+        "name": "bucketId",
+        "type": "bytes32"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "tokenId",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256[]",
+        "name": "fromTokenIds",
+        "type": "uint256[]"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "fee",
         "type": "uint256"
       },
       {
         "components": [
           {
-            "internalType": "enum SVGComponentType",
-            "name": "componentType",
-            "type": "uint8"
+            "components": [
+              {
+                "internalType": "string",
+                "name": "name",
+                "type": "string"
+              },
+              {
+                "internalType": "string",
+                "name": "symbol",
+                "type": "string"
+              },
+              {
+                "internalType": "uint8",
+                "name": "decimals",
+                "type": "uint8"
+              },
+              {
+                "internalType": "address",
+                "name": "source",
+                "type": "address"
+              }
+            ],
+            "internalType": "struct TokenInfo",
+            "name": "tokenInfo",
+            "type": "tuple"
           },
+          {
+            "internalType": "uint256",
+            "name": "amount",
+            "type": "uint256"
+          }
+        ],
+        "indexed": false,
+        "internalType": "struct RewardEstimation",
+        "name": "reward",
+        "type": "tuple"
+      },
+      {
+        "components": [
           {
             "components": [
               {
-                "internalType": "bytes",
-                "name": "data",
-                "type": "bytes"
+                "internalType": "string",
+                "name": "name",
+                "type": "string"
               },
               {
-                "internalType": "enum SVGConditionType",
-                "name": "cType",
+                "internalType": "string",
+                "name": "symbol",
+                "type": "string"
+              },
+              {
+                "internalType": "uint8",
+                "name": "decimals",
                 "type": "uint8"
               },
               {
-                "internalType": "enum SVGConditionComperator",
-                "name": "comperator",
-                "type": "uint8"
+                "internalType": "address",
+                "name": "source",
+                "type": "address"
               }
             ],
-            "internalType": "struct LibStakeXNFTStorage.SVGCondition[]",
-            "name": "conditions",
-            "type": "tuple[]"
+            "internalType": "struct TokenInfo",
+            "name": "tokenInfo",
+            "type": "tuple"
           },
           {
-            "internalType": "bytes32[]",
-            "name": "styles",
-            "type": "bytes32[]"
-          },
-          {
-            "internalType": "bytes",
-            "name": "data",
-            "type": "bytes"
-          },
-          {
-            "internalType": "bool",
-            "name": "hide",
-            "type": "bool"
+            "internalType": "uint256",
+            "name": "amount",
+            "type": "uint256"
           }
         ],
-        "internalType": "struct LibStakeXNFTStorage.SVGLayerData",
-        "name": "_data",
-        "type": "tuple"
+        "indexed": false,
+        "internalType": "struct RewardEstimation[]",
+        "name": "rewardBreakDown",
+        "type": "tuple[]"
       }
     ],
-    "name": "stakeXNFTUpdateBaseLayer",
+    "name": "Merged",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "manager",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint16",
+        "name": "bpsMerge",
+        "type": "uint16"
+      }
+    ],
+    "name": "UpdatedFeeForMerging",
+    "type": "event"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bool",
+        "name": "_enabled",
+        "type": "bool"
+      }
+    ],
+    "name": "stakeXEnableMerging",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -2417,86 +3715,293 @@
   {
     "inputs": [
       {
+        "components": [
+          {
+            "internalType": "uint256[]",
+            "name": "tokenIds",
+            "type": "uint256[]"
+          },
+          {
+            "internalType": "bytes32",
+            "name": "targetBucketId",
+            "type": "bytes32"
+          },
+          {
+            "internalType": "bool",
+            "name": "includeRewards",
+            "type": "bool"
+          },
+          {
+            "internalType": "address",
+            "name": "targetToken",
+            "type": "address"
+          }
+        ],
+        "internalType": "struct MergeParams",
+        "name": "_params",
+        "type": "tuple"
+      }
+    ],
+    "name": "stakeXMerge",
+    "outputs": [
+      {
         "internalType": "uint256",
-        "name": "_indexConfig",
+        "name": "_amountStaked",
         "type": "uint256"
       },
       {
         "internalType": "uint256",
-        "name": "_indexLayer",
+        "name": "_fee",
         "type": "uint256"
       },
       {
         "components": [
           {
-            "internalType": "enum SVGComponentType",
-            "name": "componentType",
-            "type": "uint8"
+            "components": [
+              {
+                "internalType": "string",
+                "name": "name",
+                "type": "string"
+              },
+              {
+                "internalType": "string",
+                "name": "symbol",
+                "type": "string"
+              },
+              {
+                "internalType": "uint8",
+                "name": "decimals",
+                "type": "uint8"
+              },
+              {
+                "internalType": "address",
+                "name": "source",
+                "type": "address"
+              }
+            ],
+            "internalType": "struct TokenInfo",
+            "name": "tokenInfo",
+            "type": "tuple"
           },
+          {
+            "internalType": "uint256",
+            "name": "amount",
+            "type": "uint256"
+          }
+        ],
+        "internalType": "struct RewardEstimation",
+        "name": "_rewards",
+        "type": "tuple"
+      },
+      {
+        "components": [
           {
             "components": [
               {
-                "internalType": "bytes",
-                "name": "data",
-                "type": "bytes"
+                "internalType": "string",
+                "name": "name",
+                "type": "string"
               },
               {
-                "internalType": "enum SVGConditionType",
-                "name": "cType",
+                "internalType": "string",
+                "name": "symbol",
+                "type": "string"
+              },
+              {
+                "internalType": "uint8",
+                "name": "decimals",
                 "type": "uint8"
               },
               {
-                "internalType": "enum SVGConditionComperator",
-                "name": "comperator",
-                "type": "uint8"
+                "internalType": "address",
+                "name": "source",
+                "type": "address"
               }
             ],
-            "internalType": "struct LibStakeXNFTStorage.SVGCondition[]",
-            "name": "conditions",
-            "type": "tuple[]"
+            "internalType": "struct TokenInfo",
+            "name": "tokenInfo",
+            "type": "tuple"
           },
           {
-            "internalType": "bytes32[]",
-            "name": "styles",
-            "type": "bytes32[]"
-          },
-          {
-            "internalType": "bytes",
-            "name": "data",
-            "type": "bytes"
-          },
-          {
-            "internalType": "bool",
-            "name": "hide",
-            "type": "bool"
+            "internalType": "uint256",
+            "name": "amount",
+            "type": "uint256"
           }
         ],
-        "internalType": "struct LibStakeXNFTStorage.SVGLayerData",
-        "name": "_data",
-        "type": "tuple"
+        "internalType": "struct RewardEstimation[]",
+        "name": "_rewardsBreakdown",
+        "type": "tuple[]"
       }
     ],
-    "name": "stakeXNFTUpdateLayer",
-    "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
   },
   {
     "inputs": [
       {
+        "internalType": "uint16",
+        "name": "_bpsMerge",
+        "type": "uint16"
+      }
+    ],
+    "name": "stakeXUpdateFeeForMerging",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "stakeXCanIncludeRewardsIntoMerge",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "_can",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "stakeXGetFeeForMerge",
+    "outputs": [
+      {
         "internalType": "uint256",
-        "name": "_indexConfig",
+        "name": "_bps",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_amount",
+        "type": "uint256"
+      }
+    ],
+    "name": "stakeXGetFeeForMerging",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "_stakeAmount",
         "type": "uint256"
       },
       {
-        "internalType": "uint8[]",
-        "name": "_layerOrder",
-        "type": "uint8[]"
+        "internalType": "uint256",
+        "name": "_feeAmount",
+        "type": "uint256"
       }
     ],
-    "name": "stakeXNFTUpdateLayerOrder",
-    "outputs": [],
-    "stateMutability": "nonpayable",
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "components": [
+          {
+            "internalType": "uint256[]",
+            "name": "tokenIds",
+            "type": "uint256[]"
+          },
+          {
+            "internalType": "bytes32",
+            "name": "targetBucketId",
+            "type": "bytes32"
+          },
+          {
+            "internalType": "bool",
+            "name": "includeRewards",
+            "type": "bool"
+          },
+          {
+            "internalType": "address",
+            "name": "targetToken",
+            "type": "address"
+          }
+        ],
+        "internalType": "struct MergeParams",
+        "name": "_params",
+        "type": "tuple"
+      }
+    ],
+    "name": "stakeXGetMergingEstimation",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "_stakeAmount",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_targetAmount",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_feeAmount",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "stakeXIsMergingActive",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "_is",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "components": [
+          {
+            "internalType": "uint256[]",
+            "name": "tokenIds",
+            "type": "uint256[]"
+          },
+          {
+            "internalType": "bytes32",
+            "name": "targetBucketId",
+            "type": "bytes32"
+          },
+          {
+            "internalType": "bool",
+            "name": "includeRewards",
+            "type": "bool"
+          },
+          {
+            "internalType": "address",
+            "name": "targetToken",
+            "type": "address"
+          }
+        ],
+        "internalType": "struct MergeParams",
+        "name": "_params",
+        "type": "tuple"
+      }
+    ],
+    "name": "stakeXIsMergingPossible",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "_is",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
     "type": "function"
   },
   {
@@ -2679,6 +4184,143 @@
     "type": "function"
   },
   {
+    "inputs": [],
+    "name": "InvalidBucket",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "InvalidNFTContract",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "MissingFallback",
+    "type": "error"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "bytes32",
+        "name": "bucketId",
+        "type": "bytes32"
+      }
+    ],
+    "name": "BucketNFTRemoved",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "bytes32",
+        "name": "bucketId",
+        "type": "bytes32"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "nftConfigContract",
+        "type": "address"
+      }
+    ],
+    "name": "BucketNFTUpdated",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "nftConfigContract",
+        "type": "address"
+      }
+    ],
+    "name": "FallbackNFTUpdated",
+    "type": "event"
+  },
+  {
+    "inputs": [
+      {
+        "components": [
+          {
+            "internalType": "address",
+            "name": "nftContract",
+            "type": "address"
+          }
+        ],
+        "internalType": "struct IStakeXNFTManagementFacet.InitParamsNFTManagement",
+        "name": "_params",
+        "type": "tuple"
+      }
+    ],
+    "name": "initStakeXNFTManagementFacet",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "stakeXNFTManagementFacetIsInitialized",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "_is",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "_bucketId",
+        "type": "bytes32"
+      }
+    ],
+    "name": "stakeXNFTManagementRemoveBucketNFT",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "_bucketId",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "address",
+        "name": "_nftConfigContract",
+        "type": "address"
+      }
+    ],
+    "name": "stakeXNFTManagementUpdateBucketNFT",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_nftConfigContract",
+        "type": "address"
+      }
+    ],
+    "name": "stakeXNFTManagementUpdateFallbackNFT",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
     "inputs": [
       {
         "components": [
@@ -2717,7 +4359,7 @@
                     "type": "uint8"
                   }
                 ],
-                "internalType": "struct LibStakeXNFTStorage.SVGCondition[]",
+                "internalType": "struct SVGCondition[]",
                 "name": "conditions",
                 "type": "tuple[]"
               },
@@ -2737,7 +4379,7 @@
                 "type": "bool"
               }
             ],
-            "internalType": "struct LibStakeXNFTStorage.SVGLayerData",
+            "internalType": "struct SVGLayerData",
             "name": "baseLayer",
             "type": "tuple"
           },
@@ -2766,7 +4408,7 @@
                     "type": "uint8"
                   }
                 ],
-                "internalType": "struct LibStakeXNFTStorage.SVGCondition[]",
+                "internalType": "struct SVGCondition[]",
                 "name": "conditions",
                 "type": "tuple[]"
               },
@@ -2786,7 +4428,7 @@
                 "type": "bool"
               }
             ],
-            "internalType": "struct LibStakeXNFTStorage.SVGLayerData[]",
+            "internalType": "struct SVGLayerData[]",
             "name": "layers",
             "type": "tuple[]"
           },
@@ -2796,7 +4438,7 @@
             "type": "uint8[]"
           }
         ],
-        "internalType": "struct LibStakeXNFTStorage.SVGConfig",
+        "internalType": "struct SVGConfig",
         "name": "_config",
         "type": "tuple"
       },
@@ -2810,7 +4452,31 @@
     "outputs": [
       {
         "internalType": "string",
-        "name": "",
+        "name": "_svg",
+        "type": "string"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_configAddress",
+        "type": "address"
+      },
+      {
+        "internalType": "bool",
+        "name": "_asSVG",
+        "type": "bool"
+      }
+    ],
+    "name": "renderByConfigAddress",
+    "outputs": [
+      {
+        "internalType": "string",
+        "name": "_svg",
         "type": "string"
       }
     ],
@@ -2857,38 +4523,55 @@
   },
   {
     "inputs": [],
-    "name": "contractOwner",
-    "outputs": [
+    "name": "InvalidValue",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      {
+        "components": [
+          {
+            "internalType": "address",
+            "name": "deployer",
+            "type": "address"
+          }
+        ],
+        "internalType": "struct IStakeXPaymentFacet.InitParamsPayment",
+        "name": "_params",
+        "type": "tuple"
+      }
+    ],
+    "name": "initStakeXPaymentFacet",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_value",
+        "type": "uint256"
+      },
       {
         "internalType": "address",
-        "name": "_owner",
+        "name": "_payer",
         "type": "address"
       }
     ],
-    "stateMutability": "view",
+    "name": "stakeXPaymentChargeFee",
+    "outputs": [],
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
     "inputs": [],
-    "name": "getActivationBlock",
+    "name": "stakeXPaymentGetDeployer",
     "outputs": [
       {
-        "internalType": "uint256",
-        "name": "_block",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "getActivationTime",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "_time",
-        "type": "uint256"
+        "internalType": "address",
+        "name": "_deployer",
+        "type": "address"
       }
     ],
     "stateMutability": "view",
@@ -2897,143 +4580,21 @@
   {
     "inputs": [
       {
-        "internalType": "bytes32",
-        "name": "_bucketId",
-        "type": "bytes32"
-      }
-    ],
-    "name": "getAllStakesByBucket",
-    "outputs": [
-      {
-        "components": [
-          {
-            "internalType": "bool",
-            "name": "burned",
-            "type": "bool"
-          },
-          {
-            "internalType": "bool",
-            "name": "locked",
-            "type": "bool"
-          },
-          {
-            "internalType": "bytes32",
-            "name": "bucketId",
-            "type": "bytes32"
-          },
-          {
-            "internalType": "uint32",
-            "name": "lock",
-            "type": "uint32"
-          },
-          {
-            "internalType": "uint32",
-            "name": "lockStart",
-            "type": "uint32"
-          },
-          {
-            "internalType": "uint32",
-            "name": "release",
-            "type": "uint32"
-          },
-          {
-            "internalType": "uint256",
-            "name": "tokenId",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "amount",
-            "type": "uint256"
-          }
-        ],
-        "internalType": "struct IStakeXPublicFacet.StakeResponse[]",
-        "name": "_stakes",
-        "type": "tuple[]"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "getFeeForMax",
-    "outputs": [
-      {
         "internalType": "uint16",
-        "name": "_v",
+        "name": "_thresholdBps",
         "type": "uint16"
       }
     ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "_amount",
-        "type": "uint256"
-      }
-    ],
-    "name": "getFeeForRestaking",
+    "name": "stakeXPaymentGetFeeInNative",
     "outputs": [
       {
         "internalType": "uint256",
-        "name": "_stakeAmount",
+        "name": "_fee",
         "type": "uint256"
       },
       {
         "internalType": "uint256",
-        "name": "_feeAmount",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "_amount",
-        "type": "uint256"
-      }
-    ],
-    "name": "getFeeForStaking",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "_stakeAmount",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "_feeAmount",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "_amount",
-        "type": "uint256"
-      }
-    ],
-    "name": "getFeeForUnstaking",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "_stakeAmount",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "_feeAmount",
+        "name": "_thresholdFee",
         "type": "uint256"
       }
     ],
@@ -3042,70 +4603,17 @@
   },
   {
     "inputs": [],
-    "name": "getMultipliersPerOneStakingToken",
+    "name": "stakeXPaymentGetFeeInUSD",
     "outputs": [
-      {
-        "components": [
-          {
-            "internalType": "bytes32",
-            "name": "bucketId",
-            "type": "bytes32"
-          },
-          {
-            "internalType": "uint256",
-            "name": "multiplier",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint16",
-            "name": "divider",
-            "type": "uint16"
-          }
-        ],
-        "internalType": "struct IStakeXPublicFacet.BucketMultiplier[]",
-        "name": "_multipliers",
-        "type": "tuple[]"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "bytes32",
-        "name": "_bucketId",
-        "type": "bytes32"
-      },
       {
         "internalType": "uint256",
-        "name": "_amount",
+        "name": "_fee",
         "type": "uint256"
-      }
-    ],
-    "name": "getMultipliersPerOneStakingToken",
-    "outputs": [
+      },
       {
-        "components": [
-          {
-            "internalType": "bytes32",
-            "name": "bucketId",
-            "type": "bytes32"
-          },
-          {
-            "internalType": "uint256",
-            "name": "multiplier",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint16",
-            "name": "divider",
-            "type": "uint16"
-          }
-        ],
-        "internalType": "struct IStakeXPublicFacet.BucketMultiplier[]",
-        "name": "_multipliers",
-        "type": "tuple[]"
+        "internalType": "uint8",
+        "name": "_decimals",
+        "type": "uint8"
       }
     ],
     "stateMutability": "view",
@@ -3113,178 +4621,66 @@
   },
   {
     "inputs": [],
-    "name": "getNextTokenId",
+    "name": "stakeXPaymentHasActionFee",
     "outputs": [
       {
-        "internalType": "uint256",
-        "name": "_tokenId",
-        "type": "uint256"
+        "internalType": "bool",
+        "name": "_has",
+        "type": "bool"
       }
     ],
     "stateMutability": "view",
     "type": "function"
   },
   {
+    "inputs": [],
+    "name": "stakeXPaymentIsInitialized",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "_is",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "ExceedsMinimumAvailableRewards",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "ExceedsMinimumAvailableTargets",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "NoChanges",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "TokenInvalid",
+    "type": "error"
+  },
+  {
+    "anonymous": false,
     "inputs": [
       {
-        "internalType": "uint256",
-        "name": "_tokenId",
-        "type": "uint256"
-      },
-      {
+        "indexed": true,
         "internalType": "address",
-        "name": "_rewardToken",
+        "name": "manager",
         "type": "address"
-      }
-    ],
-    "name": "getRewardEstimation",
-    "outputs": [
-      {
-        "components": [
-          {
-            "components": [
-              {
-                "internalType": "string",
-                "name": "name",
-                "type": "string"
-              },
-              {
-                "internalType": "string",
-                "name": "symbol",
-                "type": "string"
-              },
-              {
-                "internalType": "uint8",
-                "name": "decimals",
-                "type": "uint8"
-              },
-              {
-                "internalType": "address",
-                "name": "source",
-                "type": "address"
-              }
-            ],
-            "internalType": "struct TokenInfo",
-            "name": "tokenInfo",
-            "type": "tuple"
-          },
-          {
-            "internalType": "uint256",
-            "name": "amount",
-            "type": "uint256"
-          }
-        ],
-        "internalType": "struct RewardEstimation",
-        "name": "_reward",
-        "type": "tuple"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "_tokenId",
-        "type": "uint256"
-      },
-      {
-        "internalType": "address",
-        "name": "_targetToken",
-        "type": "address"
-      }
-    ],
-    "name": "getRewardEstimationInToken",
-    "outputs": [
-      {
-        "components": [
-          {
-            "components": [
-              {
-                "internalType": "string",
-                "name": "name",
-                "type": "string"
-              },
-              {
-                "internalType": "string",
-                "name": "symbol",
-                "type": "string"
-              },
-              {
-                "internalType": "uint8",
-                "name": "decimals",
-                "type": "uint8"
-              },
-              {
-                "internalType": "address",
-                "name": "source",
-                "type": "address"
-              }
-            ],
-            "internalType": "struct TokenInfo",
-            "name": "tokenInfo",
-            "type": "tuple"
-          },
-          {
-            "internalType": "uint256",
-            "name": "amount",
-            "type": "uint256"
-          }
-        ],
-        "internalType": "struct RewardEstimation",
-        "name": "_reward",
-        "type": "tuple"
       },
       {
         "components": [
           {
-            "components": [
-              {
-                "internalType": "string",
-                "name": "name",
-                "type": "string"
-              },
-              {
-                "internalType": "string",
-                "name": "symbol",
-                "type": "string"
-              },
-              {
-                "internalType": "uint8",
-                "name": "decimals",
-                "type": "uint8"
-              },
-              {
-                "internalType": "address",
-                "name": "source",
-                "type": "address"
-              }
-            ],
-            "internalType": "struct TokenInfo",
-            "name": "tokenInfo",
-            "type": "tuple"
+            "internalType": "address",
+            "name": "token",
+            "type": "address"
           },
-          {
-            "internalType": "uint256",
-            "name": "amount",
-            "type": "uint256"
-          }
-        ],
-        "internalType": "struct RewardEstimation[]",
-        "name": "_rewardBreakdown",
-        "type": "tuple[]"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "getRewardTokens",
-    "outputs": [
-      {
-        "components": [
           {
             "internalType": "bool",
             "name": "isReward",
@@ -3296,526 +4692,134 @@
             "type": "bool"
           },
           {
-            "internalType": "bool",
-            "name": "isRewardActive",
-            "type": "bool"
-          },
-          {
-            "internalType": "bool",
-            "name": "isTargetActive",
-            "type": "bool"
-          },
-          {
-            "internalType": "uint8",
-            "name": "decimals",
-            "type": "uint8"
-          },
-          {
-            "internalType": "address",
-            "name": "source",
-            "type": "address"
-          },
-          {
-            "internalType": "uint256",
-            "name": "injected",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "rewarded",
-            "type": "uint256"
-          },
-          {
-            "internalType": "string",
-            "name": "name",
-            "type": "string"
-          },
-          {
-            "internalType": "string",
-            "name": "symbol",
-            "type": "string"
-          }
-        ],
-        "internalType": "struct IStakeXPublicFacet.TokenInfoResponse[]",
-        "name": "_response",
-        "type": "tuple[]"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "_tokenId",
-        "type": "uint256"
-      }
-    ],
-    "name": "getRewardsEstimations",
-    "outputs": [
-      {
-        "components": [
-          {
             "components": [
-              {
-                "internalType": "string",
-                "name": "name",
-                "type": "string"
-              },
-              {
-                "internalType": "string",
-                "name": "symbol",
-                "type": "string"
-              },
-              {
-                "internalType": "uint8",
-                "name": "decimals",
-                "type": "uint8"
-              },
               {
                 "internalType": "address",
-                "name": "source",
+                "name": "token",
                 "type": "address"
-              }
-            ],
-            "internalType": "struct TokenInfo",
-            "name": "tokenInfo",
-            "type": "tuple"
-          },
-          {
-            "internalType": "uint256",
-            "name": "amount",
-            "type": "uint256"
-          }
-        ],
-        "internalType": "struct RewardEstimation[]",
-        "name": "_rewardBreakdown",
-        "type": "tuple[]"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "getStableToken",
-    "outputs": [
-      {
-        "components": [
-          {
-            "internalType": "bool",
-            "name": "isReward",
-            "type": "bool"
-          },
-          {
-            "internalType": "bool",
-            "name": "isTarget",
-            "type": "bool"
-          },
-          {
-            "internalType": "bool",
-            "name": "isRewardActive",
-            "type": "bool"
-          },
-          {
-            "internalType": "bool",
-            "name": "isTargetActive",
-            "type": "bool"
-          },
-          {
-            "internalType": "uint8",
-            "name": "decimals",
-            "type": "uint8"
-          },
-          {
-            "internalType": "address",
-            "name": "source",
-            "type": "address"
-          },
-          {
-            "internalType": "uint256",
-            "name": "injected",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "rewarded",
-            "type": "uint256"
-          },
-          {
-            "internalType": "string",
-            "name": "name",
-            "type": "string"
-          },
-          {
-            "internalType": "string",
-            "name": "symbol",
-            "type": "string"
-          }
-        ],
-        "internalType": "struct IStakeXPublicFacet.TokenInfoResponse",
-        "name": "_response",
-        "type": "tuple"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "getStakeBuckets",
-    "outputs": [
-      {
-        "components": [
-          {
-            "internalType": "bool",
-            "name": "active",
-            "type": "bool"
-          },
-          {
-            "internalType": "bool",
-            "name": "burn",
-            "type": "bool"
-          },
-          {
-            "internalType": "bytes32",
-            "name": "id",
-            "type": "bytes32"
-          },
-          {
-            "internalType": "uint16",
-            "name": "share",
-            "type": "uint16"
-          },
-          {
-            "internalType": "uint32",
-            "name": "lock",
-            "type": "uint32"
-          },
-          {
-            "internalType": "uint256",
-            "name": "staked",
-            "type": "uint256"
-          }
-        ],
-        "internalType": "struct IStakeXPublicFacet.StakeBucketDataResponse[]",
-        "name": "_response",
-        "type": "tuple[]"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "_staker",
-        "type": "address"
-      }
-    ],
-    "name": "getStakedSharesByStaker",
-    "outputs": [
-      {
-        "components": [
-          {
-            "internalType": "bytes32",
-            "name": "bucketId",
-            "type": "bytes32"
-          },
-          {
-            "internalType": "uint256",
-            "name": "share",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "staked",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint32",
-            "name": "divider",
-            "type": "uint32"
-          }
-        ],
-        "internalType": "struct IStakeXPublicFacet.BucketStakedShare[]",
-        "name": "_results",
-        "type": "tuple[]"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "_staker",
-        "type": "address"
-      }
-    ],
-    "name": "getStakes",
-    "outputs": [
-      {
-        "components": [
-          {
-            "internalType": "bool",
-            "name": "burned",
-            "type": "bool"
-          },
-          {
-            "internalType": "bool",
-            "name": "locked",
-            "type": "bool"
-          },
-          {
-            "internalType": "bytes32",
-            "name": "bucketId",
-            "type": "bytes32"
-          },
-          {
-            "internalType": "uint32",
-            "name": "lock",
-            "type": "uint32"
-          },
-          {
-            "internalType": "uint32",
-            "name": "lockStart",
-            "type": "uint32"
-          },
-          {
-            "internalType": "uint32",
-            "name": "release",
-            "type": "uint32"
-          },
-          {
-            "internalType": "uint256",
-            "name": "tokenId",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "amount",
-            "type": "uint256"
-          }
-        ],
-        "internalType": "struct IStakeXPublicFacet.StakeResponse[]",
-        "name": "_stakes",
-        "type": "tuple[]"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "getStakingData",
-    "outputs": [
-      {
-        "components": [
-          {
-            "components": [
+              },
               {
                 "components": [
                   {
-                    "internalType": "string",
-                    "name": "name",
-                    "type": "string"
-                  },
-                  {
-                    "internalType": "string",
-                    "name": "symbol",
-                    "type": "string"
-                  },
-                  {
-                    "internalType": "uint8",
-                    "name": "decimals",
-                    "type": "uint8"
+                    "internalType": "address",
+                    "name": "calleeSwap",
+                    "type": "address"
                   },
                   {
                     "internalType": "address",
-                    "name": "source",
+                    "name": "calleeAmountOut",
                     "type": "address"
+                  },
+                  {
+                    "internalType": "address[]",
+                    "name": "path",
+                    "type": "address[]"
                   }
                 ],
-                "internalType": "struct TokenInfo",
-                "name": "tokenInfo",
-                "type": "tuple"
-              },
-              {
-                "internalType": "uint256",
-                "name": "amount",
-                "type": "uint256"
+                "internalType": "struct Swap[]",
+                "name": "swaps",
+                "type": "tuple[]"
               }
             ],
-            "internalType": "struct RewardEstimation",
-            "name": "staked",
-            "type": "tuple"
-          },
-          {
-            "components": [
-              {
-                "components": [
-                  {
-                    "internalType": "string",
-                    "name": "name",
-                    "type": "string"
-                  },
-                  {
-                    "internalType": "string",
-                    "name": "symbol",
-                    "type": "string"
-                  },
-                  {
-                    "internalType": "uint8",
-                    "name": "decimals",
-                    "type": "uint8"
-                  },
-                  {
-                    "internalType": "address",
-                    "name": "source",
-                    "type": "address"
-                  }
-                ],
-                "internalType": "struct TokenInfo",
-                "name": "tokenInfo",
-                "type": "tuple"
-              },
-              {
-                "internalType": "uint256",
-                "name": "amount",
-                "type": "uint256"
-              }
-            ],
-            "internalType": "struct RewardEstimation",
-            "name": "stakedBurned",
-            "type": "tuple"
-          },
-          {
-            "components": [
-              {
-                "components": [
-                  {
-                    "internalType": "string",
-                    "name": "name",
-                    "type": "string"
-                  },
-                  {
-                    "internalType": "string",
-                    "name": "symbol",
-                    "type": "string"
-                  },
-                  {
-                    "internalType": "uint8",
-                    "name": "decimals",
-                    "type": "uint8"
-                  },
-                  {
-                    "internalType": "address",
-                    "name": "source",
-                    "type": "address"
-                  }
-                ],
-                "internalType": "struct TokenInfo",
-                "name": "tokenInfo",
-                "type": "tuple"
-              },
-              {
-                "internalType": "uint256",
-                "name": "amount",
-                "type": "uint256"
-              }
-            ],
-            "internalType": "struct RewardEstimation[]",
-            "name": "injected",
+            "internalType": "struct SwapGroup[]",
+            "name": "swapGroup",
             "type": "tuple[]"
-          },
-          {
-            "components": [
-              {
-                "components": [
-                  {
-                    "internalType": "string",
-                    "name": "name",
-                    "type": "string"
-                  },
-                  {
-                    "internalType": "string",
-                    "name": "symbol",
-                    "type": "string"
-                  },
-                  {
-                    "internalType": "uint8",
-                    "name": "decimals",
-                    "type": "uint8"
-                  },
-                  {
-                    "internalType": "address",
-                    "name": "source",
-                    "type": "address"
-                  }
-                ],
-                "internalType": "struct TokenInfo",
-                "name": "tokenInfo",
-                "type": "tuple"
-              },
-              {
-                "internalType": "uint256",
-                "name": "amount",
-                "type": "uint256"
-              }
-            ],
-            "internalType": "struct RewardEstimation[]",
-            "name": "rewarded",
-            "type": "tuple[]"
-          },
-          {
-            "internalType": "uint256",
-            "name": "avgLock",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "stakes",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "stakesBurned",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "totalSupply",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "blockNumber",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "blockTimestamp",
-            "type": "uint256"
           }
         ],
-        "internalType": "struct IStakeXPublicFacet.StakingData",
-        "name": "_data",
+        "indexed": false,
+        "internalType": "struct TokensAddParams",
+        "name": "params",
         "type": "tuple"
       }
     ],
-    "stateMutability": "view",
-    "type": "function"
+    "name": "AddedToken",
+    "type": "event"
   },
   {
-    "inputs": [],
-    "name": "getStakingToken",
-    "outputs": [
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "manager",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "token",
+        "type": "address"
+      }
+    ],
+    "name": "DisabledRewardToken",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "manager",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "token",
+        "type": "address"
+      }
+    ],
+    "name": "DisabledTargetToken",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "manager",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "token",
+        "type": "address"
+      }
+    ],
+    "name": "EnabledRewardToken",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "manager",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "token",
+        "type": "address"
+      }
+    ],
+    "name": "EnabledTargetToken",
+    "type": "event"
+  },
+  {
+    "inputs": [
       {
         "components": [
+          {
+            "internalType": "address",
+            "name": "token",
+            "type": "address"
+          },
           {
             "internalType": "bool",
             "name": "isReward",
@@ -3827,49 +4831,110 @@
             "type": "bool"
           },
           {
-            "internalType": "bool",
-            "name": "isRewardActive",
-            "type": "bool"
-          },
-          {
-            "internalType": "bool",
-            "name": "isTargetActive",
-            "type": "bool"
-          },
-          {
-            "internalType": "uint8",
-            "name": "decimals",
-            "type": "uint8"
-          },
-          {
-            "internalType": "address",
-            "name": "source",
-            "type": "address"
-          },
-          {
-            "internalType": "uint256",
-            "name": "injected",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "rewarded",
-            "type": "uint256"
-          },
-          {
-            "internalType": "string",
-            "name": "name",
-            "type": "string"
-          },
-          {
-            "internalType": "string",
-            "name": "symbol",
-            "type": "string"
+            "components": [
+              {
+                "internalType": "address",
+                "name": "token",
+                "type": "address"
+              },
+              {
+                "components": [
+                  {
+                    "internalType": "address",
+                    "name": "calleeSwap",
+                    "type": "address"
+                  },
+                  {
+                    "internalType": "address",
+                    "name": "calleeAmountOut",
+                    "type": "address"
+                  },
+                  {
+                    "internalType": "address[]",
+                    "name": "path",
+                    "type": "address[]"
+                  }
+                ],
+                "internalType": "struct Swap[]",
+                "name": "swaps",
+                "type": "tuple[]"
+              }
+            ],
+            "internalType": "struct SwapGroup[]",
+            "name": "swapGroup",
+            "type": "tuple[]"
           }
         ],
-        "internalType": "struct IStakeXPublicFacet.TokenInfoResponse",
-        "name": "_response",
+        "internalType": "struct TokensAddParams",
+        "name": "_params",
         "type": "tuple"
+      }
+    ],
+    "name": "stakeXTokensAdd",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_token",
+        "type": "address"
+      },
+      {
+        "internalType": "bool",
+        "name": "_enabled",
+        "type": "bool"
+      }
+    ],
+    "name": "stakeXTokensEnableReward",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_token",
+        "type": "address"
+      },
+      {
+        "internalType": "bool",
+        "name": "_enabled",
+        "type": "bool"
+      }
+    ],
+    "name": "stakeXTokensEnableTarget",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_from",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "_to",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_amountIn",
+        "type": "uint256"
+      }
+    ],
+    "name": "getSwapAmountOut",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "_amountOut",
+        "type": "uint256"
       }
     ],
     "stateMutability": "view",
@@ -3907,85 +4972,15 @@
                 "internalType": "address[]",
                 "name": "path",
                 "type": "address[]"
-              },
-              {
-                "internalType": "bool",
-                "name": "isGmx",
-                "type": "bool"
               }
             ],
-            "internalType": "struct SwapCandidate[]",
+            "internalType": "struct Swap[]",
             "name": "swaps",
             "type": "tuple[]"
           }
         ],
-        "internalType": "struct IStakeXPublicFacet.SwapsResponse[]",
+        "internalType": "struct IStakeXTokensPublicFacet.SwapsResponse[]",
         "name": "_swaps",
-        "type": "tuple[]"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "getTargetTokens",
-    "outputs": [
-      {
-        "components": [
-          {
-            "internalType": "bool",
-            "name": "isReward",
-            "type": "bool"
-          },
-          {
-            "internalType": "bool",
-            "name": "isTarget",
-            "type": "bool"
-          },
-          {
-            "internalType": "bool",
-            "name": "isRewardActive",
-            "type": "bool"
-          },
-          {
-            "internalType": "bool",
-            "name": "isTargetActive",
-            "type": "bool"
-          },
-          {
-            "internalType": "uint8",
-            "name": "decimals",
-            "type": "uint8"
-          },
-          {
-            "internalType": "address",
-            "name": "source",
-            "type": "address"
-          },
-          {
-            "internalType": "uint256",
-            "name": "injected",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "rewarded",
-            "type": "uint256"
-          },
-          {
-            "internalType": "string",
-            "name": "name",
-            "type": "string"
-          },
-          {
-            "internalType": "string",
-            "name": "symbol",
-            "type": "string"
-          }
-        ],
-        "internalType": "struct IStakeXPublicFacet.TokenInfoResponse[]",
-        "name": "_response",
         "type": "tuple[]"
       }
     ],
@@ -4005,44 +5000,9 @@
       {
         "components": [
           {
-            "internalType": "bool",
-            "name": "isReward",
-            "type": "bool"
-          },
-          {
-            "internalType": "bool",
-            "name": "isTarget",
-            "type": "bool"
-          },
-          {
-            "internalType": "bool",
-            "name": "isRewardActive",
-            "type": "bool"
-          },
-          {
-            "internalType": "bool",
-            "name": "isTargetActive",
-            "type": "bool"
-          },
-          {
-            "internalType": "uint8",
-            "name": "decimals",
-            "type": "uint8"
-          },
-          {
             "internalType": "address",
             "name": "source",
             "type": "address"
-          },
-          {
-            "internalType": "uint256",
-            "name": "injected",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "rewarded",
-            "type": "uint256"
           },
           {
             "internalType": "string",
@@ -4053,9 +5013,39 @@
             "internalType": "string",
             "name": "symbol",
             "type": "string"
+          },
+          {
+            "internalType": "uint8",
+            "name": "decimals",
+            "type": "uint8"
+          },
+          {
+            "internalType": "bool",
+            "name": "exists",
+            "type": "bool"
+          },
+          {
+            "internalType": "bool",
+            "name": "isReward",
+            "type": "bool"
+          },
+          {
+            "internalType": "bool",
+            "name": "isTarget",
+            "type": "bool"
+          },
+          {
+            "internalType": "uint256",
+            "name": "injected",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "rewarded",
+            "type": "uint256"
           }
         ],
-        "internalType": "struct IStakeXPublicFacet.TokenInfoResponse",
+        "internalType": "struct TokenInfoResponse",
         "name": "_response",
         "type": "tuple"
       }
@@ -4065,12 +5055,59 @@
   },
   {
     "inputs": [],
-    "name": "hasDepositRestriction",
+    "name": "getTokens",
     "outputs": [
       {
-        "internalType": "bool",
-        "name": "_has",
-        "type": "bool"
+        "components": [
+          {
+            "internalType": "address",
+            "name": "source",
+            "type": "address"
+          },
+          {
+            "internalType": "string",
+            "name": "name",
+            "type": "string"
+          },
+          {
+            "internalType": "string",
+            "name": "symbol",
+            "type": "string"
+          },
+          {
+            "internalType": "uint8",
+            "name": "decimals",
+            "type": "uint8"
+          },
+          {
+            "internalType": "bool",
+            "name": "exists",
+            "type": "bool"
+          },
+          {
+            "internalType": "bool",
+            "name": "isReward",
+            "type": "bool"
+          },
+          {
+            "internalType": "bool",
+            "name": "isTarget",
+            "type": "bool"
+          },
+          {
+            "internalType": "uint256",
+            "name": "injected",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "rewarded",
+            "type": "uint256"
+          }
+        ],
+        "internalType": "struct TokenInfoResponse[]",
+        "name": "_response",
+        "type": "tuple[]"
       }
     ],
     "stateMutability": "view",
@@ -4078,172 +5115,212 @@
   },
   {
     "inputs": [],
-    "name": "hasFeeForRestaking",
-    "outputs": [
-      {
-        "internalType": "bool",
-        "name": "_has",
-        "type": "bool"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "hasFeeForStaking",
-    "outputs": [
-      {
-        "internalType": "bool",
-        "name": "_has",
-        "type": "bool"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "hasFeeForUnstaking",
-    "outputs": [
-      {
-        "internalType": "bool",
-        "name": "_has",
-        "type": "bool"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "isActive",
-    "outputs": [
-      {
-        "internalType": "bool",
-        "name": "_is",
-        "type": "bool"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "isInitialized",
-    "outputs": [
-      {
-        "internalType": "bool",
-        "name": "_is",
-        "type": "bool"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "_token",
-        "type": "address"
-      }
-    ],
-    "name": "isReward",
-    "outputs": [
-      {
-        "internalType": "bool",
-        "name": "_is",
-        "type": "bool"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "_token",
-        "type": "address"
-      }
-    ],
-    "name": "isRewardActive",
-    "outputs": [
-      {
-        "internalType": "bool",
-        "name": "_is",
-        "type": "bool"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "isRunning",
-    "outputs": [
-      {
-        "internalType": "bool",
-        "name": "_is",
-        "type": "bool"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "_token",
-        "type": "address"
-      }
-    ],
-    "name": "isTarget",
-    "outputs": [
-      {
-        "internalType": "bool",
-        "name": "_is",
-        "type": "bool"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "_token",
-        "type": "address"
-      }
-    ],
-    "name": "isTargetActive",
-    "outputs": [
-      {
-        "internalType": "bool",
-        "name": "_is",
-        "type": "bool"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "IncludeRewardsImpossible",
+    "name": "InvalidUpgrader",
     "type": "error"
   },
   {
-    "inputs": [],
-    "name": "InvalidBucket",
-    "type": "error"
+    "anonymous": false,
+    "inputs": [
+      {
+        "components": [
+          {
+            "internalType": "uint16",
+            "name": "major",
+            "type": "uint16"
+          },
+          {
+            "internalType": "uint16",
+            "name": "minor",
+            "type": "uint16"
+          },
+          {
+            "internalType": "uint16",
+            "name": "patch",
+            "type": "uint16"
+          }
+        ],
+        "indexed": false,
+        "internalType": "struct Version",
+        "name": "versionBefore",
+        "type": "tuple"
+      },
+      {
+        "components": [
+          {
+            "internalType": "uint16",
+            "name": "major",
+            "type": "uint16"
+          },
+          {
+            "internalType": "uint16",
+            "name": "minor",
+            "type": "uint16"
+          },
+          {
+            "internalType": "uint16",
+            "name": "patch",
+            "type": "uint16"
+          }
+        ],
+        "indexed": false,
+        "internalType": "struct Version",
+        "name": "versionAfter",
+        "type": "tuple"
+      }
+    ],
+    "name": "Upgraded",
+    "type": "event"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_upgrader",
+        "type": "address"
+      }
+    ],
+    "name": "initUpgraderFacet",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
   },
   {
     "inputs": [],
-    "name": "InvalidLock",
-    "type": "error"
+    "name": "upgraderGetAvailableUpgrade",
+    "outputs": [
+      {
+        "components": [
+          {
+            "internalType": "uint16",
+            "name": "major",
+            "type": "uint16"
+          },
+          {
+            "internalType": "uint16",
+            "name": "minor",
+            "type": "uint16"
+          },
+          {
+            "internalType": "uint16",
+            "name": "patch",
+            "type": "uint16"
+          }
+        ],
+        "internalType": "struct Version",
+        "name": "_current",
+        "type": "tuple"
+      },
+      {
+        "components": [
+          {
+            "internalType": "uint16",
+            "name": "major",
+            "type": "uint16"
+          },
+          {
+            "internalType": "uint16",
+            "name": "minor",
+            "type": "uint16"
+          },
+          {
+            "internalType": "uint16",
+            "name": "patch",
+            "type": "uint16"
+          }
+        ],
+        "internalType": "struct Version",
+        "name": "_available",
+        "type": "tuple"
+      },
+      {
+        "components": [
+          {
+            "internalType": "uint16",
+            "name": "major",
+            "type": "uint16"
+          },
+          {
+            "internalType": "uint16",
+            "name": "minor",
+            "type": "uint16"
+          },
+          {
+            "internalType": "uint16",
+            "name": "patch",
+            "type": "uint16"
+          }
+        ],
+        "internalType": "struct Version",
+        "name": "_latest",
+        "type": "tuple"
+      },
+      {
+        "internalType": "bool",
+        "name": "_updateAvailable",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "upgraderIsInitialized",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "_is",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "upgraderPerformUpgrade",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "VERSION_MAJOR",
+    "outputs": [
+      {
+        "internalType": "uint16",
+        "name": "",
+        "type": "uint16"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "VERSION_MINOR",
+    "outputs": [
+      {
+        "internalType": "uint16",
+        "name": "",
+        "type": "uint16"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "VERSION_PATCH",
+    "outputs": [
+      {
+        "internalType": "uint16",
+        "name": "",
+        "type": "uint16"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
   },
   {
     "inputs": [],
@@ -4313,6 +5390,12 @@
         "internalType": "address",
         "name": "staker",
         "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "bytes32",
+        "name": "bucketId",
+        "type": "bytes32"
       },
       {
         "indexed": false,
@@ -4480,7 +5563,7 @@
     ],
     "name": "stakeXUpstake",
     "outputs": [],
-    "stateMutability": "nonpayable",
+    "stateMutability": "payable",
     "type": "function"
   },
   {

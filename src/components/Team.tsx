@@ -10,33 +10,22 @@ import solidproofImage from '../images/solidproof.png'
 
 export function Team() {
     return (
-        <Container className="pb-10 pt-10 text-center" id="team">
+        <Container className="py-10 text-center" id="team">
             <div className="mt-5 rounded-lg border-2 border-activeblue bg-darkerblue px-8 py-6 lg:px-16 lg:py-12">
                 <H1 className="leading-10">
-                    Introducing the{' '}
-                    <span className="text-techGreen dark:text-techGreen ">
-                        team
-                    </span>
+                    Introducing the <span className="text-techGreen dark:text-techGreen ">team</span>
                 </H1>
-                <p className="text-light-600">
-                    A group of like-minded individuals who live and breathe
-                    DeFi!
-                </p>
+                <p className="text-light-600">A group of like-minded individuals who live and breathe DeFi!</p>
                 <div className="mt-3 flex flex-col gap-3 text-left text-white">
                     <p>
-                        Our team consists of industry experts from areas
-                        including; Solidity and Full-Stack Development, Graphic
-                        Design, Marketing, Operations, Business. Our wide range
-                        of skills allow us to build from within and maintain our
-                        top secret 'DEGEN Sauce' that adds the spice to our
-                        ecosystem!
+                        Our team consists of industry experts from areas including; Solidity and Full-Stack Development,
+                        Graphic Design, Marketing, Operations, Business. Our wide range of skills allow us to build from
+                        within and maintain our top secret 'DEGEN Sauce' that adds the spice to our ecosystem!
                     </p>
                     <p>
-                        In the true sense of DeFi, we choose to remain anonymous
-                        and are known only by our aliases. But the safety and
-                        security of our holders is a priority for us. Our team
-                        is KYC'd, and all of our smart contracts are audited
-                        with Solidproof.io
+                        In the true sense of DeFi, we choose to remain anonymous and are known only by our aliases. But
+                        the safety and security of our holders is a priority for us. Our team is KYC'd, and all of our
+                        smart contracts are audited with Solidproof.io
                     </p>
                 </div>
                 <div className="mt-5 flex flex-col justify-center gap-3 sm:flex-row">
@@ -62,11 +51,7 @@ export function Team() {
                     </Button>
                 </div>
                 <div className="mt-5 flex justify-center gap-3">
-                    <a
-                        href="https://solidproof.io/"
-                        target="_blank"
-                        rel="noreferrer"
-                    >
+                    <a href="https://solidproof.io/" target="_blank" rel="noreferrer">
                         <Image src={solidproofImage} alt="" height={48} />
                     </a>
                 </div>

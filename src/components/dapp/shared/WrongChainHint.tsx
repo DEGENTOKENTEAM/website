@@ -1,9 +1,9 @@
 import clsx from 'clsx'
+import { useEffect, useState } from 'react'
 import { getChainById } from 'shared/supportedChains'
+import { Chain } from 'viem'
 import { useSwitchChain } from 'wagmi'
 import { Tile } from './Tile'
-import { Chain } from 'viem'
-import { useEffect, useState } from 'react'
 
 type WrongChainHintProps = {
     chainIdProtocol?: number
@@ -27,7 +27,7 @@ export const WrongChainHint = ({ chainIdProtocol, chainIdAccount, className }: W
 
     return (
         <Tile className={clsx([`flex flex-col items-center gap-8 md:flex-row`, className])}>
-            <p className="flex-grow-1 w-full">
+            <p className="w-full grow">
                 {chainAccount && (
                     <>
                         You&apos;re connected to the <span className="font-bold">{chainAccount.name}</span>, but you
@@ -35,7 +35,7 @@ export const WrongChainHint = ({ chainIdProtocol, chainIdAccount, className }: W
                     </>
                 )}
             </p>
-            <div className="flex w-full flex-shrink-[20] justify-end">
+            <div className="flex w-full shrink-[20] justify-end">
                 <button
                     onClick={() => {
                         switchChain({ chainId: chainProtocol.id })

@@ -19,12 +19,12 @@ type DeFiToolType = {
 
 const defitools: DeFiToolType[] = [
     {
-        name: 'STAKEX',
+        name: 'Staking Solutions via STAKEX',
         logo: imageSTAKEX,
-        to: './stakex/create/',
-        toLabel: 'Create your own STAKEX',
-        toMore: 'https://docs.dgnx.finance/degenx-ecosystem/Products/stakex/introduction',
-        toOverview: './stakex/',
+        to: './stakex/',
+        toLabel: 'Cr',
+        toMore: '',
+        toOverview: '',
         toOverviewLabel: 'Overview STAKEX',
         description: `STAKEX is an audited staking protocol providing a new staking methodology, powered by the DEGENX Ecosystem. It's a deployable protocol for projects based on EVM networks like Ethereum, Binance Smart Chain, and Avalanche.`,
     },
@@ -65,58 +65,59 @@ type DeFiToolTileProps = {
 const DeFiToolTile = ({ data, className }: DeFiToolTileProps) => {
     const navigate = useNavigate()
     const { to, toLabel, toMore, description, logo, name, toOverview, toOverviewLabel } = data
-    return (
-        <Tile className={clsx(['flex flex-col gap-8', className])}>
-            <div className="flex flex-col gap-8 md:flex-row">
-                <div className="flex justify-center md:flex-grow-0">
-                    <Image alt={`Logo of ${name}`} src={logo} className="w-full md:h-48" />
-                </div>
-                <div className="text-justify md:w-3/4 md:self-stretch">
-                    <h2 className="text-xl font-bold">{name}</h2>
-                    <p className="pt-2">{description}</p>
-                </div>
-            </div>
-            <div>
-                {(to || toMore) && (
-                    <div className="md:flex-grow-1 flex flex-col-reverse justify-end gap-8 md:flex-row">
-                        {toMore && (
-                            <Button
-                                onClick={() => {
-                                    window.open(toMore, '_blank')
-                                }}
-                                variant="secondary"
-                                className="h-14"
-                            >
-                                Read more
-                            </Button>
-                        )}
-                        {toOverview && (
-                            <Button
-                                onClick={() => {
-                                    navigate(toOverview)
-                                }}
-                                variant="secondary"
-                                className="h-14"
-                            >
-                                {toOverviewLabel ? toOverviewLabel : 'Show more'}
-                            </Button>
-                        )}
-                        {to && (
-                            <Button
-                                onClick={() => {
-                                    navigate(to)
-                                }}
-                                variant="primary"
-                                className="h-14 animate-pulse"
-                            >
-                                {toLabel}
-                            </Button>
-                        )}
-                    </div>
-                )}
-            </div>{' '}
-        </Tile>
-    )
+    return <></>
+    // return (
+    //     <Tile className={clsx(['flex flex-col gap-8', className])}>
+    //         <div className="flex flex-col gap-8 md:flex-row">
+    //             <div className="flex justify-center md:grow-0">
+    //                 <Image alt={`Logo of ${name}`} src={logo} className="w-full md:h-48" />
+    //             </div>
+    //             <div className="text-justify md:w-3/4 md:self-stretch">
+    //                 <h2 className="text-xl font-bold">{name}</h2>
+    //                 <p className="pt-2">{description}</p>
+    //             </div>
+    //         </div>
+    //         <div>
+    //             {(to || toMore) && (
+    //                 <div className="md:grow-1 flex flex-col-reverse justify-end gap-8 md:flex-row">
+    //                     {toMore && (
+    //                         <Button
+    //                             onClick={() => {
+    //                                 window.open(toMore, '_blank')
+    //                             }}
+    //                             variant="secondary"
+    //                             className="h-14"
+    //                         >
+    //                             Read more
+    //                         </Button>
+    //                     )}
+    //                     {toOverview && (
+    //                         <Button
+    //                             onClick={() => {
+    //                                 navigate(toOverview)
+    //                             }}
+    //                             variant="secondary"
+    //                             className="h-14"
+    //                         >
+    //                             {toOverviewLabel ? toOverviewLabel : 'Show more'}
+    //                         </Button>
+    //                     )}
+    //                     {to && (
+    //                         <Button
+    //                             onClick={() => {
+    //                                 navigate(to)
+    //                             }}
+    //                             variant="primary"
+    //                             className="h-14 animate-pulse"
+    //                         >
+    //                             {toLabel}
+    //                         </Button>
+    //                     )}
+    //                 </div>
+    //             )}
+    //         </div>{' '}
+    //     </Tile>
+    // )
 }
 
 export const DeFiToolsOverview = () => {

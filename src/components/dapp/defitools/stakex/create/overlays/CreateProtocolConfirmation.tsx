@@ -34,7 +34,7 @@ export const CreateProtocolConfirmation = ({
             {showSuccessMessage && (
                 <div>
                     <div className="flex flex-col items-center gap-6 p-6 text-center text-base">
-                        <IoCheckmarkCircle className="h-[100px] w-[100px] text-success" />
+                        <IoCheckmarkCircle className="size-[100px] text-success" />
                         <span className="text-center font-bold">
                             Successfully created your protocol. <br /> <br /> You will be automatically redirected to
                             the management area after closing this popup
@@ -52,7 +52,7 @@ export const CreateProtocolConfirmation = ({
 
             {showSpinner && (
                 <div>
-                    <div className="item-center flex flex-row justify-center">
+                    <div className="flex flex-row items-center justify-center">
                         <Spinner theme="dark" className="m-20 !h-24 !w-24" />
                     </div>
                     <div className="w-full text-center">
@@ -81,7 +81,7 @@ export const CreateProtocolConfirmation = ({
             {showError && (
                 <div className="flex flex-col gap-6">
                     <div className="flex flex-col items-center gap-6 text-center text-base">
-                        <MdError className="h-[100px] w-[100px] text-error " />
+                        <MdError className="size-[100px] text-error " />
                         There was an error: <br />
                         {error?.cause?.shortMessage}
                         <br />

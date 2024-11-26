@@ -16,7 +16,7 @@ export const SwitchForm = ({ enabled, onChange, className }: YesNoFormProps) => 
                 className
             )}
         >
-            <span className="pointer-events-none inline-block h-5 w-5 translate-x-0 rounded-full bg-white shadow-lg ring-0 transition duration-200 ease-in-out group-data-[checked]:translate-x-7" />
+            <span className="pointer-events-none inline-block size-5 translate-x-0 rounded-full bg-white shadow-lg ring-0 transition duration-200 ease-in-out group-data-[checked]:translate-x-7" />
         </Switch>
     )
 }

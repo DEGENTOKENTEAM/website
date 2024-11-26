@@ -1,3 +1,4 @@
+import { isUndefined } from 'lodash'
 import { useCallback, useEffect, useState } from 'react'
 
 type useFetchType = {
@@ -16,7 +17,7 @@ export const useFetch = <T = any>({
     const [loading, setLoading] = useState(true)
 
     const _fetch = useCallback(() => {
-        if (!enabled) return
+        if (!isUndefined(enabled) && !enabled) return
 
         const abortController = new AbortController()
         const signal = abortController.signal
@@ -24,6 +25,7 @@ export const useFetch = <T = any>({
         fetch(url, {
             method: method || 'GET',
             signal,
+            body: body || null,
             headers: {
                 Accept: 'application/json',
                 'Content-Type': 'application/json',
@@ -42,8 +44,8 @@ export const useFetch = <T = any>({
     }, [url, method, body, enabled])
 
     useEffect(() => {
-        _fetch && _fetch()
-    }, [url, method, body, enabled, _fetch])
+        url && _fetch && _fetch()
+    }, [url, _fetch])
 
     return { response, loading, refetch: _fetch }
 }

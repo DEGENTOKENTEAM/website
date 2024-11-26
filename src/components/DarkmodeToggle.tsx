@@ -46,7 +46,7 @@ export const DarkmodeToggle = () => {
         >
             <svg
                 id="theme-toggle-dark-icon"
-                className={clsx(`h-5 w-5`, theme === 'dark' && 'hidden')}
+                className={clsx(`size-5`, theme === 'dark' && 'hidden')}
                 fill="currentColor"
                 viewBox="0 0 20 20"
                 xmlns="http://www.w3.org/2000/svg"
@@ -55,7 +55,7 @@ export const DarkmodeToggle = () => {
             </svg>
             <svg
                 id="theme-toggle-light-icon"
-                className={clsx(`h-5 w-5`, theme === 'light' && 'hidden')}
+                className={clsx(`size-5`, theme === 'light' && 'hidden')}
                 fill="currentColor"
                 viewBox="0 0 20 20"
                 xmlns="http://www.w3.org/2000/svg"

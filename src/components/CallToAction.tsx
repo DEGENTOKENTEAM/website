@@ -9,7 +9,7 @@ import { SiLinktree } from 'react-icons/si'
 
 export function CallToAction() {
     return (
-        <Container className="pb-10 pt-10" id="join">
+        <Container className="py-10" id="join">
             <div className="mt-5 grid grid-cols-1 gap-3 rounded-lg border-2 border-activeblue bg-darkerblue px-8 py-6 md:grid-cols-3 md:gap-8 lg:px-16 lg:py-12">
                 <div className="md:col-span-2">
                     <p className="mb-5 font-semibold text-light-600">

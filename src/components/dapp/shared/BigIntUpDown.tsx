@@ -10,19 +10,9 @@ type BigIntUpDownProps = {
     onChange: (value: bigint) => void
     reset?: () => void
     decimals?: bigint
-    disabled?: boolean
     hideControls?: boolean
 }
-export const BigIntUpDown = ({
-    disabled,
-    hideControls,
-    max,
-    min,
-    onChange,
-    step,
-    value,
-    decimals,
-}: BigIntUpDownProps) => {
+export const BigIntUpDown = ({ hideControls, max, min, onChange, step, value, decimals }: BigIntUpDownProps) => {
     const [decimalsValue] = useState(decimals ?? 0n)
 
     const onClick = (steps: bigint) => processNewValue(value + steps)

@@ -1,44 +1,31 @@
-import { Spinner } from '@dappelements/Spinner'
 import { DAppContext } from '@dapphelpers/dapp'
-import { toReadableNumber } from '@dapphelpers/number'
-import { DiscountType, useDeployerGetDiscount } from '@dapphooks/deployer/useDeployerGetDiscount'
-import { useDeployerGetFeeIdSTAKEX } from '@dapphooks/deployer/useDeployerGetFeeIdSTAKEX'
-import { useDeployerHasDiscount } from '@dapphooks/deployer/useDeployerHasDiscount'
 import { useDeployProtocolSTAKEX } from '@dapphooks/deployer/useDeployProtocolSTAKEX'
-import { useGetFeeByFeeId } from '@dapphooks/deployer/useGetFeeByFeeId'
-import { useGetFeeEstimationDeployerSTAKEX } from '@dapphooks/deployer/useGetFeeEstimationDeployerSTAKEX'
-import { useGetNetworkFeeEstimationDeployerSTAKEX } from '@dapphooks/deployer/useGetNetworkFeeEstimationDeployerSTAKEX'
 import { useGetReferrerById } from '@dapphooks/deployer/useGetReferrerById'
 import { useGetTokenInfo } from '@dapphooks/shared/useGetTokenInfo'
-import { CaretDivider } from '@dappshared/CaretDivider'
 import { NetworkSelectorForm } from '@dappshared/NetworkSelectorForm'
-import { SwitchForm } from '@dappshared/SwitchForm'
 import { Tile } from '@dappshared/Tile'
 import { TokenSearchInput } from '@dappshared/TokenSearchInput'
 import { STAKEXCreatorData, STAKEXCreatorDataInitParams, STAKEXDeployArgs } from '@dapptypes'
+import { ConnectKitButton } from 'connectkit'
 import { ChangeEvent, useCallback, useContext, useEffect, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { getChainById } from 'shared/supportedChains'
 import { Button } from 'src/components/Button'
 import { useLocalStorage } from 'usehooks-ts'
 import { Address, Chain, encodeFunctionData, parseAbi, zeroAddress } from 'viem'
-import { useAccount } from 'wagmi'
+import { useAccount, useConnect, useSwitchChain } from 'wagmi'
 import protocols from './../../../../../config/protocols'
 import { CreateProtocolConfirmation } from './create/overlays/CreateProtocolConfirmation'
-import { BucketFormParams } from './manage/buckets/Form'
-import { LockUnits, LockUnitsForm } from './manage/buckets/LockUnitsForm'
 
 const initParams: STAKEXCreatorDataInitParams = {
     stakingToken: null,
-    bucketsToAdd: null,
-    rewards: null,
+    rewardToken: null,
     manager: null,
-    swaps: [],
-    stableToken: zeroAddress,
-    excludeStakingTokenFromRewards: false,
 }
+
 const initDeployArgs: STAKEXDeployArgs = {
-    referral: zeroAddress,
+    referrer: zeroAddress,
+    enableCampaignMode: false,
     initContract: zeroAddress,
     initFn: '',
     initParams,
@@ -49,21 +36,15 @@ const initStorageData: STAKEXCreatorData = {
     deployArgs: initDeployArgs,
 }
 
-const initBucketData: BucketFormParams = {
-    burn: false,
-    initialShare: 10000,
-    shareLock: true,
-    lockUnit: 'month',
-    lockPeriod: 1,
-    shareMax: 5000,
-    lock: false,
-    share: 10000,
+type CreateProps = {
+    enableCampaignMode?: boolean
 }
-
-export const Create = () => {
+export const Create = ({ enableCampaignMode }: CreateProps) => {
     const { setTitle } = useContext(DAppContext)
     const navigate = useNavigate()
     const { isConnected, chainId, address: addressConnected } = useAccount()
+    const { switchChain } = useSwitchChain()
+    const { connect } = useConnect()
     const [searchParams] = useSearchParams()
     const [storedRef, saveStoredRef] = useLocalStorage<Address>('stakexRef', zeroAddress)
     const chainIds = Object.keys(protocols).map((v) => +v)
@@ -74,30 +55,20 @@ export const Create = () => {
     const [isValid, setIsValid] = useState(false)
     const [selectedChain, setSelectedChain] = useState<Chain>()
     const [deployerAddress, setDeployerAddress] = useState<Address>()
-    const [deployFee, setDeployFee] = useState<bigint>()
-    const [networkFee, setNetworkFee] = useState<bigint>()
-    const [totalFeeEstimation, setTotalFeeEstimation] = useState<bigint>()
     const [isConfirmationModalOpen, setIsConfirmationModalOpen] = useState(false)
 
     // staking token selection
     const [stakingTokenAddress, setStakingTokenAddress] = useState<Address | null>(null)
     const [isStakingTokenSearchActive, setIsStakingTokenSearchActive] = useState(false)
-    const [useDifferentRewardToken, setUseDifferentRewardToken] = useState(true)
 
     // reward token selection
     const [rewardTokenAddress, setRewardTokenAddress] = useState<Address | null>(null)
     const [isRewardTokenSearchActive, setIsRewardTokenSearchActive] = useState(false)
 
-    // stake lock
-    const [enableStakeLock, setEnableStakeLock] = useState(true)
-    const [bucketFormData, setBucketFormData] = useState<BucketFormParams>(initBucketData)
-
     // deployment parameter
     const [deploymentParams, setDeploymentParams] = useState<STAKEXDeployArgs | null>(null)
 
     const { data: dataReferrer } = useGetReferrerById(deployerAddress!, selectedChain?.id!, storedRef!)
-    const { data: dataFeeId } = useDeployerGetFeeIdSTAKEX(deployerAddress!, selectedChain?.id!)
-    const { data: dataFeeAmount } = useGetFeeByFeeId(deployerAddress!, selectedChain?.id!, dataFeeId!)
 
     const {
         error: errorStakingTokenInfo,
@@ -105,7 +76,6 @@ export const Create = () => {
         data: dataStakingTokenInfo,
         refetch: refetchStakingTokenInfo,
     } = useGetTokenInfo({
-        enabled: Boolean(selectedChain && selectedChain.id && stakingTokenAddress),
         token: stakingTokenAddress!,
         chainId: selectedChain?.id!,
     })
@@ -116,22 +86,10 @@ export const Create = () => {
         data: dataRewardTokenInfo,
         refetch: refetchRewardTokenInfo,
     } = useGetTokenInfo({
-        enabled: Boolean(selectedChain && selectedChain.id && rewardTokenAddress),
         token: rewardTokenAddress!,
         chainId: selectedChain?.id!,
     })
-    const { data: dataFeeEstimation, refetch: refetchFeeEstimation } = useGetFeeEstimationDeployerSTAKEX(
-        deployerAddress!,
-        selectedChain?.id!,
-        addressConnected ? addressConnected : zeroAddress
-    )
 
-    const { data: dataNetworkFeeEstimation } = useGetNetworkFeeEstimationDeployerSTAKEX(
-        deployerAddress!,
-        selectedChain?.id!,
-        dataFeeAmount?.fee!,
-        deploymentParams
-    )
     const {
         write: writeDeployProtocol,
         reset: resetDeployProtocol,
@@ -140,27 +98,7 @@ export const Create = () => {
         error: errorDeployProtocol,
         isSuccess: isSuccessDeployProtocol,
         deployedProtocol,
-    } = useDeployProtocolSTAKEX(
-        deployerAddress!,
-        selectedChain?.id!,
-        dataFeeEstimation!,
-        deploymentParams!,
-        isValid && isConnected
-    )
-
-    const { data: dataHasDiscount } = useDeployerHasDiscount(
-        deployerAddress!,
-        selectedChain?.id!,
-        dataFeeId!,
-        addressConnected!
-    )
-    const { data: dataGetDiscount } = useDeployerGetDiscount(
-        deployerAddress!,
-        selectedChain?.id!,
-        dataFeeId!,
-        addressConnected!,
-        dataHasDiscount!
-    )
+    } = useDeployProtocolSTAKEX(deployerAddress!, selectedChain?.id!, deploymentParams!, isValid && isConnected)
 
     const onChangeSelectedNetwork = (chain: Chain) => {
         if (!selectedChain || chain.id !== selectedChain?.id) setSelectedChain(chain)
@@ -192,15 +130,6 @@ export const Create = () => {
         }
     }
 
-    // lock option
-    const onChangeLockPeriod = (_event: ChangeEvent<HTMLInputElement>, _: number) => {
-        setBucketFormData({ ...bucketFormData, lockPeriod: Number(_event.target.value) })
-    }
-
-    const onChangeLockUnit = (_: number, lockUnit: keyof typeof LockUnits) => {
-        setBucketFormData({ ...bucketFormData, lockUnit })
-    }
-
     //
     // confirmation modal
     //
@@ -222,22 +151,20 @@ export const Create = () => {
         resetDeployProtocol && resetDeployProtocol()
     }, [resetDeployProtocol])
 
-    // TODO respect discounts and show in UI
-
     useEffect(() => {
         const _chainId = Number(chainId || process.env.NEXT_PUBLIC_CHAIN_ID)
         const _chain = networks.find((chain) => chain.id === _chainId)
         if (_chain && (!selectedChain || selectedChain?.id != _chain.id)) setSelectedChain(_chain)
         setIsLoading(false)
-    }, [chainId])
+    }, [chainId, networks, selectedChain])
 
     useEffect(() => {
         if (!selectedChain || !protocols) return
 
-        const _data = {
+        const _data: STAKEXCreatorData = {
             chainId: selectedChain.id,
             deployArgs: {
-                referral: dataReferrer && dataReferrer.active ? dataReferrer.account : zeroAddress,
+                referrer: dataReferrer && dataReferrer.active ? dataReferrer.account : zeroAddress,
                 initContract: protocols[selectedChain.id].stakex.init,
                 initFn: encodeFunctionData({
                     abi: parseAbi(['function init(address)']),
@@ -245,39 +172,16 @@ export const Create = () => {
                     args: [protocols[selectedChain.id].deployer],
                 }),
                 initParams: {
-                    ...initParams,
-                    rewards:
-                        useDifferentRewardToken && dataRewardTokenInfo && dataRewardTokenInfo.symbol
-                            ? [{ token: dataRewardTokenInfo.source }]
-                            : [],
+                    rewardToken: dataRewardTokenInfo && dataRewardTokenInfo.symbol ? dataRewardTokenInfo.source : null,
                     stakingToken:
                         dataStakingTokenInfo && dataStakingTokenInfo.symbol ? dataStakingTokenInfo.source : null,
-                    bucketsToAdd: bucketFormData
-                        ? [
-                              {
-                                  burn: bucketFormData.burn,
-                                  lock: bucketFormData.lock
-                                      ? LockUnits[bucketFormData.lockUnit] * bucketFormData.lockPeriod
-                                      : 0,
-                                  share: bucketFormData.share,
-                              },
-                          ]
-                        : null,
                     manager: addressConnected ? addressConnected : null,
-                    excludeStakingTokenFromRewards: useDifferentRewardToken,
                 },
+                enableCampaignMode: Boolean(enableCampaignMode),
             },
         }
         setData(_data)
-    }, [
-        selectedChain,
-        dataReferrer,
-        bucketFormData,
-        dataStakingTokenInfo,
-        dataRewardTokenInfo,
-        addressConnected,
-        useDifferentRewardToken,
-    ])
+    }, [selectedChain, dataReferrer, dataStakingTokenInfo, dataRewardTokenInfo, addressConnected, enableCampaignMode])
 
     useEffect(() => {
         if (!data) return
@@ -285,19 +189,12 @@ export const Create = () => {
         const { deployArgs } = data
 
         const _valid = Boolean(
-            deployArgs.referral &&
+            deployArgs.referrer &&
                 deployArgs.initContract &&
                 deployArgs.initFn &&
-                deployArgs.initParams.bucketsToAdd &&
                 deployArgs.initParams.manager &&
-                deployArgs.initParams.stableToken &&
                 deployArgs.initParams.stakingToken &&
-                deployArgs.initParams.swaps &&
-                deployArgs.initParams.rewards &&
-                ((deployArgs.initParams.excludeStakingTokenFromRewards === true &&
-                    deployArgs.initParams.rewards.length === 1) ||
-                    (deployArgs.initParams.excludeStakingTokenFromRewards === false &&
-                        deployArgs.initParams.rewards.length === 0))
+                deployArgs.initParams.rewardToken
         )
 
         setIsValid(_valid)
@@ -305,34 +202,16 @@ export const Create = () => {
     }, [data])
 
     useEffect(() => {
-        setDeployFee(dataFeeAmount?.fee || 0n)
-        setNetworkFee(dataNetworkFeeEstimation || 0n)
-        setTotalFeeEstimation((dataFeeEstimation || 0n) + (dataNetworkFeeEstimation || 0n))
-    }, [dataFeeAmount, dataFeeEstimation, dataNetworkFeeEstimation])
-
-    useEffect(() => {
-        if (!useDifferentRewardToken) setRewardTokenAddress(null)
-    }, [useDifferentRewardToken])
-
-    useEffect(() => {
-        setBucketFormData({ ...initBucketData, lock: enableStakeLock })
-    }, [enableStakeLock])
-
-    useEffect(() => {
-        refetchFeeEstimation && refetchFeeEstimation()
-        setNetworkFee(undefined)
-        setTotalFeeEstimation(undefined)
-    }, [selectedChain, refetchFeeEstimation])
-
-    useEffect(() => {
         setDeployerAddress(selectedChain ? protocols[selectedChain.id].deployer : undefined)
     }, [selectedChain, refetchRewardTokenInfo, refetchStakingTokenInfo])
 
     useEffect(() => {
-        const ref = searchParams.get('ref') as Address
-        saveStoredRef(ref)
-        searchParams.delete('ref')
-    }, [searchParams])
+        if (searchParams && saveStoredRef) {
+            const ref = searchParams.get('ref') as Address
+            saveStoredRef(ref)
+            searchParams.delete('ref')
+        }
+    }, [searchParams, saveStoredRef])
 
     useEffect(() => {
         setTitle('STAKEX Creator')
@@ -340,16 +219,18 @@ export const Create = () => {
 
     return (
         <>
-            <div className="mb-8 flex w-full max-w-5xl flex-col gap-8">
-                <h1 className="flex w-full max-w-2xl flex-row items-end px-8 font-title text-3xl font-bold tracking-wide sm:px-0">
-                    <span className="text-techGreen">STAKE</span>
-                    <span className="text-degenOrange">X</span>
-                    <span className="ml-1 text-xl">Creator</span>
+            <div className="mb-8 flex w-full max-w-7xl flex-col gap-8">
+                <h1 className="flex w-full flex-col items-start gap-1 px-8 font-title text-3xl font-bold tracking-wide sm:px-0 md:flex-row md:gap-4">
+                    <span>
+                        <span className="text-techGreen">STAKE</span>
+                        <span className="text-degenOrange">X</span>
+                    </span>
+                    {enableCampaignMode ? <span>Create Campaign Staking</span> : <span>Create Flexible Staking</span>}
                 </h1>
                 {!isLoading && (
                     <Tile className="flex flex-col gap-8">
                         <div className="flex flex-col gap-4">
-                            <span className="text-lg font-bold">Choose network</span>
+                            <span className="text-lg font-bold">Select your network</span>
                             {selectedChain && (
                                 <NetworkSelectorForm
                                     chains={networks}
@@ -358,13 +239,12 @@ export const Create = () => {
                                 />
                             )}
                         </div>
-
-                        <div className="flex flex-col">
-                            <div className="flex flex-1 flex-col">
+                        <div className="flex flex-col gap-2">
+                            <div className="flex flex-1 flex-col gap-2 px-2">
                                 <span className="text-lg font-bold">Enter Staking Token Address</span>
                                 <span className="text-xs">
-                                    Please insert the address of the ERC20 token that your stakers need to deposit to
-                                    the protocol in order to stake.
+                                    Please enter the address of the token that your stakers need to deposit to the
+                                    protocol in order to stake.
                                 </span>
                             </div>
 
@@ -379,200 +259,69 @@ export const Create = () => {
                             )}
                         </div>
 
-                        <div className="flex flex-row gap-4">
-                            <div className="flex flex-1 flex-col">
-                                <span className="text-lg font-bold">Use different reward token</span>
+                        <div className="flex flex-col gap-2">
+                            <div className="flex flex-1 flex-col gap-2 px-2">
+                                <span className="text-lg font-bold">Enter Reward Token Address</span>
                                 <span className="text-xs">
-                                    If you want to reward the same token that will be used for staking, you can disable
-                                    this option.
+                                    Please enter the address of the token that you want to reward to your stakers.
                                 </span>
                             </div>
-                            <span>
-                                <SwitchForm enabled={useDifferentRewardToken} onChange={setUseDifferentRewardToken} />
-                            </span>
-                        </div>
-
-                        {useDifferentRewardToken && (
-                            <div className="flex flex-col">
-                                <div className="flex flex-1 flex-col">
-                                    <span className="text-lg font-bold">Enter Reward Token Address</span>
-                                    <span className="text-xs">
-                                        Please insert the address of the ERC20 token that you want to reward to your
-                                        stakers.
-                                    </span>
-                                </div>
-                                {selectedChain && (
-                                    <TokenSearchInput
-                                        error={errorRewardTokenInfo?.message || ''}
-                                        tokenInfo={dataRewardTokenInfo}
-                                        isLoadingTokenInfo={isLoadingRewardTokenInfo}
-                                        isSearchActive={isRewardTokenSearchActive}
-                                        onChangeTokenAddress={onChangeRewardTokenAddress}
-                                    />
-                                )}
-                            </div>
-                        )}
-
-                        <div className="flex flex-col gap-4">
-                            <div className="flex flex-row">
-                                <div className="flex flex-1 flex-col">
-                                    <span className="text-lg font-bold">Enable stake lock</span>
-                                    <span className="text-xs">
-                                        Set a period of time for a staker to lock up staked tokens. A staker can
-                                        withdraw the staked tokens after this period. This setting only effects the
-                                        withdrawal ability. A staker still receives rewards after the lock is lifted.
-                                    </span>
-                                </div>
-                                <span>
-                                    <SwitchForm enabled={enableStakeLock} onChange={setEnableStakeLock} />
-                                </span>
-                            </div>
-                            {enableStakeLock && (
-                                <div className="flex flex-col">
-                                    <LockUnitsForm
-                                        bucket={bucketFormData}
-                                        bucketIndex={0}
-                                        disabled={false}
-                                        onChangeLockPeriod={onChangeLockPeriod}
-                                        onChangeLockUnit={onChangeLockUnit}
-                                    />
-                                </div>
-                            )}
-                        </div>
-
-                        <div className="flex flex-col">
-                            <span className="text-lg font-bold">
-                                What happens after creating my <span className="text-techGreen">STAKE</span>
-                                <span className="text-degenOrange">X</span> staking protocol?
-                            </span>
-                            <p className="mt-4 text-base">
-                                You&apos;ll be directed to the{' '}
-                                <span className="font-bold">
-                                    <span className="text-techGreen">STAKE</span>
-                                    <span className="text-degenOrange">X</span>
-                                    <span className="ml-1 text-dapp-cyan-50">Management</span>
-                                </span>{' '}
-                                area where you can configure your protocol in more detail and make further adjustments
-                                if necessary:
-                            </p>
-                            <ul className="ml-6 list-outside list-disc">
-                                <li>Upload a logo for your protocol</li>
-                                <li>
-                                    Configure protocol fees for depositing stakes, restaking rewards,and withdrawing
-                                    stakes
-                                </li>
-                                <li>Add additional staking pools and lock periods</li>
-                                <li>Add more staking reward tokens to inject</li>
-                                <li>Provide multiple payout tokens to claim the rewards in</li>
-                            </ul>
-                        </div>
-
-                        <div className="flex flex-col">
-                            <span className="text-lg font-bold">
-                                <span className="text-techGreen">STAKE</span>
-                                <span className="text-degenOrange">X</span> pricing
-                            </span>
                             {selectedChain && (
-                                <div className="mt-4 rounded-lg bg-dapp-blue-800 p-4">
-                                    <div className="grid grid-cols-5 gap-1">
-                                        <div className="col-span-5 text-right font-bold">
-                                            {selectedChain.nativeCurrency.symbol}
-                                        </div>
-                                        <div className="col-span-5">
-                                            <CaretDivider />
-                                        </div>
-
-                                        <div className="col-span-4">Protocol</div>
-                                        <div className="flex justify-end">
-                                            {typeof deployFee !== 'bigint' ? (
-                                                <Spinner theme="dark" />
-                                            ) : (
-                                                toReadableNumber(deployFee, selectedChain.nativeCurrency.decimals)
-                                            )}
-                                        </div>
-
-                                        <div className="col-span-4">Estimated network fee for deployment</div>
-                                        <div className="flex justify-end">
-                                            {isValid ? (
-                                                !networkFee ? (
-                                                    <Spinner theme="dark" />
-                                                ) : (
-                                                    `~${toReadableNumber(
-                                                        networkFee,
-                                                        selectedChain.nativeCurrency.decimals
-                                                    )}`
-                                                )
-                                            ) : (
-                                                <span>--</span>
-                                            )}
-                                        </div>
-
-                                        {dataHasDiscount && dataGetDiscount && (
-                                            <>
-                                                <div className="col-span-4">
-                                                    Your Discount{' '}
-                                                    {dataGetDiscount.discountType == DiscountType.PERCENTAGE && (
-                                                        <span>
-                                                            (&minus;
-                                                            {toReadableNumber(dataGetDiscount.discountValue, 2)}
-                                                            %)
-                                                        </span>
-                                                    )}
-                                                </div>
-                                                <div className="flex justify-end">
-                                                    {typeof deployFee === 'bigint' ? (
-                                                        <span>
-                                                            &minus;
-                                                            {dataGetDiscount.discountType == DiscountType.PERCENTAGE
-                                                                ? `${toReadableNumber(
-                                                                      deployFee * dataGetDiscount.discountValue,
-                                                                      22
-                                                                  )} `
-                                                                : toReadableNumber(dataGetDiscount.discountValue, 18)}
-                                                        </span>
-                                                    ) : (
-                                                        <Spinner theme="dark" />
-                                                    )}
-                                                </div>
-                                            </>
-                                        )}
-
-                                        <div className="col-span-5">
-                                            <CaretDivider />
-                                        </div>
-
-                                        <div className="col-span-4">Estimated total costs</div>
-                                        <div className="flex justify-end">
-                                            {isValid ? (
-                                                !totalFeeEstimation ? (
-                                                    <Spinner theme="dark" />
-                                                ) : (
-                                                    `~${toReadableNumber(
-                                                        totalFeeEstimation,
-                                                        selectedChain.nativeCurrency.decimals
-                                                    )}`
-                                                )
-                                            ) : (
-                                                <span>--</span>
-                                            )}
-                                        </div>
-                                    </div>
-                                </div>
+                                <TokenSearchInput
+                                    error={errorRewardTokenInfo?.message || ''}
+                                    tokenInfo={dataRewardTokenInfo}
+                                    isLoadingTokenInfo={isLoadingRewardTokenInfo}
+                                    isSearchActive={isRewardTokenSearchActive}
+                                    onChangeTokenAddress={onChangeRewardTokenAddress}
+                                />
                             )}
                         </div>
+                        {/* 
+                        // TODO add this video later on
+                        <div className="flex flex-col px-2">
+                            <span className="text-lg font-bold">Watch how to create a staking protocol</span>
+                            <div>VIDEO VIDEO VIDEO</div>
+                        </div> */}
 
-                        {isConnected ? (
-                            <Button
-                                disabled={!isValid}
-                                onClick={onClickCreate}
-                                variant="primary"
-                                className="h-20 text-xl"
-                            >
-                                Create my protocol
-                            </Button>
-                        ) : (
-                            <Button variant="primary">Connect wallet</Button>
-                        )}
+                        <div className="flex w-full flex-col gap-1">
+                            {isConnected ? (
+                                chainId == selectedChain?.id ? (
+                                    <Button
+                                        disabled={!isValid}
+                                        onClick={onClickCreate}
+                                        variant="primary"
+                                        className="h-20 w-full text-xl"
+                                    >
+                                        {enableCampaignMode ? (
+                                            <span>Create FREE Campaign Staking</span>
+                                        ) : (
+                                            <span>Create FREE Flexible Staking</span>
+                                        )}
+                                    </Button>
+                                ) : (
+                                    <Button
+                                        onClick={() => switchChain({ chainId: selectedChain?.id! })}
+                                        variant="primary"
+                                        className="h-20 w-full text-xl"
+                                    >
+                                        Change Network to {selectedChain?.name}
+                                    </Button>
+                                )
+                            ) : (
+                                <ConnectKitButton.Custom>
+                                    {({ isConnecting, show }) => {
+                                        return (
+                                            <Button onClick={show} variant="primary" className="h-20 w-full text-xl">
+                                                {isConnecting ? 'Connecting...' : 'Connect Your Wallet'}
+                                            </Button>
+                                        )
+                                    }}
+                                </ConnectKitButton.Custom>
+                            )}
+                            <span className="flex items-center gap-2 px-2 text-sm">
+                                * gas has to paid separately and can differ between networks
+                            </span>
+                        </div>
                     </Tile>
                 )}
                 {/* <Introduction /> */}
@@ -588,14 +337,8 @@ export const Create = () => {
                 closeOnBackdropClick={false}
                 error={errorDeployProtocol}
             >
-                With this action, you will deploy your STAKEX staking protocol to the {selectedChain?.name} network.{' '}
-                <br />
-                <br />
-                An estimated total of ~{toReadableNumber(
-                    totalFeeEstimation,
-                    selectedChain?.nativeCurrency.decimals
-                )}{' '}
-                {selectedChain?.nativeCurrency.symbol} will be charged for this.
+                With this action, you will deploy your custom STAKEX staking solution to the {selectedChain?.name}{' '}
+                network.
             </CreateProtocolConfirmation>
         </>
     )

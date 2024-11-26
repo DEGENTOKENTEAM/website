@@ -1,51 +1,36 @@
 import { Spinner } from '@dappelements/Spinner'
-import { ManageStakeXContext } from '@dapphelpers/defitools'
 import { useGetTokenInfo } from '@dapphooks/shared/useGetTokenInfo'
 import {
     RouteRequest,
     RoutingsForTokenResponse,
     useGetRoutingsForToken,
 } from '@dapphooks/staking/useGetRoutingsForToken'
-import { useGetTargetTokens } from '@dapphooks/staking/useGetTargetTokens'
 import { TokenSearchInput } from '@dappshared/TokenSearchInput'
 import { TokenInfo, TokenInfoResponse } from '@dapptypes'
-import { Checkbox, Field, Label } from '@headlessui/react'
-import clsx from 'clsx'
 import { cloneDeep, isArray } from 'lodash'
 import Image from 'next/image'
-import { ChangeEvent, PropsWithChildren, useCallback, useContext, useEffect, useState } from 'react'
-import { RiArrowRightWideLine } from 'react-icons/ri'
+import { ChangeEvent, PropsWithChildren, useCallback, useEffect, useState } from 'react'
+import { RiArrowLeftWideLine, RiArrowRightWideLine } from 'react-icons/ri'
 import { Address } from 'viem'
 
 type TokensFormProps = PropsWithChildren<{
-    error: string | null
-    onChange: (routings: RoutingsForTokenResponse | null, isReward: boolean) => void
+    tokens: TokenInfoResponse[]
+    chainId: number
+    onChange: (routings: RoutingsForTokenResponse | null) => void
 }>
 
-export const TokensForm = ({ onChange, error: _error }: TokensFormProps) => {
-    const {
-        data: { chain, protocol },
-    } = useContext(ManageStakeXContext)
-
+export const TokensForm = ({ onChange, chainId, tokens }: TokensFormProps) => {
     const [error, setError] = useState<string | null>(null)
     const [tokenInfo, setTokenInfo] = useState<TokenInfo | null>()
-    const [tokenAddress, setTokenAddress] = useState<Address | null>()
+    const [token, setToken] = useState<Address | null>(null)
     const [isSearchActive, setIsSearchActive] = useState(false)
-    const [isReward, setIsReward] = useState(true)
-    const [tokens, setTokens] = useState<TokenInfoResponse[]>()
     const [routingPayload, setRoutingPayload] = useState<RouteRequest | null>(null)
     const [tokenThumbnails, setTokenThumbnails] = useState<{
         [tokenAddress: Address]: string | null
     } | null>(null)
     const [routings, setRoutings] = useState<RoutingsForTokenResponse | null>(null)
 
-    const { data, isLoading: isLoadingTokenInfo } = useGetTokenInfo({
-        enabled: Boolean(chain && tokenAddress),
-        chainId: chain?.id!,
-        token: tokenAddress!,
-    })
-
-    const { data: dataTargetTokens } = useGetTargetTokens(protocol, chain?.id!)
+    const { data, isLoading: isLoadingTokenInfo } = useGetTokenInfo({ chainId, token })
 
     const {
         loading: isLoadingRoutings,
@@ -76,7 +61,7 @@ export const TokensForm = ({ onChange, error: _error }: TokensFormProps) => {
         setRoutings(null)
         setRoutingPayload(null)
         setTokenThumbnails(null)
-        setTokenAddress(null)
+        setToken(null)
     }
     const onChangeTokenAddress = (e: ChangeEvent<HTMLInputElement>) => {
         const { validity, value } = e.target
@@ -86,7 +71,7 @@ export const TokensForm = ({ onChange, error: _error }: TokensFormProps) => {
 
         if (validity.valid) {
             setIsSearchActive(true)
-            setTokenAddress(value as Address)
+            setToken(value as Address)
         }
     }
 
@@ -104,20 +89,16 @@ export const TokensForm = ({ onChange, error: _error }: TokensFormProps) => {
     }, [isLoadingTokenInfo])
 
     useEffect(() => {
-        dataTargetTokens && setTokens(dataTargetTokens)
-    }, [dataTargetTokens])
-
-    useEffect(() => {
-        if (!(tokens && tokens.length > 0 && tokenAddress && chain)) return
+        if (!token) return
         setRoutingPayload({
-            from: tokenAddress,
+            from: token,
             tos: tokens.map((token) => token.source),
-            chainId: chain.id,
+            chainId,
         })
-    }, [tokens, tokenAddress, chain])
+    }, [token])
 
     useEffect(() => {
-        onChange && onChange(routings, isReward)
+        onChange && onChange(routings)
 
         if (isArray(routings)) {
             const tokenRequests: Promise<Response>[] = []
@@ -165,12 +146,17 @@ export const TokensForm = ({ onChange, error: _error }: TokensFormProps) => {
                 })
                 .then(setTokenThumbnails)
         }
-    }, [routings, isReward])
+    }, [routings])
 
     return (
         <div className="flex w-full flex-col gap-8">
             <div className="flex flex-col gap-4 rounded-lg bg-dapp-blue-400 p-3">
-                <div className="flex items-center justify-between text-lg font-bold">Add Token</div>
+                <div className="flex items-center justify-between text-lg font-bold">Add New Token</div>
+                <p>
+                    TO add a new token to your staking solution, you have to enter the token address in the text field
+                    below. The information you&apos;ll see show you what DEXs will be used in the reward claiming
+                    process of your stakers.
+                </p>
                 <div className="flex flex-col gap-2">
                     <TokenSearchInput
                         error={error}
@@ -180,36 +166,14 @@ export const TokensForm = ({ onChange, error: _error }: TokensFormProps) => {
                         tokenInfo={tokenInfo}
                         showDescription={true}
                     />
-                    <Field className="flex flex-col gap-2 px-2 pt-2">
-                        <div className="flex gap-2">
-                            <Checkbox
-                                checked={isReward}
-                                onChange={setIsReward}
-                                className="group block h-5 w-5 rounded-sm border border-dapp-cyan-50 bg-transparent data-[checked]:border-dapp-cyan-500  data-[checked]:bg-dapp-cyan-500"
-                            >
-                                <svg
-                                    className="stroke-white opacity-0 group-data-[checked]:opacity-100"
-                                    viewBox="0 0 14 14"
-                                    fill="none"
-                                >
-                                    <path
-                                        d="M3 8L6 11L11 3.5"
-                                        strokeWidth={2}
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                    />
-                                </svg>
-                            </Checkbox>
-                            <Label>Reward Token</Label>
-                        </div>
-                    </Field>
                 </div>
                 {!isErrorRoutings && routingPayload && (
-                    <div className="flex flex-col gap-6 pt-6">
-                        <div className="text-lg font-bold">Necessary Token Exchanges</div>
-                        <div className="flex flex-grow flex-row gap-2 font-bold">
-                            <span className="flex-grow">Reward Token</span>
-                            <span>Payout Token</span>
+                    <div className="flex flex-col gap-6 p-2">
+                        <div className="flex grow flex-row gap-2 font-bold">
+                            <span className=" min-w-[100px] text-center">Reward</span>
+                            <span className="hidden grow text-center md:inline-block">Exchange Swap Route</span>
+                            <span className="inline-block grow md:hidden"></span>
+                            <span className=" min-w-[100px] text-center">Payout</span>
                         </div>
                         <div className="flex flex-col gap-6">
                             {(isLoadingRoutings || !tokenThumbnails) && (
@@ -219,7 +183,7 @@ export const TokensForm = ({ onChange, error: _error }: TokensFormProps) => {
                             )}
                             {!isLoadingRoutings && tokenInfo && tokenThumbnails && (
                                 <div className="relative">
-                                    <div className={clsx(`flex flex-row gap-2`, { 'opacity-30': !isReward })}>
+                                    <div className="flex flex-row gap-2">
                                         <div className="flex min-w-[100px] max-w-xs flex-col items-center justify-center gap-2 rounded-l-4xl p-2 pr-0 md:pr-2">
                                             <Image
                                                 width={48}
@@ -230,12 +194,13 @@ export const TokensForm = ({ onChange, error: _error }: TokensFormProps) => {
                                             />
                                             <span>{tokenInfo.symbol}</span>
                                         </div>
-                                        <div className="flex flex-grow flex-row gap-2 rounded-r-4xl p-2 pl-0 md:pl-2">
-                                            <div className="relative -top-4 flex flex-grow flex-row items-center justify-center">
+                                        <div className="flex grow flex-row gap-2 rounded-r-4xl p-2 pl-0 md:pl-2">
+                                            <div className="relative -top-4 flex grow flex-row items-center justify-center">
                                                 {[40, 50, 60, 80, 100].map((v) => (
                                                     <RiArrowRightWideLine
                                                         key={v}
-                                                        className={`h-6 w-6 opacity-${v} text-dapp-cyan-500 `}
+                                                        className={`size-6 text-dapp-cyan-500`}
+                                                        style={{ opacity: v / 100 }}
                                                     />
                                                 ))}
                                             </div>
@@ -252,20 +217,6 @@ export const TokensForm = ({ onChange, error: _error }: TokensFormProps) => {
                                             </div>
                                         </div>
                                     </div>
-                                    {!isReward && (
-                                        <div
-                                            className={clsx(
-                                                `absolute inset-0 flex items-center justify-center rounded-lg `,
-                                                {
-                                                    'bg-dapp-blue-800/70': !isReward,
-                                                }
-                                            )}
-                                        >
-                                            <span className="text-2xl font-extrabold text-dapp-cyan-50/20 drop-shadow">
-                                                Reward Token Disabled
-                                            </span>
-                                        </div>
-                                    )}
                                 </div>
                             )}
                             {!isLoadingRoutings &&
@@ -290,11 +241,9 @@ export const TokensForm = ({ onChange, error: _error }: TokensFormProps) => {
                                                 .map(
                                                     (path, i) =>
                                                         i > 0 && (
-                                                            <div
-                                                                key={i}
-                                                                className="hidden flex-grow flex-row p-4 md:flex"
-                                                            >
-                                                                <div className="flex flex-grow flex-row items-center justify-center">
+                                                            <div key={i} className="hidden grow flex-row p-4 md:flex">
+                                                                <div className="flex grow flex-row items-center justify-center">
+                                                                    <RiArrowLeftWideLine />
                                                                     <span className="text-xs">{path.dex.name}</span>
                                                                     <RiArrowRightWideLine />
                                                                 </div>
@@ -317,16 +266,18 @@ export const TokensForm = ({ onChange, error: _error }: TokensFormProps) => {
                                                             </div>
                                                         )
                                                 )}
-                                        <div className="flex flex-grow flex-row gap-2 rounded-r-4xl p-2 pl-0 md:pl-2">
-                                            <div className="relative -top-4 flex flex-grow flex-row items-center justify-center md:hidden">
+                                        <div className="flex grow flex-row gap-2 rounded-r-4xl p-2 pl-0 md:pl-2">
+                                            <div className="relative -top-4 flex grow flex-row items-center justify-center md:hidden">
                                                 {[40, 50, 60, 80, 100].map((v) => (
                                                     <RiArrowRightWideLine
                                                         key={v}
-                                                        className={`h-6 w-6 opacity-${v} text-dapp-cyan-500 `}
+                                                        className={`size-6 text-dapp-cyan-500 `}
+                                                        style={{ opacity: v / 100 }}
                                                     />
                                                 ))}
                                             </div>
-                                            <div className="hidden flex-grow flex-row items-center justify-center md:flex">
+                                            <div className="hidden grow flex-row items-center justify-center md:flex">
+                                                <RiArrowLeftWideLine />
                                                 <span className="text-xs">
                                                     {route.paths[route.paths.length - 1].dex.name}
                                                 </span>

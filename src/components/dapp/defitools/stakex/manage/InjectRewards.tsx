@@ -3,14 +3,17 @@ import { toReadableNumber } from '@dapphelpers/number'
 import { useERC20Approve } from '@dapphooks/shared/useERC20Approve'
 import { useGetERC20BalanceOf } from '@dapphooks/shared/useGetERC20BalanceOf'
 import { useHasERC20Allowance } from '@dapphooks/shared/useHasERC20Allowance'
-import { useGetRewardTokens } from '@dapphooks/staking/useGetRewardTokens'
 import { useGetStakingData } from '@dapphooks/staking/useGetStakingData'
 import { useHasDepositRestriction } from '@dapphooks/staking/useHasDepositRestriction'
 import { useInjectRewards } from '@dapphooks/staking/useInjectRewards'
+import { usePaymentGetFeeInNative } from '@dapphooks/staking/usePaymentGetFeeInNative'
+import { usePaymentHasActionFee } from '@dapphooks/staking/usePaymentHasActionFee'
+import { useTokensGetTokens } from '@dapphooks/staking/useTokensGetTokens'
 import { Tile } from '@dappshared/Tile'
 import { TokenInfoResponse } from '@dapptypes'
 import { Description, Field, Input, Label, Select } from '@headlessui/react'
 import clsx from 'clsx'
+import { isUndefined } from 'lodash'
 import { ChangeEvent, useContext, useEffect, useRef, useState } from 'react'
 import { MdLockOutline } from 'react-icons/md'
 import { toast } from 'react-toastify'
@@ -38,6 +41,10 @@ export const InjectRewards = () => {
     const [allowance, setAllowance] = useState(0n)
     const [hasAllowance, setHasAllowance] = useState(false)
 
+    // Action Fees
+    const { data: dataHasActionFee } = usePaymentHasActionFee(protocol, chain?.id!)
+    const { data: dataGetFeeInNative, error } = usePaymentGetFeeInNative(protocol, chain?.id!)
+
     const { data: dataStaking } = useGetStakingData(protocol, chain?.id!)
     const { data: dataHasAllowance, refetch: refetchHasAllowance } = useHasERC20Allowance(
         selectedRewardToken?.source!,
@@ -51,7 +58,7 @@ export const InjectRewards = () => {
         write: writeApproval,
     } = useERC20Approve(selectedRewardToken?.source!, protocol, rewardAmount, chain?.id!)
     const { data: dataHasDepositRestriction } = useHasDepositRestriction(chain?.id!, protocol)
-    const { data: dataGetRewardTokens } = useGetRewardTokens(protocol, chain?.id!)
+    const { data: dataGetTokens } = useTokensGetTokens(protocol, chain?.id!)
     const {
         data: dataBalanceOf,
         isLoading: isLoadingBalanceOf,
@@ -65,7 +72,15 @@ export const InjectRewards = () => {
         isError: isErrorInjectRewards,
         write: writeInjectRewards,
         reset: resetInjectRewards,
-    } = useInjectRewards(protocol, chain?.id!, selectedRewardToken?.source!, rewardAmount, hasAllowance)
+    } = useInjectRewards(
+        protocol,
+        chain?.id!,
+        selectedRewardToken?.source!,
+        rewardAmount,
+        hasAllowance && !isUndefined(dataHasActionFee) && !isUndefined(dataGetFeeInNative),
+        dataHasActionFee!,
+        dataGetFeeInNative?.thresholdFee!
+    )
 
     //
     // Errors
@@ -82,7 +97,7 @@ export const InjectRewards = () => {
 
     const onChangeRewardToken = () => {
         setSelectedRewardToken(
-            dataGetRewardTokens?.find(
+            dataGetTokens?.find(
                 (token) => token.source === getAddress((rewardSelectionRef.current as HTMLSelectElement).value)
             )
         )
@@ -114,8 +129,8 @@ export const InjectRewards = () => {
     }, [dataHasDepositRestriction])
 
     useEffect(() => {
-        dataGetRewardTokens && !selectedRewardToken && setSelectedRewardToken(dataGetRewardTokens.at(0))
-    }, [dataGetRewardTokens, selectedRewardToken])
+        dataGetTokens && !selectedRewardToken && setSelectedRewardToken(dataGetTokens.at(0))
+    }, [dataGetTokens, selectedRewardToken])
 
     useEffect(() => {
         if (Boolean(dataBalanceOf && rewardAmountEntered && selectedRewardToken)) {
@@ -152,6 +167,9 @@ export const InjectRewards = () => {
                 }`
             )
             refetchBalanceOf && refetchBalanceOf()
+            resetInjectRewards && resetInjectRewards()
+            setRewardAmountEntered('')
+            setRewardAmount(0n)
         }
 
         !isLoadingInjectRewards &&
@@ -166,6 +184,7 @@ export const InjectRewards = () => {
         isLoadingInjectRewards,
         selectedRewardToken,
         refetchBalanceOf,
+        resetInjectRewards,
     ])
 
     useEffect(() => {
@@ -180,7 +199,7 @@ export const InjectRewards = () => {
             <div className="flex flex-row items-center">
                 <span className="flex-1 font-title text-xl font-bold">Inject Rewards</span>
             </div>
-            {dataGetRewardTokens && (
+            {dataGetTokens && (
                 <>
                     <div className="flex flex-col gap-8">
                         <Field>
@@ -198,11 +217,13 @@ export const InjectRewards = () => {
                                 ref={rewardSelectionRef}
                                 onChange={onChangeRewardToken}
                             >
-                                {dataGetRewardTokens.map((token) => (
-                                    <option key={token.source} value={token.source}>
-                                        {token.name} ({token.symbol})
-                                    </option>
-                                ))}
+                                {dataGetTokens
+                                    .filter((token) => token.isReward)
+                                    .map((token) => (
+                                        <option key={token.source} value={token.source}>
+                                            {token.name} ({token.symbol})
+                                        </option>
+                                    ))}
                             </Select>
                         </Field>
                         <Field>
@@ -223,7 +244,7 @@ export const InjectRewards = () => {
                             <span className="mt-2 flex items-center gap-2 text-xs/8 text-dapp-cyan-50/50">
                                 Available:{' '}
                                 {isLoadingBalanceOf ? (
-                                    <Spinner theme="dark" className="h-4 w-4" />
+                                    <Spinner theme="dark" className="size-4" />
                                 ) : (
                                     `${toReadableNumber(dataBalanceOf, selectedRewardToken?.decimals)} ${
                                         selectedRewardToken?.symbol
@@ -249,7 +270,7 @@ export const InjectRewards = () => {
                                 )
                             ) : (
                                 <div className="flex items-center justify-center gap-2">
-                                    <Spinner theme="dark" className="h-4 w-4" />{' '}
+                                    <Spinner theme="dark" className="size-4" />{' '}
                                     {isPendingApproval ? 'Approving amount...' : 'Injecting amount...'}
                                 </div>
                             )}
@@ -258,8 +279,8 @@ export const InjectRewards = () => {
                 </>
             )}
             {dataStaking && dataStaking.stakes === 0n && (
-                <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 border-b border-t border-dapp-blue-100 bg-dapp-blue-800/90 md:rounded-lg md:border">
-                    <MdLockOutline className="h-32 w-32" />
+                <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 border-y border-dapp-blue-100 bg-dapp-blue-800/90 p-4 sm:rounded-lg sm:border sm:p-8">
+                    <MdLockOutline className="size-32" />
                     <span className="text-center">
                         The protocol does not have any {dataStaking.staked.tokenInfo.symbol} staked yet. <br />
                         You can only inject rewards when there is at least one stake available.

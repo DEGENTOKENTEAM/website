@@ -3,50 +3,32 @@ import { useAtmClaim } from '@dapphooks/atm/useAtmClaim'
 import { useAtmLockJoin } from '@dapphooks/atm/useAtmLockJoin'
 import { useAtmLockLeave } from '@dapphooks/atm/useAtmLockLeave'
 import { DgnxAtmStats, useAtmStats } from '@dapphooks/atm/useAtmStats'
-import {
-    DngxAtmStatsForQualifier,
-    useAtmStatsForQualifier,
-} from '@dapphooks/atm/useAtmStatsForQualifier'
+import { DngxAtmStatsForQualifier, useAtmStatsForQualifier } from '@dapphooks/atm/useAtmStatsForQualifier'
 import clsx from 'clsx'
 import { useEffect, useMemo, useState } from 'react'
-import { RouteObject } from 'react-router-dom'
 import { useAccount, useBlock, useChainId, useSwitchChain } from 'wagmi'
 import { Button } from '../../Button'
 import { H2 } from '../../H2'
 import { Spinner } from './Spinner'
 
-const AtmLockRewardPreview = (props: {
-    claimAmountWithLock: string
-    claimAmountWithoutLock: string
-}) => {
+const AtmLockRewardPreview = (props: { claimAmountWithLock: string; claimAmountWithoutLock: string }) => {
     return (
         <>
             <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 ">
-                <div className="font-bold">
-                    Estimated DGNX amount with lock:
-                </div>
-                <div className="font-bold">
-                    {props.claimAmountWithLock}* DGNX
-                </div>
-                <div className="mt-8 font-bold sm:mt-0">
-                    Estimated DGNX amount without lock:
-                </div>
-                <div className="font-bold">
-                    {props.claimAmountWithoutLock}* DGNX
-                </div>
+                <div className="font-bold">Estimated DGNX amount with lock:</div>
+                <div className="font-bold">{props.claimAmountWithLock}* DGNX</div>
+                <div className="mt-8 font-bold sm:mt-0">Estimated DGNX amount without lock:</div>
+                <div className="font-bold">{props.claimAmountWithoutLock}* DGNX</div>
             </div>
             <div className=" mt-8 text-sm italic">
-                * Please note that the DGNX amounts will adapt shortly before
-                the claiming starts accordingly to the launch market price.
+                * Please note that the DGNX amounts will adapt shortly before the claiming starts accordingly to the
+                launch market price.
             </div>
         </>
     )
 }
 
-const AtmDepositForm = (props: {
-    stats: DgnxAtmStats
-    statsForQualifier: DngxAtmStatsForQualifier
-}) => {
+const AtmDepositForm = (props: { stats: DgnxAtmStats; statsForQualifier: DngxAtmStatsForQualifier }) => {
     // const { address } = useAccount()
     // const { data: nativeBalance } = useBalance({ address })
     // const [depositAmount, setDepositAmount] = useState(0)
@@ -233,59 +215,32 @@ const AtmCollection = (props: { stats: DgnxAtmStats }) => {
             <H2>The ATM is currently accepting deposits!</H2>
             <div className="grid grid-cols-2">
                 <div>Maximum deposit per wallet:</div>
-                <div className="font-bold">
-                    {Number(stats.allocationLimit / 10n ** 18n)} ETH
-                </div>
+                <div className="font-bold">{Number(stats.allocationLimit / 10n ** 18n)} ETH</div>
                 {statsForQualifier.isWhitelisted && (
                     <>
                         <div>Amount you deposited:</div>
-                        <div className="font-bold">
-                            {Number(
-                                statsForQualifier.totalDeposited / 10n ** 18n
-                            )}{' '}
-                            ETH
-                        </div>
+                        <div className="font-bold">{Number(statsForQualifier.totalDeposited / 10n ** 18n)} ETH</div>
                         <div>Amount you can still deposit:</div>
                         <div className="font-bold">
-                            {Number(
-                                (stats.allocationLimit -
-                                    statsForQualifier.totalDeposited) /
-                                    10n ** 18n
-                            )}{' '}
-                            ETH
+                            {Number((stats.allocationLimit - statsForQualifier.totalDeposited) / 10n ** 18n)} ETH
                         </div>
                     </>
                 )}
                 {!statsForQualifier.isWhitelisted && (
-                    <div className="col-span-2 mt-5 font-bold text-error">
-                        Your wallet is not whitelisted
-                    </div>
+                    <div className="col-span-2 mt-5 font-bold text-error">Your wallet is not whitelisted</div>
                 )}
             </div>
 
-            {statsForQualifier.isWhitelisted && (
-                <AtmDepositForm
-                    stats={stats}
-                    statsForQualifier={statsForQualifier}
-                />
-            )}
+            {statsForQualifier.isWhitelisted && <AtmDepositForm stats={stats} statsForQualifier={statsForQualifier} />}
         </div>
     )
 }
 
-const AtmClaimForm = (props: {
-    stats: DgnxAtmStats
-    statsForQualifier: DngxAtmStatsForQualifier
-}) => {
+const AtmClaimForm = (props: { stats: DgnxAtmStats; statsForQualifier: DngxAtmStatsForQualifier }) => {
     const [blockTimeStamp, setBlockTimeStamp] = useState(0n)
     const [actionInProgess, setActionInProgress] = useState(false)
 
-    const {
-        write: claimWrite,
-        isLoading: claimLoading,
-        isSuccess: claimSuccess,
-        hash: claimHash,
-    } = useAtmClaim()
+    const { write: claimWrite, isLoading: claimLoading, isSuccess: claimSuccess, hash: claimHash } = useAtmClaim()
 
     const {
         write: lockJoinWrite,
@@ -310,16 +265,13 @@ const AtmClaimForm = (props: {
             Number(
                 blockTimeStamp &&
                     props.stats &&
-                    Number(blockTimeStamp - props.stats.lockPeriodStarts) /
-                        Number(props.stats.lockPeriodInSeconds)
+                    Number(blockTimeStamp - props.stats.lockPeriodStarts) / Number(props.stats.lockPeriodInSeconds)
             ),
         [props.stats, blockTimeStamp]
     )
 
     const startTime = useMemo(() => {
-        return new Date(
-            Number(props.stats.lockPeriodStarts) * 1000
-        ).toLocaleDateString(navigator.language, {
+        return new Date(Number(props.stats.lockPeriodStarts) * 1000).toLocaleDateString(navigator.language, {
             year: 'numeric',
             month: 'numeric',
             day: 'numeric',
@@ -327,9 +279,7 @@ const AtmClaimForm = (props: {
     }, [props.stats])
 
     const endTime = useMemo(() => {
-        return new Date(
-            Number(props.stats.lockPeriodEnds) * 1000
-        ).toLocaleDateString(navigator.language, {
+        return new Date(Number(props.stats.lockPeriodEnds) * 1000).toLocaleDateString(navigator.language, {
             year: 'numeric',
             month: 'numeric',
             day: 'numeric',
@@ -339,9 +289,7 @@ const AtmClaimForm = (props: {
     if (props.statsForQualifier.hasClaimed) {
         return (
             <p className="font-bold text-success">
-                You have claimed your{' '}
-                {toReadableNumber(props.statsForQualifier.claimedAmount, 18)}{' '}
-                DGNX share!
+                You have claimed your {toReadableNumber(props.statsForQualifier.claimedAmount, 18)} DGNX share!
             </p>
         )
     }
@@ -350,54 +298,32 @@ const AtmClaimForm = (props: {
         return (
             <>
                 <h2 className="mt-10 text-xl font-bold">Locked</h2>
-                <p className="mt-2 font-bold">
-                    {toReadableNumber(props.statsForQualifier.lockedAmount, 18)}{' '}
-                    DGNX
-                </p>
+                <p className="mt-2 font-bold">{toReadableNumber(props.statsForQualifier.lockedAmount, 18)} DGNX</p>
                 {!props.stats.lockPeriodActive && (
                     <>
-                        <p className="mt10 font-bold">
+                        <p className="mt-10 font-bold">
                             What will happen next:
                             <br />
-                            1. The lock or claim will run approx. 3 days from
-                            start.
+                            1. The lock or claim will run approx. 3 days from start.
                             <br />
-                            2. Lock period start will be announced in time in
-                            the VC Telegram group
+                            2. Lock period start will be announced in time in the VC Telegram group
                         </p>
                     </>
                 )}
                 {props.stats.lockPeriodActive && (
                     <>
-                        <h2 className="mt-10 text-xl font-bold">
-                            Collected Rewards
-                        </h2>
-                        <div className="relative flex flex-col overflow-clip">
+                        <h2 className="mt-10 text-xl font-bold">Collected Rewards</h2>
+                        <div className="relative flex flex-col text-clip">
                             <div
                                 className="mb-1 mt-2 w-0 whitespace-nowrap text-center"
                                 style={{
-                                    width: `${
-                                        lockTimeProgress
-                                            ? String(
-                                                  Number(lockTimeProgress) * 100
-                                              )
-                                            : '0'
-                                    }%`,
+                                    width: `${lockTimeProgress ? String(Number(lockTimeProgress) * 100) : '0'}%`,
                                 }}
                             >
-                                {toReadableNumber(
-                                    props.statsForQualifier.currentRewardAmount,
-                                    18
-                                )}{' '}
-                                DGNX
+                                {toReadableNumber(props.statsForQualifier.currentRewardAmount, 18)} DGNX
                             </div>
-                            <div className="absolute right-0 leading-[2.5rem]">
-                                {toReadableNumber(
-                                    props.statsForQualifier
-                                        .estimatedTotalRewardAmount,
-                                    18
-                                )}{' '}
-                                DGNX
+                            <div className="absolute right-0 leading-10">
+                                {toReadableNumber(props.statsForQualifier.estimatedTotalRewardAmount, 18)} DGNX
                             </div>
                         </div>
 
@@ -405,20 +331,14 @@ const AtmClaimForm = (props: {
                             <div
                                 className="h-2.5 w-0 rounded-r-full bg-degenOrange transition-all duration-1000 ease-out"
                                 style={{
-                                    width: `${
-                                        lockTimeProgress
-                                            ? String(
-                                                  Number(lockTimeProgress) * 100
-                                              )
-                                            : '0'
-                                    }%`,
+                                    width: `${lockTimeProgress ? String(Number(lockTimeProgress) * 100) : '0'}%`,
                                 }}
                             ></div>
                         </div>
 
                         <div className="flex">
                             <div>{startTime}</div>
-                            <div className="flex-grow" />
+                            <div className="grow" />
                             <div>{endTime}</div>
                         </div>
                     </>
@@ -446,7 +366,7 @@ const AtmClaimForm = (props: {
                                     href={`https://etherscan.io/tx/${lockLeaveHash}`}
                                     target="_blank"
                                     rel="noreferrer"
-                                    className="h-full w-full"
+                                    className="size-full"
                                 >
                                     View tx
                                 </a>
@@ -455,13 +375,10 @@ const AtmClaimForm = (props: {
                     )}
                 </div>
                 <p className="italic">
-                    <span className="font-bold">Important:</span> You can claim
-                    your tokens at any time. Once you&apos;ve claimed your
-                    tokens, you&apos;re no longer eligible to rejoin the extra
-                    reward program. If you claim your tokens prior to the end of
-                    the 365 day period, any extra rewards will be charged with a{' '}
-                    {Number(props.stats.rewardPenaltyBps) / 100}% loyalty
-                    penalty.
+                    <span className="font-bold">Important:</span> You can claim your tokens at any time. Once
+                    you&apos;ve claimed your tokens, you&apos;re no longer eligible to rejoin the extra reward program.
+                    If you claim your tokens prior to the end of the 365 day period, any extra rewards will be charged
+                    with a {Number(props.stats.rewardPenaltyBps) / 100}% loyalty penalty.
                 </p>
             </>
         )
@@ -476,39 +393,29 @@ const AtmClaimForm = (props: {
                         18
                     )}{' '}
                     DGNX in the next 3 days to receive{' '}
-                    {toReadableNumber(
-                        props.statsForQualifier.estimatedTotalClaimAmount
-                    )}{' '}
-                    DGNX over 365 days, or claim your DNGX right now!
+                    {toReadableNumber(props.statsForQualifier.estimatedTotalClaimAmount)} DGNX over 365 days, or claim
+                    your DNGX right now!
                 </p>
                 <div className="mt-5 flex w-full flex-col items-center">
                     <div className="relative flex items-center rounded-xl border-2 border-activeblue bg-darkblue p-5 font-bold">
                         <div className="flex w-48 justify-center">
-                            Invested{' '}
-                            {toReadableNumber(
-                                props.statsForQualifier.totalDeposited
-                            )}{' '}
-                            ETH
+                            Invested {toReadableNumber(props.statsForQualifier.totalDeposited)} ETH
                         </div>
-                        <div className="z-1 absolute left-1/2 top-[calc(100%+0.1rem)] h-[4.4rem] w-[2px] bg-activeblue" />
+                        <div className="absolute left-1/2 top-[calc(100%+0.1rem)] z-10 h-[4.4rem] w-[2px] bg-activeblue" />
                         <div
                             className={clsx(
-                                'z-1 absolute -left-6 top-[calc(100%+4.4rem)] h-12 w-[2px]',
-                                props.stats.lockPeriodActive
-                                    ? 'bg-darkblue'
-                                    : 'bg-activeblue'
+                                'absolute -left-6 top-[calc(100%+4.4rem)] z-10 h-12 w-[2px]',
+                                props.stats.lockPeriodActive ? 'bg-darkblue' : 'bg-activeblue'
                             )}
                         />
-                        <div className="z-1 absolute -right-6 top-[calc(100%+4.4rem)] h-12 w-[2px] bg-activeblue" />
+                        <div className="absolute -right-6 top-[calc(100%+4.4rem)] z-10 h-12 w-[2px] bg-activeblue" />
                         <div
                             className={clsx(
-                                'z-1 absolute -left-6 top-[calc(100%+4.4rem)] h-[2px] w-[8.8rem]',
-                                props.stats.lockPeriodActive
-                                    ? 'bg-darkblue'
-                                    : 'bg-activeblue'
+                                'absolute -left-6 top-[calc(100%+4.4rem)] z-10 h-[2px] w-[8.8rem]',
+                                props.stats.lockPeriodActive ? 'bg-darkblue' : 'bg-activeblue'
                             )}
                         />
-                        <div className="z-1 absolute -right-6 top-[calc(100%+4.4rem)] h-[2px] w-[8.8rem] bg-activeblue" />
+                        <div className="absolute -right-6 top-[calc(100%+4.4rem)] z-10 h-[2px] w-[8.8rem] bg-activeblue" />
                     </div>
                     <div className="h-24" />
                     <div className="mt-5 grid grid-cols-2 gap-16">
@@ -517,11 +424,7 @@ const AtmClaimForm = (props: {
                                 <>
                                     <Button
                                         className="w-full"
-                                        color={
-                                            props.stats.lockPeriodActive
-                                                ? 'disabled'
-                                                : 'orange'
-                                        }
+                                        color={props.stats.lockPeriodActive ? 'disabled' : 'orange'}
                                         onClick={() => {
                                             lockJoinWrite()
                                         }}
@@ -533,15 +436,9 @@ const AtmClaimForm = (props: {
                                     ) : (
                                         <span className="text-center">
                                             Lock for{' '}
-                                            {toReadableNumber(
-                                                props.statsForQualifier
-                                                    .estimatedTotalClaimAmount,
-                                                18
-                                            )}{' '}
+                                            {toReadableNumber(props.statsForQualifier.estimatedTotalClaimAmount, 18)}{' '}
                                             DGNX <br />
-                                            <span className="font-bold">
-                                                over time
-                                            </span>
+                                            <span className="font-bold">over time</span>
                                         </span>
                                     )}
                                 </>
@@ -555,7 +452,7 @@ const AtmClaimForm = (props: {
                                             href={`https://etherscan.io/tx/${lockJoinHash}`}
                                             target="_blank"
                                             rel="noreferrer"
-                                            className="h-full w-full"
+                                            className="size-full"
                                         >
                                             View tx
                                         </a>
@@ -569,9 +466,7 @@ const AtmClaimForm = (props: {
                                     <Button
                                         className="w-full"
                                         color="orange"
-                                        disabled={
-                                            lockJoinLoading || claimLoading
-                                        }
+                                        disabled={lockJoinLoading || claimLoading}
                                         onClick={() => {
                                             claimWrite()
                                         }}
@@ -580,10 +475,8 @@ const AtmClaimForm = (props: {
                                     </Button>
                                     Receive
                                     {toReadableNumber(
-                                        props.statsForQualifier
-                                            .estimatedTotalClaimAmount -
-                                            props.statsForQualifier
-                                                .estimatedTotalRewardAmount,
+                                        props.statsForQualifier.estimatedTotalClaimAmount -
+                                            props.statsForQualifier.estimatedTotalRewardAmount,
                                         18
                                     )}{' '}
                                     DGNX
@@ -598,7 +491,7 @@ const AtmClaimForm = (props: {
                                             href={`https://etherscan.io/tx/${claimHash}`}
                                             target="_blank"
                                             rel="noreferrer"
-                                            className="h-full w-full"
+                                            className="size-full"
                                         >
                                             View tx
                                         </a>
@@ -626,10 +519,7 @@ const AtmClaiming = (props: { stats: DgnxAtmStats }) => {
             {statsForQualifier.totalDeposited <= 0n ? (
                 <p className="font-bold text-error">This wallet has no claim</p>
             ) : (
-                <AtmClaimForm
-                    stats={stats}
-                    statsForQualifier={statsForQualifier}
-                />
+                <AtmClaimForm stats={stats} statsForQualifier={statsForQualifier} />
             )}
         </div>
     )
@@ -649,14 +539,8 @@ export const ATMApp = () => {
     if (chainId !== 1 && chainId !== 5) {
         return (
             <div className="max-w-2xl">
-                <div className="font-bold">
-                    The ATM is only available on ETH
-                </div>
-                <Button
-                    className="mt-3 w-full"
-                    color="orange"
-                    onClick={() => switchChain({ chainId: 1 })}
-                >
+                <div className="font-bold">The ATM is only available on ETH</div>
+                <Button className="mt-3 w-full" color="orange" onClick={() => switchChain({ chainId: 1 })}>
                     Switch to ETH
                 </Button>
             </div>
@@ -675,9 +559,8 @@ export const ATMApp = () => {
         return (
             <>
                 <div className="mb-8 font-bold">
-                    The collection phase has finished. Please wait until the
-                    claiming starts. It&apos;ll be announced in the VC Telegram
-                    group.
+                    The collection phase has finished. Please wait until the claiming starts. It&apos;ll be announced in
+                    the VC Telegram group.
                 </div>
                 <div className="mb-8 font-bold">
                     Total amount collected: <br className="sm:hidden" />
@@ -688,13 +571,9 @@ export const ATMApp = () => {
                     {toReadableNumber(statsForQualifier.totalDeposited, 18)} ETH
                 </div>
                 <AtmLockRewardPreview
-                    claimAmountWithLock={toReadableNumber(
-                        statsForQualifier.estimatedTotalClaimAmount,
-                        18
-                    )}
+                    claimAmountWithLock={toReadableNumber(statsForQualifier.estimatedTotalClaimAmount, 18)}
                     claimAmountWithoutLock={toReadableNumber(
-                        statsForQualifier.estimatedTotalClaimAmount -
-                            statsForQualifier.estimatedTotalRewardAmount,
+                        statsForQualifier.estimatedTotalClaimAmount - statsForQualifier.estimatedTotalRewardAmount,
                         18
                     )}
                 />

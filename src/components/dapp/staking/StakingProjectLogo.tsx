@@ -36,13 +36,13 @@ export const StakingProjectLogo = ({
                 className={clsx([
                     'relative',
                     isLite
-                        ? 'h-[50px] min-h-[50px] w-[50px] min-w-[50px]'
-                        : 'h-[100px] min-h-[100px] w-[100px] min-w-[100px]',
+                        ? 'h-[50px] min-size-[50px] min-w-[50px]'
+                        : 'h-[100px] min-size-[100px] min-w-[100px]',
                 ])}
             >
                 {isPending && (
                     <div
-                        className={`absolute left-0 top-0 flex h-[100px] w-[100px] flex-col items-center justify-center gap-2 rounded-full bg-dapp-blue-200`}
+                        className={`absolute left-0 top-0 flex size-[100px] flex-col items-center justify-center gap-2 rounded-full bg-dapp-blue-200`}
                     >
                         <Spinner theme="dark" />
                         <span className="text-center text-xs font-bold">
@@ -65,7 +65,7 @@ export const StakingProjectLogo = ({
                     />
                 ) : (
                     <div
-                        className={`absolute left-0 top-0 flex h-full w-full items-center justify-center rounded-full`}
+                        className={`absolute left-0 top-0 flex size-full items-center justify-center rounded-full`}
                         style={{ backgroundColor: bg }}
                     >
                         <span
@@ -80,10 +80,10 @@ export const StakingProjectLogo = ({
                 )}
                 {!hideChain && (
                     <Image
-                        className="absolute -bottom-1 -right-1"
+                        className="absolute -bottom-1 -right-1 rounded-full"
                         width={isLite ? 24 : 40}
                         height={isLite ? 24 : 40}
-                        src={chain.id == 56 ? `/chains/${chain.id}.png` : `/chains/${chain.id}.svg`}
+                        src={`/chains/${chain.id}.svg`}
                         alt={`Logo ${chain.nativeCurrency.symbol}`}
                     />
                 )}

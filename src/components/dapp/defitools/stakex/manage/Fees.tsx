@@ -133,7 +133,7 @@ export const Fees = () => {
                                     variant="primary"
                                     disabled={!hasChanges}
                                     onClick={onClickApplyChanges}
-                                    className="flex-grow gap-3"
+                                    className="grow gap-3"
                                 >
                                     <span>Apply Changes</span>
                                 </Button>

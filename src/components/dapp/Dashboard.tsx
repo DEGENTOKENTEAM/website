@@ -82,7 +82,6 @@ const WalletInfo = (props: any) => {
     useEffect(() => {
         getAddressData(props.address).then(setWalletData)
     }, [props.address])
-    console.log(walletData)
     return (
         <>
             <H2>
@@ -103,11 +102,11 @@ const WalletInfo = (props: any) => {
                     <div>AVAX</div>
                     <div>{showAmount(walletData, ['0xB31f66AA3C1e785363F0875A1B74E27b85FD66c7'])}</div>
                     <div>${showFiatAmount(walletData, ['0xB31f66AA3C1e785363F0875A1B74E27b85FD66c7'])}</div>
-                    <div className="flex-grow">BTC</div>
+                    <div className="grow">BTC</div>
                     <div className="col-span-2">
                         {showAmount(walletData, ['0x152b9d0FdC40C096757F570A51E494bd4b943E50'])}{' '}
                     </div>
-                    <div className="flex-grow">Stablecoins</div>
+                    <div className="grow">Stablecoins</div>
                     <div>
                         $
                         {showAmount(walletData, [
@@ -165,7 +164,6 @@ export const Dashboard = (props: RouteObject) => {
     const [dexData, setDexData] = useState<any>()
 
     const [burnAmount, setBurnAmount] = useState<number>()
-    const [disburserAmount, setDisburserAmount] = useState<number>()
     const [lockerAmount, setLockerAmount] = useState<number>()
     const [backingAmountUsd, setBackingAmountUsd] = useState<number>()
 
@@ -174,21 +172,12 @@ export const Dashboard = (props: RouteObject) => {
         '0x000000000000000000000000000000000000dead',
         chainId
     )
-    const { data: balanceOfDisburser } = useGetERC20BalanceOf(
-        DGNX_ADDRESS,
-        '0x8a0e3264da08bf999aff5a50aabf5d2dc89fab79',
-        chainId
-    )
     const { data: balanceOfLocker } = useGetERC20BalanceOf(
         DGNX_ADDRESS,
         '0x2c7d8bb6aba4fff56cddbf9ea47ed270a10098f7',
         chainId
     )
     const { data: dataTotalSupply } = useGetERC20TotalSupply(DGNX_ADDRESS, chainId)
-
-    useEffect(() => {
-        balanceOfDisburser && setDisburserAmount(Number(balanceOfDisburser / 10n ** 18n))
-    }, [balanceOfDisburser])
 
     useEffect(() => {
         balanceOfLocker && setLockerAmount(Number(balanceOfLocker / 10n ** 18n))
@@ -211,7 +200,7 @@ export const Dashboard = (props: RouteObject) => {
                 })
             )
 
-        // getBackingAmount().then(setBackingAmountUsd)
+        getBackingAmount().then(setBackingAmountUsd)
     }, [])
 
     return (
@@ -221,10 +210,10 @@ export const Dashboard = (props: RouteObject) => {
                 <span className="text-degenOrange">DASHBOARD</span>
             </h1>
             <div className="mb-8 grid grid-cols-1 gap-8 xl:grid-cols-3">
-                <Tile className="col-span-2">
-                    <H2>Decentralized Exchanges</H2>
+                <Tile className="col-span-2 flex flex-col gap-4">
+                    <div className="text-2xl font-bold text-dark dark:text-dapp-cyan-50">Exchange Information</div>
                     <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                        <div className="mt-4 rounded-lg bg-dapp-blue-800 p-4">
+                        <div className="rounded-lg bg-dapp-blue-800 p-4">
                             <div className="grid grid-cols-3">
                                 <div className="col-span-3 font-bold">TraderJoe</div>
                                 <div className="col-span-3">
@@ -283,7 +272,7 @@ export const Dashboard = (props: RouteObject) => {
                                 </div>
                             </div>
                         </div>
-                        <div className="mt-4 rounded-lg bg-dapp-blue-800 p-4">
+                        <div className="rounded-lg bg-dapp-blue-800 p-4">
                             <div className="grid grid-cols-3">
                                 <div className="col-span-3 font-bold">Pangolin</div>
                                 <div className="col-span-3">
@@ -346,9 +335,9 @@ export const Dashboard = (props: RouteObject) => {
                         </div>
                     </div>
                 </Tile>
-                <Tile className="col-span-2 xl:col-span-1">
-                    <H2>Ø Averages</H2>
-                    <div className="mt-8 rounded-lg bg-dapp-blue-800 p-4">
+                <Tile className="col-span-2 flex flex-col gap-4 xl:col-span-1">
+                    <div className="text-2xl font-bold text-dark dark:text-dapp-cyan-50">Ø Averages</div>
+                    <div className="h-full rounded-lg bg-dapp-blue-800 p-4">
                         <div className="grid grid-cols-3">
                             <div className="col-span-2">Market cap</div>
                             <div className="text-right">
@@ -356,11 +345,9 @@ export const Dashboard = (props: RouteObject) => {
                                 dexData.traderJoe &&
                                 dexData.traderJoe.priceUsd &&
                                 burnAmount &&
-                                disburserAmount &&
                                 lockerAmount
                                     ? `$${toReadableNumber(
-                                          (21000000 - burnAmount - disburserAmount - lockerAmount) *
-                                              Number(dexData.traderJoe.priceUsd),
+                                          (21000000 - burnAmount - lockerAmount) * Number(dexData.traderJoe.priceUsd),
                                           0,
                                           { maximumFractionDigits: 0, minimumFractionDigits: 0 }
                                       )}`
@@ -380,10 +367,11 @@ export const Dashboard = (props: RouteObject) => {
 
                             <div className="col-span-2">Market price</div>
                             <div className="text-right">
-                                {dexData?.traderJoe?.priceUsd &&
-                                dexData?.traderJoe?.liquidity?.usd &&
-                                dexData?.pangolin?.priceUsd &&
-                                dexData?.pangolin?.liquidity?.usd
+                                {dexData &&
+                                dexData.traderJoe?.priceUsd &&
+                                dexData.traderJoe?.liquidity?.usd &&
+                                dexData.pangolin?.priceUsd &&
+                                dexData.pangolin?.liquidity?.usd
                                     ? `$${toReadableNumber(
                                           (dexData.traderJoe.liquidity.usd * Number(dexData.traderJoe.priceUsd) +
                                               dexData.pangolin.liquidity.usd * Number(dexData.pangolin.priceUsd)) /
@@ -396,10 +384,11 @@ export const Dashboard = (props: RouteObject) => {
 
                             <div className="col-span-2">Native price</div>
                             <div className="text-right">
-                                {dexData?.traderJoe?.priceNative &&
-                                dexData?.traderJoe?.liquidity?.base &&
-                                dexData?.pangolin?.priceNative &&
-                                dexData?.pangolin?.liquidity?.base
+                                {dexData &&
+                                dexData.traderJoe?.priceNative &&
+                                dexData.traderJoe?.liquidity?.base &&
+                                dexData.pangolin?.priceNative &&
+                                dexData.pangolin?.liquidity?.base
                                     ? `$${toReadableNumber(
                                           (dexData.traderJoe.liquidity.base * Number(dexData.traderJoe.priceNative) +
                                               dexData.pangolin.liquidity.base * Number(dexData.pangolin.priceNative)) /
@@ -425,8 +414,8 @@ export const Dashboard = (props: RouteObject) => {
             </div>
 
             <Tile className="mb-8 h-[600px] gap-8 lg:col-span-3">
-                <div className="flex h-full flex-col">
-                    <H2>Price & Backing</H2>
+                <div className="flex h-full flex-col gap-4">
+                    <div className="text-2xl font-bold text-dark dark:text-dapp-cyan-50">Price & Backing</div>
                     <div className="flex-grow">
                         <Chart wantTokenName="USDC.e" />
                     </div>
@@ -434,15 +423,15 @@ export const Dashboard = (props: RouteObject) => {
             </Tile>
 
             <div className="mb-8 grid grid-cols-1 gap-8 lg:grid-cols-2">
-                <Tile>
-                    <H2>Supply</H2>
-                    {/* <div className="flex">
-                        <div className="flex-grow">Minted supply</div>
-                        <div>21,000,000.00</div>
-                    </div> */}
-
-                    <div className="mt-4 rounded-lg bg-dapp-blue-800 p-4">
+                <Tile className="flex flex-col gap-4">
+                    <div className="text-2xl font-bold text-dark dark:text-dapp-cyan-50">Supply</div>
+                    <div className="rounded-lg bg-dapp-blue-800 p-4">
                         <div className="grid grid-cols-3">
+                            <div className="col-span-2">Minted supply</div>
+                            <div className="text-right">
+                                {toReadableNumber(21000000, 0, { maximumFractionDigits: 0, minimumFractionDigits: 0 })}
+                            </div>
+
                             <div className="col-span-2">Total</div>
                             <div className="text-right">
                                 {burnAmount ? toReadableNumber(21000000 - burnAmount) : 'n/a'}
@@ -453,71 +442,74 @@ export const Dashboard = (props: RouteObject) => {
 
                             <div className="col-span-2">Circulating</div>
                             <div className="text-right">
-                                {burnAmount && disburserAmount && lockerAmount
-                                    ? toReadableNumber(21000000 - burnAmount - disburserAmount - lockerAmount)
+                                {burnAmount && lockerAmount
+                                    ? toReadableNumber(21000000 - burnAmount - lockerAmount)
                                     : 'n/a'}
                             </div>
 
                             <div className="col-span-2">Locked in Treasury</div>
                             <div className="text-right">{lockerAmount ? toReadableNumber(lockerAmount) : 'n/a'}</div>
-
-                            <div className="col-span-2">Locked in Disburser</div>
-                            <div className="text-right">
-                                {disburserAmount ? toReadableNumber(disburserAmount) : 'n/a'}
-                            </div>
                         </div>
                     </div>
                 </Tile>
-                <Tile>
-                    <H2>Volume 24h</H2>
-                    <div className="mt-4 rounded-lg bg-dapp-blue-800 p-4">
-                        <div className="grid grid-cols-3">
-                            <div className="col-span-2">Total</div>
-                            <div className="text-right">
-                                $
-                                {toReadableNumber(
-                                    Number(dexData?.traderJoe?.volume?.h24 ? dexData?.traderJoe?.volume?.h24 : 0) +
-                                        Number(dexData?.pangolin?.volume?.h24 ? dexData?.pangolin?.volume?.h24 : 0)
-                                )}
-                            </div>
+                <Tile className="flex flex-col gap-4">
+                    <div className="text-2xl font-bold text-dark dark:text-dapp-cyan-50">Volume 24h</div>
+                    <div className="h-full rounded-lg bg-dapp-blue-800 p-4">
+                        {dexData && (
+                            <div className="grid grid-cols-3">
+                                <div className="col-span-2">Total</div>
+                                <div className="text-right">
+                                    $
+                                    {toReadableNumber(
+                                        Number(dexData.traderJoe?.volume?.h24 ? dexData.traderJoe?.volume?.h24 : 0) +
+                                            Number(dexData.pangolin?.volume?.h24 ? dexData.pangolin?.volume?.h24 : 0)
+                                    )}
+                                </div>
 
-                            <div className="col-span-2">TraderJoe</div>
-                            <div className="text-right">
-                                $
-                                {toReadableNumber(
-                                    dexData?.traderJoe?.volume?.h24 ? dexData?.traderJoe?.volume?.h24 : 0
-                                )}
-                            </div>
+                                <div className="col-span-2">TraderJoe</div>
+                                <div className="text-right">
+                                    $
+                                    {toReadableNumber(
+                                        dexData.traderJoe?.volume?.h24 ? dexData.traderJoe?.volume?.h24 : 0
+                                    )}
+                                </div>
 
-                            <div className="col-span-2">Pangolin</div>
-                            <div className="text-right">
-                                ${toReadableNumber(dexData?.pangolin?.volume?.h24 ? dexData?.pangolin?.volume?.h24 : 0)}
-                            </div>
+                                <div className="col-span-2">Pangolin</div>
+                                <div className="text-right">
+                                    $
+                                    {toReadableNumber(
+                                        dexData.pangolin?.volume?.h24 ? dexData.pangolin?.volume?.h24 : 0
+                                    )}
+                                </div>
 
-                            <div className="col-span-2">Diff. USD</div>
-                            <div className="text-right">
-                                {toReadableNumber(
-                                    dexData?.traderJoe?.priceUsd && dexData?.pangolin?.priceUsd
-                                        ? 1 - Number(dexData.traderJoe.priceUsd) / Number(dexData.pangolin.priceUsd)
-                                        : 0,
-                                    0,
-                                    { style: 'percent' }
-                                )}
-                            </div>
+                                <div className="col-span-2">Diff. USD</div>
+                                <div className="text-right">
+                                    {toReadableNumber(
+                                        dexData.traderJoe?.priceUsd && dexData.pangolin?.priceUsd
+                                            ? 1 - Number(dexData.traderJoe.priceUsd) / Number(dexData.pangolin.priceUsd)
+                                            : 0,
+                                        0,
+                                        { style: 'percent' }
+                                    )}
+                                </div>
 
-                            <div className="col-span-2">Diff. AVAX</div>
-                            <div className="text-right">
-                                {toReadableNumber(
-                                    dexData?.traderJoe?.priceNative && dexData?.pangolin?.priceNative
-                                        ? 1 -
-                                              Number(dexData.traderJoe.priceNative) /
-                                                  Number(dexData.pangolin.priceNative)
-                                        : 0,
-                                    0,
-                                    { style: 'percent' }
-                                )}
+                                <div className="col-span-2">Diff. AVAX</div>
+                                <div className="text-right">
+                                    {toReadableNumber(
+                                        dexData.traderJoe?.priceNative && dexData.pangolin?.priceNative
+                                            ? 1 -
+                                                  (dexData.traderJoe.priceNative < dexData.pangolin.priceNative
+                                                      ? Number(dexData.traderJoe.priceNative) /
+                                                        Number(dexData.pangolin.priceNative)
+                                                      : Number(dexData.pangolin.priceNative) /
+                                                        Number(dexData.traderJoe.priceNative))
+                                            : 0,
+                                        0,
+                                        { style: 'percent' }
+                                    )}
+                                </div>
                             </div>
-                        </div>
+                        )}
                     </div>
                 </Tile>
             </div>
@@ -541,57 +533,61 @@ export const Dashboard = (props: RouteObject) => {
                             <div className="hidden text-right md:inline-grid">6h</div>
                             <div className="text-right">24h</div>
 
-                            <div className="font-bold">TraderJoe</div>
-                            <div className="hidden text-right md:inline-grid">
-                                <PriceChange item={dexData?.traderJoe?.priceChange?.m5} />
-                            </div>
-                            <div className="hidden text-right md:inline-grid">
-                                <PriceChange item={dexData?.traderJoe?.priceChange?.h1} />
-                            </div>
-                            <div className="hidden text-right md:inline-grid">
-                                <PriceChange item={dexData?.traderJoe?.priceChange?.h6} />
-                            </div>
-                            <div className="text-right">
-                                <PriceChange item={dexData?.traderJoe?.priceChange?.h24} />
-                            </div>
-                            <div className="hidden text-right md:inline-grid">
-                                <TxnsCount item={dexData?.traderJoe?.txns?.m5} />
-                            </div>
-                            <div className="hidden text-right md:inline-grid">
-                                <TxnsCount item={dexData?.traderJoe?.txns?.h1} />
-                            </div>
-                            <div className="hidden text-right md:inline-grid">
-                                <TxnsCount item={dexData?.traderJoe?.txns?.h6} />
-                            </div>
-                            <div className="text-right">
-                                <TxnsCount item={dexData?.traderJoe?.txns?.h24} />
-                            </div>
+                            {dexData && (
+                                <>
+                                    <div className="font-bold">TraderJoe</div>
+                                    <div className="hidden text-right md:inline-grid">
+                                        <PriceChange item={dexData.traderJoe?.priceChange?.m5} />
+                                    </div>
+                                    <div className="hidden text-right md:inline-grid">
+                                        <PriceChange item={dexData.traderJoe?.priceChange?.h1} />
+                                    </div>
+                                    <div className="hidden text-right md:inline-grid">
+                                        <PriceChange item={dexData.traderJoe?.priceChange?.h6} />
+                                    </div>
+                                    <div className="text-right">
+                                        <PriceChange item={dexData.traderJoe?.priceChange?.h24} />
+                                    </div>
+                                    <div className="hidden text-right md:inline-grid">
+                                        <TxnsCount item={dexData.traderJoe?.txns?.m5} />
+                                    </div>
+                                    <div className="hidden text-right md:inline-grid">
+                                        <TxnsCount item={dexData.traderJoe?.txns?.h1} />
+                                    </div>
+                                    <div className="hidden text-right md:inline-grid">
+                                        <TxnsCount item={dexData.traderJoe?.txns?.h6} />
+                                    </div>
+                                    <div className="text-right">
+                                        <TxnsCount item={dexData.traderJoe?.txns?.h24} />
+                                    </div>
 
-                            <div className="font-bold">Pangolin</div>
-                            <div className="hidden text-right md:inline-grid">
-                                <PriceChange item={dexData?.pangolin?.priceChange?.m5} />
-                            </div>
-                            <div className="hidden text-right md:inline-grid">
-                                <PriceChange item={dexData?.pangolin?.priceChange?.h1} />
-                            </div>
-                            <div className="hidden text-right md:inline-grid">
-                                <PriceChange item={dexData?.pangolin?.priceChange?.h6} />
-                            </div>
-                            <div className="text-right">
-                                <PriceChange item={dexData?.pangolin?.priceChange?.h24} />
-                            </div>
-                            <div className="hidden text-right md:inline-grid">
-                                <TxnsCount item={dexData?.pangolin?.txns?.m5} />
-                            </div>
-                            <div className="hidden text-right md:inline-grid">
-                                <TxnsCount item={dexData?.pangolin?.txns?.h1} />
-                            </div>
-                            <div className="hidden text-right md:inline-grid">
-                                <TxnsCount item={dexData?.pangolin?.txns?.h6} />
-                            </div>
-                            <div className="text-right">
-                                <TxnsCount item={dexData?.pangolin?.txns?.h24} />
-                            </div>
+                                    <div className="font-bold">Pangolin</div>
+                                    <div className="hidden text-right md:inline-grid">
+                                        <PriceChange item={dexData.pangolin?.priceChange?.m5} />
+                                    </div>
+                                    <div className="hidden text-right md:inline-grid">
+                                        <PriceChange item={dexData.pangolin?.priceChange?.h1} />
+                                    </div>
+                                    <div className="hidden text-right md:inline-grid">
+                                        <PriceChange item={dexData.pangolin?.priceChange?.h6} />
+                                    </div>
+                                    <div className="text-right">
+                                        <PriceChange item={dexData.pangolin?.priceChange?.h24} />
+                                    </div>
+                                    <div className="hidden text-right md:inline-grid">
+                                        <TxnsCount item={dexData.pangolin?.txns?.m5} />
+                                    </div>
+                                    <div className="hidden text-right md:inline-grid">
+                                        <TxnsCount item={dexData.pangolin?.txns?.h1} />
+                                    </div>
+                                    <div className="hidden text-right md:inline-grid">
+                                        <TxnsCount item={dexData.pangolin?.txns?.h6} />
+                                    </div>
+                                    <div className="text-right">
+                                        <TxnsCount item={dexData.pangolin?.txns?.h24} />
+                                    </div>
+                                </>
+                            )}
                         </div>
                     </div>
                 </Tile>

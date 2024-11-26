@@ -40,7 +40,7 @@ export const StakingDurationSelection = ({
     }
 
     const itemSelectHandler = (duration: StakeBucketButton) => {
-        onCheckbox(false) // always reset when new item is selected
+        onCheckbox(!duration.burn && duration.duration == 0) // always reset when new item is selected and its not a burned pool and a pool with duration
         setSelectedDuration(duration)
     }
 
@@ -117,7 +117,7 @@ export const StakingDurationSelection = ({
                             type="checkbox"
                             checked={isCheckboxSelected}
                             onChange={confirmHandler}
-                            className="h-4 w-4 rounded-sm border-2 border-dapp-cyan-50 bg-transparent p-2 text-dapp-cyan-500 focus:ring-0 focus:ring-offset-0"
+                            className="size-4 rounded-sm border-2 border-dapp-cyan-50 bg-transparent p-2 text-dapp-cyan-500 focus:ring-0 focus:ring-offset-0"
                         />
                     </div>
                     <div className="flex flex-col justify-center">
