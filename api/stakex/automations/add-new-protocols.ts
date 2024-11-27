@@ -68,8 +68,6 @@ export const handler: Handler = async (_, __, callback) => {
     for (const chain of chains) {
         const chainId = chain.id
 
-        if (chainId != 43114) continue
-
         const client = createPublicClient({
             chain,
             transport: http(),
