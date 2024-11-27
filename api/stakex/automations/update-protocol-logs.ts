@@ -1,7 +1,7 @@
 import { Handler } from 'aws-lambda'
 
-import { chunk } from 'lodash'
-import { Address, Chain, createPublicClient, http, webSocket } from 'viem'
+import { chunk, toLower } from 'lodash'
+import { Address, Chain, createPublicClient, http } from 'viem'
 import { chains } from '../../../shared/supportedChains'
 import {
     StakeXProtocolLogsDTO,
@@ -50,17 +50,26 @@ export const updateProtocolLogsByChain = async (chain: Chain) => {
             toBlock,
         })
 
+        // get unique tx hashes
+        const txHashes = [...new Set(logs.map((log) => log.transactionHash))]
+
         const protocolLogs: StakeXProtocolLogsDTO[] = []
 
-        for (const log of logs as any[]) {
-            protocolLogs.push({
-                chainId: client.chain.id,
-                protocol: protocol.protocol,
-                blockNumber: Number(log.blockNumber),
-                txHash: log.transactionHash,
-                logIndex: log.logIndex,
-                log,
-            })
+        for (const hash of txHashes) {
+            const txReceipt = await client.getTransactionReceipt({ hash })
+            const filteredLogs = txReceipt.logs.filter(
+                (log) => toLower(log.address) == toLower(protocol.protocol)
+            )
+            for (const log of filteredLogs) {
+                protocolLogs.push({
+                    chainId: client.chain.id,
+                    protocol: toLower(protocol.protocol),
+                    blockNumber: Number(log.blockNumber),
+                    txHash: log.transactionHash,
+                    logIndex: log.logIndex,
+                    log,
+                })
+            }
         }
 
         try {
@@ -71,11 +80,10 @@ export const updateProtocolLogsByChain = async (chain: Chain) => {
                     if (chunk.length > 0)
                         await protocolLogsRepo.createBatch(chunk)
             }
-
             // update to latest block number
             await protocolsRepo.update({
                 chainId: client.chain.id,
-                protocol: protocol.protocol,
+                protocol: toLower(protocol.protocol),
                 blockNumberLastUpdate: Number(toBlock),
             })
         } catch (e) {
