@@ -1,7 +1,5 @@
-import { Checkbox, Field, Label, Radio, RadioGroup } from '@headlessui/react'
-import { isNumber } from 'lodash'
+import { Field, Radio, RadioGroup } from '@headlessui/react'
 import Image from 'next/image'
-import { useEffect, useState } from 'react'
 import { Chain } from 'viem'
 import { useAccount } from 'wagmi'
 
@@ -12,12 +10,6 @@ type NetworkSelectorFormProps = {
 }
 export const NetworkSelectorForm = ({ chains, selectedChain, onChange }: NetworkSelectorFormProps) => {
     const { isConnected, chain: connectedChain } = useAccount()
-    let [showTestnets, setShowTestnets] = useState(false)
-
-    useEffect(() => {
-        connectedChain && connectedChain.testnet && setShowTestnets(true)
-    }, [connectedChain])
-
     return (
         <RadioGroup value={selectedChain} onChange={onChange} className="grid grid-cols-2 gap-4 md:grid-cols-3">
             {/* {isConnected && connectedChain && connectedChain.id != selected && (
@@ -36,7 +28,6 @@ export const NetworkSelectorForm = ({ chains, selectedChain, onChange }: Network
             {chains
                 .sort((chain) => (chain.testnet ? 1 : -1))
                 .sort((chain) => (isConnected && connectedChain && connectedChain.id == chain.id ? -1 : 1))
-                .filter((chain) => !chain.testnet || (chain.testnet && showTestnets))
                 .map((chain, i) => (
                     <Field key={i} className="flex w-full items-center ">
                         <Radio

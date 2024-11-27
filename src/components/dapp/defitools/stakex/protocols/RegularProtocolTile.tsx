@@ -22,7 +22,7 @@ export const RegularProtocolTile = ({ protocolResponse }: RegularProtocolTilePro
         <div className="bg-dapp-blue-400 sm:rounded-lg sm:p-px">
             <Tile
                 className={clsx([
-                    'flex w-full flex-col gap-6 bg-center !p-0',
+                    'flex h-full w-full flex-col gap-6 bg-center !p-0',
                     dataPeriphery && dataPeriphery.data && dataPeriphery.data.heroBannerUrl && 'bg-cover  bg-no-repeat',
                 ])}
                 style={{
@@ -32,13 +32,13 @@ export const RegularProtocolTile = ({ protocolResponse }: RegularProtocolTilePro
                             : `linear-gradient(rgba(0,0,0, 0.7), rgba(0,0,0, 0.7)), radial-gradient(circle at center, #00000000 , #000000FF), url('${logoSmall.src}')`,
                 }}
             >
-                <div className="min-h-20 flex flex-row items-center gap-4 bg-dapp-blue-600/80 p-4 sm:rounded-t-lg">
+                <div className="flex min-h-20 flex-row items-center gap-4 bg-dapp-blue-600/80 p-4 sm:rounded-t-lg">
                     {dataPeriphery && dataPeriphery.data && dataPeriphery.data.projectLogoUrl ? (
                         <span className="shrink-0 overflow-hidden rounded-full">
                             <Image src={dataPeriphery.data.projectLogoUrl} alt="Project Logo" width={50} height={50} />
                         </span>
                     ) : (
-                        <span className="size-[50px] flex shrink-0 flex-row items-center justify-center overflow-hidden rounded-full bg-dapp-blue-400 text-xl font-bold">
+                        <span className="flex size-[50px] shrink-0 flex-row items-center justify-center overflow-hidden rounded-full bg-dapp-blue-400 text-xl font-bold">
                             {token && token.symbol ? token.symbol[0] : ''}
                         </span>
                     )}

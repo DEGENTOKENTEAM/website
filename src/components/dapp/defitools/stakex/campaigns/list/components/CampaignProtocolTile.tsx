@@ -74,8 +74,8 @@ export const CampaignProtocolTile = ({ campaignResponse }: CampaignProtocolTileP
         <div className="grid grid-cols-1 bg-dapp-blue-400 sm:rounded-lg sm:p-px">
             <Tile
                 className={clsx([
-                    'flex w-full flex-col gap-6 bg-center !p-0',
-                    dataPeriphery && dataPeriphery.data && dataPeriphery.data.heroBannerUrl && 'bg-cover  bg-no-repeat',
+                    'flex h-full w-full flex-col gap-6 bg-center !p-0',
+                    dataPeriphery && dataPeriphery.data && dataPeriphery.data.heroBannerUrl && 'bg-cover bg-no-repeat',
                 ])}
                 style={{
                     backgroundImage:

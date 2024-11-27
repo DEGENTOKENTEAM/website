@@ -147,12 +147,12 @@ const base = defineChain({
 
 export const chains: Chain[] = [
     avalanche,
-    // mainnet,
-    bsc,
-    base,
     arbitrum,
+    // mainnet,
+    base,
+    bsc,
     polygon,
-    // polygonAmoy,
+    polygonAmoy,
     // optimism,
     Boolean(Number(process.env.NEXT_PUBLIC_ENABLE_LOCALFORK)) &&
     process.env.NODE_ENV != 'production'
@@ -208,6 +208,15 @@ export const getExplorerByChainId = (chainId: number) =>
                     `${polygon.blockExplorers.default.url}/token/${token}`,
                 getAddressUrl: (token: Address) =>
                     `${polygon.blockExplorers.default.url}/address/${token}`,
+            },
+            [polygonAmoy.id]: {
+                name: 'amoy.polygonscan.com',
+                getTxUrl: (txHash: Address) =>
+                    `${polygonAmoy.blockExplorers.default.url}/tx/${txHash}`,
+                getTokenUrl: (token: Address) =>
+                    `${polygonAmoy.blockExplorers.default.url}/token/${token}`,
+                getAddressUrl: (token: Address) =>
+                    `${polygonAmoy.blockExplorers.default.url}/address/${token}`,
             },
             [base.id]: {
                 name: 'basescan.org',

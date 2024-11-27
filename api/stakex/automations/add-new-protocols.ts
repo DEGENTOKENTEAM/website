@@ -9,6 +9,7 @@ import {
     mainnet,
     optimism,
     polygon,
+    polygonAmoy,
 } from 'viem/chains'
 import protocols from '../../../config/protocols'
 import { chains } from '../../../shared/supportedChains'
@@ -53,12 +54,13 @@ const abi = [
 
 const chainAPPeriod: { [key: number]: number } = {
     [avalanche.id]: 907200, // 3 weeks
-    [mainnet.id]: 151200, // 3 weeks
-    [base.id]: 907200, // 3 weeks
-    [polygon.id]: 816480, // 3 weeks
     [arbitrum.id]: 6048000, // 3 weeks
+    [base.id]: 907200, // 3 weeks
     [bsc.id]: 604800, // 3 weeks
+    [mainnet.id]: 151200, // 3 weeks
     [optimism.id]: 907200, // 3 weeks
+    [polygon.id]: 816480, // 3 weeks
+    [polygonAmoy.id]: 816480, // 3 weeks
 }
 
 export const handler: Handler = async (_, __, callback) => {

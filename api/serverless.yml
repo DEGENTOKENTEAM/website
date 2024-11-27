@@ -318,6 +318,14 @@ functions:
           rate: rate(1 minute)
           enabled: true
 
+  autoUpdateProtocolStatus:
+    handler: stakex/automations/update-protocol-status.handler
+    timeout: 120
+    events:
+      - schedule:
+          rate: rate(1 minute)
+          enabled: true
+
   autoUpdateCampaigns:
     handler: stakex/automations/update-campaigns.handler
     timeout: 120
