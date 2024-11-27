@@ -2,12 +2,12 @@ import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
 import { first, toLower } from 'lodash'
 import { createPublicClient, http } from 'viem'
 import { getChainById } from '../../shared/supportedChains'
+import { StakeBucket, TokenInfoResponse } from '../../src/types'
 import { createReturn } from '../helpers/return'
 import { StakeXAnnualsRepository } from '../services/annuals'
 import { StakeXProtocolsRepository } from '../services/protocols'
 import { StakeXStakeLogsRepository } from '../services/stakeLogs'
 import abi from './../../src/abi/stakex/abi-ui.json'
-import { StakeBucket, TokenInfoResponse } from '../../src/types'
 
 export const handler = async (
     event: APIGatewayProxyEvent
@@ -67,6 +67,7 @@ export const handler = async (
     let annualPercentageData = {}
     for (const bucket of buckets) {
         const annual = await annualsRepository.getMostRecentBucket(
+            chainId,
             protocol,
             bucket.id
         )

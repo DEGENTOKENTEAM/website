@@ -135,7 +135,11 @@ export class StakeXAnnualsRepository {
         }
     }
 
-    getMostRecentBucket = async (protocol: string, bucketId: string) => {
+    getMostRecentBucket = async (
+        chainId: number,
+        protocol: string,
+        bucketId: string
+    ) => {
         const { Count, Items } = await this._db.query({
             TableName: this.options.dynamoDBConfig.params.TableName,
             KeyConditionExpression:
@@ -146,7 +150,7 @@ export class StakeXAnnualsRepository {
             },
             ExpressionAttributeValues: {
                 ':pkey': pkey,
-                ':skey': `${toLower(protocol)}#${bucketId}#`,
+                ':skey': `${chainId}#${toLower(protocol)}#${bucketId}#`,
             },
             ScanIndexForward: false,
             Limit: 1,
