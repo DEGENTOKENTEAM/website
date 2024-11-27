@@ -296,6 +296,7 @@ functions:
 
   autoUpdateManifests:
     handler: stakex/automations/periphery/update-manifests.handler
+    timeout: 120
     events:
       - schedule:
           rate: rate(1 minute)
@@ -303,6 +304,7 @@ functions:
 
   autoAddNewProtocols:
     handler: stakex/automations/add-new-protocols.handler
+    timeout: 120
     events:
       - schedule:
           rate: rate(1 minute)
@@ -310,6 +312,7 @@ functions:
 
   autoUpdateProtocolLogs:
     handler: stakex/automations/update-protocol-logs.handler
+    timeout: 120
     events:
       - schedule:
           rate: rate(1 minute)
@@ -317,6 +320,7 @@ functions:
 
   autoUpdateCampaigns:
     handler: stakex/automations/update-campaigns.handler
+    timeout: 120
     events:
       - schedule:
           rate: rate(5 minutes)
