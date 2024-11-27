@@ -1,5 +1,5 @@
 import { Handler } from 'aws-lambda'
-import { chunk, isUndefined } from 'lodash'
+import { chunk, isUndefined, toLower } from 'lodash'
 import { Address, Chain, createPublicClient, http, parseEventLogs } from 'viem'
 import { chains } from '../../../../shared/supportedChains'
 import abi from '../../../../src/abi/stakex/abi-ui.json'
@@ -246,7 +246,7 @@ export const calculateAPRForChain = async (chain: Chain) => {
 
                 batch.push({
                     chainId: Number(protocol.chainId),
-                    protocol: protocol.protocol,
+                    protocol: toLower(protocol.protocol),
                     bucketId,
                     timestamp: Number(currentBlock.timestamp),
                     fromBlock: Number(startBlock.number),
@@ -267,7 +267,7 @@ export const calculateAPRForChain = async (chain: Chain) => {
             for (const stakeBucket of stakeBuckets) {
                 batch.push({
                     chainId: Number(protocol.chainId),
-                    protocol: protocol.protocol,
+                    protocol: toLower(protocol.protocol),
                     bucketId: stakeBucket.id,
                     timestamp: Number(currentBlock.timestamp),
                     fromBlock: Number(startBlock.number),
