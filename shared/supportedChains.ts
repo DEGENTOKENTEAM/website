@@ -152,13 +152,13 @@ export const chains: Chain[] = [
     base,
     arbitrum,
     polygon,
-    polygonAmoy,
+    // polygonAmoy,
     // optimism,
-    Boolean(process.env.NEXT_PUBLIC_ENABLE_LOCALFORK) ||
+    Boolean(Number(process.env.NEXT_PUBLIC_ENABLE_LOCALFORK)) &&
     process.env.NODE_ENV != 'production'
         ? localhost
         : null,
-    ...(Boolean(process.env.NEXT_PUBLIC_ENABLE_TESTNETS)
+    ...(Boolean(Number(process.env.NEXT_PUBLIC_ENABLE_TESTNETS))
         ? [avalancheFuji, goerli]
         : []),
 ].filter((chain) => chain) as Chain[]
