@@ -1,6 +1,6 @@
 import { Handler } from 'aws-lambda'
 import { omit } from 'lodash'
-import { Chain, createPublicClient, http, parseEventLogs } from 'viem'
+import { Chain, parseEventLogs } from 'viem'
 import { chains } from '../../../shared/supportedChains'
 import abi from '../../../src/abi/stakex/abi-ui.json'
 import { StakeXProtocolLogsRepository } from '../../services/protocolLogs'
@@ -14,13 +14,7 @@ export const handler: Handler = async (_, __, callback) => {
 export const updateProtocolStatusByChain = async (chain: Chain) => {
     const protocolLogsRepo = new StakeXProtocolLogsRepository()
     const protocolsRepo = new StakeXProtocolsRepository()
-
     const protocols = await protocolsRepo.getAllByChainId(chain.id)
-
-    const client = createPublicClient({
-        chain,
-        transport: http(),
-    })
 
     for (const protocol of protocols.items) {
         ///

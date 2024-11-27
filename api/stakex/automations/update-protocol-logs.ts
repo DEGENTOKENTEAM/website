@@ -1,7 +1,7 @@
 import { Handler } from 'aws-lambda'
 
-import { chunk, get } from 'lodash'
-import { Address, Chain, createPublicClient, http } from 'viem'
+import { chunk } from 'lodash'
+import { Address, Chain, createPublicClient, http, webSocket } from 'viem'
 import { chains } from '../../../shared/supportedChains'
 import {
     StakeXProtocolLogsDTO,
@@ -24,6 +24,8 @@ export const updateProtocolLogsByChain = async (chain: Chain) => {
         transport: http(),
     })
 
+    console.log(`Update ${protocols.count} protocol(s) on chain ${chain.name}`)
+
     const toBlock = await client.getBlockNumber()
 
     for (const protocol of protocols.items) {
@@ -32,7 +34,16 @@ export const updateProtocolLogsByChain = async (chain: Chain) => {
         if (toBlock == fromBlock) continue
 
         // get all events from protocol
-        const logFilter = await client.createEventFilter({
+        // const logFilter = await client.createEventFilter({
+        //     address: protocol.protocol as Address,
+        //     events: abi.filter((item) => item.type == 'event'),
+        //     fromBlock,
+        //     toBlock,
+        // })
+        //
+        // const logs = await client.getFilterLogs({ filter: logFilter })
+
+        const logs = await client.getLogs({
             address: protocol.protocol as Address,
             events: abi.filter((item) => item.type == 'event'),
             fromBlock,
@@ -40,8 +51,6 @@ export const updateProtocolLogsByChain = async (chain: Chain) => {
         })
 
         const protocolLogs: StakeXProtocolLogsDTO[] = []
-
-        const logs = await client.getFilterLogs({ filter: logFilter })
 
         for (const log of logs as any[]) {
             protocolLogs.push({
