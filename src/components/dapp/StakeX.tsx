@@ -62,7 +62,7 @@ export const StakeX = () => {
     ///
     /// peripheral data
     ///
-    const { response: dataPeriphery } = usePeripheryGet(protocolAddress!, chain?.id!)
+    const { response: dataPeriphery, load: loadPeriphery } = usePeripheryGet(protocolAddress!, chain?.id!)
     const chainExplorer = useGetChainExplorer(chain!)
 
     ///
@@ -211,6 +211,10 @@ export const StakeX = () => {
         setStakingData(_data)
     }, [dataGetTokens, protocolAddress, chainId, dataActive, dataRunning, dataHasActionFee, dataGetFeeInNative])
 
+    useEffect(() => {
+        loadPeriphery && loadPeriphery()
+    }, [protocolAddress, chainId])
+
     useMemo(() => {
         Number(chainId) && (!chain || chain?.id !== Number(chainId)) && setChain(getChainById(Number(chainId)))
     }, [chainId, chain])
@@ -244,7 +248,7 @@ export const StakeX = () => {
                     >
                         <div
                             className={clsx([
-                                'size-24 -mb-12 flex flex-row items-center justify-center rounded-full bg-dapp-blue-800 bg-contain bg-center bg-no-repeat shadow-md shadow-dapp-blue-800',
+                                '-mb-12 flex size-24 flex-row items-center justify-center rounded-full bg-dapp-blue-800 bg-contain bg-center bg-no-repeat shadow-md shadow-dapp-blue-800',
                             ])}
                             style={
                                 dataPeriphery && dataPeriphery.data && dataPeriphery.data.projectLogoUrl
@@ -352,7 +356,7 @@ export const StakeX = () => {
                                         >
                                             {isLoadingSettings ? (
                                                 <div className="flex flex-row items-center justify-center">
-                                                    <Spinner theme="dark" className="!size-24 m-20" />
+                                                    <Spinner theme="dark" className="m-20 !size-24" />
                                                 </div>
                                             ) : (
                                                 <div className="flex flex-col gap-4 text-base">
