@@ -86,7 +86,7 @@ export const Protocols = () => {
                     <span>{isMyProtocols && 'My '}Flexible Staking Pools</span>
                 </h1>
             </div>
-            {isLoading && (
+            {(isLoading || loadingProtocols) && (
                 <div className="flex w-full items-center justify-center">
                     <Spinner theme="dark" />
                 </div>
@@ -94,6 +94,7 @@ export const Protocols = () => {
 
             <div className="grid grid-cols-1 gap-8 sm:grid-cols-2">
                 {!isLoading &&
+                    !loadingProtocols &&
                     protocols &&
                     protocols.map(({ protocol, token }) => (
                         <RegularProtocolTile key={protocol.source} protocolResponse={{ protocol, token }} />

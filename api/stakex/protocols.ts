@@ -1,5 +1,5 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
-import { cloneDeep, isNumber, toLower } from 'lodash'
+import { cloneDeep, isNumber, pick, toLower } from 'lodash'
 import { Address, createPublicClient, http, isAddress, zeroAddress } from 'viem'
 import { getChainById } from '../../shared/supportedChains'
 import { ProtocolsResponse } from '../../shared/types'
@@ -8,6 +8,7 @@ import { StakeXAnnualsRepository } from '../services/annuals'
 import { StakeXProtocolsRepository } from '../services/protocols'
 import abi from './../../src/abi/stakex/abi-ui.json'
 import { fetchIpfsData } from './periphery/get'
+import { TokenInfoResponse } from '../../src/types'
 
 export const handler = async (
     event: APIGatewayProxyEvent
@@ -32,6 +33,7 @@ export const handler = async (
             source: zeroAddress,
             chainId: 0,
             isRunning: false,
+            rewards: [],
         },
         token: { decimals: 0, symbol: '' },
     }
@@ -57,6 +59,11 @@ export const handler = async (
                     address: protocol,
                     abi,
                     functionName: 'getStakingData',
+                },
+                {
+                    address: protocol,
+                    abi,
+                    functionName: 'getTokens',
                 },
                 {
                     address: protocol,
@@ -110,8 +117,11 @@ export const handler = async (
             }
         }
 
-        const [{ result: stakingData }, { result: isRunning }] =
-            dataToChainAndProtocol[Number(chainId)].splice(0, 2)
+        const [
+            { result: stakingData },
+            { result: tokens },
+            { result: isRunning },
+        ] = dataToChainAndProtocol[Number(chainId)].splice(0, 3)
 
         if (stakingData) {
             protocolResponse.protocol.isRunning = isRunning
@@ -141,8 +151,20 @@ export const handler = async (
                 stakingData.staked.tokenInfo.decimals
         }
 
+        if (tokens) {
+            protocolResponse.protocol.rewards.push(
+                ...tokens.filter((token: TokenInfoResponse) => token.isReward)
+            )
+        }
+
         ret.push(protocolResponse)
     }
 
-    return createReturn(200, JSON.stringify(ret), 60) // 1m cache
+    return createReturn(
+        200,
+        JSON.stringify(ret, (_, value) =>
+            typeof value === 'bigint' ? value.toString() : value
+        ),
+        60
+    ) // 1m cache
 }

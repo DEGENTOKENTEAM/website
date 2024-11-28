@@ -1,3 +1,4 @@
+import { TokenInfo, TokenInfoResponse } from '@dapptypes'
 import { StakeXCampaignsResponse } from 'api/services/campaigns'
 import { ExactPartial } from 'viem'
 
@@ -14,6 +15,7 @@ export type ProtocolsResponse = {
         source: string
         chainId: number
         isRunning: boolean
+        rewards: TokenInfo[]
     }
     token: {
         symbol: string

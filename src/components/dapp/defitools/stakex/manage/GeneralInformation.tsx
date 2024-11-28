@@ -258,10 +258,10 @@ export const GeneralInformation = () => {
                 style={{
                     backgroundImage:
                         previewImageHero || baseImageHero
-                            ? `radial-gradient(circle at center, #00000000 , #000000FF), url('${
+                            ? `radial-gradient(circle at center, #00000000 , #00000088), url('${
                                   previewImageHero ? previewImageHero : baseImageHero
                               }')`
-                            : `radial-gradient(circle at center, #00000000 , #000000FF), url('${logoSmall.src}')`,
+                            : `radial-gradient(circle at center, #00000000 , #00000088), url('${logoSmall.src}')`,
                 }}
             >
                 <span className="absolute bottom-auto left-auto right-4 top-4 rounded-full bg-dapp-blue-800/80 hover:cursor-pointer">

@@ -242,8 +242,8 @@ export const StakeX = () => {
                         style={{
                             backgroundImage:
                                 dataPeriphery && dataPeriphery.data && dataPeriphery.data.heroBannerUrl
-                                    ? `radial-gradient(circle at center, #00000000 , #000000FF), url(${dataPeriphery.data.heroBannerUrl})`
-                                    : `radial-gradient(circle at center, #00000000 , #000000FF), url('${logoSmall.src}')`,
+                                    ? `radial-gradient(circle at center, #00000000 , #00000088), url(${dataPeriphery.data.heroBannerUrl})`
+                                    : `radial-gradient(circle at center, #00000000 , #00000088), url('${logoSmall.src}')`,
                         }}
                     >
                         <div
