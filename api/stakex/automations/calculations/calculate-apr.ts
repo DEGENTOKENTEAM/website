@@ -233,13 +233,14 @@ export const calculateAPRForChain = async (chain: Chain) => {
             }
 
             for (const bucketId in aggregatedSharesForBucket) {
-                const apr =
+                let apr =
                     (aggregatedSharesForBucket[bucketId] /
                         injectionCount /
                         ((Number(currentBlock.timestamp) -
                             Number(startBlock.timestamp)) /
                             86400)) *
                     365
+                if (apr > Number.MAX_SAFE_INTEGER) apr = -1
 
                 let apy = (1 + apr / 52) ** 52 - 1
                 if (apy > Number.MAX_SAFE_INTEGER) apy = -1
@@ -278,6 +279,7 @@ export const calculateAPRForChain = async (chain: Chain) => {
             }
         }
 
+        console.log(batch)
         // if there are updates, put it into db
         if (batch.length > 0) {
             const batchChunks = chunk(batch, 25)

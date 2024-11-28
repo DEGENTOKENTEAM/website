@@ -125,6 +125,7 @@ export const handler: Handler = async (_, __, callback) => {
 
         try {
             const logsRaw = await client.getContractEvents(logRequest)
+            console.log(JSON.stringify(logsRaw, undefined, 2))
             if (logsRaw.length) {
                 logs = parseEventLogs({
                     abi,
@@ -149,6 +150,8 @@ export const handler: Handler = async (_, __, callback) => {
                 address: log.args.protocol,
                 functionName: 'contractOwner',
             })) as unknown as string
+
+            console.log({ protocolData, owner })
 
             protocolBatch.push({
                 chainId,

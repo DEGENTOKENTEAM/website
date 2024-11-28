@@ -384,21 +384,25 @@ export const StakingForm = ({ stakingTokenInfo, onDepositSuccessHandler }: Staki
 
                 <StatsBoxTwoColumn.LeftColumn>APR</StatsBoxTwoColumn.LeftColumn>
                 <StatsBoxTwoColumn.RightColumn>
-                    {yieldPerBucket && yieldPerBucket[stakeBucketId]
-                        ? `${toReadableNumber(yieldPerBucket[stakeBucketId].apr, 0, {
-                              maximumFractionDigits: 2,
-                              minimumFractionDigits: 2,
-                          })}%`
-                        : '0%'}
+                    {yieldPerBucket && yieldPerBucket[stakeBucketId] && yieldPerBucket[stakeBucketId].apr >= 0 ? (
+                        `${toReadableNumber(yieldPerBucket[stakeBucketId].apr, 0, {
+                            maximumFractionDigits: 2,
+                            minimumFractionDigits: 2,
+                        })}%`
+                    ) : (
+                        <span>Too much &nbsp; 🚀</span>
+                    )}
                 </StatsBoxTwoColumn.RightColumn>
                 <StatsBoxTwoColumn.LeftColumn>APY</StatsBoxTwoColumn.LeftColumn>
                 <StatsBoxTwoColumn.RightColumn>
-                    {yieldPerBucket && yieldPerBucket[stakeBucketId]
-                        ? `${toReadableNumber(yieldPerBucket[stakeBucketId].apy, 0, {
-                              maximumFractionDigits: 2,
-                              minimumFractionDigits: 2,
-                          })}%`
-                        : '0%'}
+                    {yieldPerBucket && yieldPerBucket[stakeBucketId] && yieldPerBucket[stakeBucketId].apy >= 0 ? (
+                        `${toReadableNumber(yieldPerBucket[stakeBucketId].apy, 0, {
+                            maximumFractionDigits: 2,
+                            minimumFractionDigits: 2,
+                        })}%`
+                    ) : (
+                        <span>Too much &nbsp; 🚀</span>
+                    )}
                 </StatsBoxTwoColumn.RightColumn>
 
                 {dataHasFees?.hasFeeForStaking && (

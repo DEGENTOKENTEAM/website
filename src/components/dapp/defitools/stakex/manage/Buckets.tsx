@@ -385,17 +385,32 @@ export const Buckets = () => {
                                                 {bucket.share / 100}%
                                             </StatsBoxTwoColumn.RightColumn>
 
-                                            <StatsBoxTwoColumn.LeftColumn>APR / APY</StatsBoxTwoColumn.LeftColumn>
+                                            <StatsBoxTwoColumn.LeftColumn>APR</StatsBoxTwoColumn.LeftColumn>
                                             <StatsBoxTwoColumn.RightColumn>
-                                                {yieldPerBucket && yieldPerBucket[bucket.id]
-                                                    ? `${toReadableNumber(yieldPerBucket[bucket.id].apr, 0, {
-                                                          maximumFractionDigits: 2,
-                                                          minimumFractionDigits: 2,
-                                                      })}% / ${toReadableNumber(yieldPerBucket[bucket.id].apy, 0, {
-                                                          maximumFractionDigits: 2,
-                                                          minimumFractionDigits: 2,
-                                                      })}%`
-                                                    : '0% / 0%'}
+                                                {yieldPerBucket && yieldPerBucket[bucket.id] && (
+                                                    <span>
+                                                        {yieldPerBucket[bucket.id].apy >= 0
+                                                            ? `${toReadableNumber(yieldPerBucket[bucket.id].apy, 0, {
+                                                                  maximumFractionDigits: 2,
+                                                                  minimumFractionDigits: 2,
+                                                              })}%`
+                                                            : 'Too much to handle 🚀'}
+                                                    </span>
+                                                )}
+                                            </StatsBoxTwoColumn.RightColumn>
+
+                                            <StatsBoxTwoColumn.LeftColumn>APY</StatsBoxTwoColumn.LeftColumn>
+                                            <StatsBoxTwoColumn.RightColumn>
+                                                {yieldPerBucket && yieldPerBucket[bucket.id] && (
+                                                    <span>
+                                                        {yieldPerBucket[bucket.id].apr >= 0
+                                                            ? `${toReadableNumber(yieldPerBucket[bucket.id].apr, 0, {
+                                                                  maximumFractionDigits: 2,
+                                                                  minimumFractionDigits: 2,
+                                                              })}%`
+                                                            : 'Too much to handle 🚀'}
+                                                    </span>
+                                                )}
                                             </StatsBoxTwoColumn.RightColumn>
 
                                             <div className="col-span-2">

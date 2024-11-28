@@ -70,21 +70,22 @@ export const RegularProtocolTile = ({ protocolResponse }: RegularProtocolTilePro
 
                     <div>
                         <span className="mr-2 font-bold">APR</span>{' '}
-                        {toReadableNumber(protocol.apr, 0, {
-                            maximumFractionDigits: 3,
-                            minimumFractionDigits: 2,
-                        })}
-                        %
+                        {protocol.apy >= 0
+                            ? `${toReadableNumber(protocol.apr, 0, {
+                                  maximumFractionDigits: 3,
+                                  minimumFractionDigits: 2,
+                              })}%`
+                            : `pretty high`}
                     </div>
 
                     <div>
                         <span className="mr-2 font-bold">APY</span>{' '}
-                        {protocol.apy < 0
-                            ? `pretty high`
-                            : `${toReadableNumber(protocol.apy, 0, {
+                        {protocol.apy >= 0
+                            ? `${toReadableNumber(protocol.apy, 0, {
                                   maximumFractionDigits: 3,
                                   minimumFractionDigits: 2,
-                              })}%`}
+                              })}%`
+                            : `pretty high`}
                     </div>
 
                     <div>
