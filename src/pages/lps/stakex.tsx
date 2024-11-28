@@ -139,13 +139,15 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
                                 </h2>
                                 <p>
                                     STAKEX is an audited staking protocol designed for EVM-compatible networks, enabling
-                                    projects to create highly customizable staking pools without upfront costs. It
-                                    supports features like multiple staking options, NFT-based stake representation,
+                                    projects to create highly customizable staking pools without upfront costs. <br />
+                                    <br />
+                                    It supports features like multiple staking options, NFT-based stake representation,
                                     flexible reward mechanisms, and easy integration with DeFi ecosystems, including
-                                    time-limited campaigns and infinite staking pools. With a user-friendly interface,
-                                    extensive customization, and gamified revenue generation options, STAKEX empowers
-                                    token holders and projects to maximize engagement, rewards, and profitability within
-                                    the DeFi space.
+                                    time-limited campaigns and infinite staking pools. <br />
+                                    <br />
+                                    With a user-friendly interface, extensive customization, and gamified revenue
+                                    generation options, STAKEX empowers token holders and projects to maximize
+                                    engagement, rewards, and profitability within the DeFi space.
                                 </p>
                             </div>
                             <div>
