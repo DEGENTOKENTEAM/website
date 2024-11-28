@@ -15,31 +15,38 @@ export const Hero = () => {
     return (
         <div>
             <div className="m-auto grid h-full max-w-7xl grid-cols-1 md:grid-cols-2 ">
-                <div className="order-last flex flex-col justify-center gap-4 py-6 md:-order-last md:py-16">
-                    <span className="text-4xl font-bold leading-10 tracking-wide">
-                        <span className="font-title font-extrabold">
+                <div className="relative order-last flex flex-col justify-center gap-4 py-6 md:-order-last md:bg-none md:py-16">
+                    <Image
+                        src={heroImage}
+                        alt="Hero Banner Image"
+                        className="absolute inset-0 mx-auto w-[80%] opacity-10 md:hidden"
+                    />
+                    <span className="mt-28 text-7xl font-bold tracking-wide md:mt-0">
+                        <h1 className="m-0 p-0 font-title font-extrabold">
                             <span className="text-techGreen">STAKE</span>
                             <span className="text-degenOrange">X</span>
-                        </span>
-                        <br />
-                        Staking Solutions
+                        </h1>
                     </span>
                     <span className="text-2xl">
-                        Store value of your project and incentivize your project token holders and investors
+                        Staking made simple! Secure your projects health, boost your community engagement, incentivize
+                        your holders
                     </span>
                     <span className="text-lg">
-                        Benefit from our audited, secure, innovative,
-                        <br className="hidden lg:inline" /> and out-of-the-box staking protocol
+                        Take advantage from our audited, secure, innovative,
+                        <br className="hidden lg:inline" /> and out-of-the-box staking solutions
                     </span>
-                    <div className="py-2">
-                        <CallToActionButton />
+                    <div className="flex flex-row gap-4 py-2">
+                        <CallToActionButton href="#whatisstakex">Tell me more</CallToActionButton>
+                        <CallToActionButton href="https://t.me/DEGENXecosystem" variant="secondary">
+                            Contact us
+                        </CallToActionButton>
                     </div>
                 </div>
                 <div className="relative flex flex-col items-center justify-center md:items-end">
                     <Image
                         src={heroImage}
                         alt="Hero Banner Image"
-                        className="right-8 top-8 w-[70%] md:absolute md:mt-10"
+                        className="absolute right-8 top-8 mt-10 hidden w-[70%] md:block"
                     />
                 </div>
             </div>
@@ -52,11 +59,11 @@ export const Hero = () => {
                         alt="Support Avalanche Network Image"
                         className="size-12 md:size-16 md:grayscale md:hover:filter-none"
                     />
-                    <Image
+                    {/* <Image
                         src={imageEthereum}
                         alt="Support Ethereum Network Image"
                         className="size-12 md:size-16 md:grayscale md:hover:filter-none"
-                    />
+                    /> */}
                     <Image
                         src={imageBase}
                         alt="Support Base Network Image"
@@ -80,15 +87,7 @@ export const Hero = () => {
                 </div>
             </div>
             <div className="m-auto mt-10 flex flex-col items-center justify-center gap-6 text-center sm:flex-row ">
-                <div className="font-title text-2xl font-bold">
-                    <span className="sm:whitespace-nowrap">
-                        <Link href="/audits/20240522_STAKEX.pdf" target="_blank" className="hover:underline">
-                            Smart Contract Security Audit
-                        </Link>{' '}
-                        <FaExternalLinkAlt className="relative top-[-2px] inline-block text-xl" />
-                    </span>{' '}
-                    by
-                </div>
+                <div className="font-title text-2xl font-bold">Smart Contract Security Audit by</div>
                 <div>
                     <Link href="https://solidproof.io/" target="_blank">
                         <Image src={imageSolidproof} alt="Solidproof Logo White" />
