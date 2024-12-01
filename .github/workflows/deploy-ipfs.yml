@@ -1,0 +1,61 @@
+name: Deploy IPFS
+on:
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v1
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '20'
+
+      - name: Cache dependencies
+        uses: actions/cache@v2
+        with:
+          path: ~/.npm
+          key: npm-${{ hashFiles('package-lock.json') }}
+          restore-keys: npm-
+
+      - name: Install dependencies
+        run: npm ci --force --ignore-scripts
+
+      - name: Build
+        run: npm run build
+        env:
+          NEXT_PUBLIC_BACKING_API_ENDPOINT: ${{ vars.NEXT_PUBLIC_BACKING_API_ENDPOINT }}
+          NEXT_PUBLIC_CONTROLLER_ADDRESS: ${{ vars.NEXT_PUBLIC_CONTROLLER_ADDRESS }}
+          NEXT_PUBLIC_USDC_ADDRESSES: ${{ vars.NEXT_PUBLIC_USDC_ADDRESSES }}
+          NEXT_PUBLIC_RPC: ${{ vars.NEXT_PUBLIC_RPC }}
+          NEXT_PUBLIC_CHAIN_ID: ${{ vars.NEXT_PUBLIC_CHAIN_ID }}
+          NEXT_PUBLIC_NAME: ${{ vars.NEXT_PUBLIC_NAME }}
+          NEXT_PUBLIC_TOKEN_ADDRESS: ${{ vars.NEXT_PUBLIC_TOKEN_ADDRESS }}
+          NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID: ${{ vars.NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID }}
+          NEXT_PUBLIC_INFURA_ID: ${{ vars.NEXT_PUBLIC_INFURA_ID }}
+          NEXT_PUBLIC_ALCHEMY_API_KEY: ${{ vars.NEXT_PUBLIC_ALCHEMY_API_KEY }}
+          NEXT_PUBLIC_ANKR_API_KEY: ${{ vars.NEXT_PUBLIC_ANKR_API_KEY }}
+          NEXT_PUBLIC_BOUNCER_VERIFICATION_DATA: ${{ vars.NEXT_PUBLIC_BOUNCER_VERIFICATION_DATA }}
+          NEXT_PUBLIC_BOUNCER_VERIFY_WALLET: ${{ vars.NEXT_PUBLIC_BOUNCER_VERIFY_WALLET }}
+          NEXT_PUBLIC_BOUNCER_FINISH_VERIFICATION: ${{ vars.NEXT_PUBLIC_BOUNCER_FINISH_VERIFICATION }}
+          NEXT_PUBLIC_STAKEX_API_ENDPOINT: ${{ vars.NEXT_PUBLIC_STAKEX_API_ENDPOINT }}
+          NEXT_PUBLIC_DEGENX_BACKEND_API_ENDPOINT: ${{ vars.NEXT_PUBLIC_DEGENX_BACKEND_API_ENDPOINT }}
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+          NEXT_PUBLIC_SENTRY_DSN: ${{ vars.NEXT_PUBLIC_SENTRY_DSN }} # no skip
+
+      - uses: aquiladev/ipfs-action@master
+        with:
+          path: ./build
+          service: pinata
+          pinName: dapp
+          key: degenx-dapp
+          pinataKey: ${{ secrets.PINATA_API_KEY }}
+          pinataSecret: ${{ secrets.PINATA_API_SECRET }}
