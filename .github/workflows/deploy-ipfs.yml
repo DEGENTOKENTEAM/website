@@ -53,7 +53,7 @@ jobs:
 
       - uses: aquiladev/ipfs-action@master
         with:
-          path: ./build
+          path: ./out
           service: pinata
           pinName: dapp
           key: degenx-dapp
