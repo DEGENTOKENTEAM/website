@@ -56,5 +56,6 @@ jobs:
         with:
           path: ./out
           service: pinata
+          verbose: true
           pinataKey: ${{ secrets.PINATA_API_KEY }}
           pinataSecret: ${{ secrets.PINATA_API_SECRET }}
