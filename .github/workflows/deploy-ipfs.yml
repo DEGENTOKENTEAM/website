@@ -51,11 +51,10 @@ jobs:
           SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
           NEXT_PUBLIC_SENTRY_DSN: ${{ vars.NEXT_PUBLIC_SENTRY_DSN }} # no skip
 
-      - uses: aquiladev/ipfs-action@master
+      - name: Deploy to IPFS
+        uses: aquiladev/ipfs-action@master
         with:
           path: ./out
           service: pinata
-          pinName: dapp
-          key: degenx-dapp
           pinataKey: ${{ secrets.PINATA_API_KEY }}
           pinataSecret: ${{ secrets.PINATA_API_SECRET }}
