@@ -23,15 +23,20 @@ export const useDepositStake = (
     }
 
     const execProps = useExecuteFunction({
-        address,
-        abi,
-        chainId,
-        functionName: 'stake',
-        args: [stakeBucketId, amount],
-        eventNames: ['Staked'],
-        enabled: isEnabled,
-        value: actionFeeActive && actionFeeAmount > 0n ? actionFeeAmount : 0n,
-        onEventMatch,
+        ...{
+            address,
+            abi,
+            chainId,
+            functionName: 'stake',
+            args: [stakeBucketId, amount],
+            eventNames: ['Staked'],
+            enabled: isEnabled,
+
+            onEventMatch,
+        },
+        ...(actionFeeActive && actionFeeAmount > 0n
+            ? { value: actionFeeAmount }
+            : {}),
     })
 
     return { ...execProps, feeAmount, stakeAmount }

@@ -48,13 +48,13 @@ export const useExecuteFunction = ({
         abi,
         functionName,
         args,
-        account: account || undefined,
-        value: value || undefined,
         query: {
             enabled: Boolean(
                 address && chainId && abi && functionName && _enabled
             ),
         },
+        ...(account ? { account } : {}),
+        ...(value && value > 0n ? { value } : {}),
     })
 
     const {

@@ -112,7 +112,7 @@ export const StakingForm = ({ stakingTokenInfo, onDepositSuccessHandler }: Staki
         chain?.id!,
         stakeBucketId,
         stakeAmount,
-        Boolean(hasAllowance && startDeposit),
+        Boolean(hasAllowance),
         actionFeeActive,
         actionFeeThreshold
     )
