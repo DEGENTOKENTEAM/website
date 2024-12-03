@@ -6,7 +6,7 @@ import { DgnxAtmStats, useAtmStats } from '@dapphooks/atm/useAtmStats'
 import { DngxAtmStatsForQualifier, useAtmStatsForQualifier } from '@dapphooks/atm/useAtmStatsForQualifier'
 import clsx from 'clsx'
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { useAccount, useBlock, useChainId, useSwitchChain } from 'wagmi'
+import { useAccount, useBlock, useSwitchChain } from 'wagmi'
 import { Button } from '../../Button'
 import { H2 } from '../../H2'
 import { Spinner } from './Spinner'
@@ -527,17 +527,17 @@ const AtmClaiming = (props: { stats: DgnxAtmStats }) => {
 
 export const ATMApp = () => {
     const { switchChain } = useSwitchChain()
-    const { address, isConnected, chainId, isConnecting } = useAccount()
+    const { address, isConnected, chainId } = useAccount()
     const statsForQualifier = useAtmStatsForQualifier(address!)
     const stats = useAtmStats()
-
-    if (!isConnected) {
-        return <div className="font-bold">Please connect wallet</div>
-    }
 
     const onClickSwitchToETH = useCallback(() => {
         switchChain && switchChain({ chainId: 1 })
     }, [switchChain])
+
+    if (!isConnected) {
+        return <div className="font-bold">Please connect wallet</div>
+    }
 
     if (chainId !== 1 && chainId !== 5) {
         return (
