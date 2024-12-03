@@ -5,7 +5,7 @@ import { useAtmLockLeave } from '@dapphooks/atm/useAtmLockLeave'
 import { DgnxAtmStats, useAtmStats } from '@dapphooks/atm/useAtmStats'
 import { DngxAtmStatsForQualifier, useAtmStatsForQualifier } from '@dapphooks/atm/useAtmStatsForQualifier'
 import clsx from 'clsx'
-import { useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useAccount, useBlock, useChainId, useSwitchChain } from 'wagmi'
 import { Button } from '../../Button'
 import { H2 } from '../../H2'
@@ -526,21 +526,24 @@ const AtmClaiming = (props: { stats: DgnxAtmStats }) => {
 }
 
 export const ATMApp = () => {
-    const { address, isConnected } = useAccount()
-    const stats = useAtmStats()
-    const statsForQualifier = useAtmStatsForQualifier(address!)
-    const chainId = useChainId()
     const { switchChain } = useSwitchChain()
+    const { address, isConnected, chainId, isConnecting } = useAccount()
+    const statsForQualifier = useAtmStatsForQualifier(address!)
+    const stats = useAtmStats()
 
     if (!isConnected) {
         return <div className="font-bold">Please connect wallet</div>
     }
 
+    const onClickSwitchToETH = useCallback(() => {
+        switchChain && switchChain({ chainId: 1 })
+    }, [switchChain])
+
     if (chainId !== 1 && chainId !== 5) {
         return (
             <div className="max-w-2xl">
                 <div className="font-bold">The ATM is only available on ETH</div>
-                <Button className="mt-3 w-full" color="orange" onClick={() => switchChain({ chainId: 1 })}>
+                <Button className="mt-3 w-full" color="orange" onClick={() => onClickSwitchToETH()}>
                     Switch to ETH
                 </Button>
             </div>

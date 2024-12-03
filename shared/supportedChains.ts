@@ -148,7 +148,7 @@ const base = defineChain({
 export const chains: Chain[] = [
     avalanche,
     arbitrum,
-    // mainnet,
+    mainnet,
     base,
     bsc,
     polygon,
