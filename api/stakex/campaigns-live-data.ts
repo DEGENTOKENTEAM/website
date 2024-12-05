@@ -29,7 +29,13 @@ export const handler = async (
         for (const chainId of Object.keys(chains)) {
             const client = createPublicClient({
                 chain: getChainById(Number(chainId)),
-                transport: http(),
+                transport: http(undefined, {
+                    fetchOptions: {
+                        headers: {
+                            'Origin': 'https://dgnx.finance',
+                        },
+                    },
+                }),
             })
 
             const multicallRequest: any[] = [] as const

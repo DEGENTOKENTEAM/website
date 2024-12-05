@@ -21,7 +21,13 @@ export const updateProtocolLogsByChain = async (chain: Chain) => {
     const protocols = await protocolsRepo.getAllByChainId(chain.id, 1000)
     const client = createPublicClient({
         chain,
-        transport: http(),
+        transport: http(undefined, {
+            fetchOptions: {
+                headers: {
+                    'Origin': 'https://dgnx.finance',
+                },
+            },
+        }),
     })
 
     console.log(`Update ${protocols.count} protocol(s) on chain ${chain.name}`)

@@ -100,7 +100,13 @@ export const handler = async (
 
     const client = createPublicClient({
         chain: getChainById(chainId),
-        transport: http(),
+        transport: http(undefined, {
+            fetchOptions: {
+                headers: {
+                    'Origin': 'https://dgnx.finance',
+                },
+            },
+        }),
     })
 
     // genesis facets

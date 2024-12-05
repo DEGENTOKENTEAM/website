@@ -70,7 +70,13 @@ export const handler: Handler = async (_, __, callback) => {
 
         const client = createPublicClient({
             chain,
-            transport: http(),
+            transport: http(undefined, {
+                fetchOptions: {
+                    headers: {
+                        'Origin': 'https://dgnx.finance',
+                    },
+                },
+            }),
         })
 
         if (!protocols[chainId] || !protocols[chainId].deployer) continue

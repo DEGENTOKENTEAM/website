@@ -23,7 +23,16 @@ export const calculateStakesForChain = async (chain: Chain) => {
     const protocolsRepo = new StakeXProtocolsRepository()
     const protocolLogsRepo = new StakeXProtocolLogsRepository()
     const stakeLogsRepo = new StakeXStakeLogsRepository()
-    const client = createPublicClient({ chain, transport: http() })
+    const client = createPublicClient({
+        chain,
+        transport: http(undefined, {
+            fetchOptions: {
+                headers: {
+                    'Origin': 'https://dgnx.finance',
+                },
+            },
+        }),
+    })
 
     // get protocols from chain
     const protocols = await protocolsRepo.getAllRegularsByChainId(chain.id)

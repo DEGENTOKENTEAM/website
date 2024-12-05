@@ -102,7 +102,13 @@ export const handler: Handler = async (_, __, callback) => {
             for (const data of dataFrom.Items) {
                 const client = createPublicClient({
                     chain: getChainById(Number(data.chainId)),
-                    transport: http(),
+                    transport: http(undefined, {
+                        fetchOptions: {
+                            headers: {
+                                'Origin': 'https://dgnx.finance',
+                            },
+                        },
+                    }),
                 })
 
                 const owner = await client.readContract({

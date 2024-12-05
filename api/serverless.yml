@@ -307,7 +307,7 @@ functions:
     timeout: 120
     events:
       - schedule:
-          rate: rate(1 minute)
+          rate: rate(5 minutes)
           enabled: true
 
   autoUpdateProtocolLogs:
@@ -315,7 +315,7 @@ functions:
     timeout: 120
     events:
       - schedule:
-          rate: rate(1 minute)
+          rate: rate(5 minutes)
           enabled: true
 
   autoUpdateProtocolStatus:
@@ -323,7 +323,7 @@ functions:
     timeout: 120
     events:
       - schedule:
-          rate: rate(1 minute)
+          rate: rate(10 minutes)
           enabled: true
 
   autoUpdateCampaigns:
@@ -331,7 +331,7 @@ functions:
     timeout: 120
     events:
       - schedule:
-          rate: rate(5 minutes)
+          rate: rate(10 minutes)
           enabled: true
 
 resources:

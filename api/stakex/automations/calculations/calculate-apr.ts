@@ -22,7 +22,16 @@ export const calculateAPRForChain = async (chain: Chain) => {
     const protocolsRepo = new StakeXProtocolsRepository()
     const protocolLogsRepo = new StakeXProtocolLogsRepository()
 
-    const client = createPublicClient({ chain, transport: http() })
+    const client = createPublicClient({
+        chain,
+        transport: http(undefined, {
+            fetchOptions: {
+                headers: {
+                    'Origin': 'https://dgnx.finance',
+                },
+            },
+        }),
+    })
 
     const currentBlock = await client.getBlock()
 

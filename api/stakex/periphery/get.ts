@@ -90,7 +90,16 @@ export const fetchIpfsData = async (
 
         if (!chain) throw Error('CHAIN_NOT_SUPPORTED')
 
-        const client = createPublicClient({ chain, transport: http() })
+        const client = createPublicClient({
+            chain,
+            transport: http(undefined, {
+                fetchOptions: {
+                    headers: {
+                        'Origin': 'https://dgnx.finance',
+                    },
+                },
+            }),
+        })
 
         let stakingTokenData = tokenInfo
         if (!stakingTokenData) {

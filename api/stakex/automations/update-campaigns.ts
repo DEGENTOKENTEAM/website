@@ -21,7 +21,13 @@ export const updateCampaignsByChain = async (chain: Chain) => {
 
     const client = createPublicClient({
         chain,
-        transport: http(),
+        transport: http(undefined, {
+            fetchOptions: {
+                headers: {
+                    'Origin': 'https://dgnx.finance',
+                },
+            },
+        }),
     })
 
     const protocolData = await protocolsRepo.getAllCampaignsByChainId(

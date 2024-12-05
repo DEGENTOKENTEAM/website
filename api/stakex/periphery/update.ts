@@ -56,7 +56,13 @@ export const handler = async (
     ///
     const client = createPublicClient({
         chain,
-        transport: http(),
+        transport: http(undefined, {
+            fetchOptions: {
+                headers: {
+                    'Origin': 'https://dgnx.finance',
+                },
+            },
+        }),
     })
 
     let owner: Address

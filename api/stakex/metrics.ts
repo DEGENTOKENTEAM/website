@@ -35,7 +35,13 @@ export const handler = async (
 
     const client = createPublicClient({
         chain: getChainById(Number(chainId)),
-        transport: http(),
+        transport: http(undefined, {
+            fetchOptions: {
+                headers: {
+                    'Origin': 'https://dgnx.finance',
+                },
+            },
+        }),
     })
 
     const [bucketsCallData, stakingTokenCallData] = await client.multicall({
