@@ -73,7 +73,7 @@ export const handler: Handler = async (_, __, callback) => {
             transport: http(undefined, {
                 fetchOptions: {
                     headers: {
-                        'Origin': 'https://dgnx.finance',
+                        Origin: 'https://dgnx.finance',
                     },
                 },
             }),
@@ -131,7 +131,14 @@ export const handler: Handler = async (_, __, callback) => {
 
         try {
             const logsRaw = await client.getContractEvents(logRequest)
-            console.log(JSON.stringify(logsRaw, undefined, 2))
+            console.log(
+                JSON.stringify(
+                    { logsRaw, logRequest },
+                    (_, value) =>
+                        typeof value === 'bigint' ? value.toString() : value,
+                    2
+                )
+            )
             if (logsRaw.length) {
                 logs = parseEventLogs({
                     abi,

@@ -223,7 +223,7 @@ export const CampaignProtocolTile = ({ campaignResponse }: CampaignProtocolTileP
                                 <StatsBoxTwoColumn.RightColumn>
                                     <span className="tabular-nums">
                                         {toReadableNumber(
-                                            '12345600000000000000000000',
+                                            data ? data.config.staked : 0,
                                             campaignResponse.stakingDecimals,
                                             {
                                                 minimumFractionDigits: 0,
@@ -239,9 +239,12 @@ export const CampaignProtocolTile = ({ campaignResponse }: CampaignProtocolTileP
                         {isConnected && toLower(address) == toLower(campaignResponse.owner) && (
                             <Button
                                 onClick={() => {
-                                    navigate(`/dapp/staking/${campaignResponse.chainId}/${campaignResponse.protocol}`, {
-                                        relative: 'path',
-                                    })
+                                    navigate(
+                                        `./details/${campaignResponse.chainId}/${campaignResponse.protocol}/${campaignResponse.bucketId}`,
+                                        {
+                                            relative: 'path',
+                                        }
+                                    )
                                 }}
                                 variant="primary"
                                 className="grow"

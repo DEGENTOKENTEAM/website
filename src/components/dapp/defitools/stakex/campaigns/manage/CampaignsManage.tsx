@@ -350,7 +350,7 @@ export const CampaignsManage = () => {
                                 className={clsx(
                                     'block w-auto appearance-none rounded-lg border-0 bg-dapp-blue-600 text-right text-base focus:ring-0 focus:ring-offset-0',
                                     'focus:outline-none data-[focus]:outline-2 data-[focus]:-outline-offset-2 data-[focus]:outline-white/25',
-                                    '*:text-black grow-0'
+                                    'grow-0 *:text-black'
                                 )}
                                 ref={filterRef}
                                 onChange={onChangeFilter}
