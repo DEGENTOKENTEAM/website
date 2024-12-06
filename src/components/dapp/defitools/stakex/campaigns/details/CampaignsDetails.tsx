@@ -35,7 +35,7 @@ export const CampaignsDetails = () => {
     const chainId = Number(params.chainId)
     const campaignId = params.campaignId as Address
 
-    const { address, isConnected } = useAccount()
+    const { address, isConnected, chain } = useAccount()
 
     ///
     /// Campaign Data
@@ -332,7 +332,7 @@ export const CampaignsDetails = () => {
                 >
                     <div
                         className={clsx([
-                            'size-24 -mb-12 flex flex-row items-center justify-center rounded-full bg-dapp-blue-800 bg-contain bg-center bg-no-repeat shadow-md shadow-dapp-blue-800',
+                            '-mb-12 flex size-24 flex-row items-center justify-center rounded-full bg-dapp-blue-800 bg-contain bg-center bg-no-repeat shadow-md shadow-dapp-blue-800',
                         ])}
                         style={
                             dataPeriphery && dataPeriphery.data && dataPeriphery.data.projectLogoUrl
@@ -490,18 +490,22 @@ export const CampaignsDetails = () => {
                                     <span className="font-bold">
                                         Your wallet doesn&apos;t have any {data.stats.stakingToken.symbol}.
                                     </span>
-                                    <span className="text-sm">
-                                        Please check if you&apos;re connected with the correct wallet
-                                    </span>
-                                    <span className="text-sm">or</span>
-                                    <a
-                                        href={getBuyLink()}
-                                        target="_blank"
-                                        rel="noreferrer"
-                                        className="mt-2 rounded-lg bg-dapp-cyan-500 p-2 font-bold text-dapp-blue-800 motion-safe:animate-bounce"
-                                    >
-                                        Buy {data.stats.stakingToken.symbol} via deBridge
-                                    </a>
+                                    {chain && !chain.testnet && (
+                                        <>
+                                            <span className="text-sm">
+                                                Please check if you&apos;re connected with the correct wallet
+                                            </span>
+                                            <span className="text-sm">or</span>
+                                            <a
+                                                href={getBuyLink()}
+                                                target="_blank"
+                                                rel="noreferrer"
+                                                className="mt-2 rounded-lg bg-dapp-cyan-500 p-2 font-bold text-dapp-blue-800 motion-safe:animate-bounce"
+                                            >
+                                                Buy {data.stats.stakingToken.symbol} via deBridge
+                                            </a>
+                                        </>
+                                    )}
                                 </div>
                             ) : (
                                 <div className="flex w-full flex-col gap-2 text-center">

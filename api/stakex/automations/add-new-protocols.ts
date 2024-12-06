@@ -12,7 +12,7 @@ import {
     polygonAmoy,
 } from 'viem/chains'
 import protocols from '../../../config/protocols'
-import { chains } from '../../../shared/supportedChains'
+import { chains, sonicBlazeTestnet } from '../../../shared/supportedChains'
 import {
     StakeXChainSyncDTO,
     StakeXChainSyncDTOResponse,
@@ -61,6 +61,7 @@ const chainAPPeriod: { [key: number]: number } = {
     [optimism.id]: 907200, // 3 weeks
     [polygon.id]: 816480, // 3 weeks
     [polygonAmoy.id]: 816480, // 3 weeks
+    [sonicBlazeTestnet.id]: 6048000, // 3 weeks
 }
 
 export const handler: Handler = async (_, __, callback) => {

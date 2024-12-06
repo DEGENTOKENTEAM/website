@@ -84,7 +84,7 @@ export const CampaignProtocolTile = ({ campaignResponse }: CampaignProtocolTileP
                             : `linear-gradient(rgba(0,0,0, 0.7), rgba(0,0,0, 0.7)), radial-gradient(circle at center, #00000000 , #000000FF), url('${logoSmall.src}')`,
                 }}
             >
-                <div className="flex min-h-20 flex-row items-center gap-4 bg-dapp-blue-600/80 p-4 sm:rounded-t-lg">
+                <div className="relative flex min-h-20 flex-row items-center gap-4 bg-dapp-blue-600/80 p-4 sm:rounded-t-lg">
                     {dataPeriphery && dataPeriphery.data && dataPeriphery.data.projectLogoUrl ? (
                         <span className="shrink-0 overflow-hidden rounded-full">
                             <Image src={dataPeriphery.data.projectLogoUrl} alt="Project Logo" width={50} height={50} />
@@ -94,6 +94,13 @@ export const CampaignProtocolTile = ({ campaignResponse }: CampaignProtocolTileP
                             {campaignResponse.stakingSymbol?.[0]}
                         </span>
                     )}
+                    <Image
+                        className="absolute left-12 top-12 rounded-full"
+                        width={24}
+                        height={24}
+                        src={`/chains/${campaignResponse.chainId}.svg`}
+                        alt={`Logo ${getChainById(campaignResponse.chainId!).nativeCurrency.symbol}`}
+                    />
                     <span className="text-xl font-bold">{campaignResponse.name || 'Staking'}</span>
                 </div>
                 <div className="flex flex-col gap-4 p-4 pt-0 sm:p-8 sm:pt-0">
@@ -236,22 +243,20 @@ export const CampaignProtocolTile = ({ campaignResponse }: CampaignProtocolTileP
                         )}
                     </StatsBoxTwoColumn.Wrapper>
                     <div className="flex flex-row gap-4">
-                        {isConnected && toLower(address) == toLower(campaignResponse.owner) && (
-                            <Button
-                                onClick={() => {
-                                    navigate(
-                                        `./details/${campaignResponse.chainId}/${campaignResponse.protocol}/${campaignResponse.bucketId}`,
-                                        {
-                                            relative: 'path',
-                                        }
-                                    )
-                                }}
-                                variant="primary"
-                                className="grow"
-                            >
-                                More Details
-                            </Button>
-                        )}
+                        <Button
+                            onClick={() => {
+                                navigate(
+                                    `./details/${campaignResponse.chainId}/${campaignResponse.protocol}/${campaignResponse.bucketId}`,
+                                    {
+                                        relative: 'path',
+                                    }
+                                )
+                            }}
+                            variant="primary"
+                            className="grow"
+                        >
+                            More Details
+                        </Button>
                     </div>
                 </div>
             </Tile>

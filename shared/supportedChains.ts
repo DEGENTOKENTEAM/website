@@ -145,6 +145,18 @@ const base = defineChain({
     },
 })
 
+export const sonicBlazeTestnet = defineChain({
+    id: 57054,
+    name: 'Sonic Blaze Testnet',
+    nativeCurrency: { name: 'Sonic', symbol: 'S', decimals: 18 },
+    testnet: true,
+    rpcUrls: {
+        default: {
+            http: ['https://rpc.blaze.soniclabs.com'],
+        },
+    },
+})
+
 export const chains: Chain[] = [
     avalanche,
     arbitrum,
@@ -153,6 +165,7 @@ export const chains: Chain[] = [
     bsc,
     polygon,
     polygonAmoy,
+    sonicBlazeTestnet,
     // optimism,
     Boolean(Number(process.env.NEXT_PUBLIC_ENABLE_LOCALFORK)) &&
     process.env.NODE_ENV != 'production'
