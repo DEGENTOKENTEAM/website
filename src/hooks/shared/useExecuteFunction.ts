@@ -38,11 +38,7 @@ export const useExecuteFunction = ({
 
     const _enabled = !isUndefined(enabled) ? enabled : true
 
-    const {
-        data,
-        isError: isErrorSimulate,
-        error: errorSimulate,
-    } = useSimulateContract({
+    const simulateProps = useSimulateContract({
         address,
         chainId,
         abi,
@@ -56,6 +52,14 @@ export const useExecuteFunction = ({
         ...(account ? { account } : {}),
         ...(value && value > 0n ? { value } : {}),
     })
+    const {
+        data,
+        isError: isErrorSimulate,
+        error: errorSimulate,
+        isLoading: isLoadingSimulate,
+        isPending: isPendingSimulate,
+        isSuccess: isSuccessSimulate,
+    } = simulateProps
 
     const {
         writeContract,
@@ -66,10 +70,18 @@ export const useExecuteFunction = ({
         isError: isErrorWrite,
     } = useWriteContract()
 
-    const write = useCallback(() => {
-        setIsLoading(true)
-        data && writeContract && writeContract(data.request)
-    }, [data, writeContract])
+    const write = () => setIsLoading(true)
+
+    useEffect(() => {
+        if (
+            isLoading &&
+            isSuccessSimulate &&
+            data &&
+            data.request &&
+            writeContract
+        )
+            writeContract(data.request)
+    }, [isLoading, isSuccessSimulate, data, writeContract])
 
     const reset = useCallback(() => {
         setLogs([])

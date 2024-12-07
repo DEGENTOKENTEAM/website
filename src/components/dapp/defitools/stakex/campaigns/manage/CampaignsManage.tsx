@@ -1,7 +1,5 @@
 import { Spinner } from '@dappelements/Spinner'
 import { ManageStakeXContext } from '@dapphelpers/defitools'
-import { useERC20Approve } from '@dapphooks/shared/useERC20Approve'
-import { useHasERC20Allowance } from '@dapphooks/shared/useHasERC20Allowance'
 import { useCampaignCreate } from '@dapphooks/staking/useCampaignCreate'
 import { useCampaignDelete } from '@dapphooks/staking/useCampaignDelete'
 import { useCampaignsGetAllCampaignsData } from '@dapphooks/staking/useCampaignGetAllCampaignsData'
@@ -194,30 +192,17 @@ export const CampaignsManage = () => {
     ///
     const [isOpenCampaignModalOpen, setIsOpenCampaignModalOpen] = useState(false)
     const [openCampaignData, setOpenCampaignData] = useState<STAKEXManagementUpdateCampaignParams>()
-    const { data: dataAllowance, refetch: refetchAllowance } = useHasERC20Allowance(
-        rewardToken?.source!,
-        owner,
+    const { approval, execute, initiate, reset } = useCampaignOpen(
         protocol,
-        chain?.id!
+        chain?.id!,
+        owner,
+        rewardToken?.source!,
+        openCampaignData?.rewardAmount!,
+        openCampaignData!
     )
-    const {
-        write: writeApprove,
-        isLoading: isLoadingApprove,
-        isPending: isPendingApprove,
-        isSuccess: isSuccessApprove,
-        reset: resetApprove,
-    } = useERC20Approve(rewardToken?.source!, protocol, openCampaignData?.rewardAmount!, chain?.id!)
-    const {
-        write: writeOpen,
-        reset: resetOpen,
-        isLoading: isLoadingCampaignOpen,
-        isPending: isPendingCampaignOpen,
-        isSuccess: isSuccessCampaignOpen,
-    } = useCampaignOpen(protocol, chain?.id!, openCampaignData!)
 
     const onClickOpen = (campaign: CampaignData) => {
-        resetOpen()
-        resetApprove()
+        reset()
         setOpenCampaignData({
             bucketId: campaign.config.bucketId,
             name: campaign.config.name,
@@ -228,27 +213,14 @@ export const CampaignsManage = () => {
     }
 
     const onClickOpenCompaignModal = useCallback(() => {
-        resetOpen && resetOpen()
-        resetApprove && resetApprove()
         if (!openCampaignData) return
-
-        if (dataAllowance && dataAllowance >= openCampaignData.rewardAmount) writeOpen && writeOpen()
-        else writeApprove && writeApprove()
-    }, [openCampaignData, writeOpen, writeApprove, dataAllowance, resetOpen, resetApprove])
+        initiate()
+    }, [openCampaignData, initiate])
 
     const onCloseOpenCampaignModal = useCallback(() => {
         refetchGetAllCampaigns && refetchGetAllCampaigns()
         setIsOpenCampaignModalOpen(false)
     }, [refetchGetAllCampaigns])
-
-    useEffect(() => {
-        if (!openCampaignData) return
-
-        if (!isPendingApprove && isSuccessApprove) {
-            if (dataAllowance && dataAllowance >= openCampaignData.rewardAmount) writeOpen && writeOpen()
-            else refetchAllowance && refetchAllowance()
-        }
-    }, [isSuccessApprove, isPendingApprove, dataAllowance, writeOpen, refetchAllowance, openCampaignData])
 
     ///
     /// Start Campaign
@@ -472,9 +444,9 @@ export const CampaignsManage = () => {
                         openCampaignData.rewardAmount > 0n
                     }
                     onClickOpen={onClickOpenCompaignModal}
-                    isLoading={isLoadingCampaignOpen || isLoadingApprove}
-                    isPending={isPendingCampaignOpen || isPendingApprove}
-                    isSuccess={isSuccessCampaignOpen}
+                    isLoading={approval.isLoading || execute.isLoading}
+                    isPending={approval.isPending || execute.isPending}
+                    isSuccess={execute.isSuccess}
                     isOpen={isOpenCampaignModalOpen}
                     formData={openCampaignData}
                     setFormData={setOpenCampaignData}

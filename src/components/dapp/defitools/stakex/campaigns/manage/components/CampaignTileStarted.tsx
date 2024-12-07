@@ -136,7 +136,7 @@ export const CampaignTileStarted = ({ campaign, rewardToken, stakingToken, goToD
 
                 <StatsBoxTwoColumn.LeftColumn>Estimated APY</StatsBoxTwoColumn.LeftColumn>
                 <StatsBoxTwoColumn.RightColumn>
-                    <span className="tabular-nums">
+                    <span className="line-clamp-1 tabular-nums">
                         ~
                         {toReadableNumber(
                             ((1 + Number(campaign.stats.apr) / 10000 / (365 / (campaign.config.period / 86400))) **
