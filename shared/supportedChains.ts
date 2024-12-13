@@ -150,9 +150,33 @@ export const sonicBlazeTestnet = defineChain({
     name: 'Sonic Blaze Testnet',
     nativeCurrency: { name: 'Sonic', symbol: 'S', decimals: 18 },
     testnet: true,
+    blockExplorers: {
+        default: {
+            name: 'testnet.sonicscan.org',
+            url: 'https://testnet.sonicscan.org',
+            apiUrl: 'https://api-testnet.sonicscan.org/api',
+        },
+    },
     rpcUrls: {
         default: {
             http: ['https://rpc.blaze.soniclabs.com'],
+        },
+    },
+})
+export const sonic = defineChain({
+    id: 146,
+    name: 'Sonic',
+    nativeCurrency: { name: 'Sonic', symbol: 'S', decimals: 18 },
+    blockExplorers: {
+        default: {
+            name: 'sonicscan.org',
+            url: 'https://sonicscan.org',
+            apiUrl: 'https://api.sonicscan.org/api',
+        },
+    },
+    rpcUrls: {
+        default: {
+            http: ['https://rpc.soniclabs.com'],
         },
     },
 })
@@ -165,6 +189,7 @@ export const chains: Chain[] = [
     bsc,
     polygon,
     polygonAmoy,
+    sonic,
     sonicBlazeTestnet,
     // optimism,
     Boolean(Number(process.env.NEXT_PUBLIC_ENABLE_LOCALFORK)) &&
@@ -248,6 +273,15 @@ export const getExplorerByChainId = (chainId: number) =>
                     `${mainnet.blockExplorers.default.url}/token/${token}`,
                 getAddressUrl: (token: Address) =>
                     `${mainnet.blockExplorers.default.url}/address/${token}`,
+            },
+            [sonic.id]: {
+                name: 'sonicscan.org',
+                getTxUrl: (txHash: Address) =>
+                    `${sonic.blockExplorers.default.url}/tx/${txHash}`,
+                getTokenUrl: (token: Address) =>
+                    `${sonic.blockExplorers.default.url}/token/${token}`,
+                getAddressUrl: (token: Address) =>
+                    `${sonic.blockExplorers.default.url}/address/${token}`,
             },
         },
         chainId,

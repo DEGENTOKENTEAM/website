@@ -1,4 +1,4 @@
-import { sonicBlazeTestnet } from './../shared/supportedChains'
+import { sonic, sonicBlazeTestnet } from './../shared/supportedChains'
 import { Address, zeroAddress } from 'viem'
 import {
     arbitrum,
@@ -103,7 +103,16 @@ const mainnets: ProtocolConfigs = {
         stakex: {
             genesis: '0x80A91a26D9D52879e4FBE545262437E88502c93c',
             init: '0x3455bbCCA53A55552F7982145f22Ce3b61f8965c',
-            init_v_1_3_0: '0xc089181139474B468f492E9307dc5a978301a861',
+            init_v_1_3_0: zeroAddress,
+        },
+        upgrader: zeroAddress,
+    },
+    [sonic.id]: {
+        deployer: '0x0317F1a4093823CEba88e19d97aEC0da8C5002B0',
+        stakex: {
+            genesis: '0x00000000004545cB8440FDD6095a97DEBd1F3814',
+            init: '0x42147B8b058c136EB495081cE246d13A1e83A63B',
+            init_v_1_3_0: zeroAddress,
         },
         upgrader: zeroAddress,
     },
