@@ -188,13 +188,14 @@ export const CampaignsDetails = () => {
     ])
 
     useEffect(() => {
+        if (!isConnected) return
         if (errorApprove || errorDepositStake) {
             if (errorApprove) toast.error((errorApprove as any).cause.shortMessage)
             if (errorDepositStake) toast.error((errorDepositStake as any).cause.shortMessage)
             resetApprove()
             resetDepositStake()
         }
-    }, [errorApprove, errorDepositStake, resetApprove, resetDepositStake])
+    }, [errorApprove, errorDepositStake, resetApprove, resetDepositStake, isConnected])
 
     ///
     /// Withdraw
@@ -637,13 +638,7 @@ export const CampaignsDetails = () => {
                                 <Countdown
                                     zeroPadDays={2}
                                     zeroPadTime={2}
-                                    date={
-                                        (Number(data.config.startTimestamp) +
-                                            (data.config.period -
-                                                (Number(data.stats.currentTimestamp) -
-                                                    Number(data.config.startTimestamp)))) *
-                                        1000
-                                    }
+                                    date={(Number(data.config.startTimestamp) + data.config.period) * 1000}
                                     renderer={({ days, hours, minutes, seconds }) => (
                                         <span className="tabular-nums">
                                             {days}d {hours.toString().padStart(2, '0')}h{' '}

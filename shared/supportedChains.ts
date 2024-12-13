@@ -274,6 +274,15 @@ export const getExplorerByChainId = (chainId: number) =>
                 getAddressUrl: (token: Address) =>
                     `${mainnet.blockExplorers.default.url}/address/${token}`,
             },
+            [sonicBlazeTestnet.id]: {
+                name: 'sonicscan.org',
+                getTxUrl: (txHash: Address) =>
+                    `${sonicBlazeTestnet.blockExplorers.default.url}/tx/${txHash}`,
+                getTokenUrl: (token: Address) =>
+                    `${sonicBlazeTestnet.blockExplorers.default.url}/token/${token}`,
+                getAddressUrl: (token: Address) =>
+                    `${sonicBlazeTestnet.blockExplorers.default.url}/address/${token}`,
+            },
             [sonic.id]: {
                 name: 'sonicscan.org',
                 getTxUrl: (txHash: Address) =>
