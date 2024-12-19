@@ -283,7 +283,7 @@ functions:
     timeout: 120
     events:
       - schedule:
-          rate: rate(10 minutes)
+          rate: rate(1 hour)
           enabled: true
 
   autoCalculateStakes:
@@ -291,7 +291,7 @@ functions:
     timeout: 120
     events:
       - schedule:
-          rate: rate(10 minutes)
+          rate: rate(1 hour)
           enabled: true
 
   autoUpdateManifests:
@@ -514,6 +514,9 @@ resources:
         BillingMode: PAY_PER_REQUEST
         PointInTimeRecoverySpecification:
           PointInTimeRecoveryEnabled: true
+        TimeToLiveSpecification:
+          AttributeName: ttl
+          Enabled: true
 
     stakexStakeLogsTable:
       Type: AWS::DynamoDB::Table

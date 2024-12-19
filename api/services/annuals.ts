@@ -12,6 +12,7 @@ export type StakeXAnnualsCreateDTO = {
     apy: number
     fromBlock: number
     toBlock: number
+    ttl?: number
 }
 
 type StakeXAnnualsUpdateDTO = {
@@ -66,6 +67,7 @@ export class StakeXAnnualsRepository {
                 item.timestamp
             }`,
             ...item,
+            ttl: 2073600,
         })) as StakeXAnnualsCreateResponse[]
         const itemsBatch: BatchWriteCommandInput = {
             RequestItems: {

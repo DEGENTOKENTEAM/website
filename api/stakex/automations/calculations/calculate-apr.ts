@@ -27,7 +27,7 @@ export const calculateAPRForChain = async (chain: Chain) => {
         transport: http(undefined, {
             fetchOptions: {
                 headers: {
-                    'Origin': 'https://dgnx.finance',
+                    Origin: 'https://dgnx.finance',
                 },
             },
         }),
@@ -61,7 +61,9 @@ export const calculateAPRForChain = async (chain: Chain) => {
             continue
 
         const blockNumberStart =
-            blockNumberAPUpdate - protocol.blockNumberAPPeriod!
+            blockNumberAPUpdate - protocol.blockNumberAPPeriod! < 1n
+                ? 1
+                : blockNumberAPUpdate - protocol.blockNumberAPPeriod!
 
         const logsRaw = await protocolLogsRepo.getForProtocolSinceBlockNumber(
             protocol.chainId,

@@ -179,6 +179,12 @@ export const sonic = defineChain({
             http: ['https://rpc.soniclabs.com'],
         },
     },
+    contracts: {
+        multicall3: {
+            address: '0xcA11bde05977b3631167028862bE2a173976CA11',
+            blockCreated: 60,
+        },
+    },
 })
 
 export const chains: Chain[] = [

@@ -85,7 +85,7 @@ export const handler = async (
             transport: http(undefined, {
                 fetchOptions: {
                     headers: {
-                        'Origin': 'https://dgnx.finance',
+                        Origin: 'https://dgnx.finance',
                     },
                 },
             }),
