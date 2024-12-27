@@ -67,7 +67,7 @@ export class StakeXAnnualsRepository {
                 item.timestamp
             }`,
             ...item,
-            ttl: 2073600,
+            ttl: 86400,
         })) as StakeXAnnualsCreateResponse[]
         const itemsBatch: BatchWriteCommandInput = {
             RequestItems: {
